@@ -1,4 +1,11 @@
 /** @type {import('next').NextConfig} */
-const nextConfig = {}
+const nextConfig = {
+  images: {
+    dangerouslyAllowSVG: true,
+  },
+  experimental: {
+    optimizePackageImports: ['lucide-react']
+  }
+}
 
 module.exports = nextConfig
