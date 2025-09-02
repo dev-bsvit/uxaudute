@@ -42,4 +42,4 @@ OPENAI_API_KEY = your_openai_api_key_here
 3. Готово к использованию! 🚀
 
 ---
-**Создано с помощью Cursor AI**
+**Создано с помощью Cursor AI**# Trigger Vercel with latest changes
