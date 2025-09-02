@@ -19,10 +19,11 @@ export function Layout({ children, title = 'UX Audit' }: LayoutProps) {
   const [user, setUser] = useState<SupabaseUser | null>(null)
   const [showUserMenu, setShowUserMenu] = useState(false)
   
-  // Упрощенная навигация - убираем дублирование
+  // Навигация с Dashboard для быстрого анализа
   const navigation = [
     { name: 'Главная', href: '/', current: pathname === '/' },
-    { name: 'Мои проекты', href: '/projects', current: pathname.startsWith('/projects') || pathname === '/dashboard' },
+    { name: 'Быстрый анализ', href: '/dashboard', current: pathname === '/dashboard' },
+    { name: 'Мои проекты', href: '/projects', current: pathname.startsWith('/projects') },
   ]
 
   useEffect(() => {
@@ -122,6 +123,15 @@ export function Layout({ children, title = 'UX Audit' }: LayoutProps) {
                         </p>
                         <p className="text-xs text-gray-500">{user.email}</p>
                       </div>
+                      
+                      <Link
+                        href="/dashboard"
+                        className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
+                        onClick={() => setShowUserMenu(false)}
+                      >
+                        <span>🎯</span>
+                        Быстрый анализ
+                      </Link>
                       
                       <Link
                         href="/projects"

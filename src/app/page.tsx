@@ -60,7 +60,7 @@ export default function HomePage() {
                 </Button>
               </Link>
               <Link href="/projects">
-                <Button variant="outline" size="lg" className="px-8 py-4 text-lg">
+                <Button variant="outline" size="lg" className="px-8 py-4 text-lg border-2 border-slate-700 text-slate-700 hover:bg-slate-700 hover:text-white">
                   Мои проекты
                 </Button>
               </Link>
