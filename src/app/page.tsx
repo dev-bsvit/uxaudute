@@ -52,14 +52,16 @@ export default function HomePage() {
       })
 
       if (!response.ok) {
-        throw new Error('Failed to perform action')
+        const errorData = await response.json()
+        throw new Error(errorData.error || 'Failed to perform action')
       }
 
       const { result: actionResult } = await response.json()
       setResult(actionResult)
     } catch (error) {
       console.error('Error:', error)
-      alert('Произошла ошибка при выполнении действия. Попробуйте еще раз.')
+      const errorMessage = error instanceof Error ? error.message : 'Произошла ошибка при выполнении действия'
+      alert(errorMessage + '. Попробуйте еще раз.')
     } finally {
       setIsLoading(false)
     }
