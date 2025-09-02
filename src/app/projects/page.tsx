@@ -1,89 +1,84 @@
 'use client'
 
+import { useState, useEffect } from 'react'
 import { Layout } from '@/components/layout'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Plus, FolderOpen } from 'lucide-react'
-import { TEXTS } from '@/lib/utils'
-import Link from 'next/link'
-
-// Mock data
-const projects = [
-  {
-    id: '1',
-    name: 'Интернет-магазин электроники',
-    description: 'Анализ UX главной страницы и каталога',
-    auditsCount: 3,
-    createdAt: '2024-01-15',
-  },
-  {
-    id: '2', 
-    name: 'Корпоративный сайт',
-    description: 'Исследование формы обратной связи',
-    auditsCount: 1,
-    createdAt: '2024-01-10',
-  }
-]
+import { Projects } from '@/components/projects'
+import { Auth } from '@/components/auth'
+import { User } from '@supabase/supabase-js'
+import { supabase } from '@/lib/supabase'
+import { useRouter } from 'next/navigation'
 
 export default function ProjectsPage() {
-  return (
-    <Layout title="Мои проекты">
-      <div className="space-y-6">
-        {/* Заголовок и кнопка создания */}
-        <div className="flex items-center justify-between">
-          <h2 className="text-2xl font-bold text-gray-900">
-            Проекты
-          </h2>
-          <Button>
-            <Plus className="w-4 h-4 mr-2" />
-            Новый проект
-          </Button>
-        </div>
+  const [user, setUser] = useState<User | null>(null)
+  const [loading, setLoading] = useState(true)
+  const router = useRouter()
 
-        {/* Список проектов */}
-        {projects.length > 0 ? (
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-            {projects.map((project) => (
-              <Link key={project.id} href={`/projects/${project.id}`}>
-                <Card className="hover:shadow-md transition-shadow cursor-pointer">
-                  <CardHeader>
-                    <div className="flex items-start justify-between">
-                      <FolderOpen className="w-5 h-5 text-blue-500" />
-                      <span className="text-xs text-gray-500">
-                        {project.auditsCount} аудита
-                      </span>
-                    </div>
-                    <CardTitle className="text-lg">
-                      {project.name}
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <p className="text-sm text-gray-600 mb-3">
-                      {project.description}
-                    </p>
-                    <p className="text-xs text-gray-400">
-                      Создан: {new Date(project.createdAt).toLocaleDateString('ru-RU')}
-                    </p>
-                  </CardContent>
-                </Card>
-              </Link>
-            ))}
+  useEffect(() => {
+    // Проверяем текущего пользователя
+    supabase.auth.getUser().then(({ data: { user } }) => {
+      setUser(user)
+      setLoading(false)
+    })
+
+    // Слушаем изменения аутентификации
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      setUser(session?.user ?? null)
+      setLoading(false)
+    })
+
+    return () => subscription.unsubscribe()
+  }, [])
+
+  const handleAuthChange = (user: User | null) => {
+    setUser(user)
+  }
+
+  const handleProjectSelect = (projectId: string) => {
+    // Перенаправляем на dashboard с выбранным проектом
+    router.push(`/dashboard?project=${projectId}`)
+  }
+
+  if (loading) {
+    return (
+      <Layout title="Проекты">
+        <div className="flex items-center justify-center p-8">
+          <div className="animate-spin rounded-full h-8 w-8 border-2 border-blue-500 border-t-transparent"></div>
+        </div>
+      </Layout>
+    )
+  }
+
+  return (
+    <Layout title="Проекты">
+      {!user ? (
+        <div className="max-w-md mx-auto">
+          <div className="text-center mb-8">
+            <h2 className="text-2xl font-bold text-slate-900 mb-4">
+              Войдите для просмотра проектов
+            </h2>
+            <p className="text-slate-600">
+              Создавайте и управляйте своими UX исследованиями
+            </p>
           </div>
-        ) : (
-          <Card>
-            <CardContent className="text-center py-12">
-              <FolderOpen className="w-12 h-12 text-gray-300 mx-auto mb-4" />
-              <p className="text-gray-600 mb-4">
-                {TEXTS.emptyState}
-              </p>
-              <Button>
-                <Plus className="w-4 h-4 mr-2" />
-                Создать проект
-              </Button>
-            </CardContent>
-          </Card>
-        )}
-      </div>
+          <Auth onAuthChange={handleAuthChange} />
+        </div>
+      ) : (
+        <div className="space-y-6">
+          <div className="text-center">
+            <h1 className="text-3xl font-bold text-slate-900 mb-4">
+              Мои проекты
+            </h1>
+            <p className="text-slate-600 max-w-2xl mx-auto">
+              Управляйте своими UX исследованиями. Создавайте новые проекты или продолжайте работу с существующими.
+            </p>
+          </div>
+          
+          <Projects 
+            user={user} 
+            onProjectSelect={handleProjectSelect}
+          />
+        </div>
+      )}
     </Layout>
   )
 }

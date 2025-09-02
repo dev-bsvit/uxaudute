@@ -1,254 +1,125 @@
 'use client'
 
-import { useState, useEffect } from 'react'
 import { Layout } from '@/components/layout'
-import { UploadForm } from '@/components/upload-form'
-import { ActionPanel } from '@/components/action-panel'
-import { AnalysisResult } from '@/components/analysis-result'
-import { Auth } from '@/components/auth'
-import { Projects } from '@/components/projects'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { TEXTS, type ActionType } from '@/lib/utils'
-import { ArrowLeft, Download, Share2, FolderOpen } from 'lucide-react'
-import { User } from '@supabase/supabase-js'
-import { createProject, createAudit, updateAuditResult, addAuditHistory } from '@/lib/database'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import Link from 'next/link'
+import { ArrowRight, Zap, Shield, BarChart3, Users } from 'lucide-react'
 
 export default function HomePage() {
-  const [user, setUser] = useState<User | null>(null)
-  const [view, setView] = useState<'auth' | 'projects' | 'analysis'>('auth')
-  const [currentProject, setCurrentProject] = useState<string | null>(null)
-  const [currentAudit, setCurrentAudit] = useState<string | null>(null)
-  const [result, setResult] = useState<string | null>(null)
-  const [isLoading, setIsLoading] = useState(false)
-  const [uploadedScreenshot, setUploadedScreenshot] = useState<string | null>(null)
-  const [analysisUrl, setAnalysisUrl] = useState<string | null>(null)
-
-  const handleUpload = async (data: { url?: string; screenshot?: string }) => {
-    if (!user || !currentProject) {
-      alert('Пожалуйста, выберите проект для сохранения результатов')
-      return
+  const features = [
+    {
+      icon: <Zap className="w-8 h-8 text-blue-600" />,
+      title: "GPT-4 Анализ",
+      description: "Мощный ИИ анализирует ваши интерфейсы на основе эвристик Нильсена и WCAG 2.2"
+    },
+    {
+      icon: <Shield className="w-8 h-8 text-green-600" />,
+      title: "Методологии UX",
+      description: "Основано на проверенных принципах: Fitts' Law, Hick-Hyman, ISO 9241"
+    },
+    {
+      icon: <BarChart3 className="w-8 h-8 text-purple-600" />,
+      title: "Детальные отчеты",
+      description: "Структурированные рекомендации с процентными оценками и планами улучшения"
+    },
+    {
+      icon: <Users className="w-8 h-8 text-orange-600" />,
+      title: "Управление проектами",
+      description: "Организуйте свои исследования, сохраняйте историю и отслеживайте прогресс"
     }
-
-    setIsLoading(true)
-    try {
-      // Сохраняем скриншот и URL для отображения
-      if (data.screenshot) {
-        setUploadedScreenshot(data.screenshot)
-        setAnalysisUrl(null)
-      } else if (data.url) {
-        setAnalysisUrl(data.url)
-        setUploadedScreenshot(null)
-      }
-
-      // Создаем аудит в базе данных
-      const auditName = data.url ? `Анализ ${data.url}` : 'Анализ скриншота'
-      const audit = await createAudit(
-        currentProject,
-        auditName,
-        'research',
-        data
-      )
-      setCurrentAudit(audit.id)
-
-      // Выполняем анализ через API
-      const response = await fetch('/api/research', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ ...data, auditId: audit.id }),
-      })
-
-      if (!response.ok) {
-        throw new Error('Failed to analyze')
-      }
-
-      const { result } = await response.json()
-      setResult(result)
-
-      // Сохраняем результат в базу данных
-      await updateAuditResult(audit.id, { result }, 85) // примерный confidence
-      await addAuditHistory(audit.id, 'research', data, { result })
-
-    } catch (error) {
-      console.error(error)
-      setResult(TEXTS.error)
-    } finally {
-      setIsLoading(false)
-    }
-  }
-
-  const handleAction = async (action: ActionType) => {
-    if (!result || !currentAudit) return
-    
-    setIsLoading(true)
-    try {
-      const response = await fetch(`/api/${action}`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ context: result }),
-      })
-
-      if (!response.ok) {
-        const errorData = await response.json()
-        throw new Error(errorData.error || 'Failed to perform action')
-      }
-
-      const { result: actionResult } = await response.json()
-      setResult(actionResult)
-
-      // Сохраняем действие в историю
-      if (currentAudit) {
-        await addAuditHistory(currentAudit, action, { context: result }, { result: actionResult })
-      }
-    } catch (error) {
-      console.error('Error:', error)
-      const errorMessage = error instanceof Error ? error.message : 'Произошла ошибка при выполнении действия'
-      alert(errorMessage + '. Попробуйте еще раз.')
-    } finally {
-      setIsLoading(false)
-    }
-  }
-
-  const handleAuthChange = (newUser: User | null) => {
-    setUser(newUser)
-    if (newUser) {
-      setView('projects')
-    } else {
-      setView('auth')
-      setCurrentProject(null)
-      setCurrentAudit(null)
-      setResult(null)
-    }
-  }
-
-  const handleStartAnalysis = () => {
-    if (!currentProject) {
-      alert('Сначала создайте проект или выберите существующий')
-      return
-    }
-    setView('analysis')
-  }
-
-
+  ]
 
   return (
-    <Layout title="UX Audit - Главная">
-      <div className="max-w-5xl mx-auto space-y-8">
-        {!result ? (
-          <>
-            {/* Красивая вводная секция */}
-            <div className="text-center mb-12 animate-slide-up">
-              <h1 className="text-5xl font-bold text-gradient mb-6">
-                UX Audit Platform
-              </h1>
-              <p className="text-2xl text-slate-600 max-w-3xl mx-auto leading-relaxed">
-                Получите профессиональный анализ пользовательского опыта 
-                с помощью искусственного интеллекта
-              </p>
-              
-              {/* Ключевые преимущества */}
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-12 max-w-4xl mx-auto">
-                <div className="p-6 bg-white/80 backdrop-blur-sm rounded-2xl border border-white/20 shadow-soft animate-slide-up" style={{animationDelay: '0.1s'}}>
-                  <div className="text-3xl mb-3">🎯</div>
-                  <h3 className="font-semibold text-slate-800 mb-2">Экспертный анализ</h3>
-                  <p className="text-sm text-slate-600">Детальная оценка UX с профессиональными рекомендациями</p>
-                </div>
-                <div className="p-6 bg-white/80 backdrop-blur-sm rounded-2xl border border-white/20 shadow-soft animate-slide-up" style={{animationDelay: '0.2s'}}>
-                  <div className="text-3xl mb-3">⚡</div>
-                  <h3 className="font-semibold text-slate-800 mb-2">Быстрый результат</h3>
-                  <p className="text-sm text-slate-600">Анализ готов за 2-3 минуты благодаря GPT-4</p>
-                </div>
-                <div className="p-6 bg-white/80 backdrop-blur-sm rounded-2xl border border-white/20 shadow-soft animate-slide-up" style={{animationDelay: '0.3s'}}>
-                  <div className="text-3xl mb-3">💾</div>
-                  <h3 className="font-semibold text-slate-800 mb-2">Сохранение данных</h3>
-                  <p className="text-sm text-slate-600">Все анализы сохраняются в ваших проектах</p>
-                </div>
-              </div>
-
-              {/* CTA кнопки */}
-              <div className="flex gap-4 justify-center mt-12">
-                <Button
-                  onClick={() => window.location.href = '/dashboard'}
-                  size="lg"
-                  className="flex items-center gap-2"
-                >
-                  <span>🚀</span>
-                  Перейти к платформе
-                </Button>
-                <Button
-                  variant="outline"
-                  size="lg"
-                  onClick={() => {
-                    // Сброс всех состояний для demo режима
-                    setResult(null)
-                    setUploadedScreenshot(null)
-                    setAnalysisUrl(null)
-                    // Показываем форму загрузки
-                  }}
-                >
-                  Попробовать демо
-                </Button>
+    <Layout>
+      <div className="max-w-7xl mx-auto">
+        {/* Hero секция */}
+        <div className="text-center py-20 px-6">
+          <div className="max-w-4xl mx-auto">
+            <div className="flex items-center justify-center mb-8">
+              <div className="flex items-center justify-center w-24 h-24 bg-gradient-to-br from-blue-500 to-purple-600 rounded-3xl shadow-xl">
+                <span className="text-4xl">🎯</span>
               </div>
             </div>
-
-            {/* Форма загрузки (демо режим) */}
-            <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-4 mb-6">
-              <p className="text-yellow-800 text-center">
-                <strong>Демо режим:</strong> Результаты не будут сохранены. 
-                <a href="/dashboard" className="text-blue-600 hover:underline ml-1">
-                  Перейдите к платформе
-                </a> для полного функционала.
-              </p>
-            </div>
-            <UploadForm onSubmit={handleUpload} isLoading={isLoading} />
-          </>
-        ) : (
-          <div className="space-y-8 animate-fade-in">
-            {/* Заголовок результата */}
-            <div className="flex items-center justify-between mb-8">
-              <Button
-                onClick={() => {
-                  setResult(null)
-                  setIsLoading(false)
-                  setUploadedScreenshot(null)
-                  setAnalysisUrl(null)
-                }}
-                variant="outline"
-                className="flex items-center gap-2"
-              >
-                <ArrowLeft className="w-4 h-4" />
-                Новый анализ
-              </Button>
-              
-              <div className="flex gap-3">
-                <Button variant="outline" size="sm">
-                  <Share2 className="w-4 h-4 mr-2" />
-                  Поделиться
-                </Button>
-                <Button variant="outline" size="sm">
-                  <Download className="w-4 h-4 mr-2" />
-                  Скачать PDF
-                </Button>
-              </div>
-            </div>
-
-            {/* Результат анализа */}
-            <AnalysisResult 
-              result={result}
-              screenshot={uploadedScreenshot}
-              url={analysisUrl}
-            />
             
-            {/* Панель действий */}
-            <ActionPanel onAction={handleAction} />
+            <h1 className="text-5xl font-bold text-slate-900 mb-6 leading-tight">
+              Профессиональный
+              <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent"> UX Анализ</span>
+            </h1>
+            
+            <p className="text-xl text-slate-600 mb-10 max-w-3xl mx-auto leading-relaxed">
+              Анализируйте пользовательский опыт с помощью GPT-4 на основе современных UX-методологий. 
+              Получайте детальные рекомендации и структурированные отчеты для улучшения интерфейсов.
+            </p>
+            
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <Link href="/dashboard">
+                <Button size="lg" className="px-8 py-4 text-lg">
+                  Начать анализ
+                  <ArrowRight className="w-5 h-5 ml-2" />
+                </Button>
+              </Link>
+              <Link href="/projects">
+                <Button variant="outline" size="lg" className="px-8 py-4 text-lg">
+                  Мои проекты
+                </Button>
+              </Link>
+            </div>
           </div>
-        )}
+        </div>
+
+        {/* Особенности */}
+        <div className="py-20 bg-gradient-to-br from-slate-50 to-blue-50 rounded-3xl">
+          <div className="max-w-6xl mx-auto px-6">
+            <div className="text-center mb-16">
+              <h2 className="text-3xl font-bold text-slate-900 mb-4">
+                Почему выбирают UX Audit?
+              </h2>
+              <p className="text-lg text-slate-600 max-w-2xl mx-auto">
+                Современный подход к анализу пользовательского опыта с использованием ИИ и проверенных методологий
+              </p>
+            </div>
+            
+            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+              {features.map((feature, index) => (
+                <Card key={index} className="text-center border-0 shadow-lg hover:shadow-xl transition-shadow bg-white/70 backdrop-blur-sm">
+                  <CardHeader>
+                    <div className="flex justify-center mb-4">
+                      {feature.icon}
+                    </div>
+                    <CardTitle className="text-xl text-slate-900">
+                      {feature.title}
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="text-slate-600 leading-relaxed">
+                      {feature.description}
+                    </p>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* CTA секция */}
+        <div className="py-20 text-center">
+          <div className="max-w-3xl mx-auto px-6">
+            <h2 className="text-3xl font-bold text-slate-900 mb-6">
+              Готовы улучшить пользовательский опыт?
+            </h2>
+            <p className="text-lg text-slate-600 mb-8">
+              Начните анализ своих интерфейсов прямо сейчас. Войдите в систему и создайте свой первый проект.
+            </p>
+            <Link href="/dashboard">
+              <Button size="lg" className="px-8 py-4 text-lg">
+                Начать бесплатно
+                <ArrowRight className="w-5 h-5 ml-2" />
+              </Button>
+            </Link>
+          </div>
+        </div>
       </div>
     </Layout>
   )
 }
-
