@@ -12,6 +12,7 @@ import { TEXTS, type ActionType } from '@/lib/utils'
 import { ArrowLeft, Download, Share2, FolderOpen } from 'lucide-react'
 import { User } from '@supabase/supabase-js'
 import { createProject, createAudit, updateAuditResult, addAuditHistory } from '@/lib/database'
+import { supabase } from '@/lib/supabase'
 
 export default function DashboardPage() {
   const [user, setUser] = useState<User | null>(null)
@@ -22,6 +23,20 @@ export default function DashboardPage() {
   const [isLoading, setIsLoading] = useState(false)
   const [uploadedScreenshot, setUploadedScreenshot] = useState<string | null>(null)
   const [analysisUrl, setAnalysisUrl] = useState<string | null>(null)
+
+  useEffect(() => {
+    // Проверяем текущего пользователя
+    supabase.auth.getUser().then(({ data: { user } }) => {
+      handleAuthChange(user)
+    })
+
+    // Слушаем изменения аутентификации
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      handleAuthChange(session?.user ?? null)
+    })
+
+    return () => subscription.unsubscribe()
+  }, [])
 
   const handleUpload = async (data: { url?: string; screenshot?: string }) => {
     if (!user || !currentProject) {
