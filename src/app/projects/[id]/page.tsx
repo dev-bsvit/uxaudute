@@ -17,8 +17,7 @@ import {
   createAudit, 
   updateAuditResult, 
   addAuditHistory,
-  uploadScreenshotFromBase64,
-  signOut 
+  uploadScreenshotFromBase64
 } from '@/lib/database'
 import { 
   ArrowLeft, 
@@ -26,7 +25,6 @@ import {
   Eye, 
   Calendar, 
   BarChart3, 
-  LogOut,
   Trash2,
   ExternalLink
 } from 'lucide-react'
@@ -239,14 +237,7 @@ export default function ProjectDetailPage() {
     setAnalysisUrl(audit.input_data?.url || null)
   }
 
-  const handleSignOut = async () => {
-    try {
-      await signOut()
-      router.push('/')
-    } catch (error) {
-      console.error('Error signing out:', error)
-    }
-  }
+
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('ru-RU', {
@@ -316,22 +307,13 @@ export default function ProjectDetailPage() {
             </div>
           </div>
           
-          <div className="flex items-center gap-3">
-            <Button
-              onClick={() => setShowCreateForm(true)}
-              className="flex items-center gap-2"
-            >
-              <Plus className="w-4 h-4" />
-              Новый аудит
-            </Button>
-            <Button
-              onClick={handleSignOut}
-              variant="outline"
-              size="sm"
-            >
-              <LogOut className="w-4 h-4" />
-            </Button>
-          </div>
+          <Button
+            onClick={() => setShowCreateForm(true)}
+            className="flex items-center gap-2"
+          >
+            <Plus className="w-4 h-4" />
+            Новый аудит
+          </Button>
         </div>
 
         {/* Статистика */}
