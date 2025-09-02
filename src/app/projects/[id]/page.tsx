@@ -17,6 +17,7 @@ import {
   createAudit, 
   updateAuditResult, 
   addAuditHistory,
+  uploadScreenshotFromBase64,
   signOut 
 } from '@/lib/database'
 import { 
@@ -115,7 +116,16 @@ export default function ProjectDetailPage() {
     setAnalysisUrl(data.url || null)
 
     try {
-      // Создаем новый аудит
+      let screenshotUrl: string | null = null
+      
+      // Загружаем скриншот в Supabase Storage если он есть
+      if (data.screenshot) {
+        console.log('Uploading screenshot to Supabase Storage...')
+        screenshotUrl = await uploadScreenshotFromBase64(data.screenshot, user.id)
+        console.log('Screenshot uploaded:', screenshotUrl)
+      }
+
+      // Создаем новый аудит с URL скриншота
       const audit = await createAudit(
         projectId,
         `Анализ ${new Date().toLocaleDateString('ru-RU')}`,
@@ -123,6 +133,7 @@ export default function ProjectDetailPage() {
         {
           url: data.url,
           hasScreenshot: !!data.screenshot,
+          screenshotUrl: screenshotUrl,
           timestamp: new Date().toISOString()
         }
       )
@@ -145,10 +156,16 @@ export default function ProjectDetailPage() {
       setResult(analysisResult)
 
       // Сохраняем результат в базу данных
-      await updateAuditResult(audit.id, { analysis_result: analysisResult })
+      await updateAuditResult(audit.id, { 
+        analysis_result: analysisResult,
+        screenshot_url: screenshotUrl 
+      })
       
       // Добавляем в историю
-      await addAuditHistory(audit.id, 'research', data, { result: analysisResult })
+      await addAuditHistory(audit.id, 'research', { 
+        ...data, 
+        screenshotUrl 
+      }, { result: analysisResult })
 
       // Обновляем список аудитов
       await loadProjectData()
@@ -209,7 +226,10 @@ export default function ProjectDetailPage() {
   const handleViewAudit = (audit: Audit) => {
     setCurrentAudit(audit)
     setResult(audit.result_data?.analysis_result || 'Результат анализа не найден')
-    setUploadedScreenshot(audit.input_data?.hasScreenshot ? 'data:image/png;base64,mock' : null)
+    
+    // Показываем сохраненный скриншот из Supabase Storage или исходный base64
+    const screenshotUrl = audit.input_data?.screenshotUrl || audit.result_data?.screenshot_url
+    setUploadedScreenshot(screenshotUrl || null)
     setAnalysisUrl(audit.input_data?.url || null)
   }
 

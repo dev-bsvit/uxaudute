@@ -234,6 +234,44 @@ export async function uploadScreenshot(file: File, userId: string): Promise<stri
   return publicUrl
 }
 
+export async function uploadScreenshotFromBase64(base64Data: string, userId: string): Promise<string> {
+  try {
+    // Преобразуем base64 в Blob
+    const base64Response = await fetch(base64Data)
+    const blob = await base64Response.blob()
+    
+    // Определяем расширение файла из MIME типа
+    const mimeType = blob.type
+    const fileExt = mimeType.split('/')[1] || 'png'
+    const fileName = `${userId}/${Date.now()}.${fileExt}`
+    
+    console.log('Uploading screenshot:', { fileName, size: blob.size, type: mimeType })
+    
+    const { data, error } = await supabase.storage
+      .from('audit-uploads')
+      .upload(fileName, blob, {
+        contentType: mimeType,
+        upsert: false
+      })
+
+    if (error) {
+      console.error('Storage upload error:', error)
+      throw error
+    }
+    
+    console.log('Screenshot uploaded successfully:', data)
+    
+    const { data: { publicUrl } } = supabase.storage
+      .from('audit-uploads')
+      .getPublicUrl(fileName)
+
+    return publicUrl
+  } catch (error) {
+    console.error('Error uploading screenshot from base64:', error)
+    throw error
+  }
+}
+
 // Authentication helper
 export async function getCurrentUser() {
   const { data: { user } } = await supabase.auth.getUser()
