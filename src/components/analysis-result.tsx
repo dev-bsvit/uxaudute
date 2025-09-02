@@ -41,10 +41,11 @@ export function AnalysisResult({ result, screenshot, url }: AnalysisResultProps)
   const formatText = (text: string) => {
     return text
       .replace(/\n/g, '<br>')
-      .replace(/## (.*)/g, '<h3 class="text-xl font-bold text-slate-800 mt-6 mb-3">$1</h3>')
-      .replace(/### (.*)/g, '<h4 class="text-lg font-semibold text-slate-700 mt-4 mb-2">$1</h4>')
-      .replace(/\*\*(.*?)\*\*/g, '<strong class="font-semibold text-slate-800">$1</strong>')
-      .replace(/- (.*)/g, '<div class="flex items-start mb-2"><span class="text-blue-500 mr-2">•</span><span>$1</span></div>')
+      .replace(/## (.*)/g, '<h3 class="text-xl font-bold text-slate-900 mt-6 mb-3">$1</h3>')
+      .replace(/### (.*)/g, '<h4 class="text-lg font-semibold text-slate-800 mt-4 mb-2">$1</h4>')
+      .replace(/\*\*(.*?)\*\*/g, '<strong class="font-semibold text-slate-900">$1</strong>')
+      .replace(/- (.*)/g, '<div class="flex items-start mb-2 text-slate-700"><span class="text-blue-500 mr-2 flex-shrink-0">•</span><span class="text-slate-700">$1</span></div>')
+      .replace(/^\d+\.\s(.*)/gm, '<div class="flex items-start mb-2 text-slate-700"><span class="text-blue-500 mr-2 flex-shrink-0">•</span><span class="text-slate-700">$1</span></div>')
   }
 
   return (
@@ -127,7 +128,7 @@ export function AnalysisResult({ result, screenshot, url }: AnalysisResultProps)
               </div>
               <div className="p-6">
                 <div 
-                  className="prose prose-slate max-w-none"
+                  className="prose prose-slate max-w-none text-slate-700 leading-relaxed"
                   dangerouslySetInnerHTML={{ __html: formatText(description) }}
                 />
               </div>
@@ -152,7 +153,7 @@ export function AnalysisResult({ result, screenshot, url }: AnalysisResultProps)
               </div>
               <div className="p-6">
                 <div 
-                  className="prose prose-slate max-w-none"
+                  className="prose prose-slate max-w-none text-slate-700 leading-relaxed"
                   dangerouslySetInnerHTML={{ __html: formatText(survey) }}
                 />
               </div>
@@ -177,7 +178,7 @@ export function AnalysisResult({ result, screenshot, url }: AnalysisResultProps)
               </div>
               <div className="p-6">
                 <div 
-                  className="prose prose-slate max-w-none"
+                  className="prose prose-slate max-w-none text-slate-700 leading-relaxed"
                   dangerouslySetInnerHTML={{ __html: formatText(problems) }}
                 />
               </div>
@@ -202,7 +203,7 @@ export function AnalysisResult({ result, screenshot, url }: AnalysisResultProps)
               </div>
               <div className="p-6">
                 <div 
-                  className="prose prose-slate max-w-none"
+                  className="prose prose-slate max-w-none text-slate-700 leading-relaxed"
                   dangerouslySetInnerHTML={{ __html: formatText(selfCheck) }}
                 />
               </div>
@@ -219,7 +220,7 @@ export function AnalysisResult({ result, screenshot, url }: AnalysisResultProps)
           </CardHeader>
           <CardContent className="p-6">
             <div 
-              className="prose prose-slate max-w-none"
+              className="prose prose-slate max-w-none text-slate-700 leading-relaxed"
               dangerouslySetInnerHTML={{ __html: formatText(result) }}
             />
           </CardContent>
