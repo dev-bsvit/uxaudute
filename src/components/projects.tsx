@@ -67,7 +67,8 @@ export function Projects({ user, onProjectSelect }: ProjectsProps) {
       await loadProjects()
     } catch (error) {
       console.error('Error creating project:', error)
-      alert('Ошибка при создании проекта')
+      const errorMessage = error instanceof Error ? error.message : 'Неизвестная ошибка'
+      alert(`Ошибка при создании проекта: ${errorMessage}`)
     } finally {
       setCreating(false)
     }

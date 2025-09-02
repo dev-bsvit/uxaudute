@@ -12,6 +12,9 @@ export async function createProject(name: string, description?: string) {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) throw new Error('User not authenticated')
 
+  // Убедимся, что пользователь существует в profiles
+  await ensureUserProfile(user)
+
   const { data, error } = await supabase
     .from('projects')
     .insert({
@@ -26,9 +29,36 @@ export async function createProject(name: string, description?: string) {
   return data
 }
 
+// Функция для создания профиля пользователя если его нет
+async function ensureUserProfile(user: any) {
+  const { data: existingProfile } = await supabase
+    .from('profiles')
+    .select('id')
+    .eq('id', user.id)
+    .single()
+
+  if (!existingProfile) {
+    const { error } = await supabase
+      .from('profiles')
+      .insert({
+        id: user.id,
+        email: user.email,
+        full_name: user.user_metadata?.full_name || user.user_metadata?.name || null,
+        avatar_url: user.user_metadata?.avatar_url || user.user_metadata?.picture || null
+      })
+
+    if (error && error.code !== '23505') { // Игнорируем ошибку дублирования
+      console.error('Error creating user profile:', error)
+    }
+  }
+}
+
 export async function getUserProjects(): Promise<Project[]> {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return []
+
+  // Убедимся, что пользователь существует в profiles
+  await ensureUserProfile(user)
 
   const { data, error } = await supabase
     .from('projects')
