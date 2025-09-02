@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { Layout } from '@/components/layout'
 import { UploadForm } from '@/components/upload-form'
 import { ActionPanel } from '@/components/action-panel'
+import { AnalysisResult } from '@/components/analysis-result'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { TEXTS, type ActionType } from '@/lib/utils'
@@ -12,10 +13,21 @@ import { ArrowLeft, Download, Share2 } from 'lucide-react'
 export default function HomePage() {
   const [result, setResult] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(false)
+  const [uploadedScreenshot, setUploadedScreenshot] = useState<string | null>(null)
+  const [analysisUrl, setAnalysisUrl] = useState<string | null>(null)
 
   const handleUpload = async (data: { url?: string; screenshot?: string }) => {
     setIsLoading(true)
     try {
+      // Сохраняем скриншот и URL для отображения
+      if (data.screenshot) {
+        setUploadedScreenshot(data.screenshot)
+        setAnalysisUrl(null)
+      } else if (data.url) {
+        setAnalysisUrl(data.url)
+        setUploadedScreenshot(null)
+      }
+
       const response = await fetch('/api/research', {
         method: 'POST',
         headers: {
@@ -67,14 +79,7 @@ export default function HomePage() {
     }
   }
 
-  const formatResult = (text: string) => {
-    return text
-      .replace(/\n/g, '<br>')
-      .replace(/## (.*)/g, '<h2 class="text-2xl font-bold text-slate-800 mt-8 mb-4 border-b-2 border-blue-200 pb-2">$1</h2>')
-      .replace(/### (.*)/g, '<h3 class="text-xl font-semibold text-slate-700 mt-6 mb-3">$1</h3>')
-      .replace(/\*\*(.*?)\*\*/g, '<strong class="font-semibold text-slate-800">$1</strong>')
-      .replace(/\*(.*?)\*/g, '<em class="italic text-slate-600">$1</em>')
-  }
+
 
   return (
     <Layout title="UX Audit - Главная">
@@ -122,6 +127,8 @@ export default function HomePage() {
                 onClick={() => {
                   setResult(null)
                   setIsLoading(false)
+                  setUploadedScreenshot(null)
+                  setAnalysisUrl(null)
                 }}
                 variant="outline"
                 className="flex items-center gap-2"
@@ -143,18 +150,11 @@ export default function HomePage() {
             </div>
 
             {/* Результат анализа */}
-            <Card className="overflow-hidden">
-              <CardContent className="p-8">
-                <div className="prose prose-lg max-w-none">
-                  <div 
-                    dangerouslySetInnerHTML={{ 
-                      __html: formatResult(result)
-                    }} 
-                    className="text-slate-700 leading-relaxed"
-                  />
-                </div>
-              </CardContent>
-            </Card>
+            <AnalysisResult 
+              result={result}
+              screenshot={uploadedScreenshot}
+              url={analysisUrl}
+            />
             
             {/* Панель действий */}
             <ActionPanel onAction={handleAction} />
