@@ -35,7 +35,7 @@ import { type ActionType } from '@/lib/utils'
 interface Project {
   id: string
   name: string
-  description: string
+  description: string | null
   created_at: string
 }
 
