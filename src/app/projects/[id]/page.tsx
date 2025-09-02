@@ -161,11 +161,18 @@ export default function ProjectDetailPage() {
     }
   }
 
-  const handleAction = async (action: ActionType, data: { url?: string; screenshot?: string }) => {
-    if (!currentAudit) return
+  const handleAction = async (action: ActionType) => {
+    if (!currentAudit || !result) return
 
     setIsAnalyzing(true)
     try {
+      // Формируем данные на основе текущего состояния
+      const data = {
+        url: analysisUrl,
+        screenshot: uploadedScreenshot,
+        context: result
+      }
+
       const response = await fetch(`/api/${action}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -484,9 +491,6 @@ export default function ProjectDetailPage() {
             {/* Панель дополнительных действий */}
             <ActionPanel
               onAction={handleAction}
-              isLoading={isAnalyzing}
-              screenshot={uploadedScreenshot}
-              url={analysisUrl}
             />
           </>
         )}
