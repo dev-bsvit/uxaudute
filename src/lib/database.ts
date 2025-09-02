@@ -173,16 +173,7 @@ export async function updateAuditResult(
   return data
 }
 
-export async function getProjectAudits(projectId: string): Promise<Audit[]> {
-  const { data, error } = await supabase
-    .from('audits')
-    .select('*')
-    .eq('project_id', projectId)
-    .order('created_at', { ascending: false })
 
-  if (error) throw error
-  return data || []
-}
 
 export async function getAudit(id: string): Promise<Audit | null> {
   const { data, error } = await supabase
