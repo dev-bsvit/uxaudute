@@ -1,149 +1,495 @@
 'use client'
 
+import { useState, useEffect } from 'react'
+import { useParams, useRouter } from 'next/navigation'
 import { Layout } from '@/components/layout'
+import { UploadForm } from '@/components/upload-form'
+import { AnalysisResult } from '@/components/analysis-result'
+import { ActionPanel } from '@/components/action-panel'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Plus, FileText, Calendar, BarChart3 } from 'lucide-react'
+import { Badge } from '@/components/ui/badge'
+import { User } from '@supabase/supabase-js'
+import { supabase } from '@/lib/supabase'
+import { 
+  getProject, 
+  getProjectAudits, 
+  createAudit, 
+  updateAuditResult, 
+  addAuditHistory,
+  signOut 
+} from '@/lib/database'
+import { 
+  ArrowLeft, 
+  Plus, 
+  Eye, 
+  Calendar, 
+  BarChart3, 
+  LogOut,
+  Trash2,
+  ExternalLink
+} from 'lucide-react'
 import Link from 'next/link'
-import { useParams } from 'next/navigation'
+import { type ActionType } from '@/lib/utils'
 
-// Mock data
-const project = {
-  id: '1',
-  name: 'Интернет-магазин электроники',
-  description: 'Комплексный UX анализ интернет-магазина электроники',
-  createdAt: '2024-01-15',
+interface Project {
+  id: string
+  name: string
+  description: string
+  created_at: string
 }
 
-const audits = [
-  {
-    id: '1',
-    name: 'Главная страница',
-    type: 'Начать исследование',
-    status: 'completed',
-    createdAt: '2024-01-15T10:00:00',
-    confidence: 85,
-  },
-  {
-    id: '2',
-    name: 'Каталог товаров',
-    type: 'Бизнес-аналитика',
-    status: 'completed',
-    createdAt: '2024-01-16T14:30:00',
-    confidence: 78,
-  },
-  {
-    id: '3',
-    name: 'Корзина покупок',
-    type: 'A/B тест',
-    status: 'in_progress',
-    createdAt: '2024-01-17T09:15:00',
-    confidence: null,
-  }
-]
-
-const getStatusColor = (status: string) => {
-  switch (status) {
-    case 'completed': return 'bg-green-100 text-green-800'
-    case 'in_progress': return 'bg-blue-100 text-blue-800'
-    default: return 'bg-gray-100 text-gray-800'
-  }
+interface Audit {
+  id: string
+  name: string
+  type: string
+  status: string
+  input_data: any
+  result_data: any
+  confidence: number
+  created_at: string
 }
 
-const getStatusText = (status: string) => {
-  switch (status) {
-    case 'completed': return 'Завершен'
-    case 'in_progress': return 'В процессе'
-    default: return 'Черновик'
-  }
-}
-
-export default function ProjectPage() {
+export default function ProjectDetailPage() {
   const params = useParams()
-  const projectId = params.id
+  const router = useRouter()
+  const projectId = params.id as string
+
+  const [user, setUser] = useState<User | null>(null)
+  const [project, setProject] = useState<Project | null>(null)
+  const [audits, setAudits] = useState<Audit[]>([])
+  const [loading, setLoading] = useState(true)
+  const [showCreateForm, setShowCreateForm] = useState(false)
+  const [currentAudit, setCurrentAudit] = useState<Audit | null>(null)
+  const [result, setResult] = useState<string | null>(null)
+  const [isAnalyzing, setIsAnalyzing] = useState(false)
+  const [uploadedScreenshot, setUploadedScreenshot] = useState<string | null>(null)
+  const [analysisUrl, setAnalysisUrl] = useState<string | null>(null)
+
+  useEffect(() => {
+    checkAuthAndLoadProject()
+  }, [projectId])
+
+  const checkAuthAndLoadProject = async () => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) {
+        router.push('/dashboard')
+        return
+      }
+
+      setUser(user)
+      await loadProjectData()
+    } catch (error) {
+      console.error('Error loading project:', error)
+      router.push('/projects')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const loadProjectData = async () => {
+    try {
+      const [projectData, auditsData] = await Promise.all([
+        getProject(projectId),
+        getProjectAudits(projectId)
+      ])
+
+      if (!projectData) {
+        throw new Error('Project not found')
+      }
+
+      setProject(projectData)
+      setAudits(auditsData)
+    } catch (error) {
+      console.error('Error loading project data:', error)
+      throw error
+    }
+  }
+
+  const handleCreateAudit = async (data: { url?: string; screenshot?: string }) => {
+    if (!user || !project) return
+
+    setIsAnalyzing(true)
+    setUploadedScreenshot(data.screenshot || null)
+    setAnalysisUrl(data.url || null)
+
+    try {
+      // Создаем новый аудит
+      const audit = await createAudit(
+        projectId,
+        `Анализ ${new Date().toLocaleDateString('ru-RU')}`,
+        'research',
+        {
+          url: data.url,
+          hasScreenshot: !!data.screenshot,
+          timestamp: new Date().toISOString()
+        }
+      )
+
+      setCurrentAudit(audit)
+      setShowCreateForm(false)
+
+      // Отправляем запрос на анализ
+      const response = await fetch('/api/research', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+      })
+
+      if (!response.ok) {
+        throw new Error(`Ошибка ${response.status}: ${response.statusText}`)
+      }
+
+      const { result: analysisResult } = await response.json()
+      setResult(analysisResult)
+
+      // Сохраняем результат в базу данных
+      await updateAuditResult(audit.id, { analysis_result: analysisResult })
+      
+      // Добавляем в историю
+      await addAuditHistory(audit.id, 'research', data, { result: analysisResult })
+
+      // Обновляем список аудитов
+      await loadProjectData()
+
+    } catch (error) {
+      console.error('Error creating audit:', error)
+      alert(`Ошибка при создании аудита: ${error instanceof Error ? error.message : 'Неизвестная ошибка'}`)
+    } finally {
+      setIsAnalyzing(false)
+    }
+  }
+
+  const handleAction = async (action: ActionType, data: { url?: string; screenshot?: string }) => {
+    if (!currentAudit) return
+
+    setIsAnalyzing(true)
+    try {
+      const response = await fetch(`/api/${action}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+      })
+
+      if (!response.ok) {
+        throw new Error(`Ошибка ${response.status}: ${response.statusText}`)
+      }
+
+      const { result: actionResult } = await response.json()
+      
+      // Добавляем результат действия к основному результату
+      const newResult = result + '\n\n---\n\n' + actionResult
+      setResult(newResult)
+
+      // Обновляем результат в базе данных
+      await updateAuditResult(currentAudit.id, { 
+        analysis_result: newResult,
+        [`${action}_result`]: actionResult 
+      })
+      
+      // Добавляем в историю
+      await addAuditHistory(currentAudit.id, action, data, { result: actionResult })
+
+    } catch (error) {
+      console.error('Error performing action:', error)
+      alert(`Ошибка при выполнении действия: ${error instanceof Error ? error.message : 'Неизвестная ошибка'}`)
+    } finally {
+      setIsAnalyzing(false)
+    }
+  }
+
+  const handleViewAudit = (audit: Audit) => {
+    setCurrentAudit(audit)
+    setResult(audit.result_data?.analysis_result || 'Результат анализа не найден')
+    setUploadedScreenshot(audit.input_data?.hasScreenshot ? 'data:image/png;base64,mock' : null)
+    setAnalysisUrl(audit.input_data?.url || null)
+  }
+
+  const handleSignOut = async () => {
+    try {
+      await signOut()
+      router.push('/')
+    } catch (error) {
+      console.error('Error signing out:', error)
+    }
+  }
+
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString('ru-RU', {
+      day: 'numeric',
+      month: 'short',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    })
+  }
+
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case 'completed': return 'bg-green-100 text-green-800'
+      case 'in_progress': return 'bg-blue-100 text-blue-800'
+      case 'failed': return 'bg-red-100 text-red-800'
+      default: return 'bg-gray-100 text-gray-800'
+    }
+  }
+
+  if (loading) {
+    return (
+      <Layout>
+        <div className="flex items-center justify-center p-8">
+          <div className="animate-spin rounded-full h-8 w-8 border-2 border-blue-500 border-t-transparent"></div>
+        </div>
+      </Layout>
+    )
+  }
+
+  if (!project) {
+    return (
+      <Layout>
+        <div className="text-center py-12">
+          <h2 className="text-2xl font-bold text-slate-900 mb-4">Проект не найден</h2>
+          <Link href="/projects">
+            <Button>
+              <ArrowLeft className="w-4 h-4 mr-2" />
+              К проектам
+            </Button>
+          </Link>
+        </div>
+      </Layout>
+    )
+  }
 
   return (
     <Layout title={project.name}>
-      <div className="space-y-6">
-        {/* Информация о проекте */}
-        <Card>
-          <CardHeader>
-            <div className="flex items-start justify-between">
-              <div>
-                <CardTitle className="text-2xl">
-                  {project.name}
-                </CardTitle>
-                <p className="text-gray-600 mt-2">
-                  {project.description}
-                </p>
-              </div>
-              <Button>
-                <Plus className="w-4 h-4 mr-2" />
-                Новый аудит
+      <div className="max-w-7xl mx-auto space-y-6">
+        {/* Хедер проекта */}
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            <Link href="/projects">
+              <Button variant="outline" size="sm">
+                <ArrowLeft className="w-4 h-4 mr-2" />
+                К проектам
               </Button>
+            </Link>
+            <div>
+              <h1 className="text-3xl font-bold text-slate-900">{project.name}</h1>
+              {project.description && (
+                <p className="text-slate-600 mt-1">{project.description}</p>
+              )}
+              <p className="text-sm text-slate-500 mt-1">
+                Создан {formatDate(project.created_at)}
+              </p>
             </div>
-          </CardHeader>
-          <CardContent>
-            <div className="flex items-center space-x-6 text-sm text-gray-500">
-              <div className="flex items-center">
-                <Calendar className="w-4 h-4 mr-1" />
-                Создан: {new Date(project.createdAt).toLocaleDateString('ru-RU')}
-              </div>
-              <div className="flex items-center">
-                <FileText className="w-4 h-4 mr-1" />
-                Аудитов: {audits.length}
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Список аудитов */}
-        <div className="space-y-4">
-          <h3 className="text-lg font-semibold">Аудиты</h3>
+          </div>
           
-          {audits.map((audit) => (
-            <Link key={audit.id} href={`/audits/${audit.id}`}>
-              <Card className="hover:shadow-md transition-shadow cursor-pointer">
-                <CardContent className="p-6">
-                  <div className="flex items-start justify-between">
-                    <div className="flex-1">
-                      <div className="flex items-center space-x-3 mb-2">
-                        <FileText className="w-5 h-5 text-blue-500" />
-                        <h4 className="font-medium text-gray-900">
-                          {audit.name}
-                        </h4>
-                        <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(audit.status)}`}>
-                          {getStatusText(audit.status)}
-                        </span>
-                      </div>
-                      
-                      <p className="text-sm text-gray-600 mb-3">
-                        Тип анализа: {audit.type}
-                      </p>
-                      
-                      <div className="flex items-center space-x-4 text-xs text-gray-500">
-                        <span>
-                          {new Date(audit.createdAt).toLocaleDateString('ru-RU', {
-                            day: 'numeric',
-                            month: 'short',
-                            hour: '2-digit',
-                            minute: '2-digit'
-                          })}
-                        </span>
-                        {audit.confidence && (
-                          <div className="flex items-center">
-                            <BarChart3 className="w-3 h-3 mr-1" />
-                            Уверенность: {audit.confidence}%
-                          </div>
-                        )}
-                      </div>
-                    </div>
+          <div className="flex items-center gap-3">
+            <Button
+              onClick={() => setShowCreateForm(true)}
+              className="flex items-center gap-2"
+            >
+              <Plus className="w-4 h-4" />
+              Новый аудит
+            </Button>
+            <Button
+              onClick={handleSignOut}
+              variant="outline"
+              size="sm"
+            >
+              <LogOut className="w-4 h-4" />
+            </Button>
+          </div>
+        </div>
+
+        {/* Статистика */}
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+          <Card>
+            <CardContent className="p-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-slate-600">Всего аудитов</p>
+                  <p className="text-2xl font-bold text-slate-900">{audits.length}</p>
+                </div>
+                <BarChart3 className="w-8 h-8 text-blue-600" />
+              </div>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardContent className="p-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-slate-600">Завершенных</p>
+                  <p className="text-2xl font-bold text-slate-900">
+                    {audits.filter(a => a.status === 'completed').length}
+                  </p>
+                </div>
+                <Calendar className="w-8 h-8 text-green-600" />
+              </div>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardContent className="p-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-slate-600">В процессе</p>
+                  <p className="text-2xl font-bold text-slate-900">
+                    {audits.filter(a => a.status === 'in_progress').length}
+                  </p>
+                </div>
+                <Eye className="w-8 h-8 text-blue-600" />
+              </div>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardContent className="p-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-slate-600">Средняя оценка</p>
+                  <p className="text-2xl font-bold text-slate-900">
+                    {audits.length > 0 
+                      ? Math.round(audits.reduce((acc, a) => acc + (a.confidence || 0), 0) / audits.length)
+                      : 0}%
+                  </p>
+                </div>
+                <BarChart3 className="w-8 h-8 text-purple-600" />
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Основной контент */}
+        {!currentAudit ? (
+          <>
+            {/* Форма создания аудита */}
+            {showCreateForm && (
+              <Card>
+                <CardHeader>
+                  <CardTitle>Создать новый аудит</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <UploadForm
+                    onSubmit={handleCreateAudit}
+                    isLoading={isAnalyzing}
+                  />
+                  <div className="mt-4 flex justify-end">
+                    <Button
+                      variant="outline"
+                      onClick={() => setShowCreateForm(false)}
+                    >
+                      Отмена
+                    </Button>
                   </div>
                 </CardContent>
               </Card>
-            </Link>
-          ))}
-        </div>
+            )}
+
+            {/* Список аудитов */}
+            <Card>
+              <CardHeader>
+                <CardTitle>История аудитов</CardTitle>
+              </CardHeader>
+              <CardContent>
+                {audits.length === 0 ? (
+                  <div className="text-center py-8">
+                    <BarChart3 className="w-12 h-12 text-slate-400 mx-auto mb-4" />
+                    <p className="text-slate-600 mb-4">
+                      В этом проекте пока нет аудитов
+                    </p>
+                    <Button onClick={() => setShowCreateForm(true)}>
+                      <Plus className="w-4 h-4 mr-2" />
+                      Создать первый аудит
+                    </Button>
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    {audits.map((audit) => (
+                      <div
+                        key={audit.id}
+                        className="flex items-center justify-between p-4 border rounded-lg hover:bg-slate-50 transition-colors"
+                      >
+                        <div className="flex-1">
+                          <div className="flex items-center gap-3 mb-2">
+                            <h3 className="font-medium text-slate-900">{audit.name}</h3>
+                            <Badge className={getStatusColor(audit.status)}>
+                              {audit.status === 'completed' ? 'Завершен' : 
+                               audit.status === 'in_progress' ? 'В процессе' : 
+                               audit.status === 'failed' ? 'Ошибка' : 'Черновик'}
+                            </Badge>
+                            {audit.confidence && (
+                              <Badge variant="outline">
+                                {audit.confidence}% уверенности
+                              </Badge>
+                            )}
+                          </div>
+                          <p className="text-sm text-slate-600">
+                            {formatDate(audit.created_at)}
+                            {audit.input_data?.url && (
+                              <span className="ml-4 inline-flex items-center gap-1">
+                                <ExternalLink className="w-3 h-3" />
+                                URL анализ
+                              </span>
+                            )}
+                            {audit.input_data?.hasScreenshot && (
+                              <span className="ml-4">📸 Скриншот</span>
+                            )}
+                          </p>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => handleViewAudit(audit)}
+                          >
+                            <Eye className="w-4 h-4 mr-2" />
+                            Просмотр
+                          </Button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </>
+        ) : (
+          <>
+            {/* Просмотр аудита */}
+            <div className="flex items-center justify-between">
+              <Button
+                variant="outline"
+                onClick={() => {
+                  setCurrentAudit(null)
+                  setResult(null)
+                  setUploadedScreenshot(null)
+                  setAnalysisUrl(null)
+                }}
+              >
+                <ArrowLeft className="w-4 h-4 mr-2" />
+                К списку аудитов
+              </Button>
+              <h2 className="text-xl font-semibold text-slate-900">
+                {currentAudit.name}
+              </h2>
+            </div>
+
+            {/* Результаты анализа */}
+            {result && (
+              <AnalysisResult 
+                result={result}
+                uploadedScreenshot={uploadedScreenshot}
+                analysisUrl={analysisUrl}
+              />
+            )}
+
+            {/* Панель дополнительных действий */}
+            <ActionPanel
+              onAction={handleAction}
+              isLoading={isAnalyzing}
+              screenshot={uploadedScreenshot}
+              url={analysisUrl}
+            />
+          </>
+        )}
       </div>
     </Layout>
   )

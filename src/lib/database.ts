@@ -116,6 +116,20 @@ export async function getProject(id: string): Promise<Project | null> {
   return data
 }
 
+export async function getProjectAudits(projectId: string): Promise<Audit[]> {
+  const { data, error } = await supabase
+    .from('audits')
+    .select('*')
+    .eq('project_id', projectId)
+    .order('created_at', { ascending: false })
+
+  if (error) {
+    console.error('Error getting project audits:', error)
+    return []
+  }
+  return data || []
+}
+
 // Audits functions
 export async function createAudit(
   projectId: string,

@@ -33,10 +33,7 @@ export default function ProjectsPage() {
     setUser(user)
   }
 
-  const handleProjectSelect = (projectId: string) => {
-    // Перенаправляем на dashboard с выбранным проектом
-    router.push(`/dashboard?project=${projectId}`)
-  }
+
 
   if (loading) {
     return (
@@ -73,10 +70,7 @@ export default function ProjectsPage() {
             </p>
           </div>
           
-          <Projects 
-            user={user} 
-            onProjectSelect={handleProjectSelect}
-          />
+          <Projects user={user} />
         </div>
       )}
     </Layout>

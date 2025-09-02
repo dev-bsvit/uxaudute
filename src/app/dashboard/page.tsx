@@ -207,10 +207,7 @@ export default function DashboardPage() {
               </div>
             )}
             
-            <Projects 
-              user={user} 
-              onProjectSelect={(projectId) => setCurrentProject(projectId)} 
-            />
+            <Projects user={user} />
           </div>
         )}
 
