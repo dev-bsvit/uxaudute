@@ -476,8 +476,8 @@ export default function ProjectDetailPage() {
             {result && (
               <AnalysisResult 
                 result={result}
-                uploadedScreenshot={uploadedScreenshot}
-                analysisUrl={analysisUrl}
+                screenshot={uploadedScreenshot}
+                url={analysisUrl}
               />
             )}
 
