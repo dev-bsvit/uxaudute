@@ -3,7 +3,7 @@ import "./globals.css"
 
 export const metadata: Metadata = {
   title: "UX Audit",
-  description: "Профессиональный анализ пользовательского опыта",
+  description: "Профессиональный анализ пользовательского опыта"
 }
 
 export default function RootLayout({
