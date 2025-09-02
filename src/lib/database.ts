@@ -9,47 +9,82 @@ type AuditHistory = Tables['audit_history']['Insert']
 
 // Projects functions
 export async function createProject(name: string, description?: string) {
-  const { data: { user } } = await supabase.auth.getUser()
-  if (!user) throw new Error('User not authenticated')
+  try {
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) throw new Error('User not authenticated')
 
-  // Убедимся, что пользователь существует в profiles
-  await ensureUserProfile(user)
+    console.log('Creating project for user:', user.id, user.email)
 
-  const { data, error } = await supabase
-    .from('projects')
-    .insert({
-      user_id: user.id,
-      name,
-      description
-    })
-    .select()
-    .single()
+    // Убедимся, что пользователь существует в profiles
+    await ensureUserProfile(user)
 
-  if (error) throw error
-  return data
+    console.log('User profile ensured, creating project:', { name, description })
+
+    const { data, error } = await supabase
+      .from('projects')
+      .insert({
+        user_id: user.id,
+        name,
+        description
+      })
+      .select()
+      .single()
+
+    if (error) {
+      console.error('Supabase project creation error:', error)
+      throw new Error(`Database error: ${error.message} (Code: ${error.code})`)
+    }
+
+    console.log('Project created successfully:', data)
+    return data
+  } catch (error) {
+    console.error('createProject error:', error)
+    throw error
+  }
 }
 
 // Функция для создания профиля пользователя если его нет
 async function ensureUserProfile(user: any) {
-  const { data: existingProfile } = await supabase
-    .from('profiles')
-    .select('id')
-    .eq('id', user.id)
-    .single()
-
-  if (!existingProfile) {
-    const { error } = await supabase
+  try {
+    console.log('Checking user profile for:', user.id, user.email)
+    
+    const { data: existingProfile, error: selectError } = await supabase
       .from('profiles')
-      .insert({
+      .select('id')
+      .eq('id', user.id)
+      .single()
+
+    if (selectError && selectError.code !== 'PGRST116') { // PGRST116 = no rows returned
+      console.error('Error checking user profile:', selectError)
+      throw selectError
+    }
+
+    if (!existingProfile) {
+      console.log('Creating new user profile...')
+      const profileData = {
         id: user.id,
         email: user.email,
         full_name: user.user_metadata?.full_name || user.user_metadata?.name || null,
         avatar_url: user.user_metadata?.avatar_url || user.user_metadata?.picture || null
-      })
+      }
+      console.log('Profile data:', profileData)
 
-    if (error && error.code !== '23505') { // Игнорируем ошибку дублирования
-      console.error('Error creating user profile:', error)
+      const { error: insertError } = await supabase
+        .from('profiles')
+        .insert(profileData)
+
+      if (insertError && insertError.code !== '23505') { // Игнорируем ошибку дублирования
+        console.error('Error creating user profile:', insertError)
+        throw new Error(`Profile creation failed: ${insertError.message}`)
+      }
+      
+      console.log('User profile created successfully')
+    } else {
+      console.log('User profile already exists')
     }
+  } catch (error) {
+    console.error('ensureUserProfile error:', error)
+    throw error
   }
 }
 

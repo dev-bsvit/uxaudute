@@ -9,9 +9,9 @@ import { Auth } from '@/components/auth'
 import { Projects } from '@/components/projects'
 import { Button } from '@/components/ui/button'
 import { TEXTS, type ActionType } from '@/lib/utils'
-import { ArrowLeft, Download, Share2, FolderOpen } from 'lucide-react'
+import { ArrowLeft, Download, Share2, FolderOpen, LogOut } from 'lucide-react'
 import { User } from '@supabase/supabase-js'
-import { createProject, createAudit, updateAuditResult, addAuditHistory } from '@/lib/database'
+import { createProject, createAudit, updateAuditResult, addAuditHistory, signOut } from '@/lib/database'
 import { supabase } from '@/lib/supabase'
 
 export default function DashboardPage() {
@@ -147,6 +147,19 @@ export default function DashboardPage() {
     setView('analysis')
   }
 
+  const handleSignOut = async () => {
+    try {
+      await signOut()
+      setUser(null)
+      setView('auth')
+      setCurrentProject(null)
+      setCurrentAudit(null)
+      setResult(null)
+    } catch (error) {
+      console.error('Error signing out:', error)
+    }
+  }
+
   return (
     <Layout title="UX Audit Dashboard">
       <div className="max-w-7xl mx-auto space-y-8">
@@ -166,14 +179,24 @@ export default function DashboardPage() {
           <div className="space-y-6">
             <div className="flex items-center justify-between">
               <h1 className="text-3xl font-bold text-slate-900">UX Audit Platform</h1>
-              <Button
-                onClick={handleStartAnalysis}
-                disabled={!currentProject}
-                className="flex items-center gap-2"
-              >
-                <span>🎯</span>
-                Начать анализ
-              </Button>
+              <div className="flex items-center gap-3">
+                <Button
+                  onClick={handleStartAnalysis}
+                  disabled={!currentProject}
+                  className="flex items-center gap-2"
+                >
+                  <span>🎯</span>
+                  Начать анализ
+                </Button>
+                <Button
+                  onClick={handleSignOut}
+                  variant="outline"
+                  className="flex items-center gap-2"
+                >
+                  <LogOut className="w-4 h-4" />
+                  Выйти
+                </Button>
+              </div>
             </div>
             
             {currentProject && (
@@ -198,14 +221,24 @@ export default function DashboardPage() {
               <>
                 {/* Навигация */}
                 <div className="flex items-center justify-between">
-                  <Button
-                    onClick={() => setView('projects')}
-                    variant="outline"
-                    className="flex items-center gap-2"
-                  >
-                    <FolderOpen className="w-4 h-4" />
-                    К проектам
-                  </Button>
+                  <div className="flex items-center gap-3">
+                    <Button
+                      onClick={() => setView('projects')}
+                      variant="outline"
+                      className="flex items-center gap-2"
+                    >
+                      <FolderOpen className="w-4 h-4" />
+                      К проектам
+                    </Button>
+                    <Button
+                      onClick={handleSignOut}
+                      variant="outline"
+                      className="flex items-center gap-2"
+                    >
+                      <LogOut className="w-4 h-4" />
+                      Выйти
+                    </Button>
+                  </div>
                   {currentProject && (
                     <div className="text-sm text-slate-600">
                       Анализ сохранится в выбранный проект
