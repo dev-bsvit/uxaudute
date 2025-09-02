@@ -6,7 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Upload, Link as LinkIcon, Sparkles, Zap } from "lucide-react"
 
 interface UploadFormProps {
-  onSubmit: (data: { url?: string; screenshot?: File }) => void
+  onSubmit: (data: { url?: string; screenshot?: string }) => void
   isLoading?: boolean
 }
 
@@ -15,12 +15,18 @@ export function UploadForm({ onSubmit, isLoading }: UploadFormProps) {
   const [file, setFile] = useState<File | null>(null)
   const [activeTab, setActiveTab] = useState<'url' | 'upload'>('url')
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (activeTab === 'url' && url) {
       onSubmit({ url })
     } else if (activeTab === 'upload' && file) {
-      onSubmit({ screenshot: file })
+      // Конвертируем файл в base64
+      const reader = new FileReader()
+      reader.onload = () => {
+        const base64String = reader.result as string
+        onSubmit({ screenshot: base64String })
+      }
+      reader.readAsDataURL(file)
     }
   }
 

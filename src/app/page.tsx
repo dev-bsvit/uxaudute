@@ -13,7 +13,7 @@ export default function HomePage() {
   const [result, setResult] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(false)
 
-  const handleUpload = async (data: { url?: string; screenshot?: File }) => {
+  const handleUpload = async (data: { url?: string; screenshot?: string }) => {
     setIsLoading(true)
     try {
       const response = await fetch('/api/research', {

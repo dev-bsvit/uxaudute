@@ -29,8 +29,7 @@ export async function POST(request: NextRequest) {
 
     if (screenshot) {
       // Реальный анализ скриншота через GPT-4o Vision
-      // screenshot уже приходит как base64 строка из формы
-      const base64Image = screenshot.replace(/^data:image\/[a-z]+;base64,/, '')
+      // screenshot приходит как data:image/...;base64,... строка
       
       const completion = await openai.chat.completions.create({
         model: "gpt-4o",
@@ -42,7 +41,7 @@ export async function POST(request: NextRequest) {
               {
                 type: "image_url",
                 image_url: {
-                  url: `data:image/jpeg;base64,${base64Image}`,
+                  url: screenshot,
                   detail: "high"
                 }
               }
