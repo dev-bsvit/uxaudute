@@ -84,6 +84,13 @@ export function AnalysisResult({ result, screenshot, url }: AnalysisResultProps)
                   src={screenshot} 
                   alt="Анализируемый скриншот" 
                   className="w-full h-auto max-h-80 object-contain bg-white"
+                  onError={(e) => {
+                    console.error('Error loading screenshot:', screenshot)
+                    console.error('Image error:', e)
+                  }}
+                  onLoad={() => {
+                    console.log('Screenshot loaded successfully:', screenshot)
+                  }}
                 />
               </div>
             </div>

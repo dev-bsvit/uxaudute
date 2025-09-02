@@ -156,6 +156,7 @@ export default function ProjectDetailPage() {
       setResult(analysisResult)
 
       // Сохраняем результат в базу данных
+      console.log('Updating audit result with screenshot URL:', screenshotUrl)
       await updateAuditResult(audit.id, { 
         analysis_result: analysisResult,
         screenshot_url: screenshotUrl 
@@ -229,6 +230,11 @@ export default function ProjectDetailPage() {
     
     // Показываем сохраненный скриншот из Supabase Storage или исходный base64
     const screenshotUrl = audit.input_data?.screenshotUrl || audit.result_data?.screenshot_url
+    console.log('Viewing audit:', audit.id)
+    console.log('Screenshot URL from input_data:', audit.input_data?.screenshotUrl)
+    console.log('Screenshot URL from result_data:', audit.result_data?.screenshot_url)
+    console.log('Final screenshot URL:', screenshotUrl)
+    
     setUploadedScreenshot(screenshotUrl || null)
     setAnalysisUrl(audit.input_data?.url || null)
   }
