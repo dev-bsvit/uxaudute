@@ -1,22 +1,35 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Layout } from '@/components/layout'
 import { UploadForm } from '@/components/upload-form'
 import { ActionPanel } from '@/components/action-panel'
 import { AnalysisResult } from '@/components/analysis-result'
+import { Auth } from '@/components/auth'
+import { Projects } from '@/components/projects'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { TEXTS, type ActionType } from '@/lib/utils'
-import { ArrowLeft, Download, Share2 } from 'lucide-react'
+import { ArrowLeft, Download, Share2, FolderOpen } from 'lucide-react'
+import { User } from '@supabase/supabase-js'
+import { createProject, createAudit, updateAuditResult, addAuditHistory } from '@/lib/database'
 
 export default function HomePage() {
+  const [user, setUser] = useState<User | null>(null)
+  const [view, setView] = useState<'auth' | 'projects' | 'analysis'>('auth')
+  const [currentProject, setCurrentProject] = useState<string | null>(null)
+  const [currentAudit, setCurrentAudit] = useState<string | null>(null)
   const [result, setResult] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(false)
   const [uploadedScreenshot, setUploadedScreenshot] = useState<string | null>(null)
   const [analysisUrl, setAnalysisUrl] = useState<string | null>(null)
 
   const handleUpload = async (data: { url?: string; screenshot?: string }) => {
+    if (!user || !currentProject) {
+      alert('Пожалуйста, выберите проект для сохранения результатов')
+      return
+    }
+
     setIsLoading(true)
     try {
       // Сохраняем скриншот и URL для отображения
@@ -28,12 +41,23 @@ export default function HomePage() {
         setUploadedScreenshot(null)
       }
 
+      // Создаем аудит в базе данных
+      const auditName = data.url ? `Анализ ${data.url}` : 'Анализ скриншота'
+      const audit = await createAudit(
+        currentProject,
+        auditName,
+        'research',
+        data
+      )
+      setCurrentAudit(audit.id)
+
+      // Выполняем анализ через API
       const response = await fetch('/api/research', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(data),
+        body: JSON.stringify({ ...data, auditId: audit.id }),
       })
 
       if (!response.ok) {
@@ -42,6 +66,11 @@ export default function HomePage() {
 
       const { result } = await response.json()
       setResult(result)
+
+      // Сохраняем результат в базу данных
+      await updateAuditResult(audit.id, { result }, 85) // примерный confidence
+      await addAuditHistory(audit.id, 'research', data, { result })
+
     } catch (error) {
       console.error(error)
       setResult(TEXTS.error)
@@ -51,7 +80,7 @@ export default function HomePage() {
   }
 
   const handleAction = async (action: ActionType) => {
-    if (!result) return
+    if (!result || !currentAudit) return
     
     setIsLoading(true)
     try {
@@ -70,6 +99,11 @@ export default function HomePage() {
 
       const { result: actionResult } = await response.json()
       setResult(actionResult)
+
+      // Сохраняем действие в историю
+      if (currentAudit) {
+        await addAuditHistory(currentAudit, action, { context: result }, { result: actionResult })
+      }
     } catch (error) {
       console.error('Error:', error)
       const errorMessage = error instanceof Error ? error.message : 'Произошла ошибка при выполнении действия'
@@ -77,6 +111,26 @@ export default function HomePage() {
     } finally {
       setIsLoading(false)
     }
+  }
+
+  const handleAuthChange = (newUser: User | null) => {
+    setUser(newUser)
+    if (newUser) {
+      setView('projects')
+    } else {
+      setView('auth')
+      setCurrentProject(null)
+      setCurrentAudit(null)
+      setResult(null)
+    }
+  }
+
+  const handleStartAnalysis = () => {
+    if (!currentProject) {
+      alert('Сначала создайте проект или выберите существующий')
+      return
+    }
+    setView('analysis')
   }
 
 
@@ -89,7 +143,7 @@ export default function HomePage() {
             {/* Красивая вводная секция */}
             <div className="text-center mb-12 animate-slide-up">
               <h1 className="text-5xl font-bold text-gradient mb-6">
-                UX Audit
+                UX Audit Platform
               </h1>
               <p className="text-2xl text-slate-600 max-w-3xl mx-auto leading-relaxed">
                 Получите профессиональный анализ пользовательского опыта 
@@ -109,14 +163,47 @@ export default function HomePage() {
                   <p className="text-sm text-slate-600">Анализ готов за 2-3 минуты благодаря GPT-4</p>
                 </div>
                 <div className="p-6 bg-white/80 backdrop-blur-sm rounded-2xl border border-white/20 shadow-soft animate-slide-up" style={{animationDelay: '0.3s'}}>
-                  <div className="text-3xl mb-3">📊</div>
-                  <h3 className="font-semibold text-slate-800 mb-2">5 типов анализа</h3>
-                  <p className="text-sm text-slate-600">От UX исследования до готовых A/B тестов</p>
+                  <div className="text-3xl mb-3">💾</div>
+                  <h3 className="font-semibold text-slate-800 mb-2">Сохранение данных</h3>
+                  <p className="text-sm text-slate-600">Все анализы сохраняются в ваших проектах</p>
                 </div>
+              </div>
+
+              {/* CTA кнопки */}
+              <div className="flex gap-4 justify-center mt-12">
+                <Button
+                  onClick={() => window.location.href = '/dashboard'}
+                  size="lg"
+                  className="flex items-center gap-2"
+                >
+                  <span>🚀</span>
+                  Перейти к платформе
+                </Button>
+                <Button
+                  variant="outline"
+                  size="lg"
+                  onClick={() => {
+                    // Сброс всех состояний для demo режима
+                    setResult(null)
+                    setUploadedScreenshot(null)
+                    setAnalysisUrl(null)
+                    // Показываем форму загрузки
+                  }}
+                >
+                  Попробовать демо
+                </Button>
               </div>
             </div>
 
-            {/* Форма загрузки */}
+            {/* Форма загрузки (демо режим) */}
+            <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-4 mb-6">
+              <p className="text-yellow-800 text-center">
+                <strong>Демо режим:</strong> Результаты не будут сохранены. 
+                <a href="/dashboard" className="text-blue-600 hover:underline ml-1">
+                  Перейдите к платформе
+                </a> для полного функционала.
+              </p>
+            </div>
             <UploadForm onSubmit={handleUpload} isLoading={isLoading} />
           </>
         ) : (
