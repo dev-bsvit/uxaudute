@@ -44,7 +44,7 @@ export function UploadForm({ onSubmit, isLoading }: UploadFormProps) {
       <Card className="overflow-hidden">
         <CardHeader className="text-center bg-gradient-to-r from-blue-50 to-indigo-50 border-b">
           <div className="flex items-center justify-center mb-4">
-            <div className="flex items-center justify-center w-16 h-16 bg-gradient-primary rounded-2xl shadow-lg">
+            <div className="flex items-center justify-center w-16 h-16 bg-slate-900 rounded-2xl shadow-lg">
               <Zap className="w-8 h-8 text-white" />
             </div>
           </div>

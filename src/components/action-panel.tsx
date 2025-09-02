@@ -35,7 +35,7 @@ const actionGradients: Record<string, { gradient: string; hoverGradient: string 
 
 export function ActionPanel({ onAction, className }: ActionPanelProps) {
   return (
-    <div className={`w-full max-w-6xl mx-auto p-6 animate-fade-in ${className}`}>
+    <div className={`w-full max-w-6xl mx-auto p-6 ${className}`}>
       <div className="text-center mb-8">
         <div className="flex items-center justify-center mb-3">
           <Sparkles className="w-6 h-6 text-blue-500 mr-2" />
