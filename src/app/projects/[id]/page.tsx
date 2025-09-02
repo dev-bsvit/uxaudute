@@ -46,7 +46,7 @@ interface Audit {
   status: string
   input_data: any
   result_data: any
-  confidence: number
+  confidence: number | null
   created_at: string
 }
 
