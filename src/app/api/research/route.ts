@@ -17,7 +17,7 @@ export async function POST(request: NextRequest) {
       const analysisPrompt = `${UX_RESEARCH_PROMPT}\n\nПроанализируй сайт по URL: ${url}\n\nПоскольку я не могу получить скриншот, проведи анализ основываясь на общих принципах UX для данного типа сайта.`
       
       const completion = await openai.chat.completions.create({
-        model: "gpt-4o-mini",
+        model: "gpt-4o",
         messages: [{ role: "user", content: analysisPrompt }],
         temperature: 0.7,
         max_tokens: 2000,
