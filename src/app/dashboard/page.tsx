@@ -54,7 +54,6 @@ export default function DashboardPage() {
     try {
       // Создаем временный проект если у пользователя его нет
       const tempProject = await createProject(
-        user.id,
         `Быстрый анализ ${new Date().toLocaleDateString('ru-RU')}`,
         'Анализ через Dashboard'
       )
