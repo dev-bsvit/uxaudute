@@ -1,6 +1,7 @@
 'use client'
 
 import { Layout } from '@/components/layout'
+import { useEffect, useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { MacbookScrollDemo } from '@/components/macbook-demo'
@@ -9,6 +10,13 @@ import Link from 'next/link'
 import { ArrowRight, Zap, Shield, BarChart3, Users } from 'lucide-react'
 
 export default function HomePage() {
+  // Версия 1.1 - обновленная структура
+  const [mounted, setMounted] = useState(false)
+  
+  useEffect(() => {
+    setMounted(true)
+  }, [])
+  
   const features = [
     {
       icon: <Zap className="w-8 h-8 text-blue-600" />,
