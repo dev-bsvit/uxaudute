@@ -3,6 +3,7 @@
 import { Layout } from '@/components/layout'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { MacbookScrollDemo } from '@/components/macbook-demo'
 import Link from 'next/link'
 import { ArrowRight, Zap, Shield, BarChart3, Users } from 'lucide-react'
 
@@ -66,6 +67,11 @@ export default function HomePage() {
               </Link>
             </div>
           </div>
+        </div>
+
+        {/* Macbook Scroll Demo */}
+        <div className="py-20">
+          <MacbookScrollDemo />
         </div>
 
         {/* Особенности */}
