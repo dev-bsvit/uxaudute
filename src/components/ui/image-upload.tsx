@@ -146,14 +146,14 @@ export function ImageUpload({
     <div className={cn('w-full', className)}>
       <div
         className={cn(
-          'relative border-2 border-dashed rounded-lg p-6 transition-colors flex items-center justify-center',
+          'relative border-2 border-dashed p-6 transition-colors flex items-center justify-center',
           dragActive
             ? 'border-blue-400 bg-blue-50'
             : 'border-gray-300 hover:border-gray-400',
           disabled && 'opacity-50 cursor-not-allowed',
           error && 'border-red-300 bg-red-50'
         )}
-        style={{ minHeight: '190px' }}
+        style={{ minHeight: '190px', borderRadius: '16px' }}
         onDragEnter={handleDrag}
         onDragLeave={handleDrag}
         onDragOver={handleDrag}
