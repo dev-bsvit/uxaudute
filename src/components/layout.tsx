@@ -21,7 +21,6 @@ export function Layout({ children, title = 'UX Audit' }: LayoutProps) {
   
   // Навигация с Dashboard для быстрого анализа
   const navigation = [
-    { name: 'Главная', href: '/', current: pathname === '/' },
     { name: 'Быстрый анализ', href: '/dashboard', current: pathname === '/dashboard' },
     { name: 'Мои проекты', href: '/projects', current: pathname.startsWith('/projects') },
   ]
