@@ -52,6 +52,26 @@ export default function HomePage() {
             <MacbookScrollDemo />
           </div>
 
+          {/* Текстовый блок под ноутбуком */}
+          <div className="py-16 text-center">
+            <div className="max-w-4xl mx-auto px-6">
+              <h2 
+                className="mb-8"
+                style={{
+                  color: '#434343',
+                  textAlign: 'center',
+                  fontFamily: 'Inter Display',
+                  fontSize: '80px',
+                  fontStyle: 'normal',
+                  fontWeight: 600,
+                  lineHeight: '90%'
+                }}
+              >
+                Seamlessly integrated with the Apple ecosystem, Joi syncs effortlessly with your calendars and reminders.
+              </h2>
+            </div>
+          </div>
+
           {/* Особенности */}
           <div className="py-12">
             <div className="max-w-6xl mx-auto px-6">
