@@ -45,17 +45,8 @@ export default function HomePage() {
           </div>
 
           {/* Особенности */}
-          <div className="py-20">
+          <div className="py-12">
             <div className="max-w-6xl mx-auto px-6">
-              <div className="text-center mb-16">
-                <h2 className="text-3xl font-bold text-slate-900 mb-4">
-                  Почему выбирают UX Audit?
-                </h2>
-                <p className="text-lg text-slate-600 max-w-2xl mx-auto">
-                  Современный подход к анализу пользовательского опыта с использованием ИИ и проверенных методологий
-                </p>
-              </div>
-              
               <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
                 {features.map((feature, index) => (
                   <Card key={index} className="text-center border-0 shadow-lg hover:shadow-xl transition-shadow bg-white">
