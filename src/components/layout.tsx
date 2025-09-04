@@ -65,7 +65,7 @@ export function Layout({ children, title = 'UX Audit', transparentHeader = false
   }
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen">
       <header className={`${transparentHeader ? 'bg-transparent absolute top-0 left-0 right-0 z-50' : 'bg-white shadow-sm border-b'}`}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
@@ -172,7 +172,7 @@ export function Layout({ children, title = 'UX Audit', transparentHeader = false
         </div>
       </header>
       
-      <main className="py-8">
+      <main>
         {children}
       </main>
     </div>
