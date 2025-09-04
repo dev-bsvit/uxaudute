@@ -30,6 +30,9 @@ export function HeroSection() {
           window.location.href = '/dashboard'
         }
         reader.readAsDataURL(file)
+      } else {
+        // Если ничего не загружено, перенаправляем на авторизацию
+        window.location.href = '/dashboard'
       }
     } catch (error) {
       console.error('Error:', error)
@@ -41,7 +44,7 @@ export function HeroSection() {
     setFile(selectedFile)
   }
 
-  const isValid = (activeTab === 'url' && url) || (activeTab === 'upload' && file)
+  const isValid = true // Кнопка всегда активна
 
   return (
     <div 
@@ -83,9 +86,6 @@ export function HeroSection() {
                   </div>
                 ) : (
                   <div className="space-y-3">
-                    <label className="block text-sm font-medium text-gray-700">
-                      Загрузить скриншот
-                    </label>
                     <ImageUpload
                       onImageSelect={handleFileChange}
                       maxSize={10 * 1024 * 1024} // 10MB
@@ -101,26 +101,42 @@ export function HeroSection() {
                   <div className="flex gap-2">
                     <button
                       type="button"
-                      className={`px-4 py-2 text-sm font-medium rounded-lg transition-all duration-300 ${
+                      className={`px-4 py-2 transition-all duration-300 ${
                         activeTab === 'upload' 
-                          ? 'bg-blue-100 text-blue-600 border-2 border-blue-200' 
-                          : 'bg-white text-gray-500 border border-gray-200 hover:bg-gray-50'
+                          ? 'text-black' 
+                          : 'text-gray-500 hover:text-gray-700'
                       }`}
+                      style={activeTab === 'upload' ? {
+                        color: '#000',
+                        textAlign: 'center',
+                        fontFamily: 'Inter Display',
+                        fontSize: '12px',
+                        fontStyle: 'normal',
+                        fontWeight: 600,
+                        lineHeight: '90%'
+                      } : {}}
                       onClick={() => setActiveTab('upload')}
                     >
-                      <Upload className="w-4 h-4 inline mr-2" />
                       Скриншот
                     </button>
                     <button
                       type="button"
-                      className={`px-4 py-2 text-sm font-medium rounded-lg transition-all duration-300 ${
+                      className={`px-4 py-2 transition-all duration-300 ${
                         activeTab === 'url' 
-                          ? 'bg-blue-100 text-blue-600 border-2 border-blue-200' 
-                          : 'bg-white text-gray-500 border border-gray-200 hover:bg-gray-50'
+                          ? 'text-black' 
+                          : 'text-gray-500 hover:text-gray-700'
                       }`}
+                      style={activeTab === 'url' ? {
+                        color: '#000',
+                        textAlign: 'center',
+                        fontFamily: 'Inter Display',
+                        fontSize: '12px',
+                        fontStyle: 'normal',
+                        fontWeight: 600,
+                        lineHeight: '90%'
+                      } : {}}
                       onClick={() => setActiveTab('url')}
                     >
-                      <LinkIcon className="w-4 h-4 inline mr-2" />
                       URL сайта
                     </button>
                   </div>
