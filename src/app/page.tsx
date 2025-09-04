@@ -4,6 +4,7 @@ import { Layout } from '@/components/layout'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { MacbookScrollDemo } from '@/components/macbook-demo'
+import { HeroSection } from '@/components/hero-section'
 import Link from 'next/link'
 import { ArrowRight, Zap, Shield, BarChart3, Users } from 'lucide-react'
 
@@ -34,59 +35,8 @@ export default function HomePage() {
   return (
     <Layout>
       <div className="max-w-7xl mx-auto">
-        {/* Hero секция с градиентом */}
-        <div 
-          className="relative h-[900px] flex items-center justify-center px-6"
-          style={{
-            background: 'linear-gradient(180deg, #6A8DB8 0%, #BDD4E5 80.29%, #FFF 100%)'
-          }}
-        >
-          <div className="max-w-6xl mx-auto w-full">
-            <div className="grid lg:grid-cols-2 gap-12 items-center">
-              {/* Левая часть - заголовок */}
-              <div className="text-white">
-                <h1 className="text-6xl font-bold mb-8 leading-tight">
-                  Intelligent Research shapes<br />
-                  the next digital products
-                </h1>
-                <p className="text-xl text-white/90 mb-12 leading-relaxed">
-                  Анализируйте пользовательский опыт с помощью GPT-4 на основе современных UX-методологий. 
-                  Получайте детальные рекомендации и структурированные отчеты для улучшения интерфейсов.
-                </p>
-              </div>
-
-              {/* Правая часть - форма загрузки */}
-              <div className="relative">
-                <div className="bg-white rounded-2xl p-8 shadow-2xl">
-                  <div className="mb-6">
-                    <div className="border-2 border-dashed border-gray-300 rounded-xl p-8 text-center hover:border-blue-400 transition-colors cursor-pointer">
-                      <div className="text-gray-500 text-lg mb-2">Загрузите изображения</div>
-                      <div className="text-sm text-gray-400">Перетащите файлы сюда или нажмите для выбора</div>
-                    </div>
-                  </div>
-                  
-                  <div className="flex gap-4 mb-6">
-                    <button className="flex-1 py-3 px-4 bg-blue-50 text-blue-600 rounded-lg font-medium border-2 border-blue-200">
-                      Скриншот
-                    </button>
-                    <button className="flex-1 py-3 px-4 text-gray-500 rounded-lg font-medium border border-gray-200 hover:bg-gray-50">
-                      URL сайта
-                    </button>
-                  </div>
-                  
-                  <div className="flex justify-end">
-                    <Link href="/dashboard">
-                      <Button size="lg" className="px-8 py-4 text-lg bg-black hover:bg-gray-800">
-                        Get the test for free
-                        <ArrowRight className="w-5 h-5 ml-2" />
-                      </Button>
-                    </Link>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
+        {/* Hero секция с градиентом на всю ширину */}
+        <HeroSection />
 
         {/* Белый фон для остального контента */}
         <div className="bg-white">

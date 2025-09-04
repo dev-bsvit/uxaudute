@@ -12,9 +12,10 @@ import { User as SupabaseUser } from '@supabase/supabase-js'
 interface LayoutProps {
   children: ReactNode
   title?: string
+  transparentHeader?: boolean
 }
 
-export function Layout({ children, title = 'UX Audit' }: LayoutProps) {
+export function Layout({ children, title = 'UX Audit', transparentHeader = false }: LayoutProps) {
   const pathname = usePathname()
   const [user, setUser] = useState<SupabaseUser | null>(null)
   const [showUserMenu, setShowUserMenu] = useState(false)
@@ -65,11 +66,15 @@ export function Layout({ children, title = 'UX Audit' }: LayoutProps) {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <header className="bg-white shadow-sm border-b">
+      <header className={`${transparentHeader ? 'bg-transparent absolute top-0 left-0 right-0 z-50' : 'bg-white shadow-sm border-b'}`}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             <div className="flex items-center space-x-8">
-              <Link href="/" className="text-xl font-bold text-blue-600 hover:text-blue-700 transition-colors">
+              <Link href="/" className={`text-xl font-bold transition-colors ${
+                transparentHeader 
+                  ? 'text-white hover:text-blue-200' 
+                  : 'text-blue-600 hover:text-blue-700'
+              }`}>
                 🎯 UX Audit
               </Link>
               
@@ -79,9 +84,13 @@ export function Layout({ children, title = 'UX Audit' }: LayoutProps) {
                     key={item.name}
                     href={item.href}
                     className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${
-                      item.current
-                        ? 'bg-blue-100 text-blue-700'
-                        : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
+                      transparentHeader
+                        ? item.current
+                          ? 'bg-white/20 text-white'
+                          : 'text-white/80 hover:text-white hover:bg-white/10'
+                        : item.current
+                          ? 'bg-blue-100 text-blue-700'
+                          : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
                     }`}
                   >
                     {item.name}
