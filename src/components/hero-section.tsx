@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { Button } from '@/components/ui/button'
+import { ImageUpload } from '@/components/ui/image-upload'
 import Link from 'next/link'
 import { ArrowRight, Upload, Link as LinkIcon, Sparkles } from 'lucide-react'
 
@@ -36,11 +37,8 @@ export function HeroSection() {
     }
   }
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const selectedFile = e.target.files?.[0]
-    if (selectedFile) {
-      setFile(selectedFile)
-    }
+  const handleFileChange = (selectedFile: File) => {
+    setFile(selectedFile)
   }
 
   const isValid = (activeTab === 'url' && url) || (activeTab === 'upload' && file)
@@ -110,27 +108,15 @@ export function HeroSection() {
                   </div>
                 ) : (
                   <div className="space-y-3">
-                    <label htmlFor="file" className="block text-sm font-medium text-gray-700">
+                    <label className="block text-sm font-medium text-gray-700">
                       Загрузить скриншот
                     </label>
-                    <div className="relative">
-                      <input
-                        id="file"
-                        type="file"
-                        accept="image/*"
-                        onChange={handleFileChange}
-                        className="w-full px-4 py-3 text-sm border-2 border-dashed border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 hover:border-blue-300"
-                        required
-                      />
-                      <Upload className="absolute right-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
-                    </div>
-                    {file && (
-                      <div className="p-3 bg-green-50 border border-green-200 rounded-lg">
-                        <p className="text-green-800 text-sm font-medium">
-                          ✅ Выбран файл: {file.name}
-                        </p>
-                      </div>
-                    )}
+                    <ImageUpload
+                      onImageSelect={handleFileChange}
+                      maxSize={10 * 1024 * 1024} // 10MB
+                      acceptedTypes={['image/jpeg', 'image/png', 'image/gif', 'image/webp']}
+                      className="w-full"
+                    />
                   </div>
                 )}
 
