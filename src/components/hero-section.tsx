@@ -9,7 +9,7 @@ import { ArrowRight, Upload, Link as LinkIcon, Sparkles } from 'lucide-react'
 export function HeroSection() {
   const [url, setUrl] = useState('')
   const [file, setFile] = useState<File | null>(null)
-  const [activeTab, setActiveTab] = useState<'url' | 'upload'>('url')
+  const [activeTab, setActiveTab] = useState<'url' | 'upload'>('upload')
   const [isLoading, setIsLoading] = useState(false)
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -65,17 +65,6 @@ export function HeroSection() {
               <div className="flex mb-6 p-1 bg-gray-100 rounded-xl">
                 <button
                   className={`flex-1 py-3 px-4 text-center rounded-lg font-medium transition-all duration-300 ${
-                    activeTab === 'url' 
-                      ? 'bg-white shadow-sm text-blue-600' 
-                      : 'text-gray-500 hover:text-gray-700'
-                  }`}
-                  onClick={() => setActiveTab('url')}
-                >
-                  <LinkIcon className="w-4 h-4 inline mr-2" />
-                  URL сайта
-                </button>
-                <button
-                  className={`flex-1 py-3 px-4 text-center rounded-lg font-medium transition-all duration-300 ${
                     activeTab === 'upload' 
                       ? 'bg-white shadow-sm text-blue-600' 
                       : 'text-gray-500 hover:text-gray-700'
@@ -84,6 +73,17 @@ export function HeroSection() {
                 >
                   <Upload className="w-4 h-4 inline mr-2" />
                   Скриншот
+                </button>
+                <button
+                  className={`flex-1 py-3 px-4 text-center rounded-lg font-medium transition-all duration-300 ${
+                    activeTab === 'url' 
+                      ? 'bg-white shadow-sm text-blue-600' 
+                      : 'text-gray-500 hover:text-gray-700'
+                  }`}
+                  onClick={() => setActiveTab('url')}
+                >
+                  <LinkIcon className="w-4 h-4 inline mr-2" />
+                  URL сайта
                 </button>
               </div>
 
