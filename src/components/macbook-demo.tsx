@@ -5,6 +5,7 @@ export function MacbookScrollDemo() {
   return (
     <div className="w-full overflow-hidden bg-white dark:bg-[#0B0B0F]">
       <MacbookScroll
+        key={`macbook-${Date.now()}`}
         title={
           <span>
             Профессиональный UX Анализ <br /> с помощью GPT-4
@@ -15,7 +16,7 @@ export function MacbookScrollDemo() {
             <span className="text-white font-bold text-lg">🎯</span>
           </div>
         }
-        src={`/ux-demo.svg`}
+        src={`/ux-demo.svg?v=${Date.now()}`}
         showGradient={false}
       />
     </div>
