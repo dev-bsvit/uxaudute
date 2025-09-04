@@ -1,9 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { openai, UX_RESEARCH_PROMPT } from '@/lib/openai'
+import { openai } from '@/lib/openai'
+import { loadMainPrompt, combineWithContext } from '@/lib/prompt-loader'
 
 export async function POST(request: NextRequest) {
   try {
-    const { url, screenshot } = await request.json()
+    const { url, screenshot, context } = await request.json()
 
     if (!url && !screenshot) {
       return NextResponse.json(
@@ -12,9 +13,13 @@ export async function POST(request: NextRequest) {
       )
     }
 
+    // Загружаем основной промпт и объединяем с контекстом
+    const mainPrompt = await loadMainPrompt()
+    const finalPrompt = combineWithContext(mainPrompt, context)
+
     if (url) {
       // Реальный анализ через OpenAI
-      const analysisPrompt = `${UX_RESEARCH_PROMPT}\n\nПроанализируй сайт по URL: ${url}\n\nПоскольку я не могу получить скриншот, проведи анализ основываясь на общих принципах UX для данного типа сайта.`
+      const analysisPrompt = `${finalPrompt}\n\nПроанализируй сайт по URL: ${url}\n\nПоскольку я не могу получить скриншот, проведи анализ основываясь на общих принципах UX для данного типа сайта.`
       
       const completion = await openai.chat.completions.create({
         model: "gpt-4o",
@@ -66,7 +71,7 @@ export async function POST(request: NextRequest) {
       const description = descriptionCompletion.choices[0]?.message?.content || 'Не удалось описать изображение'
       
       // Шаг 2: Проводим UX анализ на основе описания
-      const analysisPrompt = `${UX_RESEARCH_PROMPT}
+      const analysisPrompt = `${finalPrompt}
 
 Описание интерфейса из изображения:
 ${description}
