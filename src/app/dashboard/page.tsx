@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { Layout } from '@/components/layout'
+import { SidebarDemo } from '@/components/sidebar-demo'
 import { UploadForm } from '@/components/upload-form'
 import { ActionPanel } from '@/components/action-panel'
 import { AnalysisResult } from '@/components/analysis-result'
@@ -218,31 +218,33 @@ export default function DashboardPage() {
 
   if (loading) {
     return (
-      <Layout title="Dashboard">
-        <div className="flex items-center justify-center min-h-screen">
-          <div className="animate-spin rounded-full h-8 w-8 border-2 border-blue-500 border-t-transparent"></div>
+      <div className="min-h-screen bg-gray-100 flex items-center justify-center">
+        <div className="animate-spin rounded-full h-8 w-8 border-2 border-blue-500 border-t-transparent"></div>
+      </div>
+    )
+  }
+
+  if (!user) {
+    return (
+      <div className="min-h-screen bg-gray-100 flex items-center justify-center">
+        <div className="max-w-md mx-auto bg-white rounded-2xl shadow-lg p-8">
+          <div className="text-center mb-8">
+            <h2 className="text-3xl font-bold text-slate-900 mb-4">
+              Добро пожаловать в UX Audit
+            </h2>
+            <p className="text-lg text-slate-600">
+              Войдите в систему для начала профессионального анализа пользовательского опыта
+            </p>
+          </div>
+          <Auth onAuthChange={setUser} />
         </div>
-      </Layout>
+      </div>
     )
   }
 
   return (
-    <Layout title="UX Audit Dashboard">
-      <div className="max-w-7xl mx-auto space-y-8">
-        {/* Если пользователь не авторизован */}
-        {!user && (
-          <div className="max-w-md mx-auto">
-            <div className="text-center mb-8">
-              <h2 className="text-3xl font-bold text-slate-900 mb-4">
-                Добро пожаловать в UX Audit
-              </h2>
-              <p className="text-slate-600">
-                Войдите в систему для начала профессионального анализа пользовательского опыта
-              </p>
-            </div>
-            <Auth onAuthChange={setUser} />
-          </div>
-        )}
+    <SidebarDemo user={user}>
+      <div className="space-y-8">
 
         {/* Если пользователь авторизован */}
         {user && !result && (
@@ -338,6 +340,6 @@ export default function DashboardPage() {
           </>
         )}
       </div>
-    </Layout>
+    </SidebarDemo>
   )
 }
