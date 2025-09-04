@@ -153,7 +153,7 @@ export function ImageUpload({
           disabled && 'opacity-50 cursor-not-allowed',
           error && 'border-red-300 bg-red-50'
         )}
-        style={{ minHeight: '120px' }}
+        style={{ minHeight: '190px' }}
         onDragEnter={handleDrag}
         onDragLeave={handleDrag}
         onDragOver={handleDrag}

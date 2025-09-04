@@ -63,14 +63,11 @@ export function HeroSection() {
           
           {/* Форма загрузки по центру */}
           <div className="w-full max-w-2xl mx-auto">
-            <div className="bg-white rounded-2xl p-8 shadow-2xl">
+            <div className="bg-white rounded-[32px] p-4 shadow-2xl">
               <form onSubmit={handleSubmit} className="space-y-6">
                 {/* Поле загрузки сверху */}
                 {activeTab === 'url' ? (
                   <div className="space-y-3">
-                    <label htmlFor="url" className="block text-sm font-medium text-gray-700">
-                      Ссылка на страницу для анализа
-                    </label>
                     <div className="relative">
                       <input
                         id="url"
@@ -79,7 +76,7 @@ export function HeroSection() {
                         onChange={(e) => setUrl(e.target.value)}
                         placeholder="https://example.com"
                         className="w-full px-4 py-3 text-sm border-2 border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 flex items-center justify-center"
-                        style={{ minHeight: '120px' }}
+                        style={{ minHeight: '190px' }}
                         required
                       />
                       <LinkIcon className="absolute right-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
@@ -99,7 +96,7 @@ export function HeroSection() {
                 {/* Кнопки переключатели снизу слева и кнопка справа */}
                 <div className="flex items-center justify-between">
                   {/* Кнопки переключатели слева */}
-                  <div className="flex gap-2 p-4 rounded-[30px]" style={{ padding: '16px', borderRadius: '30px' }}>
+                  <div className="flex gap-2 rounded-[30px]" style={{ borderRadius: '30px' }}>
                     <button
                       type="button"
                       className="px-4 py-2 transition-all duration-300"
