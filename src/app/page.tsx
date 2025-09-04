@@ -37,9 +37,8 @@ export default function HomePage() {
       {/* Hero секция с градиентом на всю ширину */}
       <HeroSection />
       
-      <div className="max-w-7xl mx-auto">
-        {/* Белый фон для остального контента */}
-        <div className="bg-white">
+      <div className="bg-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           {/* Macbook Scroll Demo */}
           <div className="py-20">
             <MacbookScrollDemo />
