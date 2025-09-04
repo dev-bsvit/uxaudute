@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useParams, useRouter } from 'next/navigation'
-import { Layout } from '@/components/layout'
+import { SidebarDemo } from '@/components/sidebar-demo'
 import { UploadForm } from '@/components/upload-form'
 import { AnalysisResult } from '@/components/analysis-result'
 import { ActionPanel } from '@/components/action-panel'
@@ -260,18 +260,16 @@ export default function ProjectDetailPage() {
 
   if (loading) {
     return (
-      <Layout>
-        <div className="flex items-center justify-center p-8">
-          <div className="animate-spin rounded-full h-8 w-8 border-2 border-blue-500 border-t-transparent"></div>
-        </div>
-      </Layout>
+      <div className="min-h-screen bg-gray-100 flex items-center justify-center">
+        <div className="animate-spin rounded-full h-8 w-8 border-2 border-blue-500 border-t-transparent"></div>
+      </div>
     )
   }
 
-  if (!project) {
+  if (!project || !user) {
     return (
-      <Layout>
-        <div className="text-center py-12">
+      <div className="min-h-screen bg-gray-100 flex items-center justify-center">
+        <div className="text-center py-12 bg-white rounded-2xl shadow-lg p-8">
           <h2 className="text-2xl font-bold text-slate-900 mb-4">Проект не найден</h2>
           <Link href="/projects">
             <Button>
@@ -280,13 +278,13 @@ export default function ProjectDetailPage() {
             </Button>
           </Link>
         </div>
-      </Layout>
+      </div>
     )
   }
 
   return (
-    <Layout title={project.name}>
-      <div className="max-w-7xl mx-auto space-y-6">
+    <SidebarDemo user={user}>
+      <div className="p-8 space-y-6">
         {/* Хедер проекта */}
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-4">
@@ -503,6 +501,6 @@ export default function ProjectDetailPage() {
           </>
         )}
       </div>
-    </Layout>
+    </SidebarDemo>
   )
 }
