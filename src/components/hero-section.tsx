@@ -48,7 +48,7 @@ export function HeroSection() {
 
   return (
     <div 
-      className="relative w-full h-[120vh] flex items-center justify-center px-6"
+      className="relative w-full h-[100vh] flex items-center justify-center px-6"
       style={{
         background: 'linear-gradient(180deg, #6A8DB8 0%, #BDD4E5 80.29%, #FFF 100%)'
       }}
@@ -56,7 +56,18 @@ export function HeroSection() {
         <div className="w-full">
         <div className="text-center">
           {/* Центрированный заголовок */}
-          <h1 className="text-6xl font-bold mb-8 leading-tight text-white">
+          <h1 
+            className="mb-8 leading-tight text-white"
+            style={{
+              color: '#FFF',
+              textAlign: 'center',
+              fontFamily: 'Inter Display',
+              fontSize: '80px',
+              fontStyle: 'normal',
+              fontWeight: 600,
+              lineHeight: '90%'
+            }}
+          >
             Intelligent Research shapes<br />
             the next digital products
           </h1>
