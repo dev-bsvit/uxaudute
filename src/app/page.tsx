@@ -34,95 +34,117 @@ export default function HomePage() {
   return (
     <Layout>
       <div className="max-w-7xl mx-auto">
-        {/* Hero секция */}
-        <div className="text-center py-20 px-6">
-          <div className="max-w-4xl mx-auto">
-            <div className="flex items-center justify-center mb-8">
-              <div className="flex items-center justify-center w-24 h-24 bg-gradient-to-br from-blue-500 to-purple-600 rounded-3xl shadow-xl">
-                <span className="text-4xl">🎯</span>
+        {/* Hero секция с градиентом */}
+        <div 
+          className="relative h-[900px] flex items-center justify-center px-6"
+          style={{
+            background: 'linear-gradient(180deg, #6A8DB8 0%, #BDD4E5 80.29%, #FFF 100%)'
+          }}
+        >
+          <div className="max-w-6xl mx-auto w-full">
+            <div className="grid lg:grid-cols-2 gap-12 items-center">
+              {/* Левая часть - заголовок */}
+              <div className="text-white">
+                <h1 className="text-6xl font-bold mb-8 leading-tight">
+                  Intelligent Research shapes<br />
+                  the next digital products
+                </h1>
+                <p className="text-xl text-white/90 mb-12 leading-relaxed">
+                  Анализируйте пользовательский опыт с помощью GPT-4 на основе современных UX-методологий. 
+                  Получайте детальные рекомендации и структурированные отчеты для улучшения интерфейсов.
+                </p>
+              </div>
+
+              {/* Правая часть - форма загрузки */}
+              <div className="relative">
+                <div className="bg-white rounded-2xl p-8 shadow-2xl">
+                  <div className="mb-6">
+                    <div className="border-2 border-dashed border-gray-300 rounded-xl p-8 text-center hover:border-blue-400 transition-colors cursor-pointer">
+                      <div className="text-gray-500 text-lg mb-2">Загрузите изображения</div>
+                      <div className="text-sm text-gray-400">Перетащите файлы сюда или нажмите для выбора</div>
+                    </div>
+                  </div>
+                  
+                  <div className="flex gap-4 mb-6">
+                    <button className="flex-1 py-3 px-4 bg-blue-50 text-blue-600 rounded-lg font-medium border-2 border-blue-200">
+                      Скриншот
+                    </button>
+                    <button className="flex-1 py-3 px-4 text-gray-500 rounded-lg font-medium border border-gray-200 hover:bg-gray-50">
+                      URL сайта
+                    </button>
+                  </div>
+                  
+                  <div className="flex justify-end">
+                    <Link href="/dashboard">
+                      <Button size="lg" className="px-8 py-4 text-lg bg-black hover:bg-gray-800">
+                        Get the test for free
+                        <ArrowRight className="w-5 h-5 ml-2" />
+                      </Button>
+                    </Link>
+                  </div>
+                </div>
               </div>
             </div>
-            
-            <h1 className="text-5xl font-bold text-slate-900 mb-6 leading-tight">
-              Профессиональный
-              <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent"> UX Анализ</span>
-            </h1>
-            
-            <p className="text-xl text-slate-600 mb-10 max-w-3xl mx-auto leading-relaxed">
-              Анализируйте пользовательский опыт с помощью GPT-4 на основе современных UX-методологий. 
-              Получайте детальные рекомендации и структурированные отчеты для улучшения интерфейсов.
-            </p>
-            
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+          </div>
+        </div>
+
+        {/* Белый фон для остального контента */}
+        <div className="bg-white">
+          {/* Macbook Scroll Demo */}
+          <div className="py-20">
+            <MacbookScrollDemo />
+          </div>
+
+          {/* Особенности */}
+          <div className="py-20">
+            <div className="max-w-6xl mx-auto px-6">
+              <div className="text-center mb-16">
+                <h2 className="text-3xl font-bold text-slate-900 mb-4">
+                  Почему выбирают UX Audit?
+                </h2>
+                <p className="text-lg text-slate-600 max-w-2xl mx-auto">
+                  Современный подход к анализу пользовательского опыта с использованием ИИ и проверенных методологий
+                </p>
+              </div>
+              
+              <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+                {features.map((feature, index) => (
+                  <Card key={index} className="text-center border-0 shadow-lg hover:shadow-xl transition-shadow bg-white">
+                    <CardHeader>
+                      <div className="flex justify-center mb-4">
+                        {feature.icon}
+                      </div>
+                      <CardTitle className="text-xl text-slate-900">
+                        {feature.title}
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <p className="text-slate-600 leading-relaxed">
+                        {feature.description}
+                      </p>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* CTA секция */}
+          <div className="py-20 text-center">
+            <div className="max-w-3xl mx-auto px-6">
+              <h2 className="text-3xl font-bold text-slate-900 mb-6">
+                Готовы улучшить пользовательский опыт?
+              </h2>
+              <p className="text-lg text-slate-600 mb-8">
+                Начните анализ своих интерфейсов прямо сейчас. Войдите в систему и создайте свой первый проект.
+              </p>
               <Link href="/dashboard">
                 <Button size="lg" className="px-8 py-4 text-lg">
-                  Начать анализ
+                  Начать бесплатно
                   <ArrowRight className="w-5 h-5 ml-2" />
                 </Button>
               </Link>
-              <Link href="/projects">
-                <Button variant="outline" size="lg" className="px-8 py-4 text-lg border-2 border-slate-700 text-slate-700 hover:bg-slate-700 hover:text-white">
-                  Мои проекты
-                </Button>
-              </Link>
             </div>
-          </div>
-        </div>
-
-        {/* Macbook Scroll Demo */}
-        <div className="py-20">
-          <MacbookScrollDemo />
-        </div>
-
-        {/* Особенности */}
-        <div className="py-20 bg-gradient-to-br from-slate-50 to-blue-50 rounded-3xl">
-          <div className="max-w-6xl mx-auto px-6">
-            <div className="text-center mb-16">
-              <h2 className="text-3xl font-bold text-slate-900 mb-4">
-                Почему выбирают UX Audit?
-              </h2>
-              <p className="text-lg text-slate-600 max-w-2xl mx-auto">
-                Современный подход к анализу пользовательского опыта с использованием ИИ и проверенных методологий
-              </p>
-            </div>
-            
-            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
-              {features.map((feature, index) => (
-                <Card key={index} className="text-center border-0 shadow-lg hover:shadow-xl transition-shadow bg-white/70 backdrop-blur-sm">
-                  <CardHeader>
-                    <div className="flex justify-center mb-4">
-                      {feature.icon}
-                    </div>
-                    <CardTitle className="text-xl text-slate-900">
-                      {feature.title}
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <p className="text-slate-600 leading-relaxed">
-                      {feature.description}
-                    </p>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          </div>
-        </div>
-
-        {/* CTA секция */}
-        <div className="py-20 text-center">
-          <div className="max-w-3xl mx-auto px-6">
-            <h2 className="text-3xl font-bold text-slate-900 mb-6">
-              Готовы улучшить пользовательский опыт?
-            </h2>
-            <p className="text-lg text-slate-600 mb-8">
-              Начните анализ своих интерфейсов прямо сейчас. Войдите в систему и создайте свой первый проект.
-            </p>
-            <Link href="/dashboard">
-              <Button size="lg" className="px-8 py-4 text-lg">
-                Начать бесплатно
-                <ArrowRight className="w-5 h-5 ml-2" />
-              </Button>
-            </Link>
           </div>
         </div>
       </div>
