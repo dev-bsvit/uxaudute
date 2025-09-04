@@ -1,5 +1,6 @@
 'use client'
 
+import { Fragment } from 'react'
 import { Layout } from '@/components/layout'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -33,13 +34,15 @@ export default function HomePage() {
   ]
 
   return (
-    <Layout>
-      <div className="max-w-7xl mx-auto">
-        {/* Hero секция с градиентом на всю ширину */}
-        <HeroSection />
-
-        {/* Белый фон для остального контента */}
-        <div className="bg-white">
+    <>
+      {/* Hero секция с градиентом на всю ширину - ВНЕ Layout */}
+      <HeroSection />
+      
+      {/* Layout для остального контента */}
+      <Layout>
+        <div className="max-w-7xl mx-auto">
+          {/* Белый фон для остального контента */}
+          <div className="bg-white">
           {/* Macbook Scroll Demo */}
           <div className="py-20">
             <MacbookScrollDemo />
@@ -96,8 +99,9 @@ export default function HomePage() {
               </Link>
             </div>
           </div>
+          </div>
         </div>
-      </div>
-    </Layout>
+      </Layout>
+    </>
   )
 }
