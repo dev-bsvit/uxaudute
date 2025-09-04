@@ -48,7 +48,7 @@ export function HeroSection() {
 
   return (
     <div 
-      className="relative w-full h-[100vh] flex items-center justify-center px-6"
+      className="relative w-full h-[110vh] flex items-center justify-center px-6"
       style={{
         background: 'linear-gradient(180deg, #6A8DB8 0%, #BDD4E5 80.29%, #FFF 100%)'
       }}
