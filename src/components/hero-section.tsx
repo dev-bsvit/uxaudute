@@ -12,7 +12,7 @@ export function HeroSection() {
         background: 'linear-gradient(180deg, #6A8DB8 0%, #BDD4E5 80.29%, #FFF 100%)'
       }}
     >
-        <div className="max-w-6xl mx-auto w-full">
+        <div className="w-full">
         <div className="text-center">
           {/* Центрированный заголовок */}
           <h1 className="text-6xl font-bold mb-8 leading-tight text-white">
@@ -21,7 +21,7 @@ export function HeroSection() {
           </h1>
           
           {/* Форма загрузки по центру */}
-          <div className="max-w-2xl mx-auto">
+          <div className="w-full max-w-2xl mx-auto">
             <div className="bg-white rounded-2xl p-8 shadow-2xl">
               <div className="mb-6">
                 <div className="border-2 border-dashed border-gray-300 rounded-xl p-8 text-center hover:border-blue-400 transition-colors cursor-pointer">
