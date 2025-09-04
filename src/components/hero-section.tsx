@@ -17,14 +17,16 @@ export function HeroSection() {
     
     try {
       if (activeTab === 'url' && url) {
-        // Перенаправляем на дашборд с URL
-        window.location.href = `/dashboard?url=${encodeURIComponent(url)}`
+        // Сохраняем URL в localStorage и перенаправляем
+        localStorage.setItem('pendingAnalysis', JSON.stringify({ type: 'url', data: url }))
+        window.location.href = '/dashboard'
       } else if (activeTab === 'upload' && file) {
-        // Конвертируем файл в base64 и перенаправляем
+        // Конвертируем файл в base64 и сохраняем в localStorage
         const reader = new FileReader()
         reader.onload = () => {
           const base64String = reader.result as string
-          window.location.href = `/dashboard?screenshot=${encodeURIComponent(base64String)}`
+          localStorage.setItem('pendingAnalysis', JSON.stringify({ type: 'screenshot', data: base64String }))
+          window.location.href = '/dashboard'
         }
         reader.readAsDataURL(file)
       }

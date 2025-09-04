@@ -37,6 +37,31 @@ export default function DashboardPage() {
       setLoading(false)
     })
 
+    // Проверяем данные из localStorage (с главной страницы)
+    const pendingAnalysis = localStorage.getItem('pendingAnalysis')
+    if (pendingAnalysis) {
+      try {
+        const data = JSON.parse(pendingAnalysis)
+        if (data.type === 'url') {
+          setAnalysisUrl(data.data)
+          // Автоматически запускаем анализ
+          setTimeout(() => {
+            handleUpload({ url: data.data })
+          }, 1000)
+        } else if (data.type === 'screenshot') {
+          setUploadedScreenshot(data.data)
+          // Автоматически запускаем анализ
+          setTimeout(() => {
+            handleUpload({ screenshot: data.data })
+          }, 1000)
+        }
+        // Очищаем данные из localStorage
+        localStorage.removeItem('pendingAnalysis')
+      } catch (error) {
+        console.error('Error parsing pending analysis:', error)
+      }
+    }
+
     return () => subscription.unsubscribe()
   }, [])
 
