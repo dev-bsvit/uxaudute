@@ -61,33 +61,8 @@ export function HeroSection() {
           {/* Форма загрузки по центру */}
           <div className="w-full max-w-2xl mx-auto">
             <div className="bg-white rounded-2xl p-8 shadow-2xl">
-              {/* Красивые табы */}
-              <div className="flex mb-6 p-1 bg-gray-100 rounded-xl">
-                <button
-                  className={`flex-1 py-3 px-4 text-center rounded-lg font-medium transition-all duration-300 ${
-                    activeTab === 'upload' 
-                      ? 'bg-white shadow-sm text-blue-600' 
-                      : 'text-gray-500 hover:text-gray-700'
-                  }`}
-                  onClick={() => setActiveTab('upload')}
-                >
-                  <Upload className="w-4 h-4 inline mr-2" />
-                  Скриншот
-                </button>
-                <button
-                  className={`flex-1 py-3 px-4 text-center rounded-lg font-medium transition-all duration-300 ${
-                    activeTab === 'url' 
-                      ? 'bg-white shadow-sm text-blue-600' 
-                      : 'text-gray-500 hover:text-gray-700'
-                  }`}
-                  onClick={() => setActiveTab('url')}
-                >
-                  <LinkIcon className="w-4 h-4 inline mr-2" />
-                  URL сайта
-                </button>
-              </div>
-
               <form onSubmit={handleSubmit} className="space-y-6">
+                {/* Поле загрузки сверху */}
                 {activeTab === 'url' ? (
                   <div className="space-y-3">
                     <label htmlFor="url" className="block text-sm font-medium text-gray-700">
@@ -120,24 +95,56 @@ export function HeroSection() {
                   </div>
                 )}
 
-                <Button
-                  type="submit"
-                  disabled={!isValid || isLoading}
-                  size="lg"
-                  className="w-full text-lg font-bold bg-black hover:bg-gray-800"
-                >
-                  {isLoading ? (
-                    <>
-                      <div className="animate-spin rounded-full h-5 w-5 border-2 border-white border-t-transparent mr-3"></div>
-                      Анализируем...
-                    </>
-                  ) : (
-                    <>
-                      <Sparkles className="w-5 h-5 mr-3" />
-                      Get the test for free
-                    </>
-                  )}
-                </Button>
+                {/* Кнопки переключатели снизу слева и кнопка справа */}
+                <div className="flex items-center justify-between">
+                  {/* Кнопки переключатели слева */}
+                  <div className="flex gap-2">
+                    <button
+                      type="button"
+                      className={`px-4 py-2 text-sm font-medium rounded-lg transition-all duration-300 ${
+                        activeTab === 'upload' 
+                          ? 'bg-blue-100 text-blue-600 border-2 border-blue-200' 
+                          : 'bg-white text-gray-500 border border-gray-200 hover:bg-gray-50'
+                      }`}
+                      onClick={() => setActiveTab('upload')}
+                    >
+                      <Upload className="w-4 h-4 inline mr-2" />
+                      Скриншот
+                    </button>
+                    <button
+                      type="button"
+                      className={`px-4 py-2 text-sm font-medium rounded-lg transition-all duration-300 ${
+                        activeTab === 'url' 
+                          ? 'bg-blue-100 text-blue-600 border-2 border-blue-200' 
+                          : 'bg-white text-gray-500 border border-gray-200 hover:bg-gray-50'
+                      }`}
+                      onClick={() => setActiveTab('url')}
+                    >
+                      <LinkIcon className="w-4 h-4 inline mr-2" />
+                      URL сайта
+                    </button>
+                  </div>
+
+                  {/* Кнопка справа */}
+                  <Button
+                    type="submit"
+                    disabled={!isValid || isLoading}
+                    size="lg"
+                    className="text-lg font-bold bg-black hover:bg-gray-800"
+                  >
+                    {isLoading ? (
+                      <>
+                        <div className="animate-spin rounded-full h-5 w-5 border-2 border-white border-t-transparent mr-3"></div>
+                        Анализируем...
+                      </>
+                    ) : (
+                      <>
+                        <Sparkles className="w-5 h-5 mr-3" />
+                        Get the test for free
+                      </>
+                    )}
+                  </Button>
+                </div>
               </form>
             </div>
           </div>
