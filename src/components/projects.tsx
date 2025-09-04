@@ -91,15 +91,15 @@ export function Projects({ user, onProjectSelect }: ProjectsProps) {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-bold text-slate-900">Мои проекты</h2>
-          <p className="text-slate-600">Управляйте своими UX исследованиями</p>
+          <h2 className="text-2xl font-bold text-slate-900">Управление проектами</h2>
+          <p className="text-slate-600">Создавайте и организуйте свои UX исследования</p>
         </div>
         <Button
           onClick={() => setShowCreateForm(true)}
-          className="flex items-center gap-2"
+          className="flex items-center gap-2 bg-black hover:bg-gray-800 text-white px-6 py-3 rounded-lg font-medium"
         >
           <Plus className="w-4 h-4" />
           Новый проект
@@ -108,124 +108,126 @@ export function Projects({ user, onProjectSelect }: ProjectsProps) {
 
       {/* Форма создания проекта */}
       {showCreateForm && (
-        <Card>
-          <CardHeader>
-            <CardTitle>Создать новый проект</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <form onSubmit={handleCreateProject} className="space-y-4">
-              <div>
-                <label htmlFor="projectName" className="block text-sm font-medium text-slate-700 mb-1">
-                  Название проекта
-                </label>
-                <input
-                  id="projectName"
-                  type="text"
-                  value={newProject.name}
-                  onChange={(e) => setNewProject({ ...newProject, name: e.target.value })}
-                  className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  placeholder="Например: Редизайн интернет-магазина"
-                  required
-                />
-              </div>
-              
-              <div>
-                <label htmlFor="projectDescription" className="block text-sm font-medium text-slate-700 mb-1">
-                  Описание (опционально)
-                </label>
-                <textarea
-                  id="projectDescription"
-                  value={newProject.description}
-                  onChange={(e) => setNewProject({ ...newProject, description: e.target.value })}
-                  className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  rows={3}
-                  placeholder="Краткое описание целей проекта"
-                />
-              </div>
+        <div className="bg-white rounded-2xl border border-gray-200 shadow-lg p-8">
+          <div className="mb-6">
+            <h3 className="text-2xl font-bold text-slate-900 mb-2">Создать новый проект</h3>
+            <p className="text-slate-600">Заполните информацию о вашем новом UX проекте</p>
+          </div>
+          
+          <form onSubmit={handleCreateProject} className="space-y-6">
+            <div>
+              <label htmlFor="projectName" className="block text-sm font-medium text-slate-700 mb-2">
+                Название проекта
+              </label>
+              <input
+                id="projectName"
+                type="text"
+                value={newProject.name}
+                onChange={(e) => setNewProject({ ...newProject, name: e.target.value })}
+                className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+                placeholder="Например: Редизайн интернет-магазина"
+                required
+              />
+            </div>
+            
+            <div>
+              <label htmlFor="projectDescription" className="block text-sm font-medium text-slate-700 mb-2">
+                Описание (опционально)
+              </label>
+              <textarea
+                id="projectDescription"
+                value={newProject.description}
+                onChange={(e) => setNewProject({ ...newProject, description: e.target.value })}
+                className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+                rows={4}
+                placeholder="Краткое описание целей проекта"
+              />
+            </div>
 
-              <div className="flex gap-3">
-                <Button
-                  type="submit"
-                  disabled={creating}
-                  className="flex items-center gap-2"
-                >
-                  {creating ? (
-                    <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent"></div>
-                  ) : (
-                    <Plus className="w-4 h-4" />
-                  )}
-                  Создать
-                </Button>
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={() => {
-                    setShowCreateForm(false)
-                    setNewProject({ name: '', description: '' })
-                  }}
-                >
-                  Отмена
-                </Button>
-              </div>
-            </form>
-          </CardContent>
-        </Card>
+            <div className="flex gap-4 pt-4">
+              <Button
+                type="submit"
+                disabled={creating}
+                className="flex items-center gap-2 bg-black hover:bg-gray-800 text-white px-6 py-3 rounded-lg font-medium"
+              >
+                {creating ? (
+                  <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent"></div>
+                ) : (
+                  <Plus className="w-4 h-4" />
+                )}
+                Создать проект
+              </Button>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => {
+                  setShowCreateForm(false)
+                  setNewProject({ name: '', description: '' })
+                }}
+                className="px-6 py-3 rounded-lg font-medium border-2 border-gray-200 hover:border-gray-300"
+              >
+                Отмена
+              </Button>
+            </div>
+          </form>
+        </div>
       )}
 
       {/* Список проектов */}
       {projects.length === 0 ? (
-        <Card>
-          <CardContent className="text-center py-12">
-            <FolderOpen className="w-12 h-12 text-slate-400 mx-auto mb-4" />
-            <h3 className="text-lg font-semibold text-slate-900 mb-2">
-              У вас пока нет проектов
-            </h3>
-            <p className="text-slate-600 mb-4">
-              Создайте первый проект, чтобы начать UX исследования
-            </p>
-            <Button
-              onClick={() => setShowCreateForm(true)}
-              className="flex items-center gap-2 mx-auto"
-            >
-              <Plus className="w-4 h-4" />
-              Создать проект
-            </Button>
-          </CardContent>
-        </Card>
+        <div className="bg-white rounded-2xl border border-gray-200 shadow-lg p-12 text-center">
+          <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-6">
+            <FolderOpen className="w-8 h-8 text-gray-400" />
+          </div>
+          <h3 className="text-2xl font-bold text-slate-900 mb-3">
+            У вас пока нет проектов
+          </h3>
+          <p className="text-lg text-slate-600 mb-8 max-w-md mx-auto">
+            Создайте первый проект, чтобы начать UX исследования и анализ интерфейсов
+          </p>
+          <Button
+            onClick={() => setShowCreateForm(true)}
+            className="flex items-center gap-2 mx-auto bg-black hover:bg-gray-800 text-white px-8 py-4 rounded-lg font-medium text-lg"
+          >
+            <Plus className="w-5 h-5" />
+            Создать первый проект
+          </Button>
+        </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {projects.map((project) => (
-            <Card key={project.id} className="hover:shadow-md transition-shadow cursor-pointer">
+            <div key={project.id} className="bg-white rounded-2xl border border-gray-200 shadow-lg hover:shadow-xl transition-all duration-300 cursor-pointer group">
               <Link href={`/projects/${project.id}`}>
-                <CardHeader className="pb-3">
-                  <div className="flex items-start justify-between">
+                <div className="p-6">
+                  <div className="flex items-start justify-between mb-4">
                     <div className="flex-1">
-                      <CardTitle className="text-lg font-semibold text-slate-900 mb-1">
+                      <h3 className="text-xl font-bold text-slate-900 mb-2 group-hover:text-blue-600 transition-colors">
                         {project.name}
-                      </CardTitle>
+                      </h3>
                       {project.description && (
-                        <p className="text-sm text-slate-600 line-clamp-2">
+                        <p className="text-slate-600 line-clamp-2 leading-relaxed">
                           {project.description}
                         </p>
                       )}
                     </div>
-                    <FolderOpen className="w-5 h-5 text-blue-500 flex-shrink-0 ml-2" />
-                  </div>
-                </CardHeader>
-                <CardContent className="pt-0">
-                  <div className="flex items-center justify-between text-sm text-slate-600">
-                    <div className="flex items-center gap-1">
-                      <BarChart3 className="w-4 h-4" />
-                      <span>{project.auditsCount || 0} аудитов</span>
+                    <div className="w-10 h-10 bg-blue-50 rounded-lg flex items-center justify-center flex-shrink-0 ml-3">
+                      <FolderOpen className="w-5 h-5 text-blue-500" />
                     </div>
-                    <div className="flex items-center gap-1">
+                  </div>
+                  
+                  <div className="flex items-center justify-between text-sm text-slate-500 pt-4 border-t border-gray-100">
+                    <div className="flex items-center gap-2">
+                      <BarChart3 className="w-4 h-4" />
+                      <span className="font-medium">{project.auditsCount || 0} аудитов</span>
+                    </div>
+                    <div className="flex items-center gap-2">
                       <Calendar className="w-4 h-4" />
                       <span>{formatDate(project.created_at)}</span>
                     </div>
                   </div>
-                </CardContent>
+                </div>
               </Link>
-            </Card>
+            </div>
           ))}
         </div>
       )}
