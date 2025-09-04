@@ -72,7 +72,7 @@ export function SidebarDemo({ children, user }: SidebarDemoProps) {
         "h-screen", // Используем h-screen для полной высоты
       )}
     >
-      <Sidebar open={open} setOpen={setOpen} animate={false}>
+      <Sidebar open={open} setOpen={setOpen} animate={true}>
         <SidebarBody className="justify-between gap-10">
           <div className="flex flex-1 flex-col overflow-x-hidden overflow-y-auto">
             <>
@@ -107,7 +107,7 @@ export function SidebarDemo({ children, user }: SidebarDemoProps) {
         </SidebarBody>
       </Sidebar>
       <div className="flex flex-1">
-        <div className="flex h-full w-full flex-1 flex-col bg-white dark:bg-neutral-900">
+        <div className="flex h-full w-full flex-1 flex-col bg-white dark:bg-neutral-900 overflow-y-auto">
           {children}
         </div>
       </div>
