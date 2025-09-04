@@ -5,7 +5,7 @@ import { SidebarDemo } from '@/components/sidebar-demo'
 import { UploadForm } from '@/components/upload-form'
 import { ActionPanel } from '@/components/action-panel'
 import { AnalysisResult } from '@/components/analysis-result'
-import { AnalysisProgress } from '@/components/analysis-progress'
+import { AnalysisModal } from '@/components/analysis-modal'
 import { Auth } from '@/components/auth'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -301,15 +301,14 @@ export default function DashboardPage() {
           </>
         )}
 
-        {/* Прогресс анализа */}
-        {user && isAnalyzing && !result && (
-          <div className="max-w-2xl mx-auto">
-            <AnalysisProgress
-              screenshot={uploadedScreenshot}
-              url={analysisUrl}
-            />
-          </div>
-        )}
+        {/* Модальное окно прогресса анализа */}
+        <AnalysisModal
+          isOpen={isAnalyzing}
+          onClose={() => setIsAnalyzing(false)}
+          screenshot={uploadedScreenshot}
+          url={analysisUrl}
+          canClose={false}
+        />
 
         {/* Результаты анализа */}
         {user && result && (

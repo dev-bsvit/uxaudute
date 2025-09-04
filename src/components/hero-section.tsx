@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { ImageUpload } from '@/components/ui/image-upload'
+import { AnalysisModal } from '@/components/analysis-modal'
 import Link from 'next/link'
 import { ArrowRight, Upload, Link as LinkIcon, Sparkles } from 'lucide-react'
 
@@ -11,6 +12,8 @@ export function HeroSection() {
   const [file, setFile] = useState<File | null>(null)
   const [activeTab, setActiveTab] = useState<'url' | 'upload'>('upload')
   const [isLoading, setIsLoading] = useState(false)
+  const [isAnalyzing, setIsAnalyzing] = useState(false)
+  const [analysisData, setAnalysisData] = useState<{url?: string; screenshot?: string} | null>(null)
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -18,16 +21,27 @@ export function HeroSection() {
     
     try {
       if (activeTab === 'url' && url) {
+        // Сохраняем данные для модального окна
+        setAnalysisData({ url })
+        setIsAnalyzing(true)
         // Сохраняем URL в localStorage и перенаправляем
         localStorage.setItem('pendingAnalysis', JSON.stringify({ type: 'url', data: url }))
-        window.location.href = '/dashboard'
+        setTimeout(() => {
+          window.location.href = '/dashboard'
+        }, 2000) // Даем время показать модальное окно
       } else if (activeTab === 'upload' && file) {
-        // Конвертируем файл в base64 и сохраняем в localStorage
+        // Конвертируем файл в base64
         const reader = new FileReader()
         reader.onload = () => {
           const base64String = reader.result as string
+          // Сохраняем данные для модального окна
+          setAnalysisData({ screenshot: base64String })
+          setIsAnalyzing(true)
+          // Сохраняем в localStorage и перенаправляем
           localStorage.setItem('pendingAnalysis', JSON.stringify({ type: 'screenshot', data: base64String }))
-          window.location.href = '/dashboard'
+          setTimeout(() => {
+            window.location.href = '/dashboard'
+          }, 2000) // Даем время показать модальное окно
         }
         reader.readAsDataURL(file)
       } else {
@@ -167,6 +181,15 @@ export function HeroSection() {
           </div>
         </div>
       </div>
+
+      {/* Модальное окно прогресса анализа */}
+      <AnalysisModal
+        isOpen={isAnalyzing}
+        onClose={() => setIsAnalyzing(false)}
+        screenshot={analysisData?.screenshot}
+        url={analysisData?.url}
+        canClose={true}
+      />
     </div>
   )
 }
