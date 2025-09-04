@@ -5,6 +5,7 @@ import { SidebarDemo } from '@/components/sidebar-demo'
 import { UploadForm } from '@/components/upload-form'
 import { ActionPanel } from '@/components/action-panel'
 import { AnalysisResult } from '@/components/analysis-result'
+import { AnalysisProgress } from '@/components/analysis-progress'
 import { Auth } from '@/components/auth'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -20,6 +21,7 @@ export default function DashboardPage() {
   const [loading, setLoading] = useState(true)
   const [result, setResult] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(false)
+  const [isAnalyzing, setIsAnalyzing] = useState(false)
   const [uploadedScreenshot, setUploadedScreenshot] = useState<string | null>(null)
   const [analysisUrl, setAnalysisUrl] = useState<string | null>(null)
   const [currentAudit, setCurrentAudit] = useState<string | null>(null)
@@ -112,6 +114,7 @@ export default function DashboardPage() {
     setAnalysisUrl(data.url || null)
 
     setIsLoading(true)
+    setIsAnalyzing(true)
     try {
       // Создаем временный проект если у пользователя его нет
       const tempProject = await createProject(
@@ -165,6 +168,7 @@ export default function DashboardPage() {
       alert(`Ошибка при анализе: ${error instanceof Error ? error.message : 'Неизвестная ошибка'}`)
     } finally {
       setIsLoading(false)
+      setIsAnalyzing(false)
     }
   }
 
@@ -295,6 +299,16 @@ export default function DashboardPage() {
               />
             </div>
           </>
+        )}
+
+        {/* Прогресс анализа */}
+        {user && isAnalyzing && !result && (
+          <div className="max-w-2xl mx-auto">
+            <AnalysisProgress
+              screenshot={uploadedScreenshot}
+              url={analysisUrl}
+            />
+          </div>
         )}
 
         {/* Результаты анализа */}
