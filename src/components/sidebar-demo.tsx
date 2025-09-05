@@ -122,7 +122,7 @@ export const Logo = () => {
       className="relative z-20 flex items-center space-x-2 py-1 text-sm font-normal text-black"
     >
       <img 
-        src="/logo.svg" 
+        src="/logo-mini.svg" 
         alt="UX Audit" 
         className="h-5 w-auto shrink-0"
       />
