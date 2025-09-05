@@ -7,7 +7,7 @@ import { Badge } from '@/components/ui/badge'
 import { SurveyDisplay } from '@/components/ui/survey-display'
 
 interface AnalysisResultDisplayProps {
-  analysis: StructuredAnalysisResponse
+  analysis?: StructuredAnalysisResponse
   showDetails?: boolean
 }
 
@@ -15,6 +15,14 @@ export function AnalysisResultDisplay({
   analysis, 
   showDetails = true 
 }: AnalysisResultDisplayProps) {
+  if (!analysis) {
+    return (
+      <div className="text-center py-8">
+        <p className="text-gray-500">Нет данных для отображения</p>
+      </div>
+    )
+  }
+
   const getConfidenceColor = (confidence: number) => {
     if (confidence >= 80) return 'text-green-600'
     if (confidence >= 60) return 'text-yellow-600'

@@ -78,9 +78,11 @@ export function AnalysisResult({ result, screenshot, url }: AnalysisResultProps)
         </div>
 
         {/* JSON отображение */}
-        <AnalysisResultDisplay 
-          analysis={isJsonResult ? result as StructuredAnalysisResponse : undefined} 
-        />
+        {isJsonResult && (
+          <AnalysisResultDisplay 
+            analysis={result as StructuredAnalysisResponse} 
+          />
+        )}
       </div>
     )
   }
