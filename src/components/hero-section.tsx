@@ -6,7 +6,7 @@ import { RainbowButton } from '@/components/ui/rainbow-button'
 import { ImageUpload } from '@/components/ui/image-upload'
 import { AnalysisModal } from '@/components/analysis-modal'
 import Link from 'next/link'
-import { ArrowRight, Upload, Link as LinkIcon, Sparkles } from 'lucide-react'
+import { ArrowRight, Upload, Link as LinkIcon } from 'lucide-react'
 
 export function HeroSection() {
   const [url, setUrl] = useState('')
@@ -174,7 +174,6 @@ export function HeroSection() {
                       disabled={!isValid}
                       className="text-lg font-bold"
                     >
-                      <Sparkles className="w-5 h-5 mr-3" />
                       Get the test for free
                     </RainbowButton>
                   )}
