@@ -11,6 +11,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { User } from '@supabase/supabase-js'
 import { supabase } from '@/lib/supabase'
+import { StructuredAnalysisResponse } from '@/lib/analysis-types'
 import { 
   getProject, 
   getProjectAudits, 
@@ -60,7 +61,7 @@ export default function ProjectDetailPage() {
   const [loading, setLoading] = useState(true)
   const [showCreateForm, setShowCreateForm] = useState(false)
   const [currentAudit, setCurrentAudit] = useState<Audit | null>(null)
-  const [result, setResult] = useState<string | null>(null)
+  const [result, setResult] = useState<string | StructuredAnalysisResponse | null>(null)
   const [isAnalyzing, setIsAnalyzing] = useState(false)
   const [uploadedScreenshot, setUploadedScreenshot] = useState<string | null>(null)
   const [analysisUrl, setAnalysisUrl] = useState<string | null>(null)
@@ -140,7 +141,7 @@ export default function ProjectDetailPage() {
       setShowCreateForm(false)
 
       // Отправляем запрос на анализ
-      const response = await fetch('/api/research', {
+      const response = await fetch('/api/research-json', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data)
@@ -150,13 +151,14 @@ export default function ProjectDetailPage() {
         throw new Error(`Ошибка ${response.status}: ${response.statusText}`)
       }
 
-      const { result: analysisResult } = await response.json()
+      const responseData = await response.json()
+      const analysisResult = responseData.data || responseData.rawResponse
       setResult(analysisResult)
 
       // Сохраняем результат в базу данных
       console.log('Updating audit result with screenshot URL:', screenshotUrl)
       await updateAuditResult(audit.id, { 
-        analysis_result: analysisResult,
+        analysis_result: typeof analysisResult === 'object' ? JSON.stringify(analysisResult) : analysisResult,
         screenshot_url: screenshotUrl 
       })
       
@@ -164,7 +166,7 @@ export default function ProjectDetailPage() {
       await addAuditHistory(audit.id, 'research', { 
         ...data, 
         screenshotUrl 
-      }, { result: analysisResult })
+      }, { result: typeof analysisResult === 'object' ? JSON.stringify(analysisResult) : analysisResult })
 
       // Обновляем список аудитов
       await loadProjectData()
@@ -202,12 +204,14 @@ export default function ProjectDetailPage() {
       const { result: actionResult } = await response.json()
       
       // Добавляем результат действия к основному результату
-      const newResult = result + '\n\n---\n\n' + actionResult
+      const newResult = typeof result === 'string' 
+        ? result + '\n\n---\n\n' + actionResult
+        : JSON.stringify(result) + '\n\n---\n\n' + actionResult
       setResult(newResult)
 
       // Обновляем результат в базе данных
       await updateAuditResult(currentAudit.id, { 
-        analysis_result: newResult,
+        analysis_result: typeof newResult === 'object' ? JSON.stringify(newResult) : newResult,
         [`${action}_result`]: actionResult 
       })
       
@@ -224,7 +228,19 @@ export default function ProjectDetailPage() {
 
   const handleViewAudit = (audit: Audit) => {
     setCurrentAudit(audit)
-    setResult(audit.result_data?.analysis_result || 'Результат анализа не найден')
+    
+    // Пытаемся распарсить JSON результат, если не получается - используем как строку
+    let analysisResult = audit.result_data?.analysis_result || 'Результат анализа не найден'
+    try {
+      if (typeof analysisResult === 'string') {
+        const parsed = JSON.parse(analysisResult)
+        setResult(parsed)
+      } else {
+        setResult(analysisResult)
+      }
+    } catch {
+      setResult(analysisResult)
+    }
     
     // Показываем сохраненный скриншот из Supabase Storage или исходный base64
     const screenshotUrl = audit.input_data?.screenshotUrl || audit.result_data?.screenshot_url
