@@ -27,7 +27,7 @@ export function RainbowButton({
       )}
       {...props}
     >
-      <span className="glitch relative z-10">
+      <span className="relative z-10">
         {children}
       </span>
     </button>
