@@ -54,7 +54,7 @@ export function SidebarDemo({ children, user }: SidebarDemoProps) {
     },
   ];
 
-  const [open, setOpen] = useState(false);
+  const [open, setOpen] = useState(true);
 
   const handleLogout = async () => {
     try {
@@ -72,7 +72,7 @@ export function SidebarDemo({ children, user }: SidebarDemoProps) {
         "h-screen", // Используем h-screen для полной высоты
       )}
     >
-      <Sidebar open={open} setOpen={setOpen} animate={true}>
+      <Sidebar open={open} setOpen={setOpen} animate={false}>
         <SidebarBody className="justify-between gap-10" style={{ backgroundColor: '#6D90BA' }}>
           <div className="flex flex-1 flex-col overflow-x-hidden overflow-y-auto">
             <>
@@ -122,9 +122,9 @@ export const Logo = () => {
       className="relative z-20 flex items-center space-x-2 py-1 text-sm font-normal"
     >
       <img 
-        src="/logo-mini.svg" 
+        src="/logo.svg" 
         alt="UX Audit" 
-        className="h-5 w-auto shrink-0"
+        className="h-6 w-auto shrink-0"
       />
     </Link>
   );
