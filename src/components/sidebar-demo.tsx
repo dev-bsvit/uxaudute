@@ -107,8 +107,10 @@ export function SidebarDemo({ children, user }: SidebarDemoProps) {
         </SidebarBody>
       </Sidebar>
       <div className="flex flex-1">
-        <div className="flex h-full w-full flex-1 flex-col bg-white dark:bg-neutral-900 overflow-y-auto">
-          {children}
+        <div className="flex h-full w-full flex-1 flex-col bg-white dark:bg-neutral-900 overflow-y-auto ml-4 mr-6 mt-4 mb-4 rounded-tl-3xl rounded-bl-3xl">
+          <div className="p-8 h-full">
+            {children}
+          </div>
         </div>
       </div>
     </div>
