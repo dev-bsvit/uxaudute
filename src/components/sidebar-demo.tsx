@@ -71,7 +71,7 @@ export function SidebarDemo({ children, user }: SidebarDemoProps) {
         "flex w-full flex-1 flex-col overflow-hidden md:flex-row",
         "h-screen", // Используем h-screen для полной высоты
       )}
-      style={{ backgroundColor: '#5C7DAD' }}
+      style={{ backgroundColor: '#6D90BA' }}
     >
       <Sidebar open={open} setOpen={setOpen} animate={false}>
         <SidebarBody className="justify-between gap-10" style={{ backgroundColor: '#6D90BA' }}>
