@@ -70,12 +70,17 @@ export function Layout({ children, title = 'UX Audit', transparentHeader = false
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             <div className="flex items-center space-x-8">
-              <Link href="/" className={`text-xl font-bold transition-colors ${
+              <Link href="/" className={`flex items-center space-x-2 text-xl font-bold transition-colors ${
                 transparentHeader 
                   ? 'text-white hover:text-blue-200' 
                   : 'text-blue-600 hover:text-blue-700'
               }`}>
-                🎯 UX Audit
+                <img 
+                  src="/logo.svg" 
+                  alt="UX Audit" 
+                  className="h-6 w-auto"
+                />
+                <span>UX Audit</span>
               </Link>
               
               <nav className="hidden md:flex space-x-6">
