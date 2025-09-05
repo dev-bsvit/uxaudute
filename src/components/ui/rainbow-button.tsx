@@ -27,10 +27,7 @@ export function RainbowButton({
       )}
       {...props}
     >
-      <span 
-        className="glitch relative z-10" 
-        data-text={typeof children === 'string' ? children : 'Get the test for free'}
-      >
+      <span className="glitch relative z-10">
         {children}
       </span>
     </button>
