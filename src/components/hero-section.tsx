@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { Button } from '@/components/ui/button'
+import { RainbowButton } from '@/components/ui/rainbow-button'
 import { ImageUpload } from '@/components/ui/image-upload'
 import { AnalysisModal } from '@/components/analysis-modal'
 import Link from 'next/link'
@@ -157,24 +158,26 @@ export function HeroSection() {
                   </div>
 
                   {/* Кнопка справа */}
-                  <Button
-                    type="submit"
-                    disabled={!isValid || isLoading}
-                    size="lg"
-                    className="text-lg font-bold bg-black hover:bg-gray-800"
-                  >
-                    {isLoading ? (
-                      <>
-                        <div className="animate-spin rounded-full h-5 w-5 border-2 border-white border-t-transparent mr-3"></div>
-                        Анализируем...
-                      </>
-                    ) : (
-                      <>
-                        <Sparkles className="w-5 h-5 mr-3" />
-                        Get the test for free
-                      </>
-                    )}
-                  </Button>
+                  {isLoading ? (
+                    <Button
+                      type="submit"
+                      disabled={true}
+                      size="lg"
+                      className="text-lg font-bold bg-black hover:bg-gray-800"
+                    >
+                      <div className="animate-spin rounded-full h-5 w-5 border-2 border-white border-t-transparent mr-3"></div>
+                      Анализируем...
+                    </Button>
+                  ) : (
+                    <RainbowButton
+                      type="submit"
+                      disabled={!isValid}
+                      className="text-lg font-bold"
+                    >
+                      <Sparkles className="w-5 h-5 mr-3" />
+                      Get the test for free
+                    </RainbowButton>
+                  )}
                 </div>
               </form>
             </div>
