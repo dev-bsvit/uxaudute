@@ -18,11 +18,20 @@ export interface UXQuestion {
   options: string[]
   scores: number[]
   confidence: number
+  category: 'clarity' | 'usability' | 'accessibility' | 'conversion' | 'navigation' | 'content'
+  principle?: string // UX принцип, который тестируется
+  explanation?: string // Объяснение вопроса
 }
 
 export interface UXSurvey {
   questions: UXQuestion[]
   overallConfidence: number
+  summary: {
+    totalQuestions: number
+    averageConfidence: number
+    criticalIssues: number // Количество критических проблем
+    recommendations: string[] // Краткие рекомендации
+  }
 }
 
 // Блок "Проблемы и решения"

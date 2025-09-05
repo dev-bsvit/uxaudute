@@ -3,6 +3,7 @@ import { openai } from '@/lib/openai'
 import { readFileSync } from 'fs'
 import { join } from 'path'
 import { StructuredAnalysisResponse, isStructuredResponse } from '@/lib/analysis-types'
+import { validateSurvey, analyzeSurveyResults } from '@/lib/survey-utils'
 
 export async function POST(request: NextRequest) {
   try {
@@ -35,10 +36,24 @@ export async function POST(request: NextRequest) {
       
       try {
         const parsedResult = JSON.parse(result) as StructuredAnalysisResponse
+        
+        // Валидируем опрос
+        const surveyValidation = validateSurvey(parsedResult.uxSurvey)
+        if (!surveyValidation.isValid) {
+          console.warn('Предупреждения валидации опроса:', surveyValidation.errors)
+        }
+
+        // Анализируем результаты опроса
+        const surveyAnalysis = analyzeSurveyResults(parsedResult.uxSurvey)
+        
         return NextResponse.json({ 
           success: true,
           data: parsedResult,
-          format: 'json'
+          format: 'json',
+          validation: {
+            survey: surveyValidation,
+            analysis: surveyAnalysis
+          }
         })
       } catch (parseError) {
         console.error('Ошибка парсинга JSON:', parseError)
@@ -81,10 +96,24 @@ export async function POST(request: NextRequest) {
       
       try {
         const parsedResult = JSON.parse(result) as StructuredAnalysisResponse
+        
+        // Валидируем опрос
+        const surveyValidation = validateSurvey(parsedResult.uxSurvey)
+        if (!surveyValidation.isValid) {
+          console.warn('Предупреждения валидации опроса:', surveyValidation.errors)
+        }
+
+        // Анализируем результаты опроса
+        const surveyAnalysis = analyzeSurveyResults(parsedResult.uxSurvey)
+        
         return NextResponse.json({ 
           success: true,
           data: parsedResult,
-          format: 'json'
+          format: 'json',
+          validation: {
+            survey: surveyValidation,
+            analysis: surveyAnalysis
+          }
         })
       } catch (parseError) {
         console.error('Ошибка парсинга JSON:', parseError)
