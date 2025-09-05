@@ -28,28 +28,28 @@ export function SidebarDemo({ children, user }: SidebarDemoProps) {
       label: "Главная",
       href: "/",
       icon: (
-        <IconHome className="h-5 w-5 shrink-0 text-neutral-700 dark:text-neutral-200" />
+        <IconHome className="h-5 w-5 shrink-0 text-white" />
       ),
     },
     {
       label: "Быстрый анализ",
       href: "/dashboard",
       icon: (
-        <IconChartBar className="h-5 w-5 shrink-0 text-neutral-700 dark:text-neutral-200" />
+        <IconChartBar className="h-5 w-5 shrink-0 text-white" />
       ),
     },
     {
       label: "Мои проекты",
       href: "/projects",
       icon: (
-        <IconFolder className="h-5 w-5 shrink-0 text-neutral-700 dark:text-neutral-200" />
+        <IconFolder className="h-5 w-5 shrink-0 text-white" />
       ),
     },
     {
       label: "Настройки",
       href: "/settings",
       icon: (
-        <IconSettings className="h-5 w-5 shrink-0 text-neutral-700 dark:text-neutral-200" />
+        <IconSettings className="h-5 w-5 shrink-0 text-white" />
       ),
     },
   ];
@@ -73,7 +73,7 @@ export function SidebarDemo({ children, user }: SidebarDemoProps) {
       )}
     >
       <Sidebar open={open} setOpen={setOpen} animate={true}>
-        <SidebarBody className="justify-between gap-10">
+        <SidebarBody className="justify-between gap-10" style={{ backgroundColor: '#6D90BA' }}>
           <div className="flex flex-1 flex-col overflow-x-hidden overflow-y-auto">
             <>
               <Logo />
@@ -84,7 +84,7 @@ export function SidebarDemo({ children, user }: SidebarDemoProps) {
               ))}
               <button
                 onClick={handleLogout}
-                className="flex items-center gap-3 px-3 py-2 text-sm font-medium text-neutral-700 hover:bg-neutral-100 rounded-lg transition-colors dark:text-neutral-200 dark:hover:bg-neutral-700"
+                className="flex items-center gap-3 px-3 py-2 text-sm font-medium text-white hover:bg-white/20 rounded-lg transition-colors"
               >
                 <IconLogout className="h-5 w-5 shrink-0" />
                 Выйти
@@ -119,20 +119,13 @@ export const Logo = () => {
   return (
     <Link
       href="/"
-      className="relative z-20 flex items-center space-x-2 py-1 text-sm font-normal text-black"
+      className="relative z-20 flex items-center space-x-2 py-1 text-sm font-normal"
     >
       <img 
         src="/logo-mini.svg" 
         alt="UX Audit" 
         className="h-5 w-auto shrink-0"
       />
-      <motion.span
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        className="font-medium whitespace-pre text-black dark:text-white"
-      >
-        UX Audit
-      </motion.span>
     </Link>
   );
 };
