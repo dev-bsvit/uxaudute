@@ -198,3 +198,4 @@ function getFallbackJSONPrompt(): string {
   }
 }`
 }
+// Force redeploy Fri Sep  5 17:57:38 CEST 2025
