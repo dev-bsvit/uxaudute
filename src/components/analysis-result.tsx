@@ -45,7 +45,7 @@ export function AnalysisResult({ result, screenshot, url }: AnalysisResultProps)
     return { description, survey, problems, selfCheck }
   }
   
-  const { description, survey, problems, selfCheck } = parseAnalysis(result)
+  const { description, survey, problems, selfCheck } = parseAnalysis(typeof result === 'string' ? result : '')
   
   const formatText = (text: string) => {
     return text
