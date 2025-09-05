@@ -14,12 +14,13 @@ import { ArrowLeft, Download, Share2, FolderOpen, Plus } from 'lucide-react'
 import { User } from '@supabase/supabase-js'
 import { createProject, createAudit, updateAuditResult, addAuditHistory, uploadScreenshotFromBase64 } from '@/lib/database'
 import { supabase } from '@/lib/supabase'
+import { StructuredAnalysisResponse } from '@/lib/analysis-types'
 import Link from 'next/link'
 
 export default function DashboardPage() {
   const [user, setUser] = useState<User | null>(null)
   const [loading, setLoading] = useState(true)
-  const [result, setResult] = useState<string | null>(null)
+  const [result, setResult] = useState<string | StructuredAnalysisResponse | null>(null)
   const [isLoading, setIsLoading] = useState(false)
   const [isAnalyzing, setIsAnalyzing] = useState(false)
   const [uploadedScreenshot, setUploadedScreenshot] = useState<string | null>(null)
@@ -143,8 +144,8 @@ export default function DashboardPage() {
 
       setCurrentAudit(audit.id)
 
-      // Отправляем запрос на анализ
-      const response = await fetch('/api/research', {
+      // Отправляем запрос на анализ (используем JSON API)
+      const response = await fetch('/api/research-json', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data)
@@ -154,11 +155,21 @@ export default function DashboardPage() {
         throw new Error(`Ошибка ${response.status}: ${response.statusText}`)
       }
 
-      const { result } = await response.json()
-      setResult(result)
+      const responseData = await response.json()
+      
+      if (responseData.success) {
+        // Используем структурированные данные
+        setResult(responseData.data)
+      } else {
+        // Fallback на текстовый формат
+        setResult(responseData.rawResponse || 'Ошибка анализа')
+      }
 
       // Сохраняем результат в базу данных
-      await updateAuditResult(audit.id, { analysis_result: result })
+      const resultToSave = typeof responseData.data === 'object' 
+        ? JSON.stringify(responseData.data) 
+        : responseData.rawResponse || 'Ошибка анализа'
+      await updateAuditResult(audit.id, { analysis_result: resultToSave })
       
       // Добавляем в историю
       await addAuditHistory(audit.id, 'research', data, { result })

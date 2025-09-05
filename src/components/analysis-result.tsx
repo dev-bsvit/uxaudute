@@ -2,16 +2,25 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
-import { Eye, CheckCircle, AlertCircle, TrendingUp, Monitor, Link2, BarChart3, Target, Lightbulb, Users } from 'lucide-react'
+import { Button } from '@/components/ui/button'
+import { Eye, CheckCircle, AlertCircle, TrendingUp, Monitor, Link2, BarChart3, Target, Lightbulb, Users, ToggleLeft, ToggleRight } from 'lucide-react'
+import { AnalysisResultDisplay } from './analysis-result-display'
+import { StructuredAnalysisResponse, isStructuredResponse } from '@/lib/analysis-types'
+import { useState } from 'react'
 
 interface AnalysisResultProps {
-  result: string
+  result: string | StructuredAnalysisResponse
   screenshot?: string | null
   url?: string | null
 }
 
 export function AnalysisResult({ result, screenshot, url }: AnalysisResultProps) {
-  // Парсим результат анализа для структурирования
+  const [useJsonFormat, setUseJsonFormat] = useState(false)
+
+  // Проверяем, является ли результат JSON структурой
+  const isJsonResult = typeof result === 'object' && isStructuredResponse(result)
+
+  // Парсим результат анализа для структурирования (для текстового формата)
   const parseAnalysis = (text: string) => {
     const sections = text.split(/(?=##?\s)/g).filter(s => s.trim())
     
@@ -48,8 +57,51 @@ export function AnalysisResult({ result, screenshot, url }: AnalysisResultProps)
       .replace(/^\d+\.\s(.*)/gm, '<div class="flex items-start mb-2 text-slate-700"><span class="text-blue-500 mr-2 flex-shrink-0">•</span><span class="text-slate-700">$1</span></div>')
   }
 
+  // Если это JSON результат, используем новый компонент
+  if (isJsonResult || useJsonFormat) {
+    return (
+      <div className="max-w-7xl mx-auto">
+        {/* Переключатель формата */}
+        <div className="mb-6 flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <span className="text-sm text-gray-600">Формат отображения:</span>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setUseJsonFormat(!useJsonFormat)}
+              className="flex items-center gap-2"
+            >
+              {useJsonFormat ? <ToggleRight className="w-4 h-4" /> : <ToggleLeft className="w-4 h-4" />}
+              {useJsonFormat ? 'JSON' : 'Текст'}
+            </Button>
+          </div>
+        </div>
+
+        {/* JSON отображение */}
+        <AnalysisResultDisplay 
+          analysis={isJsonResult ? result as StructuredAnalysisResponse : undefined} 
+        />
+      </div>
+    )
+  }
+
   return (
     <div className="max-w-7xl mx-auto">
+      {/* Переключатель формата */}
+      <div className="mb-6 flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <span className="text-sm text-gray-600">Формат отображения:</span>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setUseJsonFormat(!useJsonFormat)}
+            className="flex items-center gap-2"
+          >
+            {useJsonFormat ? <ToggleRight className="w-4 h-4" /> : <ToggleLeft className="w-4 h-4" />}
+            {useJsonFormat ? 'JSON' : 'Текст'}
+          </Button>
+        </div>
+      </div>
       {/* Header с анализируемым объектом */}
       <div className="mb-8 bg-white rounded-2xl border shadow-sm overflow-hidden">
         <div className="bg-gradient-to-r from-slate-50 to-slate-100 px-6 py-4 border-b">
