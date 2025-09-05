@@ -1,97 +1,84 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Layout } from '@/components/layout'
 import { ActionPanel } from '@/components/action-panel'
+import { AnalysisResult } from '@/components/analysis-result'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { ArrowLeft, Download, Share } from 'lucide-react'
 import { type ActionType } from '@/lib/utils'
+import { StructuredAnalysisResponse } from '@/lib/analysis-types'
 import Link from 'next/link'
-import { useParams } from 'next/navigation'
+import { useParams, useRouter } from 'next/navigation'
+import { supabase } from '@/lib/supabase'
+import { getAudit } from '@/lib/database'
 
-// Mock data
-const auditData = {
-  id: '1',
-  name: 'Главная страница',
-  projectId: '1',
-  projectName: 'Интернет-магазин электроники',
-  type: 'Начать исследование',
-  status: 'completed',
-  createdAt: '2024-01-15T10:00:00',
-  result: `# Результат UX исследования
-
-## 1. Описание экрана
-
-Проанализирована главная страница интернет-магазина электроники. Основные элементы:
-- Шапка с логотипом, поиском и корзиной
-- Главный баннер с акционными предложениями  
-- Каталог категорий товаров
-- Блок популярных товаров
-- Футер с контактной информацией
-
-Общий layout использует стандартную структуру F-паттерна для e-commerce.
-
-## 2. UX-опрос
-
-1. **Понятна ли основная цель сайта пользователю с первого взгляда?**
-   - Да, четко видно что это интернет-магазин электроники
-
-2. **Легко ли найти нужную категорию товаров?**
-   - Каталог расположен на видном месте, но требует доработки
-
-3. **Удобен ли поиск по сайту?**
-   - Поисковая строка заметна, но отсутствуют подсказки
-
-4. **Вызывает ли доверие дизайн сайта?**
-   - Профессиональный вид, но нужны отзывы и сертификаты
-
-5. **Понятен ли процесс покупки?**
-   - Требуется более явная кнопка "В корзину"
-
-## 3. Проблемы и рекомендации
-
-### Проблема 1: Низкий контраст CTA-кнопок
-**Описание**: Основные кнопки имеют контраст 3.2:1
-**Влияние**: Снижение конверсии, проблемы с доступностью
-**Рекомендация**: Увеличить контраст до 4.5:1, изменить цвет на #0066CC
-
-### Проблема 2: Отсутствие breadcrumbs
-**Описание**: Пользователь не понимает своё местоположение на сайте
-**Влияние**: Увеличение показателя отказов на 15-20%
-**Рекомендация**: Добавить навигационные хлебные крошки
-
-### Проблема 3: Мелкий шрифт в описаниях
-**Описание**: Размер шрифта 12px затрудняет чтение
-**Влияние**: Плохая читаемость, особенно на мобильных
-**Рекомендация**: Увеличить до 16px для основного текста
-
-### Проблема 4: Неоптимальное расположение корзины
-**Описание**: Иконка корзины слишком мелкая и не заметна
-**Влияние**: Пользователи не находят свои товары
-**Рекомендация**: Увеличить размер, добавить счетчик товаров
-
-## 4. Self-check
-
-**Уверенность анализа**: 85%
-
-**Ограничения**:
-- Анализ проведен без данных о поведении пользователей
-- Отсутствуют A/B тесты предыдущих изменений
-- Нет информации о целевой аудитории и её предпочтениях
-- Не учтены технические ограничения реализации
-
-**Рекомендации по дополнительному исследованию**:
-- Провести пользовательские интервью (5-7 человек)
-- Настроить heat maps для понимания поведения
-- Запустить юзабилити-тестирование критических сценариев`,
-  confidence: 85
+interface AuditData {
+  id: string
+  name: string
+  project_id: string
+  type: string
+  status: string
+  created_at: string
+  result_data?: {
+    analysis_result?: string | StructuredAnalysisResponse
+    screenshot_url?: string
+  }
+  input_data?: {
+    url?: string
+    screenshotUrl?: string
+  }
+  confidence?: number
 }
 
 export default function AuditPage() {
   const params = useParams()
-  const auditId = params.id
+  const router = useRouter()
+  const auditId = params.id as string
   const [activeTab, setActiveTab] = useState<'result' | 'collected' | 'expert'>('result')
+  const [auditData, setAuditData] = useState<AuditData | null>(null)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+
+  useEffect(() => {
+    loadAuditData()
+  }, [auditId])
+
+  const loadAuditData = async () => {
+    try {
+      setLoading(true)
+      const audit = await getAudit(auditId)
+      
+      if (!audit) {
+        setError('Аудит не найден')
+        return
+      }
+
+      // Пытаемся распарсить JSON результат
+      let analysisResult = audit.result_data?.analysis_result
+      if (typeof analysisResult === 'string') {
+        try {
+          analysisResult = JSON.parse(analysisResult)
+        } catch {
+          // Оставляем как строку, если не удалось распарсить
+        }
+      }
+
+      setAuditData({
+        ...audit,
+        result_data: {
+          ...audit.result_data,
+          analysis_result: analysisResult
+        }
+      })
+    } catch (err) {
+      console.error('Error loading audit:', err)
+      setError('Ошибка загрузки аудита')
+    } finally {
+      setLoading(false)
+    }
+  }
 
   const handleAction = (action: ActionType) => {
     console.log('Action:', action)
@@ -108,13 +95,41 @@ export default function AuditPage() {
     console.log('Share audit')
   }
 
+  if (loading) {
+    return (
+      <Layout title="Загрузка...">
+        <div className="min-h-screen bg-gray-100 flex items-center justify-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-2 border-blue-500 border-t-transparent"></div>
+        </div>
+      </Layout>
+    )
+  }
+
+  if (error || !auditData) {
+    return (
+      <Layout title="Ошибка">
+        <div className="min-h-screen bg-gray-100 flex items-center justify-center">
+          <div className="text-center py-12 bg-white rounded-2xl shadow-lg p-8">
+            <h2 className="text-2xl font-bold text-slate-900 mb-4">
+              {error || 'Аудит не найден'}
+            </h2>
+            <Button onClick={() => router.push('/projects')}>
+              <ArrowLeft className="w-4 h-4 mr-2" />
+              К проектам
+            </Button>
+          </div>
+        </div>
+      </Layout>
+    )
+  }
+
   return (
     <Layout title={`Аудит: ${auditData.name}`}>
       <div className="space-y-6">
         {/* Навигация назад и действия */}
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-4">
-            <Link href={`/projects/${auditData.projectId}`}>
+            <Link href={`/projects/${auditData.project_id}`}>
               <Button variant="outline" size="sm">
                 <ArrowLeft className="w-4 h-4 mr-2" />
                 Назад к проекту
@@ -125,7 +140,7 @@ export default function AuditPage() {
                 {auditData.name}
               </h1>
               <p className="text-gray-600">
-                {auditData.projectName} • {auditData.type}
+                {auditData.type} • {new Date(auditData.created_at).toLocaleDateString('ru-RU')}
               </p>
             </div>
           </div>
@@ -168,15 +183,23 @@ export default function AuditPage() {
         {/* Контент табов */}
         <div className="space-y-6">
           {activeTab === 'result' && (
-            <Card>
-              <CardContent className="pt-6">
-                <div className="prose max-w-none">
-                  <pre className="whitespace-pre-wrap text-sm leading-relaxed">
-                    {auditData.result}
-                  </pre>
-                </div>
-              </CardContent>
-            </Card>
+            <div>
+              {auditData.result_data?.analysis_result ? (
+                <AnalysisResult 
+                  result={auditData.result_data.analysis_result}
+                  screenshot={auditData.result_data.screenshot_url || auditData.input_data?.screenshotUrl}
+                  url={auditData.input_data?.url}
+                />
+              ) : (
+                <Card>
+                  <CardContent className="pt-6">
+                    <div className="text-center py-8">
+                      <p className="text-gray-500">Результат анализа не найден</p>
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
+            </div>
           )}
 
           {activeTab === 'collected' && (
