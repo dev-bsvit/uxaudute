@@ -68,9 +68,10 @@ export function SidebarDemo({ children, user }: SidebarDemoProps) {
   return (
     <div
       className={cn(
-        "flex w-full flex-1 flex-col overflow-hidden bg-gray-100 md:flex-row dark:bg-neutral-800",
+        "flex w-full flex-1 flex-col overflow-hidden md:flex-row",
         "h-screen", // Используем h-screen для полной высоты
       )}
+      style={{ backgroundColor: '#5C7DAD' }}
     >
       <Sidebar open={open} setOpen={setOpen} animate={false}>
         <SidebarBody className="justify-between gap-10" style={{ backgroundColor: '#6D90BA' }}>
@@ -107,7 +108,7 @@ export function SidebarDemo({ children, user }: SidebarDemoProps) {
         </SidebarBody>
       </Sidebar>
       <div className="flex flex-1">
-        <div className="flex h-full w-full flex-1 flex-col bg-white dark:bg-neutral-900 overflow-y-auto ml-4 mr-6 mt-4 mb-4 rounded-tl-3xl rounded-bl-3xl">
+        <div className="flex h-full w-full flex-1 flex-col bg-white dark:bg-neutral-900 overflow-y-auto ml-4 mr-0 mt-0 mb-4 rounded-tl-3xl rounded-bl-3xl">
           <div className="p-8 h-full">
             {children}
           </div>
