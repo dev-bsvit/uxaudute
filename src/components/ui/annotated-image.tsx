@@ -82,7 +82,7 @@ export function AnnotatedImage({
 
     try {
       // Динамически импортируем MarkerArea из markerjs3 согласно документации
-      const markerjs3 = await import('@markerjs/markerjs3')
+      const markerjs3 = await import('@markerjs/markerjs3') as any
       console.log('MarkerJS3 module:', markerjs3)
       const MarkerArea = markerjs3.MarkerArea || markerjs3.default?.MarkerArea || markerjs3.default
       
