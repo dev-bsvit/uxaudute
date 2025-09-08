@@ -187,7 +187,8 @@ html {
 }
 
 /* MarkerJS Light Theme */
-markerjs-editor {
+markerjs-editor,
+markerjs-editor * {
   --markerjs-theme: light !important;
   --markerjs-background: #ffffff !important;
   --markerjs-foreground: #000000 !important;
@@ -197,6 +198,31 @@ markerjs-editor {
   --markerjs-muted: #f3f4f6 !important;
   --markerjs-border: #e5e7eb !important;
   --markerjs-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1) !important;
+}
+
+/* Принудительная светлая тема для всех элементов MarkerJS */
+markerjs-editor {
+  background: #ffffff !important;
+  color: #000000 !important;
+}
+
+markerjs-editor button {
+  background: #ffffff !important;
+  color: #000000 !important;
+  border: 1px solid #e5e7eb !important;
+}
+
+markerjs-editor button:hover {
+  background: #f3f4f6 !important;
+  color: #000000 !important;
+}
+
+markerjs-editor input,
+markerjs-editor select,
+markerjs-editor textarea {
+  background: #ffffff !important;
+  color: #000000 !important;
+  border: 1px solid #d1d5db !important;
 }
 
 /* MarkerJS Toolbar Light Theme */

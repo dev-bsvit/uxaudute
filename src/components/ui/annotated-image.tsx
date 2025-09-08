@@ -103,8 +103,6 @@ export function AnnotatedImage({
           editor.style.position = 'absolute'
           editor.style.top = '0'
           editor.style.left = '0'
-          editor.style.maxWidth = '100%'
-          editor.style.maxHeight = '100%'
         }
         
         if (img.complete) {
@@ -129,30 +127,47 @@ export function AnnotatedImage({
         editorElement.style.setProperty('--markerjs-border', '#e5e7eb')
         editorElement.style.setProperty('--markerjs-shadow', '0 1px 3px 0 rgba(0, 0, 0, 0.1)')
         
-        // Применяем светлую тему к дочерним элементам
-        setTimeout(() => {
-          const toolbar = editorElement.querySelector('.markerjs-toolbar') as HTMLElement
-          const propertiesPanel = editorElement.querySelector('.markerjs-properties-panel') as HTMLElement
-          const contextMenu = editorElement.querySelector('.markerjs-context-menu') as HTMLElement
+        // Принудительно применяем светлую тему ко всем элементам
+        const applyLightTheme = () => {
+          // Применяем к самому редактору
+          editorElement.style.background = '#ffffff'
+          editorElement.style.color = '#000000'
           
-          if (toolbar) {
-            toolbar.style.background = '#ffffff'
-            toolbar.style.border = '1px solid #e5e7eb'
-            toolbar.style.boxShadow = '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
-          }
-          
-          if (propertiesPanel) {
-            propertiesPanel.style.background = '#ffffff'
-            propertiesPanel.style.border = '1px solid #e5e7eb'
-            propertiesPanel.style.boxShadow = '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
-          }
-          
-          if (contextMenu) {
-            contextMenu.style.background = '#ffffff'
-            contextMenu.style.border = '1px solid #e5e7eb'
-            contextMenu.style.boxShadow = '0 10px 15px -3px rgba(0, 0, 0, 0.1)'
-          }
-        }, 100)
+          // Находим и стилизуем все дочерние элементы
+          const allElements = editorElement.querySelectorAll('*')
+          allElements.forEach((element: any) => {
+            if (element.style) {
+              // Стилизуем кнопки
+              if (element.tagName === 'BUTTON' || element.classList.contains('markerjs-button')) {
+                element.style.background = '#ffffff'
+                element.style.color = '#000000'
+                element.style.border = '1px solid #e5e7eb'
+              }
+              
+              // Стилизуем панели
+              if (element.classList.contains('markerjs-toolbar') || 
+                  element.classList.contains('markerjs-properties-panel') ||
+                  element.classList.contains('markerjs-context-menu')) {
+                element.style.background = '#ffffff'
+                element.style.border = '1px solid #e5e7eb'
+                element.style.boxShadow = '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
+                element.style.color = '#000000'
+              }
+              
+              // Стилизуем инпуты
+              if (element.tagName === 'INPUT' || element.tagName === 'SELECT' || element.tagName === 'TEXTAREA') {
+                element.style.background = '#ffffff'
+                element.style.color = '#000000'
+                element.style.border = '1px solid #d1d5db'
+              }
+            }
+          })
+        }
+        
+        // Применяем тему сразу и через небольшую задержку
+        applyLightTheme()
+        setTimeout(applyLightTheme, 100)
+        setTimeout(applyLightTheme, 500)
       })
       
       // Загружаем существующие аннотации если есть
