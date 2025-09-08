@@ -21,6 +21,7 @@ export function AnnotatedImage({
 }: AnnotatedImageProps) {
   const imageRef = useRef<HTMLImageElement>(null)
   const editorRef = useRef<any>(null)
+  const containerRef = useRef<HTMLDivElement>(null)
   const [isEditing, setIsEditing] = useState(false)
   const [hasAnnotations, setHasAnnotations] = useState(false)
   const [isClient, setIsClient] = useState(false)
@@ -37,7 +38,7 @@ export function AnnotatedImage({
   // Не открываем редактор автоматически, только по клику
 
   const startAnnotation = async () => {
-    if (!imageRef.current || !isClient) return
+    if (!imageRef.current || !isClient || !containerRef.current) return
 
     try {
       // Динамически импортируем MarkerJS только в браузере
@@ -45,7 +46,7 @@ export function AnnotatedImage({
       
       // Очищаем предыдущий редактор
       if (editorRef.current) {
-        editorRef.current.close()
+        containerRef.current.removeChild(editorRef.current)
       }
 
       // Создаем новый редактор
@@ -61,19 +62,23 @@ export function AnnotatedImage({
         }
       }
 
-      // Обработчики событий
-      editor.addEventListener('statechange', () => {
-        setHasAnnotations(true)
+      // Обработчики событий согласно документации
+      editor.addEventListener('editorsave', (event: any) => {
+        const state = event.detail.state
+        if (state) {
+          setHasAnnotations(true)
+          onAnnotationSave?.(state)
+        }
+        setIsEditing(false)
       })
 
       editor.addEventListener('close', () => {
         setIsEditing(false)
       })
 
-      // Открываем редактор (правильный метод)
-      editor.show()
+      // Добавляем редактор в DOM согласно документации
+      containerRef.current.appendChild(editor)
       editorRef.current = editor
-
       setIsEditing(true)
     } catch (error) {
       console.error('Ошибка загрузки MarkerJS:', error)
@@ -82,17 +87,20 @@ export function AnnotatedImage({
 
   const saveAnnotations = () => {
     if (editorRef.current) {
-      const annotationData = editorRef.current.serializeState()
-      onAnnotationSave?.(annotationData)
-      setHasAnnotations(true)
-      editorRef.current.close()
-      setIsEditing(false)
+      // Сохранение происходит через событие editorsave
+      // Просто закрываем редактор
+      if (containerRef.current && editorRef.current) {
+        containerRef.current.removeChild(editorRef.current)
+        editorRef.current = null
+        setIsEditing(false)
+      }
     }
   }
 
   const cancelAnnotation = () => {
-    if (editorRef.current) {
-      editorRef.current.close()
+    if (editorRef.current && containerRef.current) {
+      containerRef.current.removeChild(editorRef.current)
+      editorRef.current = null
       setIsEditing(false)
     }
   }
@@ -135,6 +143,11 @@ export function AnnotatedImage({
             console.log('Image loaded successfully:', src)
           }}
         />
+      </div>
+
+      {/* Контейнер для редактора MarkerJS */}
+      <div ref={containerRef} className="absolute inset-0 pointer-events-none">
+        {/* Редактор будет добавлен сюда динамически */}
       </div>
 
       {/* Панель управления аннотациями */}

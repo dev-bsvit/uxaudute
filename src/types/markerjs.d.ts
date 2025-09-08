@@ -1,13 +1,11 @@
 declare module '@markerjs/markerjs-ui' {
   export class AnnotationEditor {
     targetImage: HTMLImageElement | null
-    addEventListener(event: string, listener: () => void): void
+    addEventListener(event: 'editorsave' | 'close' | 'statechange', listener: (event: any) => void): void
     removeEventListener(event: string, listener: () => void): void
     serializeState(): string
     deserializeState(state: string): void
     clear(): void
-    close(): void
-    show(): void
   }
 }
 
