@@ -233,10 +233,21 @@ export async function deleteAnnotations(auditId: string): Promise<void> {
 
 
 export async function getAudit(id: string): Promise<Audit | null> {
+  // Получаем текущего пользователя
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) {
+    throw new Error('User not authenticated')
+  }
+
+  // Получаем аудит с проверкой прав через RLS
   const { data, error } = await supabase
     .from('audits')
-    .select('*')
+    .select(`
+      *,
+      projects!inner(user_id)
+    `)
     .eq('id', id)
+    .eq('projects.user_id', user.id)
     .single()
 
   if (error) return null
