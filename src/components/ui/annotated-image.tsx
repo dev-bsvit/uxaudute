@@ -65,8 +65,9 @@ export function AnnotatedImage({
     const handleResize = () => {
       if (editorRef.current && imageRef.current) {
         const img = imageRef.current
-        editorRef.current.style.width = img.offsetWidth + 'px'
-        editorRef.current.style.height = img.offsetHeight + 'px'
+        const rect = img.getBoundingClientRect()
+        editorRef.current.style.width = rect.width + 'px'
+        editorRef.current.style.height = rect.height + 'px'
       }
     }
 
@@ -80,105 +81,100 @@ export function AnnotatedImage({
     if (!imageRef.current || !isClient || !containerRef.current) return
 
     try {
-      // Динамически импортируем MarkerJS только в браузере
-      const { AnnotationEditor } = await import('@markerjs/markerjs-ui')
+      // Динамически импортируем MarkerArea из markerjs3 согласно документации
+      const { MarkerArea } = await import('@markerjs/markerjs3')
       
       // Очищаем предыдущий редактор
       if (editorRef.current) {
         containerRef.current.removeChild(editorRef.current)
       }
 
-      // Создаем новый редактор
-      const editor = new AnnotationEditor() as any
-      editor.targetImage = imageRef.current
+      // Создаем новый MarkerArea согласно документации
+      const markerArea = new MarkerArea()
+      markerArea.targetImage = imageRef.current
       
-      // Устанавливаем размеры редактора равными размерам изображения
+      // Устанавливаем размеры MarkerArea равными размерам изображения
       const img = imageRef.current
       if (img) {
         // Ждем полной загрузки изображения для правильных размеров
-        const updateEditorSize = () => {
+        const updateMarkerAreaSize = () => {
           const rect = img.getBoundingClientRect()
-          editor.style.width = rect.width + 'px'
-          editor.style.height = rect.height + 'px'
-          editor.style.position = 'absolute'
-          editor.style.top = '0'
-          editor.style.left = '0'
+          markerArea.style.width = rect.width + 'px'
+          markerArea.style.height = rect.height + 'px'
+          markerArea.style.position = 'absolute'
+          markerArea.style.top = '0'
+          markerArea.style.left = '0'
         }
         
         if (img.complete) {
-          updateEditorSize()
+          updateMarkerAreaSize()
         } else {
-          img.addEventListener('load', updateEditorSize)
+          img.addEventListener('load', updateMarkerAreaSize)
         }
       }
 
-      // Настраиваем светлую тему для MarkerJS
-      editor.addEventListener('ready', () => {
-        console.log('MarkerJS ready, applying light theme...')
+      // Настраиваем светлую тему для MarkerArea
+      const applyLightTheme = () => {
+        console.log('Applying light theme to MarkerArea...')
         
-        // Применяем светлую тему к редактору
-        const editorElement = editor as HTMLElement
+        // Применяем светлую тему к MarkerArea
+        const markerAreaElement = markerArea as HTMLElement
         
-        // Принудительно применяем светлую тему ко всем элементам
-        const applyLightTheme = () => {
-          console.log('Applying light theme...')
-          
-          // Применяем к самому редактору
-          editorElement.style.background = '#ffffff'
-          editorElement.style.color = '#000000'
-          editorElement.style.setProperty('background', '#ffffff', 'important')
-          editorElement.style.setProperty('color', '#000000', 'important')
-          
-          // Находим и стилизуем все дочерние элементы
-          const allElements = editorElement.querySelectorAll('*')
-          console.log('Found elements:', allElements.length)
-          
-          allElements.forEach((element: any) => {
-            if (element.style) {
-              // Принудительно применяем светлую тему ко всем элементам
+        // Применяем к самому MarkerArea
+        markerAreaElement.style.background = '#ffffff'
+        markerAreaElement.style.color = '#000000'
+        markerAreaElement.style.setProperty('background', '#ffffff', 'important')
+        markerAreaElement.style.setProperty('color', '#000000', 'important')
+        
+        // Находим и стилизуем все дочерние элементы
+        const allElements = markerAreaElement.querySelectorAll('*')
+        console.log('Found MarkerArea elements:', allElements.length)
+        
+        allElements.forEach((element: any) => {
+          if (element.style) {
+            // Принудительно применяем светлую тему ко всем элементам
+            element.style.setProperty('background', '#ffffff', 'important')
+            element.style.setProperty('color', '#000000', 'important')
+            
+            // Стилизуем кнопки
+            if (element.tagName === 'BUTTON' || element.classList.contains('markerjs-button')) {
               element.style.setProperty('background', '#ffffff', 'important')
               element.style.setProperty('color', '#000000', 'important')
-              
-              // Стилизуем кнопки
-              if (element.tagName === 'BUTTON' || element.classList.contains('markerjs-button')) {
-                element.style.setProperty('background', '#ffffff', 'important')
-                element.style.setProperty('color', '#000000', 'important')
-                element.style.setProperty('border', '1px solid #e5e7eb', 'important')
-              }
-              
-              // Стилизуем панели
-              if (element.classList.contains('markerjs-toolbar') || 
-                  element.classList.contains('markerjs-properties-panel') ||
-                  element.classList.contains('markerjs-context-menu')) {
-                element.style.setProperty('background', '#ffffff', 'important')
-                element.style.setProperty('border', '1px solid #e5e7eb', 'important')
-                element.style.setProperty('box-shadow', '0 4px 6px -1px rgba(0, 0, 0, 0.1)', 'important')
-                element.style.setProperty('color', '#000000', 'important')
-              }
-              
-              // Стилизуем инпуты
-              if (element.tagName === 'INPUT' || element.tagName === 'SELECT' || element.tagName === 'TEXTAREA') {
-                element.style.setProperty('background', '#ffffff', 'important')
-                element.style.setProperty('color', '#000000', 'important')
-                element.style.setProperty('border', '1px solid #d1d5db', 'important')
-              }
+              element.style.setProperty('border', '1px solid #e5e7eb', 'important')
             }
-          })
-        }
-        
-        // Применяем тему сразу и через небольшую задержку
-        applyLightTheme()
-        setTimeout(applyLightTheme, 100)
-        setTimeout(applyLightTheme, 500)
-        setTimeout(applyLightTheme, 1000)
-        setTimeout(applyLightTheme, 2000)
-        
-        // Дополнительно применяем через MutationObserver
-        const observer = new MutationObserver(() => {
-          applyLightTheme()
+            
+            // Стилизуем панели
+            if (element.classList.contains('markerjs-toolbar') || 
+                element.classList.contains('markerjs-properties-panel') ||
+                element.classList.contains('markerjs-context-menu')) {
+              element.style.setProperty('background', '#ffffff', 'important')
+              element.style.setProperty('border', '1px solid #e5e7eb', 'important')
+              element.style.setProperty('box-shadow', '0 4px 6px -1px rgba(0, 0, 0, 0.1)', 'important')
+              element.style.setProperty('color', '#000000', 'important')
+            }
+            
+            // Стилизуем инпуты
+            if (element.tagName === 'INPUT' || element.tagName === 'SELECT' || element.tagName === 'TEXTAREA') {
+              element.style.setProperty('background', '#ffffff', 'important')
+              element.style.setProperty('color', '#000000', 'important')
+              element.style.setProperty('border', '1px solid #d1d5db', 'important')
+            }
+          }
         })
-        observer.observe(editorElement, { childList: true, subtree: true })
+      }
+      
+      // Применяем тему сразу и через небольшую задержку
+      applyLightTheme()
+      setTimeout(applyLightTheme, 100)
+      setTimeout(applyLightTheme, 500)
+      setTimeout(applyLightTheme, 1000)
+      setTimeout(applyLightTheme, 2000)
+      
+      // Дополнительно применяем через MutationObserver
+      const observer = new MutationObserver(() => {
+        applyLightTheme()
       })
+      observer.observe(markerArea as HTMLElement, { childList: true, subtree: true })
       
       // Загружаем существующие аннотации если есть
       let annotationsToLoad = initialAnnotationData
@@ -194,42 +190,26 @@ export function AnnotatedImage({
       
       if (annotationsToLoad) {
         try {
-          editor.deserializeState(annotationsToLoad)
+          markerArea.setState(JSON.parse(annotationsToLoad))
         } catch (error) {
           console.warn('Ошибка загрузки аннотаций:', error)
         }
       }
 
-      // Обработчики событий согласно документации
-      editor.addEventListener('editorsave', (event: any) => {
-        const state = event.detail.state
-        if (state) {
-          setHasAnnotations(true)
-          onAnnotationSave?.(state)
-          
-          // Сохраняем аннотации в localStorage для персистентности
-          const storageKey = `markerjs-annotations-${src}`
-          localStorage.setItem(storageKey, state)
-        }
-        // Закрываем редактор после сохранения
-        if (containerRef.current && editorRef.current) {
-          containerRef.current.removeChild(editorRef.current as HTMLElement)
-          editorRef.current = null
-        }
-        setIsEditing(false)
+      // Обработчики событий согласно документации MarkerArea
+      markerArea.addEventListener('statechange', () => {
+        const state = markerArea.getState()
+        setHasAnnotations(true)
+        onAnnotationSave?.(JSON.stringify(state))
+        
+        // Сохраняем аннотации в localStorage для персистентности
+        const storageKey = `markerjs-annotations-${src}`
+        localStorage.setItem(storageKey, JSON.stringify(state))
       })
 
-      editor.addEventListener('close', () => {
-        if (containerRef.current && editorRef.current) {
-          containerRef.current.removeChild(editorRef.current as HTMLElement)
-          editorRef.current = null
-        }
-        setIsEditing(false)
-      })
-
-      // Добавляем редактор в DOM согласно документации
-      containerRef.current.appendChild(editor as HTMLElement)
-      editorRef.current = editor
+      // Добавляем MarkerArea в DOM согласно документации
+      containerRef.current.appendChild(markerArea)
+      editorRef.current = markerArea
       setIsEditing(true)
     } catch (error) {
       console.error('Ошибка загрузки MarkerJS:', error)
@@ -238,10 +218,10 @@ export function AnnotatedImage({
 
   const saveAnnotations = () => {
     if (editorRef.current) {
-      // Сохранение происходит через событие editorsave
-      // Просто закрываем редактор
+      // Сохранение происходит через событие statechange
+      // Просто закрываем MarkerArea
       if (containerRef.current && editorRef.current) {
-        containerRef.current.removeChild(editorRef.current as HTMLElement)
+        containerRef.current.removeChild(editorRef.current)
         editorRef.current = null
         setIsEditing(false)
       }
@@ -250,7 +230,7 @@ export function AnnotatedImage({
 
   const cancelAnnotation = () => {
     if (editorRef.current && containerRef.current) {
-      containerRef.current.removeChild(editorRef.current as HTMLElement)
+      containerRef.current.removeChild(editorRef.current)
       editorRef.current = null
       setIsEditing(false)
     }
@@ -258,7 +238,7 @@ export function AnnotatedImage({
 
   const clearAnnotations = () => {
     if (editorRef.current) {
-      (editorRef.current as any).clear()
+      editorRef.current.clear()
       setHasAnnotations(false)
       onAnnotationSave?.('')
     }
@@ -301,11 +281,12 @@ export function AnnotatedImage({
             console.log('Image dimensions:', imageRef.current?.naturalWidth, 'x', imageRef.current?.naturalHeight)
             console.log('Image display size:', imageRef.current?.offsetWidth, 'x', imageRef.current?.offsetHeight)
             
-            // Обновляем размеры редактора после загрузки изображения
+            // Обновляем размеры MarkerArea после загрузки изображения
             if (editorRef.current && imageRef.current) {
               const img = imageRef.current
-              editorRef.current.style.width = img.offsetWidth + 'px'
-              editorRef.current.style.height = img.offsetHeight + 'px'
+              const rect = img.getBoundingClientRect()
+              editorRef.current.style.width = rect.width + 'px'
+              editorRef.current.style.height = rect.height + 'px'
             }
           }}
         />
