@@ -93,6 +93,13 @@ export function AnnotatedImage({
       editor.addEventListener('ready', () => {
         // Применяем светлую тему к редактору
         const editorElement = editor as HTMLElement
+        
+        // Пробуем использовать встроенную светлую тему
+        if ('setTheme' in editor) {
+          (editor as any).setTheme('light')
+        }
+        
+        // Устанавливаем CSS переменные для светлой темы
         editorElement.style.setProperty('--markerjs-theme', 'light')
         editorElement.style.setProperty('--markerjs-background', '#ffffff')
         editorElement.style.setProperty('--markerjs-foreground', '#000000')
@@ -105,9 +112,9 @@ export function AnnotatedImage({
         
         // Принудительно применяем светлую тему к дочерним элементам
         setTimeout(() => {
-          const toolbar = editorElement.querySelector('.markerjs-toolbar')
-          const propertiesPanel = editorElement.querySelector('.markerjs-properties-panel')
-          const contextMenu = editorElement.querySelector('.markerjs-context-menu')
+          const toolbar = editorElement.querySelector('.markerjs-toolbar') as HTMLElement
+          const propertiesPanel = editorElement.querySelector('.markerjs-properties-panel') as HTMLElement
+          const contextMenu = editorElement.querySelector('.markerjs-context-menu') as HTMLElement
           
           if (toolbar) {
             toolbar.style.background = '#ffffff'
