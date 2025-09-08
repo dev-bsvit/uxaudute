@@ -101,11 +101,21 @@ export function AnnotatedImage({
         // Ждем полной загрузки изображения для правильных размеров
         const updateMarkerAreaSize = () => {
           const rect = img.getBoundingClientRect()
+          
+          // Устанавливаем точные размеры MarkerArea согласно документации
           markerArea.style.width = rect.width + 'px'
           markerArea.style.height = rect.height + 'px'
           markerArea.style.position = 'absolute'
           markerArea.style.top = '0'
           markerArea.style.left = '0'
+          markerArea.style.zIndex = '10'
+          markerArea.style.pointerEvents = 'auto'
+          
+          // Важно: не растягиваем MarkerArea, сохраняем пропорции
+          markerArea.style.objectFit = 'contain'
+          markerArea.style.objectPosition = 'center'
+          
+          console.log('MarkerArea size set to:', rect.width, 'x', rect.height)
         }
         
         if (img.complete) {
@@ -272,7 +282,9 @@ export function AnnotatedImage({
             aspectRatio: 'auto',
             maxWidth: '100%',
             height: 'auto',
-            objectFit: 'contain'
+            objectFit: 'contain',
+            objectPosition: 'center',
+            display: 'block'
           }}
           onError={(e) => {
             console.error('Error loading image:', src)
@@ -301,7 +313,8 @@ export function AnnotatedImage({
         style={{ 
           width: '100%', 
           height: '100%',
-          minHeight: 'fit-content'
+          minHeight: 'fit-content',
+          overflow: 'hidden'
         }}
       >
         {/* Редактор будет добавлен сюда динамически */}
