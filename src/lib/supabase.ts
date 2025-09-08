@@ -6,7 +6,7 @@ const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
 // Клиент для клиентской стороны (с RLS)
 export const supabase = createClient(supabaseUrl, supabaseAnonKey)
 
-// Серверный клиент для API routes (с service role key)
+// Серверный клиент для API routes (с service role key или анонимным ключом)
 export const supabaseAdmin = createClient(
   supabaseUrl,
   process.env.SUPABASE_SERVICE_ROLE_KEY || supabaseAnonKey,
@@ -14,6 +14,11 @@ export const supabaseAdmin = createClient(
     auth: {
       autoRefreshToken: false,
       persistSession: false
+    },
+    global: {
+      headers: {
+        'apikey': process.env.SUPABASE_SERVICE_ROLE_KEY || supabaseAnonKey
+      }
     }
   }
 )

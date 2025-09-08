@@ -17,26 +17,32 @@ export async function GET(request: NextRequest) {
     console.log('Supabase URL:', process.env.NEXT_PUBLIC_SUPABASE_URL ? 'Set' : 'Missing')
     console.log('Service Role Key:', process.env.SUPABASE_SERVICE_ROLE_KEY ? 'Set' : 'Missing')
 
-    // Прямой запрос к Supabase - RLS проверит права доступа
-    const { data, error } = await supabaseAdmin
+    // Сначала проверяем, существует ли аудит
+    const { data: audit, error: auditError } = await supabaseAdmin
       .from('audits')
-      .select('annotations')
+      .select('id, annotations')
       .eq('id', auditId)
       .single()
 
-    if (error) {
-      console.error('Supabase error fetching annotations:', error)
+    if (auditError) {
+      console.error('Audit not found or access denied:', auditError)
       return NextResponse.json({ 
-        error: 'Failed to fetch annotations', 
-        details: error.message 
-      }, { status: 500 })
+        error: 'Audit not found or access denied', 
+        details: auditError.message 
+      }, { status: 404 })
+    }
+
+    if (!audit) {
+      return NextResponse.json({ 
+        error: 'Audit not found' 
+      }, { status: 404 })
     }
     
-    console.log('Successfully fetched annotations:', data?.annotations)
+    console.log('Successfully fetched annotations:', audit?.annotations)
     
     return NextResponse.json({ 
       success: true, 
-      annotations: data?.annotations || null 
+      annotations: audit?.annotations || null 
     })
 
   } catch (error) {
