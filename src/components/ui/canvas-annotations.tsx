@@ -519,7 +519,10 @@ export function CanvasAnnotations({
     const canvas = canvasRef.current
     const image = imageRef.current
     if (!canvas || !image) {
-      console.log('Canvas or image not available in updateCanvasSize')
+      console.log('Canvas or image not available in updateCanvasSize', { 
+        canvas: !!canvas, 
+        image: !!image 
+      })
       return
     }
 
@@ -655,16 +658,14 @@ export function CanvasAnnotations({
         />
         
         {/* Canvas для аннотаций */}
-        {isCanvasReady && (
-          <canvas
-            ref={canvasRef}
-            className="absolute top-0 left-0 pointer-events-auto cursor-crosshair"
-            style={{ zIndex: 10 }}
-            onMouseDown={handleMouseDown}
-            onMouseMove={handleMouseMove}
-            onMouseUp={handleMouseUp}
-          />
-        )}
+        <canvas
+          ref={canvasRef}
+          className="absolute top-0 left-0 pointer-events-auto cursor-crosshair"
+          style={{ zIndex: 10, display: isCanvasReady ? 'block' : 'none' }}
+          onMouseDown={handleMouseDown}
+          onMouseMove={handleMouseMove}
+          onMouseUp={handleMouseUp}
+        />
       </div>
 
       {/* Панель инструментов */}
