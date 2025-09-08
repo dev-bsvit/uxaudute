@@ -132,8 +132,18 @@ export async function POST(request: NextRequest) {
 
   } catch (error) {
     console.error('Ошибка в research-json API:', error)
+    
+    // Детальная информация об ошибке для отладки
+    if (error instanceof Error) {
+      console.error('Error message:', error.message)
+      console.error('Error stack:', error.stack)
+    }
+    
     return NextResponse.json(
-      { error: 'Внутренняя ошибка сервера' },
+      { 
+        error: 'Внутренняя ошибка сервера',
+        details: error instanceof Error ? error.message : 'Неизвестная ошибка'
+      },
       { status: 500 }
     )
   }
@@ -145,10 +155,13 @@ export async function POST(request: NextRequest) {
 async function loadJSONPrompt(): Promise<string> {
   try {
     const promptPath = join(process.cwd(), 'prompts', 'json-structured-prompt.md')
+    console.log('Загружаем промпт из:', promptPath)
     const prompt = readFileSync(promptPath, 'utf-8')
+    console.log('Промпт загружен успешно, длина:', prompt.length)
     return prompt
   } catch (error) {
     console.error('Ошибка загрузки JSON промпта:', error)
+    console.error('Используем fallback промпт')
     // Возвращаем fallback промпт
     return getFallbackJSONPrompt()
   }
@@ -191,10 +204,30 @@ function getFallbackJSONPrompt(): string {
         "question": "string",
         "options": ["A) ...", "B) ...", "C) ..."],
         "scores": [number, number, number],
-        "confidence": number
+        "confidence": number,
+        "category": "clarity|usability|accessibility|conversion|navigation|content",
+        "principle": "string",
+        "explanation": "string"
       }
     ],
-    "overallConfidence": number
+    "overallConfidence": number,
+    "summary": {
+      "totalQuestions": number,
+      "averageConfidence": number,
+      "criticalIssues": number,
+      "recommendations": ["string"]
+    }
+  },
+  "audience": {
+    "targetAudience": "string",
+    "mainPain": "string",
+    "fears": ["string"]
+  },
+  "behavior": {
+    "userScenarios": "string",
+    "behavioralPatterns": "string",
+    "frictionPoints": ["string"],
+    "actionMotivation": "string"
   },
   "problemsAndSolutions": [
     {
