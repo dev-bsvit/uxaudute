@@ -190,7 +190,9 @@ html {
 markerjs-editor,
 markerjs-editor *,
 [is="markerjs-editor"],
-[is="markerjs-editor"] * {
+[is="markerjs-editor"] *,
+.markerjs-editor,
+.markerjs-editor * {
   background: #ffffff !important;
   color: #000000 !important;
   --markerjs-theme: light !important;
@@ -202,6 +204,15 @@ markerjs-editor *,
   --markerjs-muted: #f3f4f6 !important;
   --markerjs-border: #e5e7eb !important;
   --markerjs-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1) !important;
+}
+
+/* Дополнительные селекторы для всех возможных элементов MarkerJS */
+div[class*="markerjs"],
+div[class*="markerjs"] *,
+div[id*="markerjs"],
+div[id*="markerjs"] * {
+  background: #ffffff !important;
+  color: #000000 !important;
 }
 
 /* Принудительная светлая тема для всех элементов MarkerJS */

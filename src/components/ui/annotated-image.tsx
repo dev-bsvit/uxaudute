@@ -126,6 +126,8 @@ export function AnnotatedImage({
           // Применяем к самому редактору
           editorElement.style.background = '#ffffff'
           editorElement.style.color = '#000000'
+          editorElement.style.setProperty('background', '#ffffff', 'important')
+          editorElement.style.setProperty('color', '#000000', 'important')
           
           // Находим и стилизуем все дочерние элементы
           const allElements = editorElement.querySelectorAll('*')
@@ -134,31 +136,31 @@ export function AnnotatedImage({
           allElements.forEach((element: any) => {
             if (element.style) {
               // Принудительно применяем светлую тему ко всем элементам
-              element.style.background = '#ffffff'
-              element.style.color = '#000000'
+              element.style.setProperty('background', '#ffffff', 'important')
+              element.style.setProperty('color', '#000000', 'important')
               
               // Стилизуем кнопки
               if (element.tagName === 'BUTTON' || element.classList.contains('markerjs-button')) {
-                element.style.background = '#ffffff'
-                element.style.color = '#000000'
-                element.style.border = '1px solid #e5e7eb'
+                element.style.setProperty('background', '#ffffff', 'important')
+                element.style.setProperty('color', '#000000', 'important')
+                element.style.setProperty('border', '1px solid #e5e7eb', 'important')
               }
               
               // Стилизуем панели
               if (element.classList.contains('markerjs-toolbar') || 
                   element.classList.contains('markerjs-properties-panel') ||
                   element.classList.contains('markerjs-context-menu')) {
-                element.style.background = '#ffffff'
-                element.style.border = '1px solid #e5e7eb'
-                element.style.boxShadow = '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
-                element.style.color = '#000000'
+                element.style.setProperty('background', '#ffffff', 'important')
+                element.style.setProperty('border', '1px solid #e5e7eb', 'important')
+                element.style.setProperty('box-shadow', '0 4px 6px -1px rgba(0, 0, 0, 0.1)', 'important')
+                element.style.setProperty('color', '#000000', 'important')
               }
               
               // Стилизуем инпуты
               if (element.tagName === 'INPUT' || element.tagName === 'SELECT' || element.tagName === 'TEXTAREA') {
-                element.style.background = '#ffffff'
-                element.style.color = '#000000'
-                element.style.border = '1px solid #d1d5db'
+                element.style.setProperty('background', '#ffffff', 'important')
+                element.style.setProperty('color', '#000000', 'important')
+                element.style.setProperty('border', '1px solid #d1d5db', 'important')
               }
             }
           })
@@ -170,6 +172,12 @@ export function AnnotatedImage({
         setTimeout(applyLightTheme, 500)
         setTimeout(applyLightTheme, 1000)
         setTimeout(applyLightTheme, 2000)
+        
+        // Дополнительно применяем через MutationObserver
+        const observer = new MutationObserver(() => {
+          applyLightTheme()
+        })
+        observer.observe(editorElement, { childList: true, subtree: true })
       })
       
       // Загружаем существующие аннотации если есть
@@ -278,13 +286,21 @@ export function AnnotatedImage({
           src={src} 
           alt={alt} 
           className="w-full h-auto max-h-[70vh] object-contain bg-white"
-          style={{ aspectRatio: 'auto' }}
+          style={{ 
+            aspectRatio: 'auto',
+            maxWidth: '100%',
+            height: 'auto',
+            objectFit: 'contain'
+          }}
           onError={(e) => {
             console.error('Error loading image:', src)
             console.error('Image error:', e)
           }}
           onLoad={() => {
             console.log('Image loaded successfully:', src)
+            console.log('Image dimensions:', imageRef.current?.naturalWidth, 'x', imageRef.current?.naturalHeight)
+            console.log('Image display size:', imageRef.current?.offsetWidth, 'x', imageRef.current?.offsetHeight)
+            
             // Обновляем размеры редактора после загрузки изображения
             if (editorRef.current && imageRef.current) {
               const img = imageRef.current
