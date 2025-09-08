@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { supabase } from '@/lib/supabase'
+import { supabaseAdmin } from '@/lib/supabase'
 
 // GET /api/annotations?auditId=xxx - Получить аннотации для аудита
 export async function GET(request: NextRequest) {
@@ -7,21 +7,32 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url)
     const auditId = searchParams.get('auditId')
     
+    console.log('GET /api/annotations - auditId:', auditId)
+    
     if (!auditId) {
       return NextResponse.json({ error: 'Audit ID is required' }, { status: 400 })
     }
 
+    // Проверяем переменные окружения
+    console.log('Supabase URL:', process.env.NEXT_PUBLIC_SUPABASE_URL ? 'Set' : 'Missing')
+    console.log('Service Role Key:', process.env.SUPABASE_SERVICE_ROLE_KEY ? 'Set' : 'Missing')
+
     // Прямой запрос к Supabase - RLS проверит права доступа
-    const { data, error } = await supabase
+    const { data, error } = await supabaseAdmin
       .from('audits')
       .select('annotations')
       .eq('id', auditId)
       .single()
 
     if (error) {
-      console.error('Error fetching annotations:', error)
-      return NextResponse.json({ error: 'Failed to fetch annotations' }, { status: 500 })
+      console.error('Supabase error fetching annotations:', error)
+      return NextResponse.json({ 
+        error: 'Failed to fetch annotations', 
+        details: error.message 
+      }, { status: 500 })
     }
+    
+    console.log('Successfully fetched annotations:', data?.annotations)
     
     return NextResponse.json({ 
       success: true, 
@@ -30,7 +41,10 @@ export async function GET(request: NextRequest) {
 
   } catch (error) {
     console.error('Error in GET /api/annotations:', error)
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
+    return NextResponse.json({ 
+      error: 'Internal server error', 
+      details: error instanceof Error ? error.message : 'Unknown error'
+    }, { status: 500 })
   }
 }
 
@@ -44,7 +58,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Прямой запрос к Supabase - RLS проверит права доступа
-    const { error } = await supabase
+    const { error } = await supabaseAdmin
       .from('audits')
       .update({
         annotations: annotations || null,
@@ -79,7 +93,7 @@ export async function DELETE(request: NextRequest) {
     }
 
     // Прямой запрос к Supabase - RLS проверит права доступа
-    const { error } = await supabase
+    const { error } = await supabaseAdmin
       .from('audits')
       .update({
         annotations: null,
