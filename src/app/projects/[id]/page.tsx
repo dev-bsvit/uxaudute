@@ -23,9 +23,6 @@ import {
 import { 
   ArrowLeft, 
   Plus, 
-  Eye, 
-  Calendar, 
-  BarChart3, 
   Trash2,
   ExternalLink
 } from 'lucide-react'
@@ -330,61 +327,7 @@ export default function ProjectDetailPage() {
           </Button>
         </div>
 
-        {/* Статистика */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-          <Card>
-            <CardContent className="p-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-slate-600">Всего аудитов</p>
-                  <p className="text-2xl font-bold text-slate-900">{audits.length}</p>
-                </div>
-                <BarChart3 className="w-8 h-8 text-blue-600" />
-              </div>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardContent className="p-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-slate-600">Завершенных</p>
-                  <p className="text-2xl font-bold text-slate-900">
-                    {audits.filter(a => a.status === 'completed').length}
-                  </p>
-                </div>
-                <Calendar className="w-8 h-8 text-green-600" />
-              </div>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardContent className="p-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-slate-600">В процессе</p>
-                  <p className="text-2xl font-bold text-slate-900">
-                    {audits.filter(a => a.status === 'in_progress').length}
-                  </p>
-                </div>
-                <Eye className="w-8 h-8 text-blue-600" />
-              </div>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardContent className="p-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-slate-600">Средняя оценка</p>
-                  <p className="text-2xl font-bold text-slate-900">
-                    {audits.length > 0 
-                      ? Math.round(audits.reduce((acc, a) => acc + (a.confidence || 0), 0) / audits.length)
-                      : 0}%
-                  </p>
-                </div>
-                <BarChart3 className="w-8 h-8 text-purple-600" />
-              </div>
-            </CardContent>
-          </Card>
-        </div>
+        {/* Статистика убрана - отображается только в разделе "Мои проекты" */}
 
         {/* Основной контент */}
         {!currentAudit ? (
