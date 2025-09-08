@@ -43,7 +43,7 @@ export async function GET(request: NextRequest) {
         hasAnnotations: audit.annotations !== null,
         annotationsCount: audit.annotations ? Object.keys(audit.annotations).length : 0,
         createdAt: audit.created_at,
-        projectName: audit.projects?.name
+        projectName: Array.isArray(audit.projects) ? audit.projects[0]?.name : audit.projects?.name
       })) || []
     })
 
