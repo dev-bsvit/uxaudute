@@ -56,7 +56,7 @@ export default function AuditPage() {
       }
 
       // Пытаемся распарсить JSON результат
-      let analysisResult: string | StructuredAnalysisResponse | undefined = audit.result_data?.analysis_result
+      let analysisResult: string | StructuredAnalysisResponse | undefined = audit.result_data?.analysis_result as string | StructuredAnalysisResponse | undefined
       if (typeof analysisResult === 'string') {
         try {
           const parsed = JSON.parse(analysisResult)
