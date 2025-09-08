@@ -34,17 +34,7 @@ export function AnnotatedImage({
     }
   }, [initialAnnotationData])
 
-  // Автоматически открываем редактор при загрузке изображения
-  useEffect(() => {
-    if (isClient && imageRef.current) {
-      // Небольшая задержка для полной загрузки изображения
-      const timer = setTimeout(() => {
-        startAnnotation()
-      }, 500)
-      
-      return () => clearTimeout(timer)
-    }
-  }, [isClient])
+  // Не открываем редактор автоматически, только по клику
 
   const startAnnotation = async () => {
     if (!imageRef.current || !isClient) return
@@ -81,7 +71,7 @@ export function AnnotatedImage({
       })
 
       // Открываем редактор (правильный метод)
-      editor.open()
+      editor.show()
       editorRef.current = editor
 
       setIsEditing(true)
@@ -147,32 +137,44 @@ export function AnnotatedImage({
         />
       </div>
 
-      {/* Панель управления аннотациями - только при редактировании */}
-      {isEditing && (
-        <div className="absolute top-4 right-4 flex gap-2">
-          <Button
-            size="sm"
-            onClick={saveAnnotations}
-            className="bg-green-600 hover:bg-green-700 text-white shadow-md"
-          >
-            <Save className="w-4 h-4 mr-2" />
-            Сохранить
-          </Button>
+      {/* Панель управления аннотациями */}
+      <div className="absolute top-4 right-4 flex gap-2">
+        {!isEditing ? (
           <Button
             size="sm"
             variant="outline"
-            onClick={cancelAnnotation}
+            onClick={startAnnotation}
             className="bg-white/90 hover:bg-white shadow-md"
           >
-            <X className="w-4 h-4" />
+            <Edit3 className="w-4 h-4 mr-2" />
+            {hasAnnotations ? 'Редактировать' : 'Аннотировать'}
           </Button>
-        </div>
-      )}
+        ) : (
+          <>
+            <Button
+              size="sm"
+              onClick={saveAnnotations}
+              className="bg-green-600 hover:bg-green-700 text-white shadow-md"
+            >
+              <Save className="w-4 h-4 mr-2" />
+              Сохранить
+            </Button>
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={cancelAnnotation}
+              className="bg-white/90 hover:bg-white shadow-md"
+            >
+              <X className="w-4 h-4" />
+            </Button>
+          </>
+        )}
+      </div>
 
-      {/* Индикатор загрузки редактора */}
-      {isClient && !isEditing && (
-        <div className="absolute top-4 right-4 bg-blue-600 text-white px-3 py-1 rounded-full text-sm font-medium shadow-md">
-          Загружается редактор...
+      {/* Индикатор аннотаций */}
+      {hasAnnotations && !isEditing && (
+        <div className="absolute bottom-4 left-4 bg-blue-600 text-white px-3 py-1 rounded-full text-sm font-medium shadow-md">
+          Есть аннотации
         </div>
       )}
     </div>

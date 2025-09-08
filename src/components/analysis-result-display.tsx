@@ -55,56 +55,19 @@ export function AnalysisResultDisplay({
   }
 
   return (
-    <div className="space-y-8">
-      {/* Заголовок */}
-      <div className="text-center">
-        <h2 className="text-3xl font-bold text-gray-900 mb-2">
-          Результаты UX анализа
-        </h2>
-        <p className="text-gray-600">
-          Анализ выполнен {new Date(analysis.metadata.timestamp).toLocaleDateString('ru-RU')}
-        </p>
-      </div>
+    <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 min-h-screen">
+      {/* Левая колонка - Результаты анализа */}
+      <div className="space-y-8">
+        {/* Заголовок */}
+        <div className="text-center">
+          <h2 className="text-3xl font-bold text-gray-900 mb-2">
+            Результаты UX анализа
+          </h2>
+          <p className="text-gray-600">
+            Анализ выполнен {new Date(analysis.metadata.timestamp).toLocaleDateString('ru-RU')}
+          </p>
+        </div>
 
-      {/* Анализируемый объект */}
-      {(screenshot || url) && (
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              {screenshot ? <Monitor className="w-5 h-5" /> : <Link2 className="w-5 h-5" />}
-              {screenshot ? 'Анализируемый интерфейс' : 'Анализируемый URL'}
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            {screenshot ? (
-              <div className="space-y-4">
-                <AnnotatedImage
-                  src={screenshot}
-                  alt="Анализируемый скриншот"
-                  className="w-full h-auto max-h-80 object-contain bg-white"
-                  onAnnotationSave={handleAnnotationSave}
-                  initialAnnotationData={annotationData}
-                />
-                <div className="text-sm text-gray-500 text-center">
-                  💡 Редактор аннотаций загружается автоматически. Добавьте комментарии и выделения к скриншоту
-                </div>
-              </div>
-            ) : url ? (
-              <div className="p-4 bg-slate-50 rounded-xl border-2 border-dashed border-slate-200">
-                <a 
-                  href={url} 
-                  target="_blank" 
-                  rel="noopener noreferrer"
-                  className="text-blue-600 hover:text-blue-800 font-medium break-all flex items-center gap-2"
-                >
-                  <Link2 className="w-4 h-4" />
-                  {url}
-                </a>
-              </div>
-            ) : null}
-          </CardContent>
-        </Card>
-      )}
 
       {/* Описание экрана */}
       <Card>
@@ -375,6 +338,49 @@ export function AnalysisResultDisplay({
           </CardContent>
         </Card>
       )}
+      </div>
+
+      {/* Правая колонка - Изображение с редактором */}
+      <div className="sticky top-4 h-fit">
+        {(screenshot || url) && (
+          <Card className="h-full">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                {screenshot ? <Monitor className="w-5 h-5" /> : <Link2 className="w-5 h-5" />}
+                {screenshot ? 'Анализируемый интерфейс' : 'Анализируемый URL'}
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              {screenshot ? (
+                <div className="space-y-4">
+                  <AnnotatedImage
+                    src={screenshot}
+                    alt="Анализируемый скриншот"
+                    className="w-full h-auto max-h-[70vh] object-contain bg-white"
+                    onAnnotationSave={handleAnnotationSave}
+                    initialAnnotationData={annotationData}
+                  />
+                  <div className="text-sm text-gray-500 text-center">
+                    💡 Редактор аннотаций загружается автоматически. Добавьте комментарии и выделения к скриншоту
+                  </div>
+                </div>
+              ) : url ? (
+                <div className="p-4 bg-slate-50 rounded-xl border-2 border-dashed border-slate-200">
+                  <a 
+                    href={url} 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="text-blue-600 hover:text-blue-800 font-medium break-all flex items-center gap-2"
+                  >
+                    <Link2 className="w-4 h-4" />
+                    {url}
+                  </a>
+                </div>
+              ) : null}
+            </CardContent>
+          </Card>
+        )}
+      </div>
     </div>
   )
 }

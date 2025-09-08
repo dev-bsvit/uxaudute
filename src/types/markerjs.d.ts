@@ -7,7 +7,7 @@ declare module '@markerjs/markerjs-ui' {
     deserializeState(state: string): void
     clear(): void
     close(): void
-    open(): void
+    show(): void
   }
 }
 
