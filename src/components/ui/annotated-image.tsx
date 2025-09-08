@@ -22,7 +22,6 @@ export function AnnotatedImage({
 }: AnnotatedImageProps) {
   const imageRef = useRef<HTMLImageElement>(null)
   const editorRef = useRef<AnnotationEditor | null>(null)
-  const containerRef = useRef<HTMLDivElement>(null)
   const [isEditing, setIsEditing] = useState(false)
   const [hasAnnotations, setHasAnnotations] = useState(false)
 
@@ -33,7 +32,7 @@ export function AnnotatedImage({
   }, [initialAnnotationData])
 
   const startAnnotation = () => {
-    if (!imageRef.current || !containerRef.current) return
+    if (!imageRef.current) return
 
     // Очищаем предыдущий редактор
     if (editorRef.current) {
@@ -62,8 +61,8 @@ export function AnnotatedImage({
       setIsEditing(false)
     })
 
-    // Добавляем редактор в контейнер
-    containerRef.current.appendChild(editor)
+    // Показываем редактор
+    editor.show()
     editorRef.current = editor
 
     setIsEditing(true)
@@ -74,14 +73,14 @@ export function AnnotatedImage({
       const annotationData = editorRef.current.serializeState()
       onAnnotationSave?.(annotationData)
       setHasAnnotations(true)
-      editorRef.current.close()
+      editorRef.current.hide()
       setIsEditing(false)
     }
   }
 
   const cancelAnnotation = () => {
     if (editorRef.current) {
-      editorRef.current.close()
+      editorRef.current.hide()
       setIsEditing(false)
     }
   }
@@ -113,8 +112,6 @@ export function AnnotatedImage({
         />
       </div>
 
-      {/* Контейнер для редактора аннотаций */}
-      <div ref={containerRef} className="absolute inset-0 pointer-events-none" />
 
       {/* Панель управления аннотациями */}
       <div className="absolute top-4 right-4 flex gap-2">
