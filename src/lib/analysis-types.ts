@@ -79,8 +79,8 @@ export interface SelfCheck {
 export interface StructuredAnalysisResponse {
   screenDescription: ScreenDescription
   uxSurvey: UXSurvey
-  audience: Audience
-  behavior: Behavior
+  audience?: Audience // Опционально для обратной совместимости
+  behavior?: Behavior // Опционально для обратной совместимости
   problemsAndSolutions: ProblemSolution[]
   selfCheck: SelfCheck
   metadata: {
