@@ -5,15 +5,20 @@ import { StructuredAnalysisResponse } from '@/lib/analysis-types'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { SurveyDisplay } from '@/components/ui/survey-display'
+import { Monitor, Link2 } from 'lucide-react'
 
 interface AnalysisResultDisplayProps {
   analysis?: StructuredAnalysisResponse
   showDetails?: boolean
+  screenshot?: string | null
+  url?: string | null
 }
 
 export function AnalysisResultDisplay({ 
   analysis, 
-  showDetails = true 
+  showDetails = true,
+  screenshot,
+  url
 }: AnalysisResultDisplayProps) {
   if (!analysis) {
     return (
@@ -49,6 +54,50 @@ export function AnalysisResultDisplay({
           Анализ выполнен {new Date(analysis.metadata.timestamp).toLocaleDateString('ru-RU')}
         </p>
       </div>
+
+      {/* Анализируемый объект */}
+      {(screenshot || url) && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              {screenshot ? <Monitor className="w-5 h-5" /> : <Link2 className="w-5 h-5" />}
+              {screenshot ? 'Анализируемый интерфейс' : 'Анализируемый URL'}
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            {screenshot ? (
+              <div className="space-y-4">
+                <div className="border-2 border-dashed border-slate-200 rounded-xl overflow-hidden bg-slate-50/50">
+                  <img 
+                    src={screenshot} 
+                    alt="Анализируемый скриншот" 
+                    className="w-full h-auto max-h-80 object-contain bg-white"
+                    onError={(e) => {
+                      console.error('Error loading screenshot:', screenshot)
+                      console.error('Image error:', e)
+                    }}
+                    onLoad={() => {
+                      console.log('Screenshot loaded successfully:', screenshot)
+                    }}
+                  />
+                </div>
+              </div>
+            ) : url ? (
+              <div className="p-4 bg-slate-50 rounded-xl border-2 border-dashed border-slate-200">
+                <a 
+                  href={url} 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="text-blue-600 hover:text-blue-800 font-medium break-all flex items-center gap-2"
+                >
+                  <Link2 className="w-4 h-4" />
+                  {url}
+                </a>
+              </div>
+            ) : null}
+          </CardContent>
+        </Card>
+      )}
 
       {/* Описание экрана */}
       <Card>
