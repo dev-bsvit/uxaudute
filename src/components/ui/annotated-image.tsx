@@ -20,7 +20,7 @@ export function AnnotatedImage({
   initialAnnotationData
 }: AnnotatedImageProps) {
   const imageRef = useRef<HTMLImageElement>(null)
-  const editorRef = useRef<HTMLElement | null>(null)
+  const editorRef = useRef<any>(null)
   const containerRef = useRef<HTMLDivElement>(null)
   const [isEditing, setIsEditing] = useState(false)
   const [hasAnnotations, setHasAnnotations] = useState(false)
@@ -77,7 +77,7 @@ export function AnnotatedImage({
       })
 
       // Добавляем редактор в DOM согласно документации
-      containerRef.current.appendChild(editor)
+      containerRef.current.appendChild(editor as HTMLElement)
       editorRef.current = editor
       setIsEditing(true)
     } catch (error) {
@@ -90,7 +90,7 @@ export function AnnotatedImage({
       // Сохранение происходит через событие editorsave
       // Просто закрываем редактор
       if (containerRef.current && editorRef.current) {
-        containerRef.current.removeChild(editorRef.current)
+        containerRef.current.removeChild(editorRef.current as HTMLElement)
         editorRef.current = null
         setIsEditing(false)
       }
@@ -99,7 +99,7 @@ export function AnnotatedImage({
 
   const cancelAnnotation = () => {
     if (editorRef.current && containerRef.current) {
-      containerRef.current.removeChild(editorRef.current)
+      containerRef.current.removeChild(editorRef.current as HTMLElement)
       editorRef.current = null
       setIsEditing(false)
     }
@@ -107,7 +107,7 @@ export function AnnotatedImage({
 
   const clearAnnotations = () => {
     if (editorRef.current) {
-      editorRef.current.clear()
+      (editorRef.current as any).clear()
       setHasAnnotations(false)
       onAnnotationSave?.('')
     }
