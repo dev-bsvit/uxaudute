@@ -40,9 +40,19 @@ export async function GET(request: NextRequest) {
     
     console.log('Successfully fetched annotations:', audit?.annotations)
     
+    // Если annotations - это объект с массивом, извлекаем массив
+    let annotationsArray = null
+    if (audit?.annotations) {
+      if (Array.isArray(audit.annotations)) {
+        annotationsArray = audit.annotations
+      } else if (audit.annotations.annotations && Array.isArray(audit.annotations.annotations)) {
+        annotationsArray = audit.annotations.annotations
+      }
+    }
+    
     return NextResponse.json({ 
       success: true, 
-      annotations: audit?.annotations || null 
+      annotations: annotationsArray 
     })
 
   } catch (error) {
@@ -64,10 +74,11 @@ export async function POST(request: NextRequest) {
     }
 
     // Прямой запрос к Supabase - RLS проверит права доступа
+    // Сохраняем массив аннотаций напрямую
     const { error } = await supabaseAdmin
       .from('audits')
       .update({
-        annotations: annotations || null,
+        annotations: Array.isArray(annotations) ? annotations : null,
         updated_at: new Date().toISOString()
       })
       .eq('id', auditId)
