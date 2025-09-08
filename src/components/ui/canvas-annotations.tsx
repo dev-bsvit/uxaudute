@@ -46,6 +46,7 @@ export function CanvasAnnotations({
   const [isClient, setIsClient] = useState(false)
   const [isSaving, setIsSaving] = useState(false)
   const [lastSaved, setLastSaved] = useState<Date | null>(null)
+  const [isCanvasReady, setIsCanvasReady] = useState(false)
 
   // Функции для работы с API аннотаций
   const saveAnnotationsToAPI = async (annotationsData: Annotation[]) => {
@@ -187,14 +188,14 @@ export function CanvasAnnotations({
 
   // Автоматически открываем редактор при загрузке изображения
   useEffect(() => {
-    if (isClient && imageRef.current && !isEditing) {
+    if (isClient && imageRef.current && !isEditing && isCanvasReady) {
       const timer = setTimeout(() => {
         startAnnotation()
       }, 1000)
       
       return () => clearTimeout(timer)
     }
-  }, [isClient, isEditing])
+  }, [isClient, isEditing, isCanvasReady])
 
   const startAnnotation = () => {
     setIsEditing(true)
@@ -273,7 +274,7 @@ export function CanvasAnnotations({
   }
 
   const handleMouseDown = (e: React.MouseEvent<HTMLCanvasElement>) => {
-    if (!isEditing) return
+    if (!isEditing || !isCanvasReady) return
 
     const canvas = canvasRef.current
     const image = imageRef.current
@@ -485,6 +486,13 @@ export function CanvasAnnotations({
 
     const rect = image.getBoundingClientRect()
     
+    // Проверяем, что изображение загружено
+    if (rect.width === 0 || rect.height === 0) {
+      console.log('Image not ready, retrying...')
+      setTimeout(updateCanvasSize, 100)
+      return
+    }
+    
     // Устанавливаем размеры Canvas равными размерам изображения
     canvas.width = rect.width
     canvas.height = rect.height
@@ -499,6 +507,9 @@ export function CanvasAnnotations({
     console.log('Canvas size updated:', rect.width, 'x', rect.height)
     console.log('Image natural size:', image.naturalWidth, 'x', image.naturalHeight)
     console.log('Image display size:', image.offsetWidth, 'x', image.offsetHeight)
+    
+    // Помечаем Canvas как готовый
+    setIsCanvasReady(true)
     
     // Перерисовываем аннотации
     setTimeout(() => {
@@ -560,14 +571,16 @@ export function CanvasAnnotations({
         />
         
         {/* Canvas для аннотаций */}
-        <canvas
-          ref={canvasRef}
-          className="absolute top-0 left-0 pointer-events-auto cursor-crosshair"
-          style={{ zIndex: 10 }}
-          onMouseDown={handleMouseDown}
-          onMouseMove={handleMouseMove}
-          onMouseUp={handleMouseUp}
-        />
+        {isCanvasReady && (
+          <canvas
+            ref={canvasRef}
+            className="absolute top-0 left-0 pointer-events-auto cursor-crosshair"
+            style={{ zIndex: 10 }}
+            onMouseDown={handleMouseDown}
+            onMouseMove={handleMouseMove}
+            onMouseUp={handleMouseUp}
+          />
+        )}
       </div>
 
       {/* Панель инструментов */}
@@ -650,8 +663,17 @@ export function CanvasAnnotations({
         )}
       </div>
 
+      {/* Индикатор загрузки Canvas */}
+      {!isCanvasReady && isClient && (
+        <div className="mt-2 text-center">
+          <span className="inline-flex items-center px-3 py-1 rounded-full text-sm bg-blue-100 text-blue-800">
+            ⏳ Загрузка редактора аннотаций...
+          </span>
+        </div>
+      )}
+
       {/* Индикатор аннотаций */}
-      {hasAnnotations && !isEditing && (
+      {hasAnnotations && !isEditing && isCanvasReady && (
         <div className="mt-2 text-center space-y-2">
           <span className="inline-flex items-center px-3 py-1 rounded-full text-sm bg-green-100 text-green-800">
             ✓ {annotations.length} аннотаций сохранено
