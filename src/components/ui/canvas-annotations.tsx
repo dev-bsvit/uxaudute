@@ -137,15 +137,12 @@ export function CanvasAnnotations({
           if (response.ok) {
             const { annotations: dbAnnotations } = await response.json()
             if (dbAnnotations) {
-              try {
-                const parsed = JSON.parse(dbAnnotations)
-                console.log('Loaded annotations from database:', parsed)
-                setAnnotations(parsed)
-                setHasAnnotations(parsed.length > 0)
-                return // Если загрузили из БД, не загружаем из localStorage
-              } catch (error) {
-                console.error('Error parsing database annotations:', error)
-              }
+              // dbAnnotations уже является массивом, не нужно парсить
+              const annotationsArray = Array.isArray(dbAnnotations) ? dbAnnotations : []
+              console.log('Loaded annotations from database:', annotationsArray)
+              setAnnotations(annotationsArray)
+              setHasAnnotations(annotationsArray.length > 0)
+              return // Если загрузили из БД, не загружаем из localStorage
             }
           } else {
             console.error('Failed to load annotations from database:', await response.text())
