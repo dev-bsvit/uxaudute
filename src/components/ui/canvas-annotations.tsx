@@ -2,7 +2,7 @@
 
 import React, { useRef, useEffect, useState, useCallback } from 'react'
 import { Button } from '@/components/ui/button'
-import { Edit3, Save, X, RotateCcw, Square, Circle, Type, ArrowRight, ZoomIn, ZoomOut, RotateCcw as Reset } from 'lucide-react'
+import { Edit3, Save, X, RotateCcw, Square, Circle, Type, ArrowRight } from 'lucide-react'
 
 interface CanvasAnnotationsProps {
   src: string
@@ -40,19 +40,37 @@ export function CanvasAnnotations({
   const [startPos, setStartPos] = useState({ x: 0, y: 0 })
   const [currentAnnotation, setCurrentAnnotation] = useState<Annotation | null>(null)
   const [isClient, setIsClient] = useState(false)
-  const [zoom, setZoom] = useState(1)
-  const [pan, setPan] = useState({ x: 0, y: 0 })
 
   useEffect(() => {
     setIsClient(typeof window !== 'undefined')
     
+    // Создаем стабильный ключ на основе имени файла или URL
+    const getStableKey = (url: string) => {
+      try {
+        const urlObj = new URL(url)
+        const pathname = urlObj.pathname
+        const filename = pathname.split('/').pop() || 'unknown'
+        return `canvas-annotations-${filename}`
+      } catch {
+        // Если не удается распарсить URL, используем хеш
+        const hash = url.split('').reduce((a, b) => {
+          a = ((a << 5) - a) + b.charCodeAt(0)
+          return a & a
+        }, 0)
+        return `canvas-annotations-${Math.abs(hash)}`
+      }
+    }
+    
     // Загружаем аннотации из localStorage
     if (isClient && src) {
-      const storageKey = `canvas-annotations-${src}`
+      const storageKey = getStableKey(src)
+      console.log('Loading annotations with key:', storageKey)
+      
       const savedAnnotations = localStorage.getItem(storageKey)
       if (savedAnnotations) {
         try {
           const parsed = JSON.parse(savedAnnotations)
+          console.log('Loaded annotations:', parsed)
           setAnnotations(parsed)
           setHasAnnotations(parsed.length > 0)
         } catch (error) {
@@ -282,29 +300,20 @@ export function CanvasAnnotations({
     setHasAnnotations(true)
   }
 
-  const handleWheel = (e: React.WheelEvent<HTMLCanvasElement>) => {
-    if (!isEditing) return
-    
-    e.preventDefault()
-    
-    const delta = e.deltaY > 0 ? 0.9 : 1.1
-    const newZoom = Math.max(0.1, Math.min(5, zoom * delta))
-    
-    setZoom(newZoom)
-    
-    // Обновляем размеры Canvas с учетом зума
-    const canvas = canvasRef.current
-    const image = imageRef.current
-    if (canvas && image) {
-      const rect = image.getBoundingClientRect()
-      canvas.width = rect.width * newZoom
-      canvas.height = rect.height * newZoom
-      canvas.style.width = rect.width + 'px'
-      canvas.style.height = rect.height + 'px'
-      
-      setTimeout(() => {
-        drawAnnotations()
-      }, 100)
+
+  const getStableKey = (url: string) => {
+    try {
+      const urlObj = new URL(url)
+      const pathname = urlObj.pathname
+      const filename = pathname.split('/').pop() || 'unknown'
+      return `canvas-annotations-${filename}`
+    } catch {
+      // Если не удается распарсить URL, используем хеш
+      const hash = url.split('').reduce((a, b) => {
+        a = ((a << 5) - a) + b.charCodeAt(0)
+        return a & a
+      }, 0)
+      return `canvas-annotations-${Math.abs(hash)}`
     }
   }
 
@@ -313,8 +322,10 @@ export function CanvasAnnotations({
     onAnnotationSave?.(data)
     
     if (isClient) {
-      const storageKey = `canvas-annotations-${src}`
+      const storageKey = getStableKey(src)
+      console.log('Saving annotations with key:', storageKey)
       localStorage.setItem(storageKey, data)
+      console.log('Annotations saved:', annotations)
     }
     
     setIsEditing(false)
@@ -332,7 +343,8 @@ export function CanvasAnnotations({
     onAnnotationSave?.('')
     
     if (isClient) {
-      const storageKey = `canvas-annotations-${src}`
+      const storageKey = getStableKey(src)
+      console.log('Clearing annotations with key:', storageKey)
       localStorage.removeItem(storageKey)
     }
     
@@ -352,9 +364,9 @@ export function CanvasAnnotations({
 
     const rect = image.getBoundingClientRect()
     
-    // Устанавливаем размеры Canvas с учетом зума
-    canvas.width = rect.width * zoom
-    canvas.height = rect.height * zoom
+    // Устанавливаем размеры Canvas равными размерам изображения
+    canvas.width = rect.width
+    canvas.height = rect.height
     canvas.style.width = rect.width + 'px'
     canvas.style.height = rect.height + 'px'
     canvas.style.position = 'absolute'
@@ -363,7 +375,7 @@ export function CanvasAnnotations({
     canvas.style.pointerEvents = 'auto'
     canvas.style.zIndex = '10'
     
-    console.log('Canvas size updated:', rect.width, 'x', rect.height, 'zoom:', zoom)
+    console.log('Canvas size updated:', rect.width, 'x', rect.height)
     console.log('Image natural size:', image.naturalWidth, 'x', image.naturalHeight)
     console.log('Image display size:', image.offsetWidth, 'x', image.offsetHeight)
     
@@ -434,91 +446,44 @@ export function CanvasAnnotations({
           onMouseDown={handleMouseDown}
           onMouseMove={handleMouseMove}
           onMouseUp={handleMouseUp}
-          onWheel={handleWheel}
         />
       </div>
 
       {/* Панель инструментов */}
       {isEditing && (
-        <div className="mt-4 space-y-4">
-          {/* Инструменты аннотаций */}
-          <div className="flex gap-2 justify-center flex-wrap">
-            <Button
-              size="sm"
-              variant={currentTool === 'rectangle' ? 'default' : 'outline'}
-              onClick={() => setCurrentTool('rectangle')}
-            >
-              <Square className="w-4 h-4 mr-2" />
-              Прямоугольник
-            </Button>
-            <Button
-              size="sm"
-              variant={currentTool === 'circle' ? 'default' : 'outline'}
-              onClick={() => setCurrentTool('circle')}
-            >
-              <Circle className="w-4 h-4 mr-2" />
-              Круг
-            </Button>
-            <Button
-              size="sm"
-              variant={currentTool === 'arrow' ? 'default' : 'outline'}
-              onClick={() => setCurrentTool('arrow')}
-            >
-              <ArrowRight className="w-4 h-4 mr-2" />
-              Стрелка
-            </Button>
-            <Button
-              size="sm"
-              variant={currentTool === 'text' ? 'default' : 'outline'}
-              onClick={() => setCurrentTool('text')}
-            >
-              <Type className="w-4 h-4 mr-2" />
-              Текст
-            </Button>
-          </div>
-          
-          {/* Инструменты зума */}
-          <div className="flex gap-2 justify-center items-center">
-            <Button
-              size="sm"
-              variant="outline"
-              onClick={() => {
-                const newZoom = Math.max(0.1, zoom * 0.9)
-                setZoom(newZoom)
-                updateCanvasSize()
-              }}
-            >
-              <ZoomOut className="w-4 h-4 mr-2" />
-              Уменьшить
-            </Button>
-            <span className="text-sm text-gray-600 min-w-[60px] text-center">
-              {Math.round(zoom * 100)}%
-            </span>
-            <Button
-              size="sm"
-              variant="outline"
-              onClick={() => {
-                const newZoom = Math.min(5, zoom * 1.1)
-                setZoom(newZoom)
-                updateCanvasSize()
-              }}
-            >
-              <ZoomIn className="w-4 h-4 mr-2" />
-              Увеличить
-            </Button>
-            <Button
-              size="sm"
-              variant="outline"
-              onClick={() => {
-                setZoom(1)
-                setPan({ x: 0, y: 0 })
-                updateCanvasSize()
-              }}
-            >
-              <Reset className="w-4 h-4 mr-2" />
-              Сброс
-            </Button>
-          </div>
+        <div className="mt-4 flex gap-2 justify-center flex-wrap">
+          <Button
+            size="sm"
+            variant={currentTool === 'rectangle' ? 'default' : 'outline'}
+            onClick={() => setCurrentTool('rectangle')}
+          >
+            <Square className="w-4 h-4 mr-2" />
+            Прямоугольник
+          </Button>
+          <Button
+            size="sm"
+            variant={currentTool === 'circle' ? 'default' : 'outline'}
+            onClick={() => setCurrentTool('circle')}
+          >
+            <Circle className="w-4 h-4 mr-2" />
+            Круг
+          </Button>
+          <Button
+            size="sm"
+            variant={currentTool === 'arrow' ? 'default' : 'outline'}
+            onClick={() => setCurrentTool('arrow')}
+          >
+            <ArrowRight className="w-4 h-4 mr-2" />
+            Стрелка
+          </Button>
+          <Button
+            size="sm"
+            variant={currentTool === 'text' ? 'default' : 'outline'}
+            onClick={() => setCurrentTool('text')}
+          >
+            <Type className="w-4 h-4 mr-2" />
+            Текст
+          </Button>
         </div>
       )}
 
