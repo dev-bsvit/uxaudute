@@ -114,29 +114,29 @@ export function AnnotatedImage({
 
       // Настраиваем светлую тему для MarkerJS
       editor.addEventListener('ready', () => {
+        console.log('MarkerJS ready, applying light theme...')
+        
         // Применяем светлую тему к редактору
         const editorElement = editor as HTMLElement
         
-        // Устанавливаем CSS переменные для светлой темы
-        editorElement.style.setProperty('--markerjs-background', '#ffffff')
-        editorElement.style.setProperty('--markerjs-foreground', '#000000')
-        editorElement.style.setProperty('--markerjs-primary', '#3b82f6')
-        editorElement.style.setProperty('--markerjs-secondary', '#6b7280')
-        editorElement.style.setProperty('--markerjs-accent', '#10b981')
-        editorElement.style.setProperty('--markerjs-muted', '#f3f4f6')
-        editorElement.style.setProperty('--markerjs-border', '#e5e7eb')
-        editorElement.style.setProperty('--markerjs-shadow', '0 1px 3px 0 rgba(0, 0, 0, 0.1)')
-        
         // Принудительно применяем светлую тему ко всем элементам
         const applyLightTheme = () => {
+          console.log('Applying light theme...')
+          
           // Применяем к самому редактору
           editorElement.style.background = '#ffffff'
           editorElement.style.color = '#000000'
           
           // Находим и стилизуем все дочерние элементы
           const allElements = editorElement.querySelectorAll('*')
+          console.log('Found elements:', allElements.length)
+          
           allElements.forEach((element: any) => {
             if (element.style) {
+              // Принудительно применяем светлую тему ко всем элементам
+              element.style.background = '#ffffff'
+              element.style.color = '#000000'
+              
               // Стилизуем кнопки
               if (element.tagName === 'BUTTON' || element.classList.contains('markerjs-button')) {
                 element.style.background = '#ffffff'
@@ -168,6 +168,8 @@ export function AnnotatedImage({
         applyLightTheme()
         setTimeout(applyLightTheme, 100)
         setTimeout(applyLightTheme, 500)
+        setTimeout(applyLightTheme, 1000)
+        setTimeout(applyLightTheme, 2000)
       })
       
       // Загружаем существующие аннотации если есть
@@ -304,6 +306,25 @@ export function AnnotatedImage({
         }}
       >
         {/* Редактор будет добавлен сюда динамически */}
+        <style jsx>{`
+          markerjs-editor {
+            background: #ffffff !important;
+            color: #000000 !important;
+          }
+          markerjs-editor * {
+            background: #ffffff !important;
+            color: #000000 !important;
+          }
+          markerjs-editor button {
+            background: #ffffff !important;
+            color: #000000 !important;
+            border: 1px solid #e5e7eb !important;
+          }
+          markerjs-editor button:hover {
+            background: #f3f4f6 !important;
+            color: #000000 !important;
+          }
+        `}</style>
       </div>
 
       {/* Панель управления аннотациями - только для повторного открытия */}

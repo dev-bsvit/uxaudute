@@ -186,9 +186,13 @@ html {
   }
 }
 
-/* MarkerJS Light Theme */
+/* MarkerJS Light Theme - Агрессивные стили */
 markerjs-editor,
-markerjs-editor * {
+markerjs-editor *,
+[is="markerjs-editor"],
+[is="markerjs-editor"] * {
+  background: #ffffff !important;
+  color: #000000 !important;
   --markerjs-theme: light !important;
   --markerjs-background: #ffffff !important;
   --markerjs-foreground: #000000 !important;
@@ -201,28 +205,48 @@ markerjs-editor * {
 }
 
 /* Принудительная светлая тема для всех элементов MarkerJS */
-markerjs-editor {
+markerjs-editor,
+[is="markerjs-editor"] {
   background: #ffffff !important;
   color: #000000 !important;
 }
 
-markerjs-editor button {
+markerjs-editor button,
+[is="markerjs-editor"] button,
+markerjs-editor .button,
+[is="markerjs-editor"] .button {
   background: #ffffff !important;
   color: #000000 !important;
   border: 1px solid #e5e7eb !important;
 }
 
-markerjs-editor button:hover {
+markerjs-editor button:hover,
+[is="markerjs-editor"] button:hover,
+markerjs-editor .button:hover,
+[is="markerjs-editor"] .button:hover {
   background: #f3f4f6 !important;
   color: #000000 !important;
 }
 
 markerjs-editor input,
 markerjs-editor select,
-markerjs-editor textarea {
+markerjs-editor textarea,
+[is="markerjs-editor"] input,
+[is="markerjs-editor"] select,
+[is="markerjs-editor"] textarea {
   background: #ffffff !important;
   color: #000000 !important;
   border: 1px solid #d1d5db !important;
+}
+
+/* Дополнительные селекторы для MarkerJS */
+.markerjs-toolbar,
+.markerjs-properties-panel,
+.markerjs-context-menu {
+  background: #ffffff !important;
+  color: #000000 !important;
+  border: 1px solid #e5e7eb !important;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1) !important;
 }
 
 /* MarkerJS Toolbar Light Theme */
