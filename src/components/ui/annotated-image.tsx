@@ -20,7 +20,7 @@ export function AnnotatedImage({
   initialAnnotationData
 }: AnnotatedImageProps) {
   const imageRef = useRef<HTMLImageElement>(null)
-  const editorRef = useRef<any>(null)
+  const editorRef = useRef<HTMLElement | null>(null)
   const containerRef = useRef<HTMLDivElement>(null)
   const [isEditing, setIsEditing] = useState(false)
   const [hasAnnotations, setHasAnnotations] = useState(false)
@@ -50,7 +50,7 @@ export function AnnotatedImage({
       }
 
       // Создаем новый редактор
-      const editor = new AnnotationEditor()
+      const editor = new AnnotationEditor() as any
       editor.targetImage = imageRef.current
       
       // Загружаем существующие аннотации если есть
