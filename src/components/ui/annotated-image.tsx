@@ -161,7 +161,10 @@ export function AnnotatedImage({
       // Если нет initialAnnotationData, пробуем загрузить из localStorage
       if (!annotationsToLoad && isClient) {
         const storageKey = `markerjs-annotations-${src}`
-        annotationsToLoad = localStorage.getItem(storageKey)
+        const savedAnnotations = localStorage.getItem(storageKey)
+        if (savedAnnotations) {
+          annotationsToLoad = savedAnnotations
+        }
       }
       
       if (annotationsToLoad) {
