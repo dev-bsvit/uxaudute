@@ -30,10 +30,23 @@ export function AnnotatedImage({
     // Проверяем, что мы в браузере
     setIsClient(typeof window !== 'undefined')
     
+    // Загружаем аннотации из localStorage
+    if (isClient && src) {
+      const storageKey = `markerjs-annotations-${src}`
+      const savedAnnotations = localStorage.getItem(storageKey)
+      if (savedAnnotations) {
+        setHasAnnotations(true)
+        // Если нет initialAnnotationData, используем сохраненные
+        if (!initialAnnotationData) {
+          onAnnotationSave?.(savedAnnotations)
+        }
+      }
+    }
+    
     if (initialAnnotationData) {
       setHasAnnotations(true)
     }
-  }, [initialAnnotationData])
+  }, [initialAnnotationData, isClient, src])
 
   // Автоматически открываем редактор при загрузке изображения
   useEffect(() => {
@@ -82,11 +95,23 @@ export function AnnotatedImage({
       // Устанавливаем размеры редактора равными размерам изображения
       const img = imageRef.current
       if (img) {
-        editor.style.width = img.offsetWidth + 'px'
-        editor.style.height = img.offsetHeight + 'px'
-        editor.style.position = 'absolute'
-        editor.style.top = '0'
-        editor.style.left = '0'
+        // Ждем полной загрузки изображения для правильных размеров
+        const updateEditorSize = () => {
+          const rect = img.getBoundingClientRect()
+          editor.style.width = rect.width + 'px'
+          editor.style.height = rect.height + 'px'
+          editor.style.position = 'absolute'
+          editor.style.top = '0'
+          editor.style.left = '0'
+          editor.style.maxWidth = '100%'
+          editor.style.maxHeight = '100%'
+        }
+        
+        if (img.complete) {
+          updateEditorSize()
+        } else {
+          img.addEventListener('load', updateEditorSize)
+        }
       }
 
       // Настраиваем светлую тему для MarkerJS
@@ -94,13 +119,7 @@ export function AnnotatedImage({
         // Применяем светлую тему к редактору
         const editorElement = editor as HTMLElement
         
-        // Пробуем использовать встроенную светлую тему
-        if ('setTheme' in editor) {
-          (editor as any).setTheme('light')
-        }
-        
         // Устанавливаем CSS переменные для светлой темы
-        editorElement.style.setProperty('--markerjs-theme', 'light')
         editorElement.style.setProperty('--markerjs-background', '#ffffff')
         editorElement.style.setProperty('--markerjs-foreground', '#000000')
         editorElement.style.setProperty('--markerjs-primary', '#3b82f6')
@@ -110,7 +129,7 @@ export function AnnotatedImage({
         editorElement.style.setProperty('--markerjs-border', '#e5e7eb')
         editorElement.style.setProperty('--markerjs-shadow', '0 1px 3px 0 rgba(0, 0, 0, 0.1)')
         
-        // Принудительно применяем светлую тему к дочерним элементам
+        // Применяем светлую тему к дочерним элементам
         setTimeout(() => {
           const toolbar = editorElement.querySelector('.markerjs-toolbar') as HTMLElement
           const propertiesPanel = editorElement.querySelector('.markerjs-properties-panel') as HTMLElement
@@ -137,9 +156,17 @@ export function AnnotatedImage({
       })
       
       // Загружаем существующие аннотации если есть
-      if (initialAnnotationData) {
+      let annotationsToLoad = initialAnnotationData
+      
+      // Если нет initialAnnotationData, пробуем загрузить из localStorage
+      if (!annotationsToLoad && isClient) {
+        const storageKey = `markerjs-annotations-${src}`
+        annotationsToLoad = localStorage.getItem(storageKey)
+      }
+      
+      if (annotationsToLoad) {
         try {
-          editor.deserializeState(initialAnnotationData)
+          editor.deserializeState(annotationsToLoad)
         } catch (error) {
           console.warn('Ошибка загрузки аннотаций:', error)
         }
@@ -151,6 +178,10 @@ export function AnnotatedImage({
         if (state) {
           setHasAnnotations(true)
           onAnnotationSave?.(state)
+          
+          // Сохраняем аннотации в localStorage для персистентности
+          const storageKey = `markerjs-annotations-${src}`
+          localStorage.setItem(storageKey, state)
         }
         // Закрываем редактор после сохранения
         if (containerRef.current && editorRef.current) {
