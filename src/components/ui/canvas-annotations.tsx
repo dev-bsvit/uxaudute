@@ -241,20 +241,25 @@ export function CanvasAnnotations({
 
       switch (annotation.type) {
         case 'rectangle':
-          ctx.strokeRect(annotation.x, annotation.y, annotation.width, annotation.height)
-          ctx.fillRect(annotation.x, annotation.y, annotation.width, annotation.height)
+          if (annotation.width > 0 && annotation.height > 0) {
+            ctx.strokeRect(annotation.x, annotation.y, annotation.width, annotation.height)
+            ctx.fillRect(annotation.x, annotation.y, annotation.width, annotation.height)
+          }
           break
         case 'circle':
           ctx.beginPath()
-          ctx.arc(
-            annotation.x + annotation.width / 2,
-            annotation.y + annotation.height / 2,
-            Math.min(annotation.width, annotation.height) / 2,
-            0,
-            2 * Math.PI
-          )
-          ctx.stroke()
-          ctx.fill()
+          const radius = Math.abs(Math.min(annotation.width, annotation.height)) / 2
+          if (radius > 0) {
+            ctx.arc(
+              annotation.x + annotation.width / 2,
+              annotation.y + annotation.height / 2,
+              radius,
+              0,
+              2 * Math.PI
+            )
+            ctx.stroke()
+            ctx.fill()
+          }
           break
         case 'arrow':
           drawArrow(ctx, annotation)
@@ -278,7 +283,11 @@ export function CanvasAnnotations({
 
   const drawArrow = (ctx: CanvasRenderingContext2D, annotation: Annotation) => {
     const { x, y, width, height } = annotation
-    const headLength = 20
+    
+    // Проверяем, что стрелка имеет разумные размеры
+    if (Math.abs(width) < 1 && Math.abs(height) < 1) return
+    
+    const headLength = Math.min(20, Math.sqrt(width * width + height * height) / 3)
     const angle = Math.atan2(height, width)
     
     ctx.beginPath()
