@@ -55,7 +55,7 @@ export function AnalysisResultDisplay({
   }
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 min-h-screen">
+    <div className="w-full max-w-none grid grid-cols-1 lg:grid-cols-2 gap-8 min-h-screen">
       {/* Левая колонка - Результаты анализа */}
       <div className="space-y-8">
         {/* Заголовок */}

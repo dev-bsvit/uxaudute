@@ -19,7 +19,7 @@ export function AnalysisResult({ result, screenshot, url }: AnalysisResultProps)
   // Если это JSON результат, используем новый компонент
   if (isJsonResult) {
     return (
-      <div className="max-w-7xl mx-auto">
+      <div className="w-full">
         {/* JSON отображение с поддержкой скриншота */}
         <AnalysisResultDisplay 
           analysis={result as StructuredAnalysisResponse}

@@ -69,10 +69,19 @@ export function AnnotatedImage({
           setHasAnnotations(true)
           onAnnotationSave?.(state)
         }
+        // Закрываем редактор после сохранения
+        if (containerRef.current && editorRef.current) {
+          containerRef.current.removeChild(editorRef.current as HTMLElement)
+          editorRef.current = null
+        }
         setIsEditing(false)
       })
 
       editor.addEventListener('close', () => {
+        if (containerRef.current && editorRef.current) {
+          containerRef.current.removeChild(editorRef.current as HTMLElement)
+          editorRef.current = null
+        }
         setIsEditing(false)
       })
 
@@ -152,7 +161,7 @@ export function AnnotatedImage({
 
       {/* Панель управления аннотациями */}
       <div className="absolute top-4 right-4 flex gap-2">
-        {!isEditing ? (
+        {!isEditing && (
           <Button
             size="sm"
             variant="outline"
@@ -162,25 +171,6 @@ export function AnnotatedImage({
             <Edit3 className="w-4 h-4 mr-2" />
             {hasAnnotations ? 'Редактировать' : 'Аннотировать'}
           </Button>
-        ) : (
-          <>
-            <Button
-              size="sm"
-              onClick={saveAnnotations}
-              className="bg-green-600 hover:bg-green-700 text-white shadow-md"
-            >
-              <Save className="w-4 h-4 mr-2" />
-              Сохранить
-            </Button>
-            <Button
-              size="sm"
-              variant="outline"
-              onClick={cancelAnnotation}
-              className="bg-white/90 hover:bg-white shadow-md"
-            >
-              <X className="w-4 h-4" />
-            </Button>
-          </>
         )}
       </div>
 
