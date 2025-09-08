@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getAnnotations } from '@/lib/database'
+import { supabase } from '@/lib/supabase'
 
 // GET /api/annotations?auditId=xxx - Получить аннотации для аудита
 export async function GET(request: NextRequest) {
@@ -11,12 +11,21 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Audit ID is required' }, { status: 400 })
     }
 
-    // Используем функцию из database.ts, которая уже имеет проверку прав
-    const annotations = await getAnnotations(auditId)
+    // Прямой запрос к Supabase - RLS проверит права доступа
+    const { data, error } = await supabase
+      .from('audits')
+      .select('annotations')
+      .eq('id', auditId)
+      .single()
+
+    if (error) {
+      console.error('Error fetching annotations:', error)
+      return NextResponse.json({ error: 'Failed to fetch annotations' }, { status: 500 })
+    }
     
     return NextResponse.json({ 
       success: true, 
-      annotations: annotations || null 
+      annotations: data?.annotations || null 
     })
 
   } catch (error) {
@@ -34,9 +43,19 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Audit ID is required' }, { status: 400 })
     }
 
-    // Используем функцию из database.ts
-    const { saveAnnotations } = await import('@/lib/database')
-    await saveAnnotations(auditId, annotations || {})
+    // Прямой запрос к Supabase - RLS проверит права доступа
+    const { error } = await supabase
+      .from('audits')
+      .update({
+        annotations: annotations || null,
+        updated_at: new Date().toISOString()
+      })
+      .eq('id', auditId)
+
+    if (error) {
+      console.error('Error saving annotations:', error)
+      return NextResponse.json({ error: 'Failed to save annotations' }, { status: 500 })
+    }
 
     return NextResponse.json({ 
       success: true, 
@@ -59,9 +78,19 @@ export async function DELETE(request: NextRequest) {
       return NextResponse.json({ error: 'Audit ID is required' }, { status: 400 })
     }
 
-    // Используем функцию из database.ts
-    const { deleteAnnotations } = await import('@/lib/database')
-    await deleteAnnotations(auditId)
+    // Прямой запрос к Supabase - RLS проверит права доступа
+    const { error } = await supabase
+      .from('audits')
+      .update({
+        annotations: null,
+        updated_at: new Date().toISOString()
+      })
+      .eq('id', auditId)
+
+    if (error) {
+      console.error('Error deleting annotations:', error)
+      return NextResponse.json({ error: 'Failed to delete annotations' }, { status: 500 })
+    }
 
     return NextResponse.json({ 
       success: true, 
