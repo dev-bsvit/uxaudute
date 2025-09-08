@@ -12,6 +12,13 @@ declare module '@markerjs/markerjs-ui' {
   }
 }
 
+// Глобальные типы для динамического импорта
+declare global {
+  interface Window {
+    HTMLElement: typeof HTMLElement
+  }
+}
+
 declare module '@markerjs/markerjs3' {
   // Базовые типы MarkerJS3
   export interface MarkerState {
