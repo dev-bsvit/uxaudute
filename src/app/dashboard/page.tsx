@@ -268,12 +268,6 @@ export default function DashboardPage() {
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-4">
                 <h1 className="text-3xl font-bold text-slate-900">Быстрый анализ</h1>
-                <Link href="/projects">
-                  <Button variant="outline" className="flex items-center gap-2">
-                    <FolderOpen className="w-4 h-4" />
-                    Мои проекты
-                  </Button>
-                </Link>
               </div>
               
               <div className="text-sm text-slate-600">
