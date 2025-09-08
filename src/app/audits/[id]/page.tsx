@@ -26,7 +26,7 @@ interface AuditData {
     screenshot_url?: string
   }
   input_data?: Record<string, unknown> | null
-  confidence?: number
+  confidence?: number | null
 }
 
 export default function AuditPage() {
