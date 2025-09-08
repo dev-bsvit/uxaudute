@@ -2,7 +2,7 @@
 
 import React, { useRef, useEffect, useState, useCallback } from 'react'
 import { Button } from '@/components/ui/button'
-import { Edit3, Save, X, RotateCcw, Square, Circle, Type, ArrowRight } from 'lucide-react'
+import { Edit3, Save, X, RotateCcw, Square, Circle, Type, ArrowRight, ZoomIn, ZoomOut, RotateCcw as Reset } from 'lucide-react'
 
 interface CanvasAnnotationsProps {
   src: string
@@ -40,6 +40,8 @@ export function CanvasAnnotations({
   const [startPos, setStartPos] = useState({ x: 0, y: 0 })
   const [currentAnnotation, setCurrentAnnotation] = useState<Annotation | null>(null)
   const [isClient, setIsClient] = useState(false)
+  const [zoom, setZoom] = useState(1)
+  const [pan, setPan] = useState({ x: 0, y: 0 })
 
   useEffect(() => {
     setIsClient(typeof window !== 'undefined')
@@ -161,15 +163,25 @@ export function CanvasAnnotations({
     if (!isEditing) return
 
     const canvas = canvasRef.current
-    if (!canvas) return
+    const image = imageRef.current
+    if (!canvas || !image) return
 
     const canvasRect = canvas.getBoundingClientRect()
+    const imageRect = image.getBoundingClientRect()
     
-    // Вычисляем координаты относительно Canvas
-    const x = e.clientX - canvasRect.left
-    const y = e.clientY - canvasRect.top
+    // Вычисляем координаты относительно Canvas с учетом масштаба
+    const scaleX = canvas.width / imageRect.width
+    const scaleY = canvas.height / imageRect.height
+    
+    const x = (e.clientX - canvasRect.left) * scaleX
+    const y = (e.clientY - canvasRect.top) * scaleY
 
-    console.log('Mouse down:', { x, y })
+    console.log('Mouse down:', { 
+      x, y, 
+      canvasRect: { width: canvasRect.width, height: canvasRect.height },
+      imageRect: { width: imageRect.width, height: imageRect.height },
+      scale: { x: scaleX, y: scaleY }
+    })
 
     setIsDrawing(true)
     setStartPos({ x, y })
@@ -207,13 +219,18 @@ export function CanvasAnnotations({
     if (!isDrawing || !currentAnnotation || currentTool === 'text') return
 
     const canvas = canvasRef.current
-    if (!canvas) return
+    const image = imageRef.current
+    if (!canvas || !image) return
 
     const canvasRect = canvas.getBoundingClientRect()
+    const imageRect = image.getBoundingClientRect()
     
-    // Вычисляем координаты относительно Canvas
-    const x = e.clientX - canvasRect.left
-    const y = e.clientY - canvasRect.top
+    // Вычисляем координаты относительно Canvas с учетом масштаба
+    const scaleX = canvas.width / imageRect.width
+    const scaleY = canvas.height / imageRect.height
+    
+    const x = (e.clientX - canvasRect.left) * scaleX
+    const y = (e.clientY - canvasRect.top) * scaleY
 
     const width = x - startPos.x
     const height = y - startPos.y
@@ -265,6 +282,32 @@ export function CanvasAnnotations({
     setHasAnnotations(true)
   }
 
+  const handleWheel = (e: React.WheelEvent<HTMLCanvasElement>) => {
+    if (!isEditing) return
+    
+    e.preventDefault()
+    
+    const delta = e.deltaY > 0 ? 0.9 : 1.1
+    const newZoom = Math.max(0.1, Math.min(5, zoom * delta))
+    
+    setZoom(newZoom)
+    
+    // Обновляем размеры Canvas с учетом зума
+    const canvas = canvasRef.current
+    const image = imageRef.current
+    if (canvas && image) {
+      const rect = image.getBoundingClientRect()
+      canvas.width = rect.width * newZoom
+      canvas.height = rect.height * newZoom
+      canvas.style.width = rect.width + 'px'
+      canvas.style.height = rect.height + 'px'
+      
+      setTimeout(() => {
+        drawAnnotations()
+      }, 100)
+    }
+  }
+
   const saveAnnotations = () => {
     const data = JSON.stringify(annotations)
     onAnnotationSave?.(data)
@@ -309,9 +352,9 @@ export function CanvasAnnotations({
 
     const rect = image.getBoundingClientRect()
     
-    // Устанавливаем размеры Canvas равными размерам изображения
-    canvas.width = rect.width
-    canvas.height = rect.height
+    // Устанавливаем размеры Canvas с учетом зума
+    canvas.width = rect.width * zoom
+    canvas.height = rect.height * zoom
     canvas.style.width = rect.width + 'px'
     canvas.style.height = rect.height + 'px'
     canvas.style.position = 'absolute'
@@ -320,24 +363,14 @@ export function CanvasAnnotations({
     canvas.style.pointerEvents = 'auto'
     canvas.style.zIndex = '10'
     
-    // Масштабируем координаты существующих аннотаций
-    if (annotations.length > 0) {
-      const scaleX = rect.width / image.naturalWidth
-      const scaleY = rect.height / image.naturalHeight
-      
-      const scaledAnnotations = annotations.map(annotation => ({
-        ...annotation,
-        x: annotation.x * scaleX,
-        y: annotation.y * scaleY,
-        width: annotation.width * scaleX,
-        height: annotation.height * scaleY
-      }))
-      
-      setAnnotations(scaledAnnotations)
-    }
+    console.log('Canvas size updated:', rect.width, 'x', rect.height, 'zoom:', zoom)
+    console.log('Image natural size:', image.naturalWidth, 'x', image.naturalHeight)
+    console.log('Image display size:', image.offsetWidth, 'x', image.offsetHeight)
     
-    console.log('Canvas size updated:', rect.width, 'x', rect.height)
-    drawAnnotations()
+    // Перерисовываем аннотации
+    setTimeout(() => {
+      drawAnnotations()
+    }, 100)
   }
 
   useEffect(() => {
@@ -401,44 +434,91 @@ export function CanvasAnnotations({
           onMouseDown={handleMouseDown}
           onMouseMove={handleMouseMove}
           onMouseUp={handleMouseUp}
+          onWheel={handleWheel}
         />
       </div>
 
       {/* Панель инструментов */}
       {isEditing && (
-        <div className="mt-4 flex gap-2 justify-center flex-wrap">
-          <Button
-            size="sm"
-            variant={currentTool === 'rectangle' ? 'default' : 'outline'}
-            onClick={() => setCurrentTool('rectangle')}
-          >
-            <Square className="w-4 h-4 mr-2" />
-            Прямоугольник
-          </Button>
-          <Button
-            size="sm"
-            variant={currentTool === 'circle' ? 'default' : 'outline'}
-            onClick={() => setCurrentTool('circle')}
-          >
-            <Circle className="w-4 h-4 mr-2" />
-            Круг
-          </Button>
-          <Button
-            size="sm"
-            variant={currentTool === 'arrow' ? 'default' : 'outline'}
-            onClick={() => setCurrentTool('arrow')}
-          >
-            <ArrowRight className="w-4 h-4 mr-2" />
-            Стрелка
-          </Button>
-          <Button
-            size="sm"
-            variant={currentTool === 'text' ? 'default' : 'outline'}
-            onClick={() => setCurrentTool('text')}
-          >
-            <Type className="w-4 h-4 mr-2" />
-            Текст
-          </Button>
+        <div className="mt-4 space-y-4">
+          {/* Инструменты аннотаций */}
+          <div className="flex gap-2 justify-center flex-wrap">
+            <Button
+              size="sm"
+              variant={currentTool === 'rectangle' ? 'default' : 'outline'}
+              onClick={() => setCurrentTool('rectangle')}
+            >
+              <Square className="w-4 h-4 mr-2" />
+              Прямоугольник
+            </Button>
+            <Button
+              size="sm"
+              variant={currentTool === 'circle' ? 'default' : 'outline'}
+              onClick={() => setCurrentTool('circle')}
+            >
+              <Circle className="w-4 h-4 mr-2" />
+              Круг
+            </Button>
+            <Button
+              size="sm"
+              variant={currentTool === 'arrow' ? 'default' : 'outline'}
+              onClick={() => setCurrentTool('arrow')}
+            >
+              <ArrowRight className="w-4 h-4 mr-2" />
+              Стрелка
+            </Button>
+            <Button
+              size="sm"
+              variant={currentTool === 'text' ? 'default' : 'outline'}
+              onClick={() => setCurrentTool('text')}
+            >
+              <Type className="w-4 h-4 mr-2" />
+              Текст
+            </Button>
+          </div>
+          
+          {/* Инструменты зума */}
+          <div className="flex gap-2 justify-center items-center">
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => {
+                const newZoom = Math.max(0.1, zoom * 0.9)
+                setZoom(newZoom)
+                updateCanvasSize()
+              }}
+            >
+              <ZoomOut className="w-4 h-4 mr-2" />
+              Уменьшить
+            </Button>
+            <span className="text-sm text-gray-600 min-w-[60px] text-center">
+              {Math.round(zoom * 100)}%
+            </span>
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => {
+                const newZoom = Math.min(5, zoom * 1.1)
+                setZoom(newZoom)
+                updateCanvasSize()
+              }}
+            >
+              <ZoomIn className="w-4 h-4 mr-2" />
+              Увеличить
+            </Button>
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => {
+                setZoom(1)
+                setPan({ x: 0, y: 0 })
+                updateCanvasSize()
+              }}
+            >
+              <Reset className="w-4 h-4 mr-2" />
+              Сброс
+            </Button>
+          </div>
         </div>
       )}
 
