@@ -189,3 +189,4 @@ curl -X POST http://localhost:3000/api/research-json \
   -H "Content-Type: application/json" \
   -d '{"screenshot": "data:image/jpeg;base64,/9j/4AAQ..."}'
 ```
+

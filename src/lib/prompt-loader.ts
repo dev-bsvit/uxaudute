@@ -48,3 +48,4 @@ function getFallbackPrompt(): string {
 
 Отвечай на русском языке.`
 }
+

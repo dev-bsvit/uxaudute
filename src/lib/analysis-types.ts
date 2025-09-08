@@ -34,6 +34,13 @@ export interface UXSurvey {
   }
 }
 
+// Блок "Аудитория"
+export interface Audience {
+  targetAudience: string // Целевая аудитория - 1-2 абзаца
+  mainPain: string // Основная боль - 1 абзац
+  fears: string[] // Страхи - от 2 до 10 коротких предложений
+}
+
 // Блок "Проблемы и решения"
 export interface ProblemSolution {
   element: string
@@ -64,6 +71,7 @@ export interface SelfCheck {
 export interface StructuredAnalysisResponse {
   screenDescription: ScreenDescription
   uxSurvey: UXSurvey
+  audience: Audience
   problemsAndSolutions: ProblemSolution[]
   selfCheck: SelfCheck
   metadata: {
