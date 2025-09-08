@@ -487,9 +487,14 @@ export function CanvasAnnotations({
     const rect = image.getBoundingClientRect()
     
     // Проверяем, что изображение загружено
-    if (rect.width === 0 || rect.height === 0) {
-      console.log('Image not ready, retrying...')
-      setTimeout(updateCanvasSize, 100)
+    if (rect.width === 0 || rect.height === 0 || image.naturalWidth === 0) {
+      console.log('Image not ready, retrying...', { 
+        rectWidth: rect.width, 
+        rectHeight: rect.height, 
+        naturalWidth: image.naturalWidth,
+        naturalHeight: image.naturalHeight 
+      })
+      setTimeout(updateCanvasSize, 200)
       return
     }
     
@@ -520,13 +525,30 @@ export function CanvasAnnotations({
   useEffect(() => {
     if (imageRef.current) {
       const img = imageRef.current
-      if (img.complete) {
+      if (img.complete && img.naturalWidth > 0) {
         updateCanvasSize()
       } else {
-        img.addEventListener('load', updateCanvasSize)
+        const handleLoad = () => {
+          updateCanvasSize()
+          img.removeEventListener('load', handleLoad)
+        }
+        img.addEventListener('load', handleLoad)
+        
+        // Fallback: если изображение не загрузилось за 5 секунд
+        const timeout = setTimeout(() => {
+          if (!isCanvasReady) {
+            console.log('Image load timeout, forcing canvas initialization')
+            updateCanvasSize()
+          }
+        }, 5000)
+        
+        return () => {
+          img.removeEventListener('load', handleLoad)
+          clearTimeout(timeout)
+        }
       }
     }
-  }, [drawAnnotations])
+  }, [drawAnnotations, isCanvasReady])
 
   useEffect(() => {
     const handleResize = () => {

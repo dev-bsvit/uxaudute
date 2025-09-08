@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { supabase } from '@/lib/supabase'
+import { getAnnotations } from '@/lib/database'
 
 // GET /api/annotations?auditId=xxx - Получить аннотации для аудита
 export async function GET(request: NextRequest) {
@@ -11,32 +11,12 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Audit ID is required' }, { status: 400 })
     }
 
-    // Получаем текущего пользователя
-    const { data: { user }, error: authError } = await supabase.auth.getUser()
-    if (authError || !user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-    }
-
-    // Получаем аудит с проверкой прав доступа
-    const { data: audit, error: auditError } = await supabase
-      .from('audits')
-      .select(`
-        id,
-        annotations,
-        projects!inner(user_id)
-      `)
-      .eq('id', auditId)
-      .eq('projects.user_id', user.id)
-      .single()
-
-    if (auditError) {
-      console.error('Error fetching audit:', auditError)
-      return NextResponse.json({ error: 'Audit not found or access denied' }, { status: 404 })
-    }
-
+    // Используем функцию из database.ts, которая уже имеет проверку прав
+    const annotations = await getAnnotations(auditId)
+    
     return NextResponse.json({ 
       success: true, 
-      annotations: audit.annotations || null 
+      annotations: annotations || null 
     })
 
   } catch (error) {
@@ -54,41 +34,9 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Audit ID is required' }, { status: 400 })
     }
 
-    // Получаем текущего пользователя
-    const { data: { user }, error: authError } = await supabase.auth.getUser()
-    if (authError || !user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-    }
-
-    // Проверяем права доступа к аудиту
-    const { data: audit, error: auditError } = await supabase
-      .from('audits')
-      .select(`
-        id,
-        projects!inner(user_id)
-      `)
-      .eq('id', auditId)
-      .eq('projects.user_id', user.id)
-      .single()
-
-    if (auditError) {
-      console.error('Error checking audit access:', auditError)
-      return NextResponse.json({ error: 'Audit not found or access denied' }, { status: 404 })
-    }
-
-    // Обновляем аннотации
-    const { error: updateError } = await supabase
-      .from('audits')
-      .update({ 
-        annotations: annotations || null,
-        updated_at: new Date().toISOString()
-      })
-      .eq('id', auditId)
-
-    if (updateError) {
-      console.error('Error updating annotations:', updateError)
-      return NextResponse.json({ error: 'Failed to save annotations' }, { status: 500 })
-    }
+    // Используем функцию из database.ts
+    const { saveAnnotations } = await import('@/lib/database')
+    await saveAnnotations(auditId, annotations || {})
 
     return NextResponse.json({ 
       success: true, 
@@ -111,41 +59,9 @@ export async function DELETE(request: NextRequest) {
       return NextResponse.json({ error: 'Audit ID is required' }, { status: 400 })
     }
 
-    // Получаем текущего пользователя
-    const { data: { user }, error: authError } = await supabase.auth.getUser()
-    if (authError || !user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-    }
-
-    // Проверяем права доступа к аудиту
-    const { data: audit, error: auditError } = await supabase
-      .from('audits')
-      .select(`
-        id,
-        projects!inner(user_id)
-      `)
-      .eq('id', auditId)
-      .eq('projects.user_id', user.id)
-      .single()
-
-    if (auditError) {
-      console.error('Error checking audit access:', auditError)
-      return NextResponse.json({ error: 'Audit not found or access denied' }, { status: 404 })
-    }
-
-    // Удаляем аннотации
-    const { error: updateError } = await supabase
-      .from('audits')
-      .update({ 
-        annotations: null,
-        updated_at: new Date().toISOString()
-      })
-      .eq('id', auditId)
-
-    if (updateError) {
-      console.error('Error deleting annotations:', updateError)
-      return NextResponse.json({ error: 'Failed to delete annotations' }, { status: 500 })
-    }
+    // Используем функцию из database.ts
+    const { deleteAnnotations } = await import('@/lib/database')
+    await deleteAnnotations(auditId)
 
     return NextResponse.json({ 
       success: true, 

@@ -14,3 +14,4 @@ CREATE INDEX idx_audits_annotations ON public.audits USING gin (annotations);
 
 -- Update existing records to have null annotations
 UPDATE public.audits SET annotations = NULL WHERE annotations IS NULL;
+
