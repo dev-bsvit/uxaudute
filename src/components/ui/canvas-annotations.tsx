@@ -535,7 +535,7 @@ export function CanvasAnnotations({
       isCanvasReady
     })
     
-    // Проверяем, что изображение загружено
+    // Проверяем, что изображение загружено и имеет размеры
     if (rect.width === 0 || rect.height === 0 || image.naturalWidth === 0) {
       console.log('Image not ready, retrying...', { 
         rectWidth: rect.width, 
@@ -543,7 +543,8 @@ export function CanvasAnnotations({
         naturalWidth: image.naturalWidth,
         naturalHeight: image.naturalHeight 
       })
-      setTimeout(updateCanvasSize, 200)
+      // Уменьшаем интервал повтора для более быстрой инициализации
+      setTimeout(updateCanvasSize, 100)
       return
     }
     
@@ -565,10 +566,8 @@ export function CanvasAnnotations({
     // Помечаем Canvas как готовый
     setIsCanvasReady(true)
     
-    // Перерисовываем аннотации
-    setTimeout(() => {
-      drawAnnotations()
-    }, 100)
+    // Перерисовываем аннотации сразу
+    drawAnnotations()
   }
 
   useEffect(() => {
@@ -578,42 +577,58 @@ export function CanvasAnnotations({
       isCanvasReady 
     })
     
-    if (imageRef.current) {
-      const img = imageRef.current
-      console.log('Image state:', { 
-        complete: img.complete, 
-        naturalWidth: img.naturalWidth,
-        naturalHeight: img.naturalHeight,
-        src: img.src
-      })
-      
-      if (img.complete && img.naturalWidth > 0) {
-        console.log('Image already loaded, calling updateCanvasSize')
-        updateCanvasSize()
-      } else {
-        console.log('Image not loaded, adding load listener')
-        const handleLoad = () => {
-          console.log('Image load event fired')
+    if (!isClient) return
+    
+    const initializeCanvas = () => {
+      if (imageRef.current) {
+        const img = imageRef.current
+        console.log('Image state:', { 
+          complete: img.complete, 
+          naturalWidth: img.naturalWidth,
+          naturalHeight: img.naturalHeight,
+          src: img.src
+        })
+        
+        if (img.complete && img.naturalWidth > 0) {
+          console.log('Image already loaded, calling updateCanvasSize')
           updateCanvasSize()
-          img.removeEventListener('load', handleLoad)
-        }
-        img.addEventListener('load', handleLoad)
-        
-        // Fallback: если изображение не загрузилось за 5 секунд
-        const timeout = setTimeout(() => {
-          if (!isCanvasReady) {
-            console.log('Image load timeout, forcing canvas initialization')
+        } else {
+          console.log('Image not loaded, adding load listener')
+          const handleLoad = () => {
+            console.log('Image load event fired')
             updateCanvasSize()
+            img.removeEventListener('load', handleLoad)
           }
-        }, 5000)
-        
-        return () => {
-          img.removeEventListener('load', handleLoad)
-          clearTimeout(timeout)
+          img.addEventListener('load', handleLoad)
+          
+          // Fallback: если изображение не загрузилось за 3 секунды
+          const timeout = setTimeout(() => {
+            if (!isCanvasReady) {
+              console.log('Image load timeout, forcing canvas initialization')
+              updateCanvasSize()
+            }
+          }, 3000)
+          
+          return () => {
+            img.removeEventListener('load', handleLoad)
+            clearTimeout(timeout)
+          }
         }
+      } else {
+        // Если изображение еще не создано, ждем немного и пробуем снова
+        const retryTimeout = setTimeout(() => {
+          initializeCanvas()
+        }, 100)
+        
+        return () => clearTimeout(retryTimeout)
       }
     }
-  }, [drawAnnotations, isCanvasReady])
+    
+    // Запускаем инициализацию с небольшой задержкой
+    const initTimeout = setTimeout(initializeCanvas, 50)
+    
+    return () => clearTimeout(initTimeout)
+  }, [isClient, src])
 
   useEffect(() => {
     const handleResize = () => {
@@ -675,6 +690,19 @@ export function CanvasAnnotations({
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-2"></div>
             <p className="text-sm text-gray-600">Загрузка редактора аннотаций...</p>
           </div>
+        </div>
+      )}
+
+      {/* Кнопка запуска редактора */}
+      {isCanvasReady && !isEditing && (
+        <div className="absolute inset-0 flex items-center justify-center bg-black/20 rounded-xl">
+          <Button
+            onClick={startAnnotation}
+            className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg shadow-lg"
+          >
+            <Edit3 className="w-4 h-4 mr-2" />
+            Начать редактирование
+          </Button>
         </div>
       )}
 
@@ -753,6 +781,14 @@ export function CanvasAnnotations({
             >
               <RotateCcw className="w-4 h-4 mr-2" />
               Очистить
+            </Button>
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => setIsEditing(false)}
+            >
+              <X className="w-4 h-4 mr-2" />
+              Остановить
             </Button>
           </>
         )}

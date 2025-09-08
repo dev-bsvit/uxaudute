@@ -20,24 +20,55 @@ export const supabase = (() => {
   
   // На клиенте используем глобальный синглтон
   if (!window.__supabaseClient) {
-    window.__supabaseClient = createClient(supabaseUrl, supabaseAnonKey)
+    window.__supabaseClient = createClient(supabaseUrl, supabaseAnonKey, {
+      auth: {
+        persistSession: true,
+        autoRefreshToken: true,
+        detectSessionInUrl: true
+      }
+    })
   }
   return window.__supabaseClient
 })()
 
-// Серверный клиент для API routes (с service role key или анонимным ключом)
-export const supabaseAdmin = createClient(
-  supabaseUrl,
-  process.env.SUPABASE_SERVICE_ROLE_KEY || supabaseAnonKey,
-  {
-    auth: {
-      autoRefreshToken: false,
-      persistSession: false
-    },
-    global: {
-      headers: {
-        'apikey': process.env.SUPABASE_SERVICE_ROLE_KEY || supabaseAnonKey
+// Серверный клиент для API routes (с service role key или анонимным ключом) - синглтон
+export const supabaseAdmin = (() => {
+  // На клиенте используем глобальный синглтон
+  if (typeof window !== 'undefined') {
+    if (!window.__supabaseAdminClient) {
+      window.__supabaseAdminClient = createClient(
+        supabaseUrl,
+        process.env.SUPABASE_SERVICE_ROLE_KEY || supabaseAnonKey,
+        {
+          auth: {
+            autoRefreshToken: false,
+            persistSession: false
+          },
+          global: {
+            headers: {
+              'apikey': process.env.SUPABASE_SERVICE_ROLE_KEY || supabaseAnonKey
+            }
+          }
+        }
+      )
+    }
+    return window.__supabaseAdminClient
+  }
+  
+  // На сервере создаем новый экземпляр
+  return createClient(
+    supabaseUrl,
+    process.env.SUPABASE_SERVICE_ROLE_KEY || supabaseAnonKey,
+    {
+      auth: {
+        autoRefreshToken: false,
+        persistSession: false
+      },
+      global: {
+        headers: {
+          'apikey': process.env.SUPABASE_SERVICE_ROLE_KEY || supabaseAnonKey
+        }
       }
     }
-  }
-)
+  )
+})()
