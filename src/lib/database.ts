@@ -178,6 +178,12 @@ export async function saveAnnotations(
   auditId: string,
   annotations: Record<string, unknown>
 ): Promise<void> {
+  // Сначала проверяем права доступа через getAudit
+  const audit = await getAudit(auditId)
+  if (!audit) {
+    throw new Error('Audit not found or access denied')
+  }
+
   const { error } = await supabase
     .from('audits')
     .update({
@@ -190,6 +196,12 @@ export async function saveAnnotations(
 }
 
 export async function getAnnotations(auditId: string): Promise<Record<string, unknown> | null> {
+  // Сначала проверяем права доступа через getAudit
+  const audit = await getAudit(auditId)
+  if (!audit) {
+    throw new Error('Audit not found or access denied')
+  }
+
   const { data, error } = await supabase
     .from('audits')
     .select('annotations')
@@ -201,6 +213,12 @@ export async function getAnnotations(auditId: string): Promise<Record<string, un
 }
 
 export async function deleteAnnotations(auditId: string): Promise<void> {
+  // Сначала проверяем права доступа через getAudit
+  const audit = await getAudit(auditId)
+  if (!audit) {
+    throw new Error('Audit not found or access denied')
+  }
+
   const { error } = await supabase
     .from('audits')
     .update({
