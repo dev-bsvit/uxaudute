@@ -41,6 +41,14 @@ export interface Audience {
   fears: string[] // Страхи - от 2 до 10 коротких предложений
 }
 
+// Блок "Поведение"
+export interface Behavior {
+  userScenarios: string // Пользовательские сценарии - 1-2 абзаца
+  behavioralPatterns: string // Поведенческие паттерны - 1 абзац
+  frictionPoints: string[] // Точки трения - от 2 до 8 коротких предложений
+  actionMotivation: string // Мотивация к действию - 1 абзац
+}
+
 // Блок "Проблемы и решения"
 export interface ProblemSolution {
   element: string
@@ -72,6 +80,7 @@ export interface StructuredAnalysisResponse {
   screenDescription: ScreenDescription
   uxSurvey: UXSurvey
   audience: Audience
+  behavior: Behavior
   problemsAndSolutions: ProblemSolution[]
   selfCheck: SelfCheck
   metadata: {

@@ -189,6 +189,63 @@ export function AnalysisResultDisplay({
         </CardContent>
       </Card>
 
+      {/* Поведение */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            🎯 Поведение
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-6">
+          {/* Пользовательские сценарии */}
+          <div>
+            <h4 className="font-medium text-gray-900 mb-3">Пользовательские сценарии</h4>
+            <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+              <p className="text-gray-700 leading-relaxed whitespace-pre-line">
+                {analysis.behavior.userScenarios}
+              </p>
+            </div>
+          </div>
+
+          {/* Поведенческие паттерны */}
+          <div>
+            <h4 className="font-medium text-gray-900 mb-3">Поведенческие паттерны</h4>
+            <div className="bg-purple-50 border border-purple-200 rounded-lg p-4">
+              <p className="text-gray-700 leading-relaxed whitespace-pre-line">
+                {analysis.behavior.behavioralPatterns}
+              </p>
+            </div>
+          </div>
+
+          {/* Точки трения */}
+          <div>
+            <h4 className="font-medium text-gray-900 mb-3">Точки трения</h4>
+            <div className="bg-orange-50 border border-orange-200 rounded-lg p-4">
+              <ol className="space-y-2">
+                {analysis.behavior.frictionPoints.map((point, index) => (
+                  <li key={index} className="flex items-start gap-2">
+                    <span className="flex-shrink-0 w-6 h-6 bg-orange-200 text-orange-800 rounded-full flex items-center justify-center text-sm font-medium">
+                      {index + 1}
+                    </span>
+                    <span className="text-gray-700">{point}</span>
+                  </li>
+                ))}
+              </ol>
+            </div>
+          </div>
+
+          {/* Мотивация к действию */}
+          <div>
+            <h4 className="font-medium text-gray-900 mb-3">Мотивация к действию</h4>
+            <div className="bg-indigo-50 border border-indigo-200 rounded-lg p-4">
+              <p className="text-gray-700 leading-relaxed whitespace-pre-line">
+                {analysis.behavior.actionMotivation}
+              </p>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
       {/* Проблемы и решения */}
       <Card>
         <CardHeader>
