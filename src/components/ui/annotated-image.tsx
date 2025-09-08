@@ -82,7 +82,8 @@ export function AnnotatedImage({
 
     try {
       // Динамически импортируем MarkerArea из markerjs3 согласно документации
-      const { MarkerArea } = await import('@markerjs/markerjs3')
+      const markerjs3 = await import('@markerjs/markerjs3')
+      const MarkerArea = markerjs3.default
       
       // Очищаем предыдущий редактор
       if (editorRef.current) {
