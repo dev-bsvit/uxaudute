@@ -84,10 +84,12 @@ export function CanvasAnnotations({
       if (!response.ok) return
 
       const data = await response.json()
-      if (data.success && data.annotations?.annotations) {
-        setAnnotations(data.annotations.annotations)
-        setHasAnnotations(data.annotations.annotations.length > 0)
-        console.log('Annotations loaded from database:', data.annotations.annotations)
+      if (data.success && data.annotations) {
+        // data.annotations уже является массивом аннотаций
+        const annotationsArray = Array.isArray(data.annotations) ? data.annotations : []
+        setAnnotations(annotationsArray)
+        setHasAnnotations(annotationsArray.length > 0)
+        console.log('Annotations loaded from database:', annotationsArray)
       }
     } catch (error) {
       console.error('Error loading annotations:', error)
