@@ -197,6 +197,7 @@ export function CanvasAnnotations({
   }, [isClient, isEditing, isCanvasReady])
 
   const startAnnotation = () => {
+    console.log('Starting annotation mode', { isCanvasReady, isClient })
     setIsEditing(true)
     drawAnnotations()
   }
@@ -204,10 +205,18 @@ export function CanvasAnnotations({
   const drawAnnotations = useCallback(() => {
     const canvas = canvasRef.current
     const image = imageRef.current
-    if (!canvas || !image) return
+    if (!canvas || !image) {
+      console.log('Canvas or image not available for drawing')
+      return
+    }
 
     const ctx = canvas.getContext('2d')
-    if (!ctx) return
+    if (!ctx) {
+      console.log('Canvas context not available')
+      return
+    }
+    
+    console.log('Drawing annotations:', annotations.length)
 
     // Очищаем canvas
     ctx.clearRect(0, 0, canvas.width, canvas.height)
@@ -273,11 +282,19 @@ export function CanvasAnnotations({
   }
 
   const handleMouseDown = (e: React.MouseEvent<HTMLCanvasElement>) => {
-    if (!isEditing || !isCanvasReady) return
+    console.log('Mouse down clicked!', { isEditing, isCanvasReady, currentTool })
+    
+    if (!isEditing || !isCanvasReady) {
+      console.log('Canvas not ready or not editing')
+      return
+    }
 
     const canvas = canvasRef.current
     const image = imageRef.current
-    if (!canvas || !image) return
+    if (!canvas || !image) {
+      console.log('Canvas or image ref not available')
+      return
+    }
 
     const canvasRect = canvas.getBoundingClientRect()
     const imageRect = image.getBoundingClientRect()
