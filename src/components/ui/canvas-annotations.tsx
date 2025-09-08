@@ -185,16 +185,7 @@ export function CanvasAnnotations({
     }
   }, [initialAnnotationData, isClient, src, auditId])
 
-  // Автоматически открываем редактор при загрузке изображения
-  useEffect(() => {
-    if (isClient && imageRef.current && !isEditing && isCanvasReady) {
-      const timer = setTimeout(() => {
-        startAnnotation()
-      }, 1000)
-      
-      return () => clearTimeout(timer)
-    }
-  }, [isClient, isEditing, isCanvasReady])
+  // Автоматический запуск редактора отключен - пользователь сам решает когда начать
 
   const startAnnotation = () => {
     console.log('Starting annotation mode', { isCanvasReady, isClient })
@@ -670,12 +661,22 @@ export function CanvasAnnotations({
         <canvas
           ref={canvasRef}
           className="absolute top-0 left-0 pointer-events-auto cursor-crosshair"
-          style={{ zIndex: 10, display: isCanvasReady ? 'block' : 'none' }}
+          style={{ zIndex: 10 }}
           onMouseDown={handleMouseDown}
           onMouseMove={handleMouseMove}
           onMouseUp={handleMouseUp}
         />
       </div>
+
+      {/* Индикатор загрузки */}
+      {!isCanvasReady && (
+        <div className="absolute inset-0 flex items-center justify-center bg-gray-100/80 rounded-xl">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-2"></div>
+            <p className="text-sm text-gray-600">Загрузка редактора аннотаций...</p>
+          </div>
+        </div>
+      )}
 
       {/* Панель инструментов */}
       {isEditing && (
