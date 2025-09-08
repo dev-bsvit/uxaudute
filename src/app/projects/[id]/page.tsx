@@ -507,6 +507,7 @@ export default function ProjectDetailPage() {
                 result={result}
                 screenshot={uploadedScreenshot}
                 url={analysisUrl}
+                auditId={currentAudit?.id}
               />
             )}
 

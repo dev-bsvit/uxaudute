@@ -173,6 +173,45 @@ export async function updateAuditResult(
   return data
 }
 
+// Annotation functions
+export async function saveAnnotations(
+  auditId: string,
+  annotations: Record<string, unknown>
+): Promise<void> {
+  const { error } = await supabase
+    .from('audits')
+    .update({
+      annotations,
+      updated_at: new Date().toISOString()
+    })
+    .eq('id', auditId)
+
+  if (error) throw error
+}
+
+export async function getAnnotations(auditId: string): Promise<Record<string, unknown> | null> {
+  const { data, error } = await supabase
+    .from('audits')
+    .select('annotations')
+    .eq('id', auditId)
+    .single()
+
+  if (error) throw error
+  return data?.annotations || null
+}
+
+export async function deleteAnnotations(auditId: string): Promise<void> {
+  const { error } = await supabase
+    .from('audits')
+    .update({
+      annotations: null,
+      updated_at: new Date().toISOString()
+    })
+    .eq('id', auditId)
+
+  if (error) throw error
+}
+
 
 
 export async function getAudit(id: string): Promise<Audit | null> {

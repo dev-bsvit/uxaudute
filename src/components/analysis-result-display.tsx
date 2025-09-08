@@ -14,6 +14,7 @@ interface AnalysisResultDisplayProps {
   screenshot?: string | null
   url?: string | null
   onAnnotationUpdate?: (annotationData: string) => void
+  auditId?: string // ID аудита для сохранения аннотаций
 }
 
 export function AnalysisResultDisplay({ 
@@ -21,7 +22,8 @@ export function AnalysisResultDisplay({
   showDetails = true,
   screenshot,
   url,
-  onAnnotationUpdate
+  onAnnotationUpdate,
+  auditId
 }: AnalysisResultDisplayProps) {
   const [annotationData, setAnnotationData] = useState<string>(analysis?.annotations || '')
 
@@ -359,6 +361,7 @@ export function AnalysisResultDisplay({
                     className="w-full h-auto max-h-[70vh] object-contain bg-white"
                     onAnnotationSave={handleAnnotationSave}
                     initialAnnotationData={annotationData}
+                    auditId={auditId}
                   />
                   <div className="text-sm text-gray-500 text-center">
                     💡 Редактор аннотаций открывается автоматически. Добавьте комментарии и выделения к скриншоту

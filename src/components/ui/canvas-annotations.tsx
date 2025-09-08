@@ -10,6 +10,8 @@ interface CanvasAnnotationsProps {
   className?: string
   onAnnotationSave?: (annotationData: string) => void
   initialAnnotationData?: string
+  auditId?: string // ID аудита для сохранения в базу данных
+  autoSave?: boolean // Автоматическое сохранение при изменениях
 }
 
 interface Annotation {
@@ -28,7 +30,9 @@ export function CanvasAnnotations({
   alt, 
   className = "w-full h-auto max-h-80 object-contain bg-white",
   onAnnotationSave,
-  initialAnnotationData
+  initialAnnotationData,
+  auditId,
+  autoSave = true
 }: CanvasAnnotationsProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const imageRef = useRef<HTMLImageElement>(null)
@@ -40,6 +44,65 @@ export function CanvasAnnotations({
   const [startPos, setStartPos] = useState({ x: 0, y: 0 })
   const [currentAnnotation, setCurrentAnnotation] = useState<Annotation | null>(null)
   const [isClient, setIsClient] = useState(false)
+  const [isSaving, setIsSaving] = useState(false)
+  const [lastSaved, setLastSaved] = useState<Date | null>(null)
+
+  // Функции для работы с API аннотаций
+  const saveAnnotationsToAPI = async (annotationsData: Annotation[]) => {
+    if (!auditId || !isClient) return
+
+    try {
+      setIsSaving(true)
+      const response = await fetch('/api/annotations', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          auditId,
+          annotations: { annotations: annotationsData, timestamp: new Date().toISOString() }
+        })
+      })
+
+      if (!response.ok) {
+        throw new Error('Failed to save annotations')
+      }
+
+      setLastSaved(new Date())
+      console.log('Annotations saved to database')
+    } catch (error) {
+      console.error('Error saving annotations:', error)
+    } finally {
+      setIsSaving(false)
+    }
+  }
+
+  const loadAnnotationsFromAPI = async () => {
+    if (!auditId || !isClient) return
+
+    try {
+      const response = await fetch(`/api/annotations?auditId=${auditId}`)
+      if (!response.ok) return
+
+      const data = await response.json()
+      if (data.success && data.annotations?.annotations) {
+        setAnnotations(data.annotations.annotations)
+        setHasAnnotations(data.annotations.annotations.length > 0)
+        console.log('Annotations loaded from database:', data.annotations.annotations)
+      }
+    } catch (error) {
+      console.error('Error loading annotations:', error)
+    }
+  }
+
+  // Автоматическое сохранение при изменениях
+  useEffect(() => {
+    if (autoSave && auditId && annotations.length > 0 && isClient) {
+      const timeoutId = setTimeout(() => {
+        saveAnnotationsToAPI(annotations)
+      }, 1000) // Сохраняем через 1 секунду после последнего изменения
+
+      return () => clearTimeout(timeoutId)
+    }
+  }, [annotations, autoSave, auditId, isClient])
 
   useEffect(() => {
     setIsClient(typeof window !== 'undefined')
@@ -61,24 +124,56 @@ export function CanvasAnnotations({
       }
     }
     
-    // Загружаем аннотации из localStorage
-    if (isClient && src) {
-      const storageKey = getStableKey(src)
-      console.log('Loading annotations with key:', storageKey)
-      
-      const savedAnnotations = localStorage.getItem(storageKey)
-      if (savedAnnotations) {
+    // Загружаем аннотации из базы данных, если есть auditId
+    const loadAnnotations = async () => {
+      if (auditId) {
         try {
-          const parsed = JSON.parse(savedAnnotations)
-          console.log('Loaded annotations:', parsed)
-          setAnnotations(parsed)
-          setHasAnnotations(parsed.length > 0)
+          console.log('Loading annotations from database for audit:', auditId)
+          const response = await fetch(`/api/annotations?auditId=${auditId}`)
+          
+          if (response.ok) {
+            const { annotations: dbAnnotations } = await response.json()
+            if (dbAnnotations) {
+              try {
+                const parsed = JSON.parse(dbAnnotations)
+                console.log('Loaded annotations from database:', parsed)
+                setAnnotations(parsed)
+                setHasAnnotations(parsed.length > 0)
+                return // Если загрузили из БД, не загружаем из localStorage
+              } catch (error) {
+                console.error('Error parsing database annotations:', error)
+              }
+            }
+          } else {
+            console.error('Failed to load annotations from database:', await response.text())
+          }
         } catch (error) {
-          console.error('Error loading annotations:', error)
+          console.error('Error loading annotations from database:', error)
+        }
+      }
+      
+      // Fallback: загружаем из localStorage
+      if (isClient && src) {
+        const storageKey = getStableKey(src)
+        console.log('Loading annotations from localStorage with key:', storageKey)
+        
+        const savedAnnotations = localStorage.getItem(storageKey)
+        if (savedAnnotations) {
+          try {
+            const parsed = JSON.parse(savedAnnotations)
+            console.log('Loaded annotations from localStorage:', parsed)
+            setAnnotations(parsed)
+            setHasAnnotations(parsed.length > 0)
+          } catch (error) {
+            console.error('Error loading annotations from localStorage:', error)
+          }
         }
       }
     }
     
+    loadAnnotations()
+    
+    // Загружаем initialAnnotationData если есть
     if (initialAnnotationData) {
       try {
         const parsed = JSON.parse(initialAnnotationData)
@@ -88,7 +183,7 @@ export function CanvasAnnotations({
         console.error('Error parsing initial annotations:', error)
       }
     }
-  }, [initialAnnotationData, isClient, src])
+  }, [initialAnnotationData, isClient, src, auditId])
 
   // Автоматически открываем редактор при загрузке изображения
   useEffect(() => {
@@ -317,15 +412,41 @@ export function CanvasAnnotations({
     }
   }
 
-  const saveAnnotations = () => {
+  const saveAnnotations = async () => {
     const data = JSON.stringify(annotations)
     onAnnotationSave?.(data)
     
+    // Сохраняем в localStorage для быстрого доступа
     if (isClient) {
       const storageKey = getStableKey(src)
       console.log('Saving annotations with key:', storageKey)
       localStorage.setItem(storageKey, data)
-      console.log('Annotations saved:', annotations)
+      console.log('Annotations saved to localStorage:', annotations)
+    }
+    
+    // Сохраняем в базу данных, если есть auditId
+    if (auditId) {
+      try {
+        console.log('Saving annotations to database for audit:', auditId)
+        const response = await fetch('/api/annotations', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            auditId,
+            annotations: data
+          })
+        })
+        
+        if (response.ok) {
+          console.log('Annotations saved to database successfully')
+        } else {
+          console.error('Failed to save annotations to database:', await response.text())
+        }
+      } catch (error) {
+        console.error('Error saving annotations to database:', error)
+      }
     }
     
     setIsEditing(false)
@@ -531,10 +652,25 @@ export function CanvasAnnotations({
 
       {/* Индикатор аннотаций */}
       {hasAnnotations && !isEditing && (
-        <div className="mt-2 text-center">
+        <div className="mt-2 text-center space-y-2">
           <span className="inline-flex items-center px-3 py-1 rounded-full text-sm bg-green-100 text-green-800">
             ✓ {annotations.length} аннотаций сохранено
           </span>
+          
+          {/* Статус сохранения */}
+          {auditId && (
+            <div className="text-xs text-gray-500">
+              {isSaving ? (
+                <span className="text-blue-600">💾 Сохранение...</span>
+              ) : lastSaved ? (
+                <span className="text-green-600">
+                  ✓ Сохранено {lastSaved.toLocaleTimeString('ru-RU')}
+                </span>
+              ) : (
+                <span className="text-gray-500">Синхронизировано с базой данных</span>
+              )}
+            </div>
+          )}
         </div>
       )}
     </div>

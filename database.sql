@@ -32,6 +32,7 @@ create table public.audits (
   status text not null default 'draft' check (status in ('draft', 'in_progress', 'completed', 'failed')),
   input_data jsonb, -- Store URL, screenshot info, etc.
   result_data jsonb, -- Store analysis results
+  annotations jsonb, -- Store canvas annotations data
   confidence integer check (confidence >= 0 and confidence <= 100),
   created_at timestamp with time zone default timezone('utc'::text, now()) not null,
   updated_at timestamp with time zone default timezone('utc'::text, now()) not null

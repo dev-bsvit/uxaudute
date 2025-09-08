@@ -10,9 +10,10 @@ interface AnalysisResultProps {
   result: string | StructuredAnalysisResponse
   screenshot?: string | null
   url?: string | null
+  auditId?: string // ID аудита для сохранения аннотаций
 }
 
-export function AnalysisResult({ result, screenshot, url }: AnalysisResultProps) {
+export function AnalysisResult({ result, screenshot, url, auditId }: AnalysisResultProps) {
   // Проверяем, является ли результат JSON структурой
   const isJsonResult = typeof result === 'object' && isStructuredResponse(result)
 
@@ -25,6 +26,7 @@ export function AnalysisResult({ result, screenshot, url }: AnalysisResultProps)
           analysis={result as StructuredAnalysisResponse}
           screenshot={screenshot}
           url={url}
+          auditId={auditId}
         />
       </div>
     )

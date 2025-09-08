@@ -62,6 +62,7 @@ export interface Database {
           status: 'draft' | 'in_progress' | 'completed' | 'failed'
           input_data: Record<string, unknown> | null
           result_data: Record<string, unknown> | null
+          annotations: Record<string, unknown> | null
           confidence: number | null
           created_at: string
           updated_at: string
@@ -74,6 +75,7 @@ export interface Database {
           status?: 'draft' | 'in_progress' | 'completed' | 'failed'
           input_data?: Record<string, unknown> | null
           result_data?: Record<string, unknown> | null
+          annotations?: Record<string, unknown> | null
           confidence?: number | null
           created_at?: string
           updated_at?: string
@@ -86,6 +88,7 @@ export interface Database {
           status?: 'draft' | 'in_progress' | 'completed' | 'failed'
           input_data?: Record<string, unknown> | null
           result_data?: Record<string, unknown> | null
+          annotations?: Record<string, unknown> | null
           confidence?: number | null
           created_at?: string
           updated_at?: string
