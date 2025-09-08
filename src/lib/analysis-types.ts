@@ -88,6 +88,7 @@ export interface StructuredAnalysisResponse {
     version: string
     model: string
   }
+  annotations?: string // Данные аннотаций изображения
 }
 
 // Тип для обратной совместимости (текущий текстовый формат)

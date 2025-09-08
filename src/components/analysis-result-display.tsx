@@ -1,10 +1,11 @@
 'use client'
 
-import React from 'react'
+import React, { useState } from 'react'
 import { StructuredAnalysisResponse } from '@/lib/analysis-types'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { SurveyDisplay } from '@/components/ui/survey-display'
+import { AnnotatedImage } from '@/components/ui/annotated-image'
 import { Monitor, Link2 } from 'lucide-react'
 
 interface AnalysisResultDisplayProps {
@@ -12,20 +13,30 @@ interface AnalysisResultDisplayProps {
   showDetails?: boolean
   screenshot?: string | null
   url?: string | null
+  onAnnotationUpdate?: (annotationData: string) => void
 }
 
 export function AnalysisResultDisplay({ 
   analysis, 
   showDetails = true,
   screenshot,
-  url
+  url,
+  onAnnotationUpdate
 }: AnalysisResultDisplayProps) {
+  const [annotationData, setAnnotationData] = useState<string>(analysis?.annotations || '')
+
   if (!analysis) {
     return (
       <div className="text-center py-8">
         <p className="text-gray-500">Нет данных для отображения</p>
       </div>
     )
+  }
+
+  const handleAnnotationSave = (data: string) => {
+    setAnnotationData(data)
+    onAnnotationUpdate?.(data)
+    console.log('Annotation data saved:', data)
   }
 
   const getConfidenceColor = (confidence: number) => {
@@ -67,19 +78,15 @@ export function AnalysisResultDisplay({
           <CardContent>
             {screenshot ? (
               <div className="space-y-4">
-                <div className="border-2 border-dashed border-slate-200 rounded-xl overflow-hidden bg-slate-50/50">
-                  <img 
-                    src={screenshot} 
-                    alt="Анализируемый скриншот" 
-                    className="w-full h-auto max-h-80 object-contain bg-white"
-                    onError={(e) => {
-                      console.error('Error loading screenshot:', screenshot)
-                      console.error('Image error:', e)
-                    }}
-                    onLoad={() => {
-                      console.log('Screenshot loaded successfully:', screenshot)
-                    }}
-                  />
+                <AnnotatedImage
+                  src={screenshot}
+                  alt="Анализируемый скриншот"
+                  className="w-full h-auto max-h-80 object-contain bg-white"
+                  onAnnotationSave={handleAnnotationSave}
+                  initialAnnotationData={annotationData}
+                />
+                <div className="text-sm text-gray-500 text-center">
+                  💡 Нажмите "Аннотировать" чтобы добавить комментарии и выделения к скриншоту
                 </div>
               </div>
             ) : url ? (
