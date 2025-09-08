@@ -163,9 +163,13 @@ export function CanvasAnnotations({
     const canvas = canvasRef.current
     if (!canvas) return
 
-    const rect = canvas.getBoundingClientRect()
-    const x = e.clientX - rect.left
-    const y = e.clientY - rect.top
+    const canvasRect = canvas.getBoundingClientRect()
+    
+    // Вычисляем координаты относительно Canvas
+    const x = e.clientX - canvasRect.left
+    const y = e.clientY - canvasRect.top
+
+    console.log('Mouse down:', { x, y })
 
     setIsDrawing(true)
     setStartPos({ x, y })
@@ -205,9 +209,11 @@ export function CanvasAnnotations({
     const canvas = canvasRef.current
     if (!canvas) return
 
-    const rect = canvas.getBoundingClientRect()
-    const x = e.clientX - rect.left
-    const y = e.clientY - rect.top
+    const canvasRect = canvas.getBoundingClientRect()
+    
+    // Вычисляем координаты относительно Canvas
+    const x = e.clientX - canvasRect.left
+    const y = e.clientY - canvasRect.top
 
     const width = x - startPos.x
     const height = y - startPos.y
@@ -218,9 +224,11 @@ export function CanvasAnnotations({
     const ctx = canvas.getContext('2d')
     if (!ctx) return
 
+    // Очищаем canvas и рисуем все аннотации
     ctx.clearRect(0, 0, canvas.width, canvas.height)
     drawAnnotations()
 
+    // Рисуем текущую аннотацию
     ctx.strokeStyle = currentAnnotation.color
     ctx.lineWidth = 2
     ctx.fillStyle = currentAnnotation.color + '20'
@@ -300,11 +308,35 @@ export function CanvasAnnotations({
     if (!canvas || !image) return
 
     const rect = image.getBoundingClientRect()
+    
+    // Устанавливаем размеры Canvas равными размерам изображения
     canvas.width = rect.width
     canvas.height = rect.height
     canvas.style.width = rect.width + 'px'
     canvas.style.height = rect.height + 'px'
+    canvas.style.position = 'absolute'
+    canvas.style.top = '0'
+    canvas.style.left = '0'
+    canvas.style.pointerEvents = 'auto'
+    canvas.style.zIndex = '10'
     
+    // Масштабируем координаты существующих аннотаций
+    if (annotations.length > 0) {
+      const scaleX = rect.width / image.naturalWidth
+      const scaleY = rect.height / image.naturalHeight
+      
+      const scaledAnnotations = annotations.map(annotation => ({
+        ...annotation,
+        x: annotation.x * scaleX,
+        y: annotation.y * scaleY,
+        width: annotation.width * scaleX,
+        height: annotation.height * scaleY
+      }))
+      
+      setAnnotations(scaledAnnotations)
+    }
+    
+    console.log('Canvas size updated:', rect.width, 'x', rect.height)
     drawAnnotations()
   }
 
