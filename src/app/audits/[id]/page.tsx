@@ -56,10 +56,11 @@ export default function AuditPage() {
       }
 
       // Пытаемся распарсить JSON результат
-      let analysisResult = audit.result_data?.analysis_result
+      let analysisResult: string | StructuredAnalysisResponse | undefined = audit.result_data?.analysis_result
       if (typeof analysisResult === 'string') {
         try {
-          analysisResult = JSON.parse(analysisResult)
+          const parsed = JSON.parse(analysisResult)
+          analysisResult = parsed as StructuredAnalysisResponse
         } catch {
           // Оставляем как строку, если не удалось распарсить
         }
