@@ -196,14 +196,6 @@ export function CanvasAnnotations({
     }
   }, [isClient, isEditing, isCanvasReady])
 
-  // Перерисовываем аннотации когда Canvas становится готов
-  useEffect(() => {
-    if (isCanvasReady && isEditing) {
-      console.log('Canvas ready, redrawing annotations')
-      drawAnnotations()
-    }
-  }, [isCanvasReady, isEditing, drawAnnotations])
-
   const startAnnotation = () => {
     console.log('Starting annotation mode', { isCanvasReady, isClient })
     setIsEditing(true)
@@ -275,6 +267,14 @@ export function CanvasAnnotations({
       }
     })
   }, [annotations])
+
+  // Перерисовываем аннотации когда Canvas становится готов
+  useEffect(() => {
+    if (isCanvasReady && isEditing) {
+      console.log('Canvas ready, redrawing annotations')
+      drawAnnotations()
+    }
+  }, [isCanvasReady, isEditing, drawAnnotations])
 
   const drawArrow = (ctx: CanvasRenderingContext2D, annotation: Annotation) => {
     const { x, y, width, height } = annotation
