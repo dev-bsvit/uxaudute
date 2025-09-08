@@ -35,7 +35,17 @@ export function AnnotatedImage({
     }
   }, [initialAnnotationData])
 
-  // Не открываем редактор автоматически, только по клику
+  // Автоматически открываем редактор при загрузке изображения
+  useEffect(() => {
+    if (isClient && imageRef.current && !isEditing) {
+      // Небольшая задержка для полной загрузки изображения
+      const timer = setTimeout(() => {
+        startAnnotation()
+      }, 1000)
+      
+      return () => clearTimeout(timer)
+    }
+  }, [isClient, isEditing])
 
   const startAnnotation = async () => {
     if (!imageRef.current || !isClient || !containerRef.current) return
@@ -143,7 +153,8 @@ export function AnnotatedImage({
           ref={imageRef}
           src={src} 
           alt={alt} 
-          className={className}
+          className="w-full h-auto max-h-[70vh] object-contain bg-white"
+          style={{ aspectRatio: 'auto' }}
           onError={(e) => {
             console.error('Error loading image:', src)
             console.error('Image error:', e)
@@ -155,13 +166,13 @@ export function AnnotatedImage({
       </div>
 
       {/* Контейнер для редактора MarkerJS */}
-      <div ref={containerRef} className="absolute inset-0 pointer-events-none">
+      <div ref={containerRef} className="absolute inset-0 pointer-events-auto z-10">
         {/* Редактор будет добавлен сюда динамически */}
       </div>
 
-      {/* Панель управления аннотациями */}
+      {/* Панель управления аннотациями - только для повторного открытия */}
       <div className="absolute top-4 right-4 flex gap-2">
-        {!isEditing && (
+        {!isEditing && hasAnnotations && (
           <Button
             size="sm"
             variant="outline"
@@ -169,7 +180,7 @@ export function AnnotatedImage({
             className="bg-white/90 hover:bg-white shadow-md"
           >
             <Edit3 className="w-4 h-4 mr-2" />
-            {hasAnnotations ? 'Редактировать' : 'Аннотировать'}
+            Редактировать
           </Button>
         )}
       </div>
