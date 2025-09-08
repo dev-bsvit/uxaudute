@@ -637,7 +637,7 @@ export function CanvasAnnotations({
 
   if (!isClient) {
     return (
-      <div className="border-2 border-dashed border-slate-200 rounded-xl overflow-hidden" style={{ backgroundColor: '#D8E5EF' }}>
+      <div className="border-2 border-dashed border-slate-200 rounded-xl overflow-hidden py-6 px-4" style={{ backgroundColor: '#D8E5EF' }}>
         <img 
           src={src} 
           alt={alt} 
@@ -650,7 +650,7 @@ export function CanvasAnnotations({
   return (
     <div className="relative">
       {/* Изображение */}
-      <div className="border-2 border-dashed border-slate-200 rounded-xl overflow-hidden" style={{ backgroundColor: '#D8E5EF' }}>
+      <div className="border-2 border-dashed border-slate-200 rounded-xl overflow-hidden py-6 px-4" style={{ backgroundColor: '#D8E5EF' }}>
         <img 
           ref={imageRef}
           src={src} 
