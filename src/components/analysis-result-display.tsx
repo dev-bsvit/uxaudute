@@ -5,7 +5,7 @@ import { StructuredAnalysisResponse } from '@/lib/analysis-types'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { SurveyDisplay } from '@/components/ui/survey-display'
-import { AnnotatedImage } from '@/components/ui/annotated-image'
+import { CanvasAnnotations } from '@/components/ui/canvas-annotations'
 import { Monitor, Link2 } from 'lucide-react'
 
 interface AnalysisResultDisplayProps {
@@ -353,7 +353,7 @@ export function AnalysisResultDisplay({
             <CardContent>
               {screenshot ? (
                 <div className="space-y-4">
-                  <AnnotatedImage
+                  <CanvasAnnotations
                     src={screenshot}
                     alt="Анализируемый скриншот"
                     className="w-full h-auto max-h-[70vh] object-contain bg-white"

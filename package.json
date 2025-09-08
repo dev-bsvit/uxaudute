@@ -9,8 +9,6 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "@markerjs/markerjs-ui": "^1.0.0",
-    "@markerjs/markerjs3": "^3.7.3",
     "@radix-ui/react-dialog": "^1.1.15",
     "@radix-ui/react-progress": "^1.1.7",
     "@supabase/supabase-js": "^2.39.2",
