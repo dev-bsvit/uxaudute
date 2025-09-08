@@ -25,10 +25,7 @@ interface AuditData {
     analysis_result?: string | StructuredAnalysisResponse
     screenshot_url?: string
   }
-  input_data?: {
-    url?: string
-    screenshotUrl?: string
-  }
+  input_data?: Record<string, unknown> | null
   confidence?: number
 }
 
@@ -188,8 +185,8 @@ export default function AuditPage() {
               {auditData.result_data?.analysis_result ? (
                 <AnalysisResult 
                   result={auditData.result_data.analysis_result}
-                  screenshot={auditData.result_data.screenshot_url || auditData.input_data?.screenshotUrl}
-                  url={auditData.input_data?.url}
+                  screenshot={auditData.result_data.screenshot_url || (auditData.input_data as any)?.screenshotUrl}
+                  url={(auditData.input_data as any)?.url}
                 />
               ) : (
                 <Card>
