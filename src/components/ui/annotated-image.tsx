@@ -88,6 +88,46 @@ export function AnnotatedImage({
         editor.style.top = '0'
         editor.style.left = '0'
       }
+
+      // Настраиваем светлую тему для MarkerJS
+      editor.addEventListener('ready', () => {
+        // Применяем светлую тему к редактору
+        const editorElement = editor as HTMLElement
+        editorElement.style.setProperty('--markerjs-theme', 'light')
+        editorElement.style.setProperty('--markerjs-background', '#ffffff')
+        editorElement.style.setProperty('--markerjs-foreground', '#000000')
+        editorElement.style.setProperty('--markerjs-primary', '#3b82f6')
+        editorElement.style.setProperty('--markerjs-secondary', '#6b7280')
+        editorElement.style.setProperty('--markerjs-accent', '#10b981')
+        editorElement.style.setProperty('--markerjs-muted', '#f3f4f6')
+        editorElement.style.setProperty('--markerjs-border', '#e5e7eb')
+        editorElement.style.setProperty('--markerjs-shadow', '0 1px 3px 0 rgba(0, 0, 0, 0.1)')
+        
+        // Принудительно применяем светлую тему к дочерним элементам
+        setTimeout(() => {
+          const toolbar = editorElement.querySelector('.markerjs-toolbar')
+          const propertiesPanel = editorElement.querySelector('.markerjs-properties-panel')
+          const contextMenu = editorElement.querySelector('.markerjs-context-menu')
+          
+          if (toolbar) {
+            toolbar.style.background = '#ffffff'
+            toolbar.style.border = '1px solid #e5e7eb'
+            toolbar.style.boxShadow = '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
+          }
+          
+          if (propertiesPanel) {
+            propertiesPanel.style.background = '#ffffff'
+            propertiesPanel.style.border = '1px solid #e5e7eb'
+            propertiesPanel.style.boxShadow = '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
+          }
+          
+          if (contextMenu) {
+            contextMenu.style.background = '#ffffff'
+            contextMenu.style.border = '1px solid #e5e7eb'
+            contextMenu.style.boxShadow = '0 10px 15px -3px rgba(0, 0, 0, 0.1)'
+          }
+        }, 100)
+      })
       
       // Загружаем существующие аннотации если есть
       if (initialAnnotationData) {

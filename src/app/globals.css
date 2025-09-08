@@ -185,3 +185,78 @@ html {
     }
   }
 }
+
+/* MarkerJS Light Theme */
+markerjs-editor {
+  --markerjs-theme: light !important;
+  --markerjs-background: #ffffff !important;
+  --markerjs-foreground: #000000 !important;
+  --markerjs-primary: #3b82f6 !important;
+  --markerjs-secondary: #6b7280 !important;
+  --markerjs-accent: #10b981 !important;
+  --markerjs-muted: #f3f4f6 !important;
+  --markerjs-border: #e5e7eb !important;
+  --markerjs-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1) !important;
+}
+
+/* MarkerJS Toolbar Light Theme */
+markerjs-editor .markerjs-toolbar {
+  background: #ffffff !important;
+  border: 1px solid #e5e7eb !important;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1) !important;
+}
+
+markerjs-editor .markerjs-toolbar button {
+  color: #374151 !important;
+  background: transparent !important;
+  border: none !important;
+}
+
+markerjs-editor .markerjs-toolbar button:hover {
+  background: #f3f4f6 !important;
+  color: #111827 !important;
+}
+
+markerjs-editor .markerjs-toolbar button.active {
+  background: #3b82f6 !important;
+  color: #ffffff !important;
+}
+
+/* MarkerJS Properties Panel Light Theme */
+markerjs-editor .markerjs-properties-panel {
+  background: #ffffff !important;
+  border: 1px solid #e5e7eb !important;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1) !important;
+}
+
+markerjs-editor .markerjs-properties-panel input,
+markerjs-editor .markerjs-properties-panel select,
+markerjs-editor .markerjs-properties-panel textarea {
+  background: #ffffff !important;
+  border: 1px solid #d1d5db !important;
+  color: #374151 !important;
+}
+
+markerjs-editor .markerjs-properties-panel input:focus,
+markerjs-editor .markerjs-properties-panel select:focus,
+markerjs-editor .markerjs-properties-panel textarea:focus {
+  border-color: #3b82f6 !important;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1) !important;
+}
+
+/* MarkerJS Context Menu Light Theme */
+markerjs-editor .markerjs-context-menu {
+  background: #ffffff !important;
+  border: 1px solid #e5e7eb !important;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1) !important;
+}
+
+markerjs-editor .markerjs-context-menu button {
+  color: #374151 !important;
+  background: transparent !important;
+}
+
+markerjs-editor .markerjs-context-menu button:hover {
+  background: #f3f4f6 !important;
+  color: #111827 !important;
+}
