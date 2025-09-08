@@ -47,6 +47,22 @@ export function AnnotatedImage({
     }
   }, [isClient, isEditing])
 
+  // Обработчик изменения размера окна
+  useEffect(() => {
+    const handleResize = () => {
+      if (editorRef.current && imageRef.current) {
+        const img = imageRef.current
+        editorRef.current.style.width = img.offsetWidth + 'px'
+        editorRef.current.style.height = img.offsetHeight + 'px'
+      }
+    }
+
+    if (isClient) {
+      window.addEventListener('resize', handleResize)
+      return () => window.removeEventListener('resize', handleResize)
+    }
+  }, [isClient])
+
   const startAnnotation = async () => {
     if (!imageRef.current || !isClient || !containerRef.current) return
 
@@ -62,6 +78,16 @@ export function AnnotatedImage({
       // Создаем новый редактор
       const editor = new AnnotationEditor() as any
       editor.targetImage = imageRef.current
+      
+      // Устанавливаем размеры редактора равными размерам изображения
+      const img = imageRef.current
+      if (img) {
+        editor.style.width = img.offsetWidth + 'px'
+        editor.style.height = img.offsetHeight + 'px'
+        editor.style.position = 'absolute'
+        editor.style.top = '0'
+        editor.style.left = '0'
+      }
       
       // Загружаем существующие аннотации если есть
       if (initialAnnotationData) {
@@ -161,12 +187,26 @@ export function AnnotatedImage({
           }}
           onLoad={() => {
             console.log('Image loaded successfully:', src)
+            // Обновляем размеры редактора после загрузки изображения
+            if (editorRef.current && imageRef.current) {
+              const img = imageRef.current
+              editorRef.current.style.width = img.offsetWidth + 'px'
+              editorRef.current.style.height = img.offsetHeight + 'px'
+            }
           }}
         />
       </div>
 
       {/* Контейнер для редактора MarkerJS */}
-      <div ref={containerRef} className="absolute inset-0 pointer-events-auto z-10">
+      <div 
+        ref={containerRef} 
+        className="absolute top-0 left-0 pointer-events-auto z-10"
+        style={{ 
+          width: '100%', 
+          height: '100%',
+          minHeight: 'fit-content'
+        }}
+      >
         {/* Редактор будет добавлен сюда динамически */}
       </div>
 
