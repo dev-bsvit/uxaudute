@@ -358,7 +358,7 @@ export function AnalysisResultDisplay({
                   <CanvasAnnotations
                     src={screenshot}
                     alt="Анализируемый скриншот"
-                    className="w-full h-auto max-h-[70vh] object-contain bg-white"
+                    className="w-full h-auto max-h-[70vh] object-contain"
                     onAnnotationSave={handleAnnotationSave}
                     initialAnnotationData={annotationData}
                     auditId={auditId}

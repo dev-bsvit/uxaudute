@@ -28,7 +28,7 @@ interface Annotation {
 export function CanvasAnnotations({ 
   src, 
   alt, 
-  className = "w-full h-auto max-h-80 object-contain bg-white",
+  className = "w-full h-auto max-h-80 object-contain",
   onAnnotationSave,
   initialAnnotationData,
   auditId,
