@@ -127,12 +127,6 @@ export default function AuditPage() {
         {/* Навигация назад и действия */}
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-4">
-            <Link href={`/projects/${auditData.project_id}`}>
-              <Button variant="outline" size="sm">
-                <ArrowLeft className="w-4 h-4 mr-2" />
-                Назад к проекту
-              </Button>
-            </Link>
             <div>
               <h1 className="text-2xl font-bold text-gray-900">
                 {auditData.name}

@@ -65,9 +65,6 @@ export function AnalysisResultDisplay({
           <h2 className="text-3xl font-bold text-gray-900 mb-2">
             Результаты UX анализа
           </h2>
-          <p className="text-gray-600">
-            Анализ выполнен {new Date(analysis.metadata.timestamp).toLocaleDateString('ru-RU')}
-          </p>
         </div>
 
 
@@ -365,6 +362,9 @@ export function AnalysisResultDisplay({
                   />
                   <div className="text-sm text-gray-500 text-center">
                     💡 Редактор аннотаций открывается автоматически. Добавьте комментарии и выделения к скриншоту
+                  </div>
+                  <div className="text-xs text-gray-400 text-center mt-2">
+                    Анализ {new Date(analysis.metadata.timestamp).toLocaleDateString('ru-RU')}
                   </div>
                 </div>
               ) : url ? (

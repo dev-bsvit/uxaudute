@@ -429,18 +429,6 @@ export default function ProjectDetailPage() {
           <>
             {/* Просмотр аудита */}
             <div className="flex items-center justify-between">
-              <Button
-                variant="outline"
-                onClick={() => {
-                  setCurrentAudit(null)
-                  setResult(null)
-                  setUploadedScreenshot(null)
-                  setAnalysisUrl(null)
-                }}
-              >
-                <ArrowLeft className="w-4 h-4 mr-2" />
-                К списку аудитов
-              </Button>
               <h2 className="text-xl font-semibold text-slate-900">
                 {currentAudit.name}
               </h2>
