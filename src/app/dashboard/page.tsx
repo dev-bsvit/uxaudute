@@ -10,7 +10,7 @@ import { Auth } from '@/components/auth'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { type ActionType } from '@/lib/utils'
-import { ArrowLeft, Download, Share2, FolderOpen, Plus } from 'lucide-react'
+import { ArrowLeft, Download, Share2, Plus } from 'lucide-react'
 import { User } from '@supabase/supabase-js'
 import { createProject, createAudit, updateAuditResult, addAuditHistory, uploadScreenshotFromBase64 } from '@/lib/database'
 import { supabase } from '@/lib/supabase'
@@ -335,12 +335,6 @@ export default function DashboardPage() {
               </Button>
               
               <div className="flex items-center gap-3">
-                <Link href="/projects">
-                  <Button variant="outline" className="flex items-center gap-2">
-                    <FolderOpen className="w-4 h-4" />
-                    Мои проекты
-                  </Button>
-                </Link>
                 <Button variant="outline" className="flex items-center gap-2">
                   <Download className="w-4 h-4" />
                   Скачать отчет
