@@ -25,7 +25,8 @@ import {
   Plus, 
   Trash2,
   ExternalLink,
-  BarChart3
+  BarChart3,
+  Eye
 } from 'lucide-react'
 import Link from 'next/link'
 import { type ActionType } from '@/lib/utils'
