@@ -187,6 +187,7 @@ export default function AuditPage() {
                   result={auditData.result_data.analysis_result}
                   screenshot={auditData.result_data.screenshot_url || (auditData.input_data as any)?.screenshotUrl}
                   url={(auditData.input_data as any)?.url}
+                  auditId={auditId}
                 />
               ) : (
                 <Card>

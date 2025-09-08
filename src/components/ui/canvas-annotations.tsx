@@ -641,6 +641,18 @@ export function CanvasAnnotations({
     }
   }, [isClient])
 
+  // Дополнительный useEffect для принудительной инициализации
+  useEffect(() => {
+    if (isClient && !isCanvasReady) {
+      console.log('Force canvas initialization after component mount')
+      const forceInitTimeout = setTimeout(() => {
+        updateCanvasSize()
+      }, 200)
+      
+      return () => clearTimeout(forceInitTimeout)
+    }
+  }, [isClient, isCanvasReady])
+
   if (!isClient) {
     return (
       <div className="border-2 border-dashed border-slate-200 rounded-xl overflow-hidden py-6 px-4" style={{ backgroundColor: '#D8E5EF' }}>
@@ -669,6 +681,14 @@ export function CanvasAnnotations({
             objectFit: 'contain',
             objectPosition: 'center',
             display: 'block'
+          }}
+          onLoad={() => {
+            console.log('Image onLoad event fired')
+            // Принудительно обновляем размеры canvas после загрузки изображения
+            setTimeout(updateCanvasSize, 50)
+          }}
+          onError={(e) => {
+            console.error('Image load error:', e)
           }}
         />
         
