@@ -36,7 +36,7 @@ export function CanvasAnnotations({
 }: CanvasAnnotationsProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const imageRef = useRef<HTMLImageElement>(null)
-  const [isEditing, setIsEditing] = useState(false)
+  const [isEditing, setIsEditing] = useState(true) // Автоматически включаем режим редактирования
   const [hasAnnotations, setHasAnnotations] = useState(false)
   const [annotations, setAnnotations] = useState<Annotation[]>([])
   const [currentTool, setCurrentTool] = useState<'rectangle' | 'circle' | 'arrow' | 'text'>('rectangle')
@@ -185,17 +185,7 @@ export function CanvasAnnotations({
     }
   }, [initialAnnotationData, isClient, src, auditId])
 
-  // Автоматический запуск редактора отключен - пользователь сам решает когда начать
-
-  const startAnnotation = () => {
-    console.log('Starting annotation mode', { isCanvasReady, isClient })
-    setIsEditing(true)
-    
-    // Добавляем небольшую задержку, чтобы Canvas успел инициализироваться
-    setTimeout(() => {
-      drawAnnotations()
-    }, 100)
-  }
+  // Автоматический запуск редактора включен
 
   const drawAnnotations = useCallback(() => {
     const canvas = canvasRef.current
@@ -304,8 +294,17 @@ export function CanvasAnnotations({
   const handleMouseDown = (e: React.MouseEvent<HTMLCanvasElement>) => {
     console.log('Mouse down clicked!', { isEditing, isCanvasReady, currentTool })
     
-    if (!isEditing || !isCanvasReady) {
-      console.log('Canvas not ready or not editing')
+    if (!isEditing) {
+      console.log('Not in editing mode')
+      return
+    }
+    
+    // Если canvas не готов, ждем немного и пробуем снова
+    if (!isCanvasReady) {
+      console.log('Canvas not ready, retrying...')
+      setTimeout(() => {
+        handleMouseDown(e)
+      }, 100)
       return
     }
 
@@ -489,11 +488,7 @@ export function CanvasAnnotations({
     setIsEditing(false)
   }
 
-  const cancelAnnotation = () => {
-    setIsEditing(false)
-    setCurrentAnnotation(null)
-    setIsDrawing(false)
-  }
+  // Функция cancelAnnotation больше не нужна - режим редактирования всегда активен
 
   const clearAnnotations = () => {
     setAnnotations([])
@@ -567,7 +562,9 @@ export function CanvasAnnotations({
     setIsCanvasReady(true)
     
     // Перерисовываем аннотации сразу
-    drawAnnotations()
+    setTimeout(() => {
+      drawAnnotations()
+    }, 50)
   }
 
   useEffect(() => {
@@ -653,6 +650,19 @@ export function CanvasAnnotations({
     }
   }, [isClient, isCanvasReady])
 
+  // Принудительно устанавливаем isCanvasReady в true после инициализации
+  useEffect(() => {
+    if (isClient && canvasRef.current && imageRef.current) {
+      const canvas = canvasRef.current
+      const image = imageRef.current
+      
+      if (canvas.width > 0 && canvas.height > 0 && image.naturalWidth > 0) {
+        console.log('Force setting isCanvasReady to true')
+        setIsCanvasReady(true)
+      }
+    }
+  }, [isClient, canvasRef.current, imageRef.current])
+
   if (!isClient) {
     return (
       <div className="border-2 border-dashed border-slate-200 rounded-xl overflow-hidden py-6 px-4" style={{ backgroundColor: '#D8E5EF' }}>
@@ -713,18 +723,7 @@ export function CanvasAnnotations({
         </div>
       )}
 
-      {/* Кнопка запуска редактора */}
-      {isCanvasReady && !isEditing && (
-        <div className="absolute inset-0 flex items-center justify-center bg-black/20 rounded-xl">
-          <Button
-            onClick={startAnnotation}
-            className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg shadow-lg"
-          >
-            <Edit3 className="w-4 h-4 mr-2" />
-            Начать редактирование
-          </Button>
-        </div>
-      )}
+      {/* Редактор аннотаций автоматически активен */}
 
       {/* Панель инструментов */}
       {isEditing && (
@@ -766,52 +765,22 @@ export function CanvasAnnotations({
 
       {/* Кнопки управления */}
       <div className="mt-4 flex gap-2 justify-center">
-        {!isEditing ? (
-          <Button
-            size="sm"
-            variant="outline"
-            onClick={startAnnotation}
-            className="bg-white/90 hover:bg-white shadow-md"
-          >
-            <Edit3 className="w-4 h-4 mr-2" />
-            {hasAnnotations ? 'Редактировать' : 'Добавить аннотации'}
-          </Button>
-        ) : (
-          <>
-            <Button
-              size="sm"
-              variant="default"
-              onClick={saveAnnotations}
-            >
-              <Save className="w-4 h-4 mr-2" />
-              Сохранить
-            </Button>
-            <Button
-              size="sm"
-              variant="outline"
-              onClick={cancelAnnotation}
-            >
-              <X className="w-4 h-4 mr-2" />
-              Отмена
-            </Button>
-            <Button
-              size="sm"
-              variant="outline"
-              onClick={clearAnnotations}
-            >
-              <RotateCcw className="w-4 h-4 mr-2" />
-              Очистить
-            </Button>
-            <Button
-              size="sm"
-              variant="outline"
-              onClick={() => setIsEditing(false)}
-            >
-              <X className="w-4 h-4 mr-2" />
-              Остановить
-            </Button>
-          </>
-        )}
+        <Button
+          size="sm"
+          variant="default"
+          onClick={saveAnnotations}
+        >
+          <Save className="w-4 h-4 mr-2" />
+          Сохранить
+        </Button>
+        <Button
+          size="sm"
+          variant="outline"
+          onClick={clearAnnotations}
+        >
+          <RotateCcw className="w-4 h-4 mr-2" />
+          Очистить
+        </Button>
       </div>
 
       {/* Индикатор загрузки Canvas */}
