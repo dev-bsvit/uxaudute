@@ -196,17 +196,34 @@ export function CanvasAnnotations({
     }
   }, [isClient, isEditing, isCanvasReady])
 
+  // Перерисовываем аннотации когда Canvas становится готов
+  useEffect(() => {
+    if (isCanvasReady && isEditing) {
+      console.log('Canvas ready, redrawing annotations')
+      drawAnnotations()
+    }
+  }, [isCanvasReady, isEditing, drawAnnotations])
+
   const startAnnotation = () => {
     console.log('Starting annotation mode', { isCanvasReady, isClient })
     setIsEditing(true)
-    drawAnnotations()
+    
+    // Добавляем небольшую задержку, чтобы Canvas успел инициализироваться
+    setTimeout(() => {
+      drawAnnotations()
+    }, 100)
   }
 
   const drawAnnotations = useCallback(() => {
     const canvas = canvasRef.current
     const image = imageRef.current
     if (!canvas || !image) {
-      console.log('Canvas or image not available for drawing')
+      console.log('Canvas or image not available for drawing', { 
+        canvas: !!canvas, 
+        image: !!image,
+        isCanvasReady,
+        isClient 
+      })
       return
     }
 
@@ -216,7 +233,10 @@ export function CanvasAnnotations({
       return
     }
     
-    console.log('Drawing annotations:', annotations.length)
+    console.log('Drawing annotations:', annotations.length, { 
+      canvasSize: { width: canvas.width, height: canvas.height },
+      imageSize: { width: image.naturalWidth, height: image.naturalHeight }
+    })
 
     // Очищаем canvas
     ctx.clearRect(0, 0, canvas.width, canvas.height)
