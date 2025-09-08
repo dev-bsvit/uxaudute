@@ -518,9 +518,19 @@ export function CanvasAnnotations({
   const updateCanvasSize = () => {
     const canvas = canvasRef.current
     const image = imageRef.current
-    if (!canvas || !image) return
+    if (!canvas || !image) {
+      console.log('Canvas or image not available in updateCanvasSize')
+      return
+    }
 
     const rect = image.getBoundingClientRect()
+    console.log('updateCanvasSize called', { 
+      rectWidth: rect.width, 
+      rectHeight: rect.height, 
+      naturalWidth: image.naturalWidth,
+      naturalHeight: image.naturalHeight,
+      isCanvasReady
+    })
     
     // Проверяем, что изображение загружено
     if (rect.width === 0 || rect.height === 0 || image.naturalWidth === 0) {
@@ -559,12 +569,28 @@ export function CanvasAnnotations({
   }
 
   useEffect(() => {
+    console.log('Canvas initialization useEffect triggered', { 
+      hasImageRef: !!imageRef.current,
+      isClient,
+      isCanvasReady 
+    })
+    
     if (imageRef.current) {
       const img = imageRef.current
+      console.log('Image state:', { 
+        complete: img.complete, 
+        naturalWidth: img.naturalWidth,
+        naturalHeight: img.naturalHeight,
+        src: img.src
+      })
+      
       if (img.complete && img.naturalWidth > 0) {
+        console.log('Image already loaded, calling updateCanvasSize')
         updateCanvasSize()
       } else {
+        console.log('Image not loaded, adding load listener')
         const handleLoad = () => {
+          console.log('Image load event fired')
           updateCanvasSize()
           img.removeEventListener('load', handleLoad)
         }
