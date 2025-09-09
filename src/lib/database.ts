@@ -137,10 +137,17 @@ export async function createAudit(
   type: AuditInsert['type'],
   inputData: Record<string, unknown>
 ): Promise<Audit> {
+  // Получаем текущего пользователя
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) {
+    throw new Error('Пользователь не аутентифицирован')
+  }
+
   const { data, error } = await supabase
     .from('audits')
     .insert({
       project_id: projectId,
+      user_id: user.id,
       name,
       type,
       status: 'in_progress',
