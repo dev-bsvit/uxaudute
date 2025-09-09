@@ -3,10 +3,28 @@
 import { useState, useEffect } from 'react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { createProject, getUserProjects, getProjectAudits } from '@/lib/database'
+import { createProject, getUserProjects, getProjectAudits, updateProject, deleteProject } from '@/lib/database'
 import { User } from '@supabase/supabase-js'
-import { Plus, FolderOpen, Calendar, BarChart3 } from 'lucide-react'
+import { Plus, FolderOpen, Calendar, BarChart3, Edit, Trash2, MoreVertical } from 'lucide-react'
 import Link from 'next/link'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu'
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
 
 interface ProjectsProps {
   user: User
@@ -27,6 +45,11 @@ export function Projects({ user, onProjectSelect }: ProjectsProps) {
   const [showCreateForm, setShowCreateForm] = useState(false)
   const [newProject, setNewProject] = useState({ name: '', description: '' })
   const [creating, setCreating] = useState(false)
+  const [editingProject, setEditingProject] = useState<Project | null>(null)
+  const [editName, setEditName] = useState('')
+  const [editDescription, setEditDescription] = useState('')
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false)
+  const [projectToDelete, setProjectToDelete] = useState<Project | null>(null)
 
   useEffect(() => {
     loadProjects()
@@ -71,6 +94,50 @@ export function Projects({ user, onProjectSelect }: ProjectsProps) {
       alert(`Ошибка при создании проекта: ${errorMessage}`)
     } finally {
       setCreating(false)
+    }
+  }
+
+  const handleEditProject = (project: Project) => {
+    setEditingProject(project)
+    setEditName(project.name)
+    setEditDescription(project.description || '')
+  }
+
+  const handleUpdateProject = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!editingProject || !editName.trim()) return
+
+    try {
+      await updateProject(editingProject.id, {
+        name: editName,
+        description: editDescription || undefined
+      })
+      setEditingProject(null)
+      setEditName('')
+      setEditDescription('')
+      await loadProjects()
+    } catch (error) {
+      console.error('Error updating project:', error)
+      alert('Ошибка при обновлении проекта')
+    }
+  }
+
+  const handleDeleteClick = (project: Project) => {
+    setProjectToDelete(project)
+    setShowDeleteDialog(true)
+  }
+
+  const handleDeleteConfirm = async () => {
+    if (!projectToDelete) return
+
+    try {
+      await deleteProject(projectToDelete.id)
+      setShowDeleteDialog(false)
+      setProjectToDelete(null)
+      await loadProjects()
+    } catch (error) {
+      console.error('Error deleting project:', error)
+      alert('Ошибка при удалении проекта')
     }
   }
 
@@ -196,11 +263,11 @@ export function Projects({ user, onProjectSelect }: ProjectsProps) {
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {projects.map((project) => (
-            <div key={project.id} className="bg-white rounded-2xl border border-gray-200 shadow-lg hover:shadow-xl transition-all duration-300 cursor-pointer group">
-              <Link href={`/projects/${project.id}`}>
-                <div className="p-6">
-                  <div className="flex items-start justify-between mb-4">
-                    <div className="flex-1">
+            <div key={project.id} className="bg-white rounded-2xl border border-gray-200 shadow-lg hover:shadow-xl transition-all duration-300 group">
+              <div className="p-6">
+                <div className="flex items-start justify-between mb-4">
+                  <div className="flex-1">
+                    <Link href={`/projects/${project.id}`} className="block">
                       <h3 className="text-xl font-bold text-slate-900 mb-2 group-hover:text-blue-600 transition-colors">
                         {project.name}
                       </h3>
@@ -209,12 +276,36 @@ export function Projects({ user, onProjectSelect }: ProjectsProps) {
                           {project.description}
                         </p>
                       )}
-                    </div>
-                    <div className="w-10 h-10 bg-blue-50 rounded-lg flex items-center justify-center flex-shrink-0 ml-3">
+                    </Link>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <div className="w-10 h-10 bg-blue-50 rounded-lg flex items-center justify-center flex-shrink-0">
                       <FolderOpen className="w-5 h-5 text-blue-500" />
                     </div>
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                          <MoreVertical className="h-4 w-4" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        <DropdownMenuItem onClick={() => handleEditProject(project)}>
+                          <Edit className="mr-2 h-4 w-4" />
+                          Переименовать
+                        </DropdownMenuItem>
+                        <DropdownMenuItem 
+                          onClick={() => handleDeleteClick(project)}
+                          className="text-red-600"
+                        >
+                          <Trash2 className="mr-2 h-4 w-4" />
+                          Удалить
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
                   </div>
-                  
+                </div>
+                
+                <Link href={`/projects/${project.id}`}>
                   <div className="flex items-center justify-between text-sm text-slate-500 pt-4 border-t border-gray-100">
                     <div className="flex items-center gap-2">
                       <BarChart3 className="w-4 h-4" />
@@ -225,12 +316,84 @@ export function Projects({ user, onProjectSelect }: ProjectsProps) {
                       <span>{formatDate(project.created_at)}</span>
                     </div>
                   </div>
-                </div>
-              </Link>
+                </Link>
+              </div>
             </div>
           ))}
         </div>
       )}
+
+      {/* Модалка редактирования проекта */}
+      {editingProject && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-2xl p-8 w-full max-w-md mx-4">
+            <h2 className="text-2xl font-bold text-slate-900 mb-6">Редактировать проект</h2>
+            <form onSubmit={handleUpdateProject}>
+              <div className="mb-6">
+                <Label htmlFor="editName" className="block text-sm font-medium text-slate-700 mb-2">
+                  Название проекта
+                </Label>
+                <Input
+                  id="editName"
+                  value={editName}
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEditName(e.target.value)}
+                  placeholder="Введите название проекта"
+                  required
+                />
+              </div>
+              <div className="mb-6">
+                <Label htmlFor="editDescription" className="block text-sm font-medium text-slate-700 mb-2">
+                  Описание (опционально)
+                </Label>
+                <textarea
+                  id="editDescription"
+                  value={editDescription}
+                  onChange={(e) => setEditDescription(e.target.value)}
+                  className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+                  rows={4}
+                  placeholder="Краткое описание целей проекта"
+                />
+              </div>
+              <div className="flex gap-4">
+                <Button type="submit" className="flex-1">
+                  Сохранить
+                </Button>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => {
+                    setEditingProject(null)
+                    setEditName('')
+                    setEditDescription('')
+                  }}
+                  className="flex-1"
+                >
+                  Отмена
+                </Button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Диалог удаления проекта */}
+      <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Удалить проект?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Вы уверены, что хотите удалить проект "{projectToDelete?.name}"? 
+              Это действие нельзя отменить. Все аудиты в этом проекте также будут удалены.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Отмена</AlertDialogCancel>
+            <AlertDialogAction onClick={handleDeleteConfirm} className="bg-red-600 hover:bg-red-700">
+              Удалить
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   )
 }

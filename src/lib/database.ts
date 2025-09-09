@@ -228,6 +228,15 @@ export async function deleteProject(projectId: string): Promise<void> {
   if (error) throw error
 }
 
+export async function updateProject(projectId: string, updates: { name?: string; description?: string }): Promise<void> {
+  const { error } = await supabase
+    .from('projects')
+    .update(updates)
+    .eq('id', projectId)
+
+  if (error) throw error
+}
+
 export async function deleteAnnotations(auditId: string): Promise<void> {
   // Сначала проверяем права доступа через getAudit
   const audit = await getAudit(auditId)
