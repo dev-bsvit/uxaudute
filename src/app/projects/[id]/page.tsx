@@ -143,7 +143,10 @@ export default function ProjectDetailPage() {
       const response = await fetch('/api/research-json', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data)
+        body: JSON.stringify({
+          ...data,
+          auditId: audit.id
+        })
       })
 
       if (!response.ok) {
