@@ -163,20 +163,20 @@ export default function ProjectDetailPage() {
         // Fallback на текстовый формат
         const analysisResult = responseData.data || responseData.rawResponse
         setResult(analysisResult)
+        
+        // Сохраняем результат в базу данных
+        console.log('Updating audit result with screenshot URL:', screenshotUrl)
+        await updateAuditResult(audit.id, { 
+          analysis_result: typeof analysisResult === 'object' ? JSON.stringify(analysisResult) : analysisResult,
+          screenshot_url: screenshotUrl 
+        })
+        
+        // Добавляем в историю
+        await addAuditHistory(audit.id, 'research', { 
+          ...data, 
+          screenshotUrl 
+        }, { result: typeof analysisResult === 'object' ? JSON.stringify(analysisResult) : analysisResult })
       }
-
-      // Сохраняем результат в базу данных
-      console.log('Updating audit result with screenshot URL:', screenshotUrl)
-      await updateAuditResult(audit.id, { 
-        analysis_result: typeof analysisResult === 'object' ? JSON.stringify(analysisResult) : analysisResult,
-        screenshot_url: screenshotUrl 
-      })
-      
-      // Добавляем в историю
-      await addAuditHistory(audit.id, 'research', { 
-        ...data, 
-        screenshotUrl 
-      }, { result: typeof analysisResult === 'object' ? JSON.stringify(analysisResult) : analysisResult })
 
       // Обновляем список аудитов
       await loadProjectData()
