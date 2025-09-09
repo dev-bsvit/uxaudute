@@ -4,10 +4,11 @@ import { readFileSync } from 'fs'
 import { join } from 'path'
 import { StructuredAnalysisResponse, isStructuredResponse } from '@/lib/analysis-types'
 import { validateSurvey, analyzeSurveyResults } from '@/lib/survey-utils'
+import { supabase } from '@/lib/supabase'
 
 export async function POST(request: NextRequest) {
   try {
-    const { url, screenshot, context } = await request.json()
+    const { url, screenshot, context, auditId } = await request.json()
 
     if (!url && !screenshot) {
       return NextResponse.json(
@@ -19,6 +20,8 @@ export async function POST(request: NextRequest) {
     // Загружаем JSON-структурированный промпт
     const jsonPrompt = await loadJSONPrompt()
     const finalPrompt = combineWithContext(jsonPrompt, context)
+
+    let analysisResult: StructuredAnalysisResponse
 
     if (url) {
       // Реальный анализ через OpenAI
@@ -35,26 +38,7 @@ export async function POST(request: NextRequest) {
       const result = completion.choices[0]?.message?.content || '{}'
       
       try {
-        const parsedResult = JSON.parse(result) as StructuredAnalysisResponse
-        
-        // Валидируем опрос
-        const surveyValidation = validateSurvey(parsedResult.uxSurvey)
-        if (!surveyValidation.isValid) {
-          console.warn('Предупреждения валидации опроса:', surveyValidation.errors)
-        }
-
-        // Анализируем результаты опроса
-        const surveyAnalysis = analyzeSurveyResults(parsedResult.uxSurvey)
-        
-        return NextResponse.json({ 
-          success: true,
-          data: parsedResult,
-          format: 'json',
-          validation: {
-            survey: surveyValidation,
-            analysis: surveyAnalysis
-          }
-        })
+        analysisResult = JSON.parse(result) as StructuredAnalysisResponse
       } catch (parseError) {
         console.error('Ошибка парсинга JSON:', parseError)
         return NextResponse.json({
@@ -63,9 +47,7 @@ export async function POST(request: NextRequest) {
           rawResponse: result
         }, { status: 500 })
       }
-    }
-
-    if (screenshot) {
+    } else if (screenshot) {
       // Реальный анализ скриншота через GPT-4o Vision
       const completion = await openai.chat.completions.create({
         model: "gpt-4o",
@@ -95,26 +77,7 @@ export async function POST(request: NextRequest) {
       const result = completion.choices[0]?.message?.content || '{}'
       
       try {
-        const parsedResult = JSON.parse(result) as StructuredAnalysisResponse
-        
-        // Валидируем опрос
-        const surveyValidation = validateSurvey(parsedResult.uxSurvey)
-        if (!surveyValidation.isValid) {
-          console.warn('Предупреждения валидации опроса:', surveyValidation.errors)
-        }
-
-        // Анализируем результаты опроса
-        const surveyAnalysis = analyzeSurveyResults(parsedResult.uxSurvey)
-        
-        return NextResponse.json({ 
-          success: true,
-          data: parsedResult,
-          format: 'json',
-          validation: {
-            survey: surveyValidation,
-            analysis: surveyAnalysis
-          }
-        })
+        analysisResult = JSON.parse(result) as StructuredAnalysisResponse
       } catch (parseError) {
         console.error('Ошибка парсинга JSON:', parseError)
         return NextResponse.json({
@@ -123,12 +86,58 @@ export async function POST(request: NextRequest) {
           rawResponse: result
         }, { status: 500 })
       }
+    } else {
+      return NextResponse.json(
+        { error: 'Не удалось выполнить анализ' },
+        { status: 400 }
+      )
     }
 
-    return NextResponse.json(
-      { error: 'Не удалось выполнить анализ' },
-      { status: 400 }
-    )
+    // Валидируем опрос
+    const surveyValidation = validateSurvey(analysisResult.uxSurvey)
+    if (!surveyValidation.isValid) {
+      console.warn('Предупреждения валидации опроса:', surveyValidation.errors)
+    }
+
+    // Анализируем результаты опроса
+    const surveyAnalysis = analyzeSurveyResults(analysisResult.uxSurvey)
+    
+    // Сохраняем результат в таблицу analysis_results
+    let savedAnalysisId = null
+    try {
+      const { data: analysisData, error: analysisError } = await supabase
+        .from('analysis_results')
+        .insert({
+          audit_id: auditId || 'temp-audit-id',
+          result_type: 'ux_analysis',
+          result_data: analysisResult,
+          status: 'completed'
+        })
+        .select()
+        .single()
+
+      if (analysisError) {
+        console.error('Ошибка сохранения в analysis_results:', analysisError)
+        throw new Error(`Ошибка сохранения аудита в базу данных: ${analysisError.message}`)
+      }
+      
+      savedAnalysisId = analysisData.id
+      console.log('Результат анализа сохранен с ID:', savedAnalysisId)
+    } catch (saveError) {
+      console.error('Ошибка сохранения результата:', saveError)
+      throw new Error(`Ошибка сохранения аудита в базу данных: ${saveError instanceof Error ? saveError.message : 'Неизвестная ошибка'}`)
+    }
+
+    return NextResponse.json({ 
+      success: true,
+      data: analysisResult,
+      analysisId: savedAnalysisId,
+      format: 'json',
+      validation: {
+        survey: surveyValidation,
+        analysis: surveyAnalysis
+      }
+    })
 
   } catch (error) {
     console.error('Ошибка в research-json API:', error)
@@ -154,10 +163,33 @@ export async function POST(request: NextRequest) {
  */
 async function loadJSONPrompt(): Promise<string> {
   try {
-    const promptPath = join(process.cwd(), 'prompts', 'json-structured-prompt.md')
-    console.log('Загружаем промпт из:', promptPath)
-    const prompt = readFileSync(promptPath, 'utf-8')
-    console.log('Промпт загружен успешно, длина:', prompt.length)
+    // Пробуем разные пути к файлу промпта
+    const possiblePaths = [
+      join(process.cwd(), 'prompts', 'json-structured-prompt.md'),
+      join(process.cwd(), 'src', 'prompts', 'json-structured-prompt.md'),
+      join(process.cwd(), '..', 'prompts', 'json-structured-prompt.md')
+    ]
+    
+    let prompt = ''
+    let loaded = false
+    
+    for (const promptPath of possiblePaths) {
+      try {
+        console.log('Пробуем загрузить промпт из:', promptPath)
+        prompt = readFileSync(promptPath, 'utf-8')
+        console.log('Промпт загружен успешно, длина:', prompt.length)
+        loaded = true
+        break
+      } catch (pathError) {
+        console.log('Не удалось загрузить из:', promptPath)
+        continue
+      }
+    }
+    
+    if (!loaded) {
+      throw new Error('Не удалось найти файл промпта ни по одному из путей')
+    }
+    
     return prompt
   } catch (error) {
     console.error('Ошибка загрузки JSON промпта:', error)
@@ -260,4 +292,3 @@ function getFallbackJSONPrompt(): string {
   }
 }`
 }
-// Force redeploy Fri Sep  5 17:57:38 CEST 2025
