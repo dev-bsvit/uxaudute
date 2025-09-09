@@ -95,7 +95,7 @@ export async function POST(request: NextRequest) {
 
     // Валидируем опрос (с проверкой на существование)
     let surveyValidation: { isValid: boolean; errors: string[] } = { isValid: true, errors: [] }
-    let surveyAnalysis = { totalQuestions: 0, averageConfidence: 0, criticalIssues: 0 }
+    let surveyAnalysis: any = { totalQuestions: 0, averageConfidence: 0, criticalIssues: 0 }
     
     // Проверяем структуру ответа
     console.log('Структура analysisResult:', JSON.stringify(analysisResult, null, 2))
