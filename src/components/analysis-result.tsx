@@ -59,7 +59,8 @@ export function AnalysisResult({ result, screenshot, url, auditId }: AnalysisRes
   
   const { description, survey, problems, selfCheck } = parseAnalysis(typeof result === 'string' ? result : '')
   
-  const formatText = (text: string) => {
+  const formatText = (text: string | undefined | null) => {
+    if (!text || typeof text !== 'string') return ''
     return text
       .replace(/\n/g, '<br>')
       .replace(/## (.*)/g, '<h3 class="text-xl font-bold text-slate-900 mt-6 mb-3">$1</h3>')
