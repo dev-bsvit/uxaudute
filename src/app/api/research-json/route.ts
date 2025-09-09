@@ -94,7 +94,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Валидируем опрос (с проверкой на существование)
-    let surveyValidation = { isValid: true, errors: [] }
+    let surveyValidation: { isValid: boolean; errors: string[] } = { isValid: true, errors: [] }
     let surveyAnalysis = { totalQuestions: 0, averageConfidence: 0, criticalIssues: 0 }
     
     if (analysisResult.uxSurvey && analysisResult.uxSurvey.questions) {
