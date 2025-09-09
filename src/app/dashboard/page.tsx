@@ -14,7 +14,6 @@ import { ArrowLeft, Download, Share2, Plus } from 'lucide-react'
 import { User } from '@supabase/supabase-js'
 import { createProject, createAudit, updateAuditResult, addAuditHistory, uploadScreenshotFromBase64 } from '@/lib/database'
 import { supabase } from '@/lib/supabase'
-import { supabase } from '@/lib/supabase'
 import { StructuredAnalysisResponse } from '@/lib/analysis-types'
 import Link from 'next/link'
 
