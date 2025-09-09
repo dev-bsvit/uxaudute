@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useParams, useRouter } from 'next/navigation'
+import Link from 'next/link'
 import { SidebarDemo } from '@/components/sidebar-demo'
 import { UploadForm } from '@/components/upload-form'
 import { AnalysisResult } from '@/components/analysis-result'
@@ -154,8 +155,16 @@ export default function ProjectDetailPage() {
       }
 
       const responseData = await response.json()
-      const analysisResult = responseData.data || responseData.rawResponse
-      setResult(analysisResult)
+      
+      if (responseData.success) {
+        // Перенаправляем на страницу аудита
+        window.location.href = `/audit/${audit.id}`
+        return
+      } else {
+        // Fallback на текстовый формат
+        const analysisResult = responseData.data || responseData.rawResponse
+        setResult(analysisResult)
+      }
 
       // Сохраняем результат в базу данных
       console.log('Updating audit result with screenshot URL:', screenshotUrl)
@@ -412,14 +421,15 @@ export default function ProjectDetailPage() {
                           </p>
                         </div>
                         <div className="flex items-center gap-2">
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() => handleViewAudit(audit)}
-                          >
-                            <Eye className="w-4 h-4 mr-2" />
-                            Просмотр
-                          </Button>
+                          <Link href={`/audit/${audit.id}`}>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                            >
+                              <Eye className="w-4 h-4 mr-2" />
+                              Просмотр
+                            </Button>
+                          </Link>
                         </div>
                       </div>
                     ))}
