@@ -97,7 +97,10 @@ export async function POST(request: NextRequest) {
     let surveyValidation: { isValid: boolean; errors: string[] } = { isValid: true, errors: [] }
     let surveyAnalysis = { totalQuestions: 0, averageConfidence: 0, criticalIssues: 0 }
     
-    if (analysisResult.uxSurvey && analysisResult.uxSurvey.questions) {
+    // Проверяем структуру ответа
+    console.log('Структура analysisResult:', JSON.stringify(analysisResult, null, 2))
+    
+    if (analysisResult && analysisResult.uxSurvey && analysisResult.uxSurvey.questions) {
       try {
         surveyValidation = validateSurvey(analysisResult.uxSurvey)
         if (!surveyValidation.isValid) {
@@ -109,7 +112,7 @@ export async function POST(request: NextRequest) {
         surveyValidation = { isValid: false, errors: ['Ошибка валидации опроса'] }
       }
     } else {
-      console.warn('uxSurvey не найден в результате анализа')
+      console.warn('uxSurvey не найден в результате анализа. Структура:', Object.keys(analysisResult || {}))
     }
     
     // Сохраняем результат в таблицу analysis_results
