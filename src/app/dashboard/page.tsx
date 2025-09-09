@@ -161,9 +161,13 @@ export default function DashboardPage() {
       const responseData = await response.json()
       
       if (responseData.success) {
-        // Перенаправляем на страницу аудита
-        window.location.href = `/audit/${audit.id}`
-        return
+        // Используем структурированные данные
+        setResult(responseData.data)
+        
+        // Также перенаправляем на страницу аудита через 2 секунды
+        setTimeout(() => {
+          window.location.href = `/audit/${audit.id}`
+        }, 2000)
       } else {
         // Fallback на текстовый формат
         setResult(responseData.rawResponse || 'Ошибка анализа')
