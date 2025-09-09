@@ -93,14 +93,24 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Валидируем опрос
-    const surveyValidation = validateSurvey(analysisResult.uxSurvey)
-    if (!surveyValidation.isValid) {
-      console.warn('Предупреждения валидации опроса:', surveyValidation.errors)
+    // Валидируем опрос (с проверкой на существование)
+    let surveyValidation = { isValid: true, errors: [] }
+    let surveyAnalysis = { totalQuestions: 0, averageConfidence: 0, criticalIssues: 0 }
+    
+    if (analysisResult.uxSurvey && analysisResult.uxSurvey.questions) {
+      try {
+        surveyValidation = validateSurvey(analysisResult.uxSurvey)
+        if (!surveyValidation.isValid) {
+          console.warn('Предупреждения валидации опроса:', surveyValidation.errors)
+        }
+        surveyAnalysis = analyzeSurveyResults(analysisResult.uxSurvey)
+      } catch (validationError) {
+        console.warn('Ошибка валидации опроса:', validationError)
+        surveyValidation = { isValid: false, errors: ['Ошибка валидации опроса'] }
+      }
+    } else {
+      console.warn('uxSurvey не найден в результате анализа')
     }
-
-    // Анализируем результаты опроса
-    const surveyAnalysis = analyzeSurveyResults(analysisResult.uxSurvey)
     
     // Сохраняем результат в таблицу analysis_results
     let savedAnalysisId = null
