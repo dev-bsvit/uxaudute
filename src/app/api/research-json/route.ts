@@ -99,6 +99,8 @@ export async function POST(request: NextRequest) {
     
     // Проверяем структуру ответа
     console.log('Структура analysisResult:', JSON.stringify(analysisResult, null, 2))
+    console.log('Тип analysisResult:', typeof analysisResult)
+    console.log('Ключи analysisResult:', Object.keys(analysisResult || {}))
     
     if (analysisResult && analysisResult.uxSurvey && analysisResult.uxSurvey.questions) {
       try {
