@@ -245,14 +245,14 @@ export default function ProjectDetailPage() {
     if (!confirmed) return
 
     try {
-      setIsLoading(true)
+      setLoading(true)
       await deleteProject(project.id)
       router.push('/projects')
     } catch (error) {
       console.error('Ошибка удаления проекта:', error)
       alert('Ошибка при удалении проекта')
     } finally {
-      setIsLoading(false)
+      setLoading(false)
     }
   }
 
