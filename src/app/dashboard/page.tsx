@@ -14,6 +14,7 @@ import { ArrowLeft, Download, Share2, Plus } from 'lucide-react'
 import { User } from '@supabase/supabase-js'
 import { createProject, createAudit, updateAuditResult, addAuditHistory, uploadScreenshotFromBase64 } from '@/lib/database'
 import { supabase } from '@/lib/supabase'
+import { supabase } from '@/lib/supabase'
 import { StructuredAnalysisResponse } from '@/lib/analysis-types'
 import Link from 'next/link'
 
@@ -169,7 +170,27 @@ export default function DashboardPage() {
       const resultToSave = typeof responseData.data === 'object' 
         ? JSON.stringify(responseData.data) 
         : responseData.rawResponse || 'Ошибка анализа'
-      await updateAuditResult(audit.id, { analysis_result: resultToSave })
+      // Сохраняем результат в таблицу analysis_results
+      try {
+        const { data: analysisData, error: analysisError } = await supabase
+          .from('analysis_results')
+          .insert({
+            audit_id: audit.id,
+            result_type: 'ux_analysis',
+            result_data: responseData.data,
+            status: 'completed'
+          })
+          .select()
+          .single()
+
+        if (analysisError) {
+          console.error('Ошибка сохранения в analysis_results:', analysisError)
+        } else {
+          console.log('Результат анализа сохранен с ID:', analysisData.id)
+        }
+      } catch (saveError) {
+        console.error('Ошибка сохранения результата:', saveError)
+      }
       
       // Добавляем в историю
       await addAuditHistory(audit.id, 'research', data, { result })
@@ -209,7 +230,7 @@ export default function DashboardPage() {
 
       // Обновляем результат в базе данных
       await updateAuditResult(currentAudit, { 
-        analysis_result: newResult,
+        // Результат теперь сохраняется в analysis_results
         [`${action}_result`]: actionResult 
       })
       
