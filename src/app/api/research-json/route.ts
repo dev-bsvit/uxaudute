@@ -138,6 +138,28 @@ export async function POST(request: NextRequest) {
       
       savedAnalysisId = analysisData.id
       console.log('Результат анализа сохранен с ID:', savedAnalysisId)
+      
+      // Также обновляем таблицу audits с результатом
+      if (auditId) {
+        try {
+          const { error: auditUpdateError } = await supabase
+            .from('audits')
+            .update({
+              result_data: analysisResult,
+              status: 'completed',
+              updated_at: new Date().toISOString()
+            })
+            .eq('id', auditId)
+          
+          if (auditUpdateError) {
+            console.error('Ошибка обновления audits:', auditUpdateError)
+          } else {
+            console.log('Аудит обновлен с результатом')
+          }
+        } catch (auditError) {
+          console.error('Ошибка обновления audits:', auditError)
+        }
+      }
     } catch (saveError) {
       console.error('Ошибка сохранения результата:', saveError)
       throw new Error(`Ошибка сохранения аудита в базу данных: ${saveError instanceof Error ? saveError.message : 'Неизвестная ошибка'}`)
