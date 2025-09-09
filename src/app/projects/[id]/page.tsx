@@ -7,6 +7,7 @@ import { SidebarDemo } from '@/components/sidebar-demo'
 import { UploadForm } from '@/components/upload-form'
 import { AnalysisResult } from '@/components/analysis-result'
 import { ActionPanel } from '@/components/action-panel'
+import { AnalysisModal } from '@/components/analysis-modal'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
@@ -19,7 +20,8 @@ import {
   createAudit, 
   updateAuditResult, 
   addAuditHistory,
-  uploadScreenshotFromBase64
+  uploadScreenshotFromBase64,
+  deleteProject
 } from '@/lib/database'
 import { 
   ArrowLeft, 
@@ -236,6 +238,24 @@ export default function ProjectDetailPage() {
     }
   }
 
+  const handleDeleteProject = async () => {
+    if (!project) return
+    
+    const confirmed = confirm(`Вы уверены, что хотите удалить проект "${project.name}"? Это действие нельзя отменить.`)
+    if (!confirmed) return
+
+    try {
+      setIsLoading(true)
+      await deleteProject(project.id)
+      router.push('/projects')
+    } catch (error) {
+      console.error('Ошибка удаления проекта:', error)
+      alert('Ошибка при удалении проекта')
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
   const handleViewAudit = (audit: Audit) => {
     setCurrentAudit(audit)
     
@@ -331,13 +351,23 @@ export default function ProjectDetailPage() {
             </div>
           </div>
           
-          <Button
-            onClick={() => setShowCreateForm(true)}
-            className="flex items-center gap-2"
-          >
-            <Plus className="w-4 h-4" />
-            Новый аудит
-          </Button>
+          <div className="flex items-center gap-3">
+            <Button
+              onClick={() => setShowCreateForm(true)}
+              className="flex items-center gap-2"
+            >
+              <Plus className="w-4 h-4" />
+              Новый аудит
+            </Button>
+            <Button
+              onClick={handleDeleteProject}
+              variant="destructive"
+              className="flex items-center gap-2"
+            >
+              <Trash2 className="w-4 h-4" />
+              Удалить проект
+            </Button>
+          </div>
         </div>
 
         {/* Статистика убрана - отображается только в разделе "Мои проекты" */}
@@ -462,6 +492,15 @@ export default function ProjectDetailPage() {
             />
           </>
         )}
+
+        {/* Модальное окно прогресса анализа */}
+        <AnalysisModal
+          isOpen={isAnalyzing}
+          onClose={() => setIsAnalyzing(false)}
+          screenshot={uploadedScreenshot}
+          url={analysisUrl}
+          canClose={false}
+        />
       </div>
     </SidebarDemo>
   )

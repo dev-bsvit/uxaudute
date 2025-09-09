@@ -219,6 +219,15 @@ export async function getAnnotations(auditId: string): Promise<Record<string, un
   return data?.annotations || null
 }
 
+export async function deleteProject(projectId: string): Promise<void> {
+  const { error } = await supabase
+    .from('projects')
+    .delete()
+    .eq('id', projectId)
+
+  if (error) throw error
+}
+
 export async function deleteAnnotations(auditId: string): Promise<void> {
   // Сначала проверяем права доступа через getAudit
   const audit = await getAudit(auditId)
