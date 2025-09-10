@@ -6,7 +6,8 @@ import { ActionPanel } from '@/components/action-panel'
 import { AnalysisResult } from '@/components/analysis-result'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { ArrowLeft, Download, Share } from 'lucide-react'
+import { Download, Share } from 'lucide-react'
+import { BackArrow } from '@/components/icons/back-arrow'
 import { type ActionType } from '@/lib/utils'
 import { StructuredAnalysisResponse } from '@/lib/analysis-types'
 import Link from 'next/link'
@@ -112,7 +113,7 @@ export default function AuditPage() {
               {error || 'Аудит не найден'}
             </h2>
             <Button onClick={() => router.push('/projects')}>
-              <ArrowLeft className="w-4 h-4 mr-2" />
+              <BackArrow className="w-4 h-4 mr-2" />
               К проектам
             </Button>
           </div>

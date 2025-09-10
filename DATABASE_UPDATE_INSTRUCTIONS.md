@@ -49,3 +49,4 @@ target_audience  | text      | YES
 4. Тип: `text`
 5. Nullable: `true`
 6. Нажать "Save"
+

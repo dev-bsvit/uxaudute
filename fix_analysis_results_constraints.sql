@@ -18,3 +18,4 @@ SELECT
 FROM pg_constraint 
 WHERE conrelid = 'analysis_results'::regclass 
 AND contype = 'c';
+

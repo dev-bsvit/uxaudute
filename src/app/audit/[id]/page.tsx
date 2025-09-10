@@ -7,7 +7,8 @@ import { SidebarDemo } from '@/components/sidebar-demo'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { ArrowLeft, Download, Share2, RefreshCw } from 'lucide-react'
+import { Download, Share2, RefreshCw } from 'lucide-react'
+import { BackArrow } from '@/components/icons/back-arrow'
 import { supabase } from '@/lib/supabase'
 import { User } from '@supabase/supabase-js'
 import Link from 'next/link'
@@ -120,7 +121,7 @@ export default function AuditPage() {
           </p>
           <Link href="/dashboard">
             <Button className="flex items-center gap-2">
-              <ArrowLeft className="w-4 h-4" />
+              <BackArrow className="w-4 h-4" />
               Вернуться к Dashboard
             </Button>
           </Link>
@@ -137,7 +138,7 @@ export default function AuditPage() {
           <div className="flex items-center gap-4">
             <Link href={audit?.project_id ? `/projects/${audit.project_id}` : '/dashboard'}>
               <Button variant="outline" className="flex items-center gap-2">
-                <ArrowLeft className="w-4 h-4" />
+                <BackArrow className="w-4 h-4" />
                 Назад к проекту
               </Button>
             </Link>

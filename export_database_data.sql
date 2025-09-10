@@ -130,3 +130,4 @@ SELECT
         'storage_objects_count', (SELECT COUNT(*) FROM storage_objects),
         'export_date', NOW()
     ) as data;
+

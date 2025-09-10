@@ -184,3 +184,4 @@ CREATE POLICY "Users can view own uploads" ON storage.objects
     bucket_id = 'audit-uploads' AND
     auth.uid()::text = (storage.foldername(name))[1]
   );
+

@@ -344,3 +344,4 @@ SELECT
     'storage_objects' as table_name,
     COUNT(*) as record_count
 FROM storage_objects;
+

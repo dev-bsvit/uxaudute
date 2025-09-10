@@ -26,13 +26,13 @@ import {
   updateProjectTargetAudience
 } from '@/lib/database'
 import { 
-  ArrowLeft, 
   Plus, 
   Trash2,
   ExternalLink,
   BarChart3,
   Eye
 } from 'lucide-react'
+import { BackArrow } from '@/components/icons/back-arrow'
 import { type ActionType } from '@/lib/utils'
 
 interface Project {
@@ -397,7 +397,7 @@ export default function ProjectDetailPage() {
           <h2 className="text-2xl font-bold text-slate-900 mb-4">Проект не найден</h2>
           <Link href="/projects">
             <Button>
-              <ArrowLeft className="w-4 h-4 mr-2" />
+              <BackArrow className="w-4 h-4 mr-2" />
               К проектам
             </Button>
           </Link>
@@ -414,7 +414,7 @@ export default function ProjectDetailPage() {
           <div className="flex items-center gap-4">
             <Link href="/projects">
               <Button variant="outline" size="sm">
-                <ArrowLeft className="w-4 h-4 mr-2" />
+                <BackArrow className="w-4 h-4 mr-2" />
                 К проектам
               </Button>
             </Link>

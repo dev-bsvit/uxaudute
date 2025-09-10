@@ -46,3 +46,4 @@ CREATE POLICY "Enable all for audits" ON public.audits
 -- Простые политики для audit_history
 CREATE POLICY "Enable all for audit_history" ON public.audit_history
   FOR ALL USING (true);
+

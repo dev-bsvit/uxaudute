@@ -11,7 +11,8 @@ import { Auth } from '@/components/auth'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { type ActionType } from '@/lib/utils'
-import { ArrowLeft, Download, Share2, Plus } from 'lucide-react'
+import { Download, Share2, Plus } from 'lucide-react'
+import { BackArrow } from '@/components/icons/back-arrow'
 import { User } from '@supabase/supabase-js'
 import { createProject, createAudit, updateAuditResult, addAuditHistory, uploadScreenshotFromBase64 } from '@/lib/database'
 import { supabase } from '@/lib/supabase'
@@ -352,7 +353,7 @@ export default function DashboardPage() {
                 variant="outline"
                 className="flex items-center gap-2"
               >
-                <ArrowLeft className="w-4 h-4" />
+                <BackArrow className="w-4 h-4" />
                 Новый анализ
               </Button>
               

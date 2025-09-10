@@ -17,3 +17,4 @@ ALTER TABLE analysis_results ENABLE ROW LEVEL SECURITY;
 SELECT schemaname, tablename, policyname, permissive, roles, cmd, qual, with_check
 FROM pg_policies 
 WHERE tablename = 'analysis_results';
+
