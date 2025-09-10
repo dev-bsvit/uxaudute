@@ -107,3 +107,56 @@ export function isStructuredResponse(response: AnalysisResponse): response is St
 export function isLegacyResponse(response: AnalysisResponse): response is LegacyAnalysisResponse {
   return 'result' in response
 }
+
+// AB Test Types
+export interface ABTestDetailedTasks {
+  frontend: string[]
+  backend: string[]
+  analytics: string[]
+  design: string[]
+}
+
+export interface ABTestTargetMetrics {
+  primary: string
+  baseline: string
+  expected_uplift: string
+}
+
+export interface ABTestStatisticalPower {
+  required_traffic: string
+  duration_days: number
+  alpha: number
+}
+
+export interface ABTest {
+  id: string
+  problem: string
+  hypothesis: string
+  solution: string
+  detailed_tasks: ABTestDetailedTasks
+  target_metrics: ABTestTargetMetrics
+  confidence_score: number
+  impact_score: number
+  ease_score: number
+  risk_mitigation: string
+  statistical_power: ABTestStatisticalPower
+}
+
+export interface ABTestResponse {
+  ab_tests: ABTest[]
+  next_steps: string[]
+  assumptions: string[]
+  metadata: {
+    timestamp: string
+    version: string
+    model: string
+  }
+}
+
+// Union тип для всех возможных ответов
+export type AllAnalysisResponse = AnalysisResponse | ABTestResponse
+
+// Утилита для проверки AB тестов
+export function isABTestResponse(response: AllAnalysisResponse): response is ABTestResponse {
+  return 'ab_tests' in response
+}

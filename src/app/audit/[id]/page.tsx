@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useParams } from 'next/navigation'
 import { AnalysisResult } from '@/components/analysis-result'
+import { ABTestDisplay } from '@/components/ab-test-display'
 import { SidebarDemo } from '@/components/sidebar-demo'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card'
@@ -11,6 +12,7 @@ import { Download, Share2, RefreshCw } from 'lucide-react'
 import { BackArrow } from '@/components/icons/back-arrow'
 import { supabase } from '@/lib/supabase'
 import { User } from '@supabase/supabase-js'
+import { ABTestResponse } from '@/lib/analysis-types'
 import Link from 'next/link'
 
 interface Audit {
@@ -37,6 +39,44 @@ export default function AuditPage() {
   const [audit, setAudit] = useState<Audit | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [abTestData, setAbTestData] = useState<ABTestResponse | null>(null)
+  const [abTestLoading, setAbTestLoading] = useState(false)
+
+  // Функция для генерации AB тестов
+  const generateABTests = async () => {
+    if (!audit) return
+    
+    setAbTestLoading(true)
+    try {
+      const response = await fetch('/api/ab-test', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ auditId: audit.id }),
+      })
+
+      if (!response.ok) {
+        throw new Error('Failed to generate AB tests')
+      }
+
+      const data = await response.json()
+      setAbTestData(data.data)
+      
+      // Обновляем данные аудита
+      setAudit(prev => prev ? {
+        ...prev,
+        result_data: {
+          ...prev.result_data,
+          ab_tests: data.data
+        }
+      } : null)
+    } catch (error) {
+      console.error('Error generating AB tests:', error)
+    } finally {
+      setAbTestLoading(false)
+    }
+  }
 
   useEffect(() => {
     // Проверяем текущего пользователя
@@ -86,6 +126,11 @@ export default function AuditPage() {
       // Проверяем наличие результата
       if (auditData.result_data && Object.keys(auditData.result_data).length > 0) {
         console.log('✅ Результат найден в audits:', auditData.result_data)
+        
+        // Загружаем AB тесты если они есть
+        if (auditData.result_data.ab_tests) {
+          setAbTestData(auditData.result_data.ab_tests)
+        }
       } else {
         console.log('⚠️ Результат не найден в audits, аудит может быть в процессе')
       }
@@ -236,35 +281,11 @@ export default function AuditPage() {
             </TabsContent>
             
             <TabsContent value="ab-test">
-              <Card>
-                <CardHeader>
-                  <CardTitle>AB тест</CardTitle>
-                  <p className="text-sm text-muted-foreground">
-                    Сравнение различных версий интерфейса для оптимизации конверсии
-                  </p>
-                </CardHeader>
-                <CardContent className="text-center py-12">
-                  <h3 className="text-lg font-semibold text-slate-900 mb-2">
-                    AB тест
-                  </h3>
-                  <p className="text-slate-600 mb-4">
-                    Раздел в разработке
-                  </p>
-                  <p className="text-sm text-slate-500">
-                    Здесь будут отображаться результаты A/B тестирования различных вариантов интерфейса
-                  </p>
-                </CardContent>
-                <CardFooter className="flex gap-2">
-                  <Button variant="outline" size="sm" disabled>
-                    <Download className="w-4 h-4 mr-2" />
-                    Скачать отчет
-                  </Button>
-                  <Button variant="outline" size="sm" disabled>
-                    <Share2 className="w-4 h-4 mr-2" />
-                    Поделиться
-                  </Button>
-                </CardFooter>
-              </Card>
+              <ABTestDisplay 
+                data={abTestData}
+                isLoading={abTestLoading}
+                onGenerate={audit?.status === 'completed' ? generateABTests : undefined}
+              />
             </TabsContent>
             
             <TabsContent value="hypotheses">
