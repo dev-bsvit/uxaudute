@@ -321,22 +321,20 @@ export function AnalysisResultDisplay({
 
       {/* Метаданные */}
       {showDetails && (
-        <Card className="bg-gray-50">
-          <CardContent className="pt-6">
-            <h4 className="font-medium text-gray-900 mb-2">Информация об анализе</h4>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm text-gray-600">
-              <div>
-                <span className="font-medium">Версия:</span> {analysis.metadata.version}
-              </div>
-              <div>
-                <span className="font-medium">Модель:</span> {analysis.metadata.model}
-              </div>
-              <div>
-                <span className="font-medium">Время:</span> {new Date(analysis.metadata.timestamp).toLocaleString('ru-RU')}
-              </div>
+        <div className="bg-gray-50 rounded-lg p-6">
+          <h4 className="font-medium text-gray-900 mb-2">Информация об анализе</h4>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm text-gray-600">
+            <div>
+              <span className="font-medium">Версия:</span> {analysis.metadata.version}
             </div>
-          </CardContent>
-        </Card>
+            <div>
+              <span className="font-medium">Модель:</span> {analysis.metadata.model}
+            </div>
+            <div>
+              <span className="font-medium">Время:</span> {new Date(analysis.metadata.timestamp).toLocaleString('ru-RU')}
+            </div>
+          </div>
+        </div>
       )}
       </div>
 

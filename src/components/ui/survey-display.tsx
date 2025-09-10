@@ -157,45 +157,43 @@ export function SurveyDisplay({
 
       {/* Сводка */}
       {survey.summary && (
-        <Card className="bg-gray-50">
-          <CardContent className="pt-6">
-            <h4 className="font-semibold text-gray-900 mb-3">Сводка опроса</h4>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div className="text-center">
-                <div className="text-2xl font-bold text-gray-900">
-                  {survey.summary.totalQuestions}
-                </div>
-                <div className="text-sm text-gray-600">Всего вопросов</div>
+        <div className="bg-gray-50 rounded-lg p-6">
+          <h4 className="font-semibold text-gray-900 mb-3">Сводка опроса</h4>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="text-center">
+              <div className="text-2xl font-bold text-gray-900">
+                {survey.summary.totalQuestions}
               </div>
-              <div className="text-center">
-                <div className="text-2xl font-bold text-gray-900">
-                  {survey.summary.averageConfidence}%
-                </div>
-                <div className="text-sm text-gray-600">Средняя уверенность</div>
-              </div>
-              <div className="text-center">
-                <div className="text-2xl font-bold text-red-600">
-                  {survey.summary.criticalIssues}
-                </div>
-                <div className="text-sm text-gray-600">Критических проблем</div>
-              </div>
+              <div className="text-sm text-gray-600">Всего вопросов</div>
             </div>
-            
-            {survey.summary.recommendations.length > 0 && (
-              <div className="mt-4">
-                <h5 className="font-medium text-gray-900 mb-2">Рекомендации:</h5>
-                <ul className="space-y-1">
-                  {survey.summary.recommendations.map((rec, index) => (
-                    <li key={index} className="text-sm text-gray-600 flex items-start gap-2">
-                      <span className="text-blue-500 mt-1">•</span>
-                      {rec}
-                    </li>
-                  ))}
-                </ul>
+            <div className="text-center">
+              <div className="text-2xl font-bold text-gray-900">
+                {survey.summary.averageConfidence}%
               </div>
-            )}
-          </CardContent>
-        </Card>
+              <div className="text-sm text-gray-600">Средняя уверенность</div>
+            </div>
+            <div className="text-center">
+              <div className="text-2xl font-bold text-red-600">
+                {survey.summary.criticalIssues}
+              </div>
+              <div className="text-sm text-gray-600">Критических проблем</div>
+            </div>
+          </div>
+          
+          {survey.summary.recommendations.length > 0 && (
+            <div className="mt-4">
+              <h5 className="font-medium text-gray-900 mb-2">Рекомендации:</h5>
+              <ul className="space-y-1">
+                {survey.summary.recommendations.map((rec, index) => (
+                  <li key={index} className="text-sm text-gray-600 flex items-start gap-2">
+                    <span className="text-blue-500 mt-1">•</span>
+                    {rec}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+        </div>
       )}
     </div>
   )
