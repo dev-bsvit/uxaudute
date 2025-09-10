@@ -70,10 +70,8 @@ export default function ProjectDetailPage() {
   const [analysisUrl, setAnalysisUrl] = useState<string | null>(null)
   const [showContextForm, setShowContextForm] = useState(false)
   const [pendingUploadData, setPendingUploadData] = useState<{ url?: string; screenshot?: string } | null>(null)
-  const [showEditContext, setShowEditContext] = useState(false)
   const [editContext, setEditContext] = useState('')
   const [isUpdatingContext, setIsUpdatingContext] = useState(false)
-  const [isEditingContext, setIsEditingContext] = useState(false)
 
   useEffect(() => {
     checkAuthAndLoadProject()
@@ -109,6 +107,7 @@ export default function ProjectDetailPage() {
       }
 
       setProject(projectData)
+      setEditContext(projectData.context || '')
       setAudits(auditsData)
     } catch (error) {
       console.error('Error loading project data:', error)
@@ -227,47 +226,14 @@ export default function ProjectDetailPage() {
     }
   }
 
-  const handleEditContext = () => {
-    setEditContext(project?.context || '')
-    setShowEditContext(true)
-  }
-
-  const handleStartInlineEdit = () => {
-    setEditContext(project?.context || '')
-    setIsEditingContext(true)
-  }
-
-  const handleCancelInlineEdit = () => {
-    setEditContext('')
-    setIsEditingContext(false)
-  }
-
-  const handleUpdateContext = async () => {
-    if (!project) return
-
-    setIsUpdatingContext(true)
-    try {
-      await updateProjectContext(project.id, editContext)
-      setProject({ ...project, context: editContext })
-      setShowEditContext(false)
-      setIsEditingContext(false)
-      alert('Контекст проекта обновлен')
-    } catch (error) {
-      console.error('Error updating context:', error)
-      alert('Ошибка при обновлении контекста')
-    } finally {
-      setIsUpdatingContext(false)
-    }
-  }
 
   const handleSaveInlineContext = async () => {
-    if (!project) return
+    if (!project || editContext === project.context) return
 
     setIsUpdatingContext(true)
     try {
       await updateProjectContext(project.id, editContext)
       setProject({ ...project, context: editContext })
-      setIsEditingContext(false)
     } catch (error) {
       console.error('Error updating context:', error)
       alert('Ошибка при обновлении контекста')
@@ -528,66 +494,25 @@ export default function ProjectDetailPage() {
                   <CardTitle>Контекст проекта</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  {isEditingContext ? (
-                    <div className="space-y-4">
-                      <textarea
-                        value={editContext}
-                        onChange={(e) => setEditContext(e.target.value)}
-                        className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
-                        rows={6}
-                        placeholder="Например: Мобильное приложение для заказа еды. Основная аудитория - молодые люди 18-35 лет. Ключевые цели: быстрое оформление заказа, удобная навигация по меню, прозрачная система оплаты..."
-                      />
-                      <p className="text-sm text-slate-500">
-                        Этот контекст будет применяться ко всем аудитам в проекте
-                      </p>
-                      <div className="flex gap-2">
-                        <Button
-                          onClick={handleSaveInlineContext}
-                          disabled={isUpdatingContext}
-                          size="sm"
-                          className="flex items-center gap-2"
-                        >
-                          {isUpdatingContext ? (
-                            <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent"></div>
-                          ) : null}
-                          Сохранить
-                        </Button>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={handleCancelInlineEdit}
-                        >
-                          Отмена
-                        </Button>
+                  <div className="space-y-4">
+                    <textarea
+                      value={project?.context || ''}
+                      onChange={(e) => setEditContext(e.target.value)}
+                      onBlur={handleSaveInlineContext}
+                      className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+                      rows={6}
+                      placeholder="Например: Мобильное приложение для заказа еды. Основная аудитория - молодые люди 18-35 лет. Ключевые цели: быстрое оформление заказа, удобная навигация по меню, прозрачная система оплаты..."
+                    />
+                    <p className="text-sm text-slate-500">
+                      Этот контекст будет применяться ко всем аудитам в проекте. Изменения сохраняются автоматически при потере фокуса.
+                    </p>
+                    {isUpdatingContext && (
+                      <div className="flex items-center gap-2 text-sm text-blue-600">
+                        <div className="animate-spin rounded-full h-4 w-4 border-2 border-blue-600 border-t-transparent"></div>
+                        Сохранение...
                       </div>
-                    </div>
-                  ) : project.context ? (
-                    <div className="space-y-4">
-                      <div 
-                        className="p-4 bg-blue-50 rounded-lg border border-blue-200 cursor-pointer hover:bg-blue-100 transition-colors"
-                        onClick={handleStartInlineEdit}
-                      >
-                        <p className="text-sm text-blue-800">{project.context}</p>
-                      </div>
-                      <p className="text-xs text-slate-500">
-                        Нажмите на текст, чтобы редактировать
-                      </p>
-                    </div>
-                  ) : (
-                    <div className="text-center py-8">
-                      <div className="p-4 bg-gray-50 rounded-lg border border-gray-200">
-                        <h3 className="text-sm font-medium text-gray-700 mb-2">Контекст проекта не указан</h3>
-                        <p className="text-xs text-gray-500 mb-4">Добавьте контекст для более точного анализа</p>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={handleStartInlineEdit}
-                        >
-                          Добавить контекст
-                        </Button>
-                      </div>
-                    </div>
-                  )}
+                    )}
+                  </div>
                 </CardContent>
               </Card>
             </div>
@@ -627,42 +552,6 @@ export default function ProjectDetailPage() {
           canClose={false}
         />
 
-        {/* Модальное окно редактирования контекста */}
-        {showEditContext && (
-          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-            <div className="bg-white rounded-2xl p-6 w-full max-w-2xl mx-4">
-              <h3 className="text-xl font-bold text-slate-900 mb-4">Редактировать контекст проекта</h3>
-              <textarea
-                value={editContext}
-                onChange={(e) => setEditContext(e.target.value)}
-                className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
-                rows={6}
-                placeholder="Например: Мобильное приложение для заказа еды. Основная аудитория - молодые люди 18-35 лет. Ключевые цели: быстрое оформление заказа, удобная навигация по меню, прозрачная система оплаты..."
-              />
-              <p className="text-sm text-slate-500 mt-2">
-                Этот контекст будет применяться ко всем аудитам в проекте
-              </p>
-              <div className="flex gap-3 mt-6">
-                <Button
-                  onClick={handleUpdateContext}
-                  disabled={isUpdatingContext}
-                  className="flex items-center gap-2"
-                >
-                  {isUpdatingContext ? (
-                    <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent"></div>
-                  ) : null}
-                  Сохранить
-                </Button>
-                <Button
-                  variant="outline"
-                  onClick={() => setShowEditContext(false)}
-                >
-                  Отмена
-                </Button>
-              </div>
-            </div>
-          </div>
-        )}
       </div>
     </SidebarDemo>
   )
