@@ -33,7 +33,8 @@ import {
   Trash2,
   ExternalLink,
   BarChart3,
-  Eye
+  Edit,
+  MoreHorizontal
 } from 'lucide-react'
 import { type ActionType } from '@/lib/utils'
 
@@ -48,12 +49,15 @@ interface Project {
 interface Audit {
   id: string
   name: string
-  type: string
   status: string
-  input_data: any
-  result_data: any
   confidence: number | null
   created_at: string
+  input_data?: {
+    url?: string
+    hasScreenshot?: boolean
+    screenshotUrl?: string
+  } | null
+  result_data?: any
 }
 
 export default function ProjectDetailPage() {
@@ -66,51 +70,46 @@ export default function ProjectDetailPage() {
   const [audits, setAudits] = useState<Audit[]>([])
   const [loading, setLoading] = useState(true)
   const [showCreateForm, setShowCreateForm] = useState(false)
-  const [currentAudit, setCurrentAudit] = useState<Audit | null>(null)
+  const [currentAudit, setCurrentAudit] = useState<string | null>(null)
   const [result, setResult] = useState<string | StructuredAnalysisResponse | null>(null)
   const [isAnalyzing, setIsAnalyzing] = useState(false)
   const [uploadedScreenshot, setUploadedScreenshot] = useState<string | null>(null)
   const [analysisUrl, setAnalysisUrl] = useState<string | null>(null)
-  const [showContextForm, setShowContextForm] = useState(false)
-  const [pendingUploadData, setPendingUploadData] = useState<{ url?: string; screenshot?: string } | null>(null)
   const [showEditContext, setShowEditContext] = useState(false)
   const [editContext, setEditContext] = useState('')
   const [isUpdatingContext, setIsUpdatingContext] = useState(false)
 
   useEffect(() => {
-    checkAuthAndLoadProject()
-  }, [projectId])
+    const loadUser = async () => {
+      try {
+        const { data: { user } } = await supabase.auth.getUser()
+        if (!user) {
+          router.push('/dashboard')
+          return
+        }
 
-  const checkAuthAndLoadProject = async () => {
-    try {
-      const { data: { user } } = await supabase.auth.getUser()
-      if (!user) {
+        setUser(user)
+      } catch (error) {
+        console.error('Error loading user:', error)
         router.push('/dashboard')
         return
+      } finally {
+        setLoading(false)
       }
-
-      setUser(user)
-      await loadProjectData()
-    } catch (error) {
-      console.error('Error loading project:', error)
-      router.push('/projects')
-    } finally {
-      setLoading(false)
     }
-  }
+
+    loadUser()
+  }, [router])
 
   const loadProjectData = async () => {
     try {
-      const [projectData, auditsData] = await Promise.all([
-        getProject(projectId),
-        getProjectAudits(projectId)
-      ])
-
+      const projectData = await getProject(projectId)
       if (!projectData) {
         throw new Error('Project not found')
       }
 
       setProject(projectData)
+      const auditsData = await getProjectAudits(projectId)
       setAudits(auditsData)
     } catch (error) {
       console.error('Error loading project data:', error)
@@ -123,38 +122,32 @@ export default function ProjectDetailPage() {
 
     setUploadedScreenshot(data.screenshot || null)
     setAnalysisUrl(data.url || null)
-
-    // Сразу запускаем анализ с контекстом
     await handleContextSubmit(data.context || '', data)
   }
 
   const handleContextSubmit = async (context: string, uploadData?: { url?: string; screenshot?: string }) => {
     if (!user || !project) return
 
-    const data = uploadData || pendingUploadData
+    const data = uploadData
     if (!data) return
 
     setIsAnalyzing(true)
-    setShowContextForm(false)
-
     try {
-      let screenshotUrl: string | null = null
-      
-      // Загружаем скриншот в Supabase Storage если он есть
+      // Загружаем скриншот в Supabase Storage если есть
+      let screenshotUrl = null
       if (data.screenshot) {
-        console.log('Uploading screenshot to Supabase Storage...')
         screenshotUrl = await uploadScreenshotFromBase64(data.screenshot, user.id)
         console.log('Screenshot uploaded:', screenshotUrl)
       }
 
       // Объединяем контекст проекта и контекст аудита
-      const projectContext = project?.context || ''
+      const projectContext = project.context || ''
       const auditContext = context || ''
       const combinedContext = [projectContext, auditContext]
         .filter(Boolean)
         .join('\n\n---\n\n')
 
-      // Создаем новый аудит с URL скриншота
+      // Создаем новый аудит
       const audit = await createAudit(
         projectId,
         `Анализ ${new Date().toLocaleDateString('ru-RU')}`,
@@ -168,8 +161,7 @@ export default function ProjectDetailPage() {
         combinedContext
       )
 
-      setCurrentAudit(audit)
-      setShowCreateForm(false)
+      setCurrentAudit(audit.id)
 
       // Отправляем запрос на анализ
       const response = await fetch('/api/research-json', {
@@ -189,42 +181,34 @@ export default function ProjectDetailPage() {
       const responseData = await response.json()
       
       if (responseData.success) {
-        // Перенаправляем на страницу аудита
-        window.location.href = `/audit/${audit.id}`
-        return
-      } else {
-        // Fallback на текстовый формат
-        const analysisResult = responseData.data || responseData.rawResponse
+        const analysisResult = responseData.data
         setResult(analysisResult)
         
-        // Сохраняем результат в базу данных
-        console.log('Updating audit result with screenshot URL:', screenshotUrl)
-        await updateAuditResult(audit.id, { 
-          analysis_result: typeof analysisResult === 'object' ? JSON.stringify(analysisResult) : analysisResult,
-          screenshot_url: screenshotUrl 
-        })
-        
         // Добавляем в историю
-        await addAuditHistory(audit.id, 'research', { 
-          ...data, 
+        await addAuditHistory(audit.id, 'research', {
+          url: data.url,
+          screenshot: data.screenshot,
           screenshotUrl 
         }, { result: typeof analysisResult === 'object' ? JSON.stringify(analysisResult) : analysisResult })
       }
 
       // Обновляем список аудитов
-      await loadProjectData()
-
-    } catch (error) {
-      console.error('Error creating audit:', error)
-      alert(`Ошибка при создании аудита: ${error instanceof Error ? error.message : 'Неизвестная ошибка'}`)
-    } finally {
+      const updatedAudits = await getProjectAudits(projectId)
+      setAudits(updatedAudits)
+      
+      setShowCreateForm(false)
       setIsAnalyzing(false)
-      setPendingUploadData(null)
+      setUploadedScreenshot(null)
+      setAnalysisUrl(null)
+    } catch (error) {
+      console.error('Error:', error)
+      alert(`Ошибка при анализе: ${error instanceof Error ? error.message : 'Неизвестная ошибка'}`)
+      setIsAnalyzing(false)
     }
   }
 
   const handleContextSkip = () => {
-    if (pendingUploadData) {
+    if (uploadedScreenshot || analysisUrl) {
       handleContextSubmit('')
     }
   }
@@ -236,7 +220,6 @@ export default function ProjectDetailPage() {
 
   const handleUpdateContext = async () => {
     if (!project) return
-
     setIsUpdatingContext(true)
     try {
       await updateProjectContext(project.id, editContext)
@@ -252,21 +235,20 @@ export default function ProjectDetailPage() {
   }
 
   const handleAction = async (action: ActionType) => {
-    if (!currentAudit || !result) return
-
+    if (!result || !currentAudit) return
+    
     setIsAnalyzing(true)
     try {
-      // Формируем данные на основе текущего состояния
-      const data = {
-        url: analysisUrl,
-        screenshot: uploadedScreenshot,
-        context: result
-      }
-
       const response = await fetch(`/api/${action}`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data)
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          url: analysisUrl,
+          screenshot: uploadedScreenshot,
+          context: result
+        }),
       })
 
       if (!response.ok) {
@@ -276,57 +258,46 @@ export default function ProjectDetailPage() {
       const { result: actionResult } = await response.json()
       
       // Добавляем результат действия к основному результату
-      const newResult = typeof result === 'string' 
-        ? result + '\n\n---\n\n' + actionResult
-        : JSON.stringify(result) + '\n\n---\n\n' + actionResult
+      const newResult = result + '\n\n---\n\n' + actionResult
       setResult(newResult)
 
       // Обновляем результат в базе данных
-      await updateAuditResult(currentAudit.id, { 
-        analysis_result: typeof newResult === 'object' ? JSON.stringify(newResult) : newResult,
+      await updateAuditResult(currentAudit, { 
         [`${action}_result`]: actionResult 
       })
       
       // Добавляем в историю
-      await addAuditHistory(currentAudit.id, action, data, { result: actionResult })
+      await addAuditHistory(currentAudit, action, { context: result }, { result: actionResult })
 
     } catch (error) {
-      console.error('Error performing action:', error)
+      console.error('Error:', error)
       alert(`Ошибка при выполнении действия: ${error instanceof Error ? error.message : 'Неизвестная ошибка'}`)
     } finally {
       setIsAnalyzing(false)
     }
   }
 
-
-  const handleViewAudit = (audit: Audit) => {
-    setCurrentAudit(audit)
-    
-    // Пытаемся распарсить JSON результат, если не получается - используем как строку
-    let analysisResult = audit.result_data?.analysis_result || 'Результат анализа не найден'
+  const handleAuditClick = async (audit: Audit) => {
     try {
-      if (typeof analysisResult === 'string') {
-        const parsed = JSON.parse(analysisResult)
-        setResult(parsed)
-      } else {
+      const analysisResult = audit.result_data
+      if (analysisResult) {
         setResult(analysisResult)
+        setCurrentAudit(audit.id)
+        
+        // Показываем сохраненный скриншот из Supabase Storage или исходный base64
+        const screenshotUrl = audit.input_data?.screenshotUrl
+        setUploadedScreenshot(screenshotUrl || null)
+        setAnalysisUrl(audit.input_data?.url || null)
       }
     } catch {
-      setResult(analysisResult)
+      setResult(audit.result_data)
     }
     
     // Показываем сохраненный скриншот из Supabase Storage или исходный base64
-    const screenshotUrl = audit.input_data?.screenshotUrl || audit.result_data?.screenshot_url
-    console.log('Viewing audit:', audit.id)
-    console.log('Screenshot URL from input_data:', audit.input_data?.screenshotUrl)
-    console.log('Screenshot URL from result_data:', audit.result_data?.screenshot_url)
-    console.log('Final screenshot URL:', screenshotUrl)
-    
+    const screenshotUrl = audit.input_data?.screenshotUrl
     setUploadedScreenshot(screenshotUrl || null)
     setAnalysisUrl(audit.input_data?.url || null)
   }
-
-
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('ru-RU', {
@@ -341,11 +312,17 @@ export default function ProjectDetailPage() {
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'completed': return 'bg-green-100 text-green-800'
-      case 'in_progress': return 'bg-blue-100 text-blue-800'
+      case 'in_progress': return 'bg-yellow-100 text-yellow-800'
       case 'failed': return 'bg-red-100 text-red-800'
       default: return 'bg-gray-100 text-gray-800'
     }
   }
+
+  useEffect(() => {
+    if (user && projectId) {
+      loadProjectData().catch(console.error)
+    }
+  }, [user, projectId])
 
   if (loading) {
     return (
@@ -445,8 +422,6 @@ export default function ProjectDetailPage() {
             </div>
           </Section>
 
-        {/* Статистика убрана - отображается только в разделе "Мои проекты" */}
-
           {/* Основной контент */}
           {!currentAudit ? (
             <>
@@ -480,137 +455,150 @@ export default function ProjectDetailPage() {
                 <Card>
                   <CardHeader>
                     <CardTitle>История аудитов</CardTitle>
-              </CardHeader>
-              <CardContent>
-                {audits.length === 0 ? (
-                  <div className="text-center py-8">
-                    <BarChart3 className="w-12 h-12 text-slate-400 mx-auto mb-4" />
-                    <p className="text-slate-600 mb-4">
-                      В этом проекте пока нет аудитов
-                    </p>
-                    <Button onClick={() => setShowCreateForm(true)}>
-                      <Plus className="w-4 h-4 mr-2" />
-                      Создать первый аудит
-                    </Button>
-                  </div>
-                ) : (
-                  <div className="space-y-4">
-                    {audits.map((audit) => (
-                      <div
-                        key={audit.id}
-                        className="flex items-center justify-between p-4 border rounded-lg hover:bg-slate-50 transition-colors"
-                      >
-                        <div className="flex-1">
-                          <div className="flex items-center gap-3 mb-2">
-                            <h3 className="font-medium text-slate-900">{audit.name}</h3>
-                            <Badge className={getStatusColor(audit.status)}>
-                              {audit.status === 'completed' ? 'Завершен' : 
-                               audit.status === 'in_progress' ? 'В процессе' : 
-                               audit.status === 'failed' ? 'Ошибка' : 'Черновик'}
-                            </Badge>
-                          </div>
-                          <p className="text-sm text-slate-600">
-                            {formatDate(audit.created_at)}
-                            {audit.input_data?.url && (
-                              <span className="ml-4 inline-flex items-center gap-1">
-                                <ExternalLink className="w-3 h-3" />
-                                URL анализ
-                              </span>
-                            )}
-                            {audit.input_data?.hasScreenshot && (
-                              <span className="ml-4">📸 Скриншот</span>
-                            )}
-                          </p>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <Link href={`/audit/${audit.id}`}>
-                            <Button
-                              size="sm"
-                              variant="outline"
-                            >
-                              <Eye className="w-4 h-4 mr-2" />
-                              Просмотр
-                            </Button>
-                          </Link>
-                        </div>
+                  </CardHeader>
+                  <CardContent>
+                    {audits.length === 0 ? (
+                      <div className="text-center py-8">
+                        <BarChart3 className="w-12 h-12 text-slate-400 mx-auto mb-4" />
+                        <h3 className="text-lg font-medium text-slate-900 mb-2">Нет аудитов</h3>
+                        <p className="text-slate-600 mb-4">Создайте первый аудит для этого проекта</p>
+                        <Button onClick={() => setShowCreateForm(true)}>
+                          <Plus className="w-4 h-4 mr-2" />
+                          Создать аудит
+                        </Button>
                       </div>
-                    ))}
-                  </div>
+                    ) : (
+                      <div className="space-y-4">
+                        {audits.map((audit) => (
+                          <div
+                            key={audit.id}
+                            className="flex items-center justify-between p-4 border rounded-lg hover:bg-slate-50 transition-colors cursor-pointer"
+                            onClick={() => handleAuditClick(audit)}
+                          >
+                            <div className="flex-1">
+                              <div className="flex items-center gap-3 mb-2">
+                                <h3 className="font-medium text-slate-900">{audit.name}</h3>
+                                <Badge className={getStatusColor(audit.status)}>
+                                  {audit.status === 'completed' ? 'Завершен' : 
+                                   audit.status === 'in_progress' ? 'В процессе' : 
+                                   audit.status === 'failed' ? 'Ошибка' : 'Черновик'}
+                                </Badge>
+                              </div>
+                              <p className="text-sm text-slate-600">
+                                {formatDate(audit.created_at)}
+                                {audit.input_data?.url && (
+                                  <span className="ml-4 inline-flex items-center gap-1">
+                                    <ExternalLink className="w-3 h-3" />
+                                    URL анализ
+                                  </span>
+                                )}
+                                {audit.input_data?.hasScreenshot && (
+                                  <span className="ml-4">📸 Скриншот</span>
+                                )}
+                              </p>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={(e) => {
+                                  e.stopPropagation()
+                                  // TODO: Добавить функциональность редактирования
+                                }}
+                              >
+                                <Edit className="w-4 h-4" />
+                              </Button>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
+              </Section>
+            </>
+          ) : (
+            <>
+              {/* Результаты анализа */}
+              <Section>
+                <div className="flex items-center justify-between mb-6">
+                  <Button
+                    onClick={() => {
+                      setCurrentAudit(null)
+                      setResult(null)
+                      setUploadedScreenshot(null)
+                      setAnalysisUrl(null)
+                    }}
+                    variant="outline"
+                    className="flex items-center gap-2"
+                  >
+                    <ArrowLeft className="w-4 h-4" />
+                    К проекту
+                  </Button>
+                </div>
+                
+                {result && (
+                  <AnalysisResult 
+                    result={result}
+                    screenshot={uploadedScreenshot}
+                    url={analysisUrl}
+                    auditId={currentAudit}
+                  />
                 )}
-              </CardContent>
-            </Card>
-          </>
-        ) : (
-          <>
-            {/* Просмотр аудита */}
-            <div className="flex items-center justify-between">
-              <h2 className="text-xl font-semibold text-slate-900">
-                {currentAudit.name}
-              </h2>
-            </div>
+              </Section>
 
-            {/* Результаты анализа */}
-            {result && (
-              <AnalysisResult 
-                result={result}
-                screenshot={uploadedScreenshot}
-                url={analysisUrl}
-                auditId={currentAudit?.id}
-              />
-            )}
+              {/* Панель дополнительных действий */}
+              <Section>
+                <ActionPanel onAction={handleAction} />
+              </Section>
+            </>
+          )}
 
-            {/* Панель дополнительных действий */}
-            <ActionPanel
-              onAction={handleAction}
-            />
-          </>
-        )}
-
-        {/* Модальное окно прогресса анализа */}
-        <AnalysisModal
-          isOpen={isAnalyzing}
-          onClose={() => setIsAnalyzing(false)}
-          screenshot={uploadedScreenshot}
-          url={analysisUrl}
-          canClose={false}
-        />
-
-        {/* Модальное окно редактирования контекста */}
-        {showEditContext && (
-          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-            <div className="bg-white rounded-2xl p-6 w-full max-w-2xl mx-4">
-              <h3 className="text-xl font-bold text-slate-900 mb-4">Редактировать контекст проекта</h3>
-              <textarea
-                value={editContext}
-                onChange={(e) => setEditContext(e.target.value)}
-                className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
-                rows={6}
-                placeholder="Например: Мобильное приложение для заказа еды. Основная аудитория - молодые люди 18-35 лет. Ключевые цели: быстрое оформление заказа, удобная навигация по меню, прозрачная система оплаты..."
-              />
-              <p className="text-sm text-slate-500 mt-2">
-                Этот контекст будет применяться ко всем аудитам в проекте
-              </p>
-              <div className="flex gap-3 mt-6">
-                <Button
-                  onClick={handleUpdateContext}
-                  disabled={isUpdatingContext}
-                  className="flex items-center gap-2"
-                >
-                  {isUpdatingContext ? (
-                    <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent"></div>
-                  ) : null}
-                  Сохранить
-                </Button>
-                <Button
-                  variant="outline"
-                  onClick={() => setShowEditContext(false)}
-                >
-                  Отмена
-                </Button>
+          {/* Модальное окно редактирования контекста */}
+          {showEditContext && (
+            <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+              <div className="bg-white rounded-2xl p-6 w-full max-w-2xl mx-4">
+                <h3 className="text-xl font-bold text-slate-900 mb-4">Редактировать контекст проекта</h3>
+                <textarea
+                  value={editContext}
+                  onChange={(e) => setEditContext(e.target.value)}
+                  className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+                  rows={6}
+                  placeholder="Например: Мобильное приложение для заказа еды. Основная аудитория - молодые люди 18-35 лет. Ключевые цели: быстрое оформление заказа, удобная навигация по меню, прозрачная система оплаты..."
+                />
+                <p className="text-sm text-slate-500 mt-2">
+                  Этот контекст будет применяться ко всем аудитам в проекте
+                </p>
+                <div className="flex gap-3 mt-6">
+                  <Button
+                    onClick={handleUpdateContext}
+                    disabled={isUpdatingContext}
+                    className="flex items-center gap-2"
+                  >
+                    {isUpdatingContext ? (
+                      <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent"></div>
+                    ) : null}
+                    Сохранить
+                  </Button>
+                  <Button
+                    variant="outline"
+                    onClick={() => setShowEditContext(false)}
+                  >
+                    Отмена
+                  </Button>
+                </div>
               </div>
             </div>
-          </div>
           )}
+
+          {/* Модальное окно прогресса анализа */}
+          <AnalysisModal
+            isOpen={isAnalyzing}
+            onClose={() => setIsAnalyzing(false)}
+            screenshot={uploadedScreenshot}
+            url={analysisUrl}
+            canClose={false}
+          />
         </div>
       </PageContent>
     </SidebarDemo>

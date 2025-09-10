@@ -45,7 +45,10 @@ export default function HomePage() {
   return (
     <Layout transparentHeader={true}>
       {/* Hero секция с градиентом на всю ширину */}
-      <HeroSection />
+      <HeroSection 
+        title="UX Audit Platform"
+        description="Профессиональный анализ пользовательского опыта с использованием ИИ"
+      />
       
       <Section background="default">
         <PageContent maxWidth="6xl">
