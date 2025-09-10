@@ -60,16 +60,8 @@ export function AnalysisResultDisplay({
     <div className="w-full max-w-none grid grid-cols-1 lg:grid-cols-2 gap-8 min-h-screen">
       {/* Левая колонка - Результаты анализа */}
       <div className="space-y-8">
-        {/* Заголовок */}
-        <div className="text-center">
-          <h2 className="text-3xl font-bold text-gray-900 mb-2">
-            Результаты UX анализа
-          </h2>
-        </div>
-
-
-      {/* Описание экрана */}
-      <Card>
+        {/* Описание экрана */}
+        <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             📱 Описание экрана
@@ -109,7 +101,16 @@ export function AnalysisResultDisplay({
       </Card>
 
       {/* UX-опрос */}
-      <SurveyDisplay survey={analysis.uxSurvey} />
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            📊 UX-опрос
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <SurveyDisplay survey={analysis.uxSurvey} />
+        </CardContent>
+      </Card>
 
       {/* Аудитория */}
       {analysis.audience && (

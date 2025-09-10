@@ -43,122 +43,115 @@ export function SurveyDisplay({
 
   return (
     <div className="space-y-6">
-      {/* Заголовок и общая статистика */}
+      {/* Общая статистика */}
       <div className="flex items-center justify-between">
-        <h3 className="text-xl font-semibold text-gray-900">UX-опрос</h3>
-        <div className="flex items-center gap-4">
-          <div className="text-sm text-gray-600">
-            <span className="font-medium">Уверенность:</span>{' '}
-            <span className={getConfidenceColor(survey.overallConfidence)}>
-              {survey.overallConfidence}% ({getConfidenceLabel(survey.overallConfidence)})
-            </span>
-          </div>
-          <Badge variant="outline">
-            {survey.summary.totalQuestions} вопросов
-          </Badge>
+        <div className="text-sm text-gray-600">
+          <span className="font-medium">Уверенность:</span>{' '}
+          <span className={getConfidenceColor(survey.overallConfidence)}>
+            {survey.overallConfidence}% ({getConfidenceLabel(survey.overallConfidence)})
+          </span>
         </div>
+        <Badge variant="outline">
+          {survey.summary.totalQuestions} вопросов
+        </Badge>
       </div>
 
       {/* Вопросы */}
       <div className="space-y-4">
         {survey.questions.map((question, index) => (
-          <Card key={question.id} className="overflow-hidden">
-            <CardHeader className="pb-3">
-              <div className="flex items-start justify-between">
-                <CardTitle className="text-lg font-medium text-gray-900">
-                  {question.id}. {question.question}
-                </CardTitle>
-                <div className="flex items-center gap-2">
-                  {showCategories && (
-                    <Badge className={getCategoryColor(question.category)}>
-                      {question.category}
-                    </Badge>
-                  )}
-                  <div className="text-sm text-gray-500">
-                    Уверенность: <span className={getConfidenceColor(question.confidence)}>
-                      {question.confidence}%
-                    </span>
-                  </div>
+          <div key={question.id} className="space-y-3">
+            <div className="flex items-start justify-between">
+              <h4 className="text-lg font-medium text-gray-900">
+                {question.id}. {question.question}
+              </h4>
+              <div className="flex items-center gap-2">
+                {showCategories && (
+                  <Badge className={getCategoryColor(question.category)}>
+                    {question.category}
+                  </Badge>
+                )}
+                <div className="text-sm text-gray-500">
+                  Уверенность: <span className={getConfidenceColor(question.confidence)}>
+                    {question.confidence}%
+                  </span>
                 </div>
               </div>
-              
-              {showPrinciples && question.principle && (
-                <div className="mt-2 text-sm text-gray-600">
-                  <span className="font-medium">Принцип:</span> {question.principle}
-                </div>
-              )}
-              
-              {question.explanation && (
-                <div className="mt-1 text-sm text-gray-500">
-                  {question.explanation}
-                </div>
-              )}
-            </CardHeader>
+            </div>
             
-            <CardContent className="pt-0">
-              <div className="space-y-3">
-                {question.options.map((option, optionIndex) => {
-                  const score = question.scores[optionIndex]
-                  const isHighest = score === Math.max(...question.scores)
-                  
-                  return (
-                    <div key={optionIndex} className="relative">
-                      <div className={`
-                        flex items-center justify-between p-4 rounded-lg border-2 transition-all
-                        ${isHighest 
-                          ? 'border-purple-300 bg-purple-50 shadow-sm' 
-                          : 'border-gray-200 bg-white hover:border-gray-300'
-                        }
-                      `}>
-                        <div className="flex items-center gap-3">
-                          <div className={`
-                            w-6 h-6 rounded-full flex items-center justify-center text-sm font-medium
-                            ${isHighest 
-                              ? 'bg-purple-500 text-white' 
-                              : 'bg-gray-200 text-gray-600'
-                            }
-                          `}>
-                            {String.fromCharCode(65 + optionIndex)}
-                          </div>
-                          <span className={`
-                            font-medium
-                            ${isHighest ? 'text-purple-900' : 'text-gray-900'}
-                          `}>
-                            {option}
-                          </span>
+            {showPrinciples && question.principle && (
+              <div className="text-sm text-gray-600">
+                <span className="font-medium">Принцип:</span> {question.principle}
+              </div>
+            )}
+            
+            {question.explanation && (
+              <div className="text-sm text-gray-500">
+                {question.explanation}
+              </div>
+            )}
+            
+            <div className="space-y-3">
+              {question.options.map((option, optionIndex) => {
+                const score = question.scores[optionIndex]
+                const isHighest = score === Math.max(...question.scores)
+                
+                return (
+                  <div key={optionIndex} className="relative">
+                    <div className={`
+                      flex items-center justify-between p-4 rounded-lg border-2 transition-all
+                      ${isHighest 
+                        ? 'border-purple-300 bg-purple-50 shadow-sm' 
+                        : 'border-gray-200 bg-white hover:border-gray-300'
+                      }
+                    `}>
+                      <div className="flex items-center gap-3">
+                        <div className={`
+                          w-6 h-6 rounded-full flex items-center justify-center text-sm font-medium
+                          ${isHighest 
+                            ? 'bg-purple-500 text-white' 
+                            : 'bg-gray-200 text-gray-600'
+                          }
+                        `}>
+                          {String.fromCharCode(65 + optionIndex)}
                         </div>
-                        
-                        <div className="flex items-center gap-3">
-                          <div className="text-right">
-                            <div className={`
-                              text-2xl font-bold
-                              ${isHighest ? 'text-purple-600' : 'text-gray-600'}
-                            `}>
-                              {score}%
-                            </div>
-                            <div className="text-xs text-gray-500">
-                              {isHighest ? 'Наиболее вероятно' : 'Менее вероятно'}
-                            </div>
-                          </div>
-                        </div>
+                        <span className={`
+                          font-medium
+                          ${isHighest ? 'text-purple-900' : 'text-gray-900'}
+                        `}>
+                          {option}
+                        </span>
                       </div>
                       
-                      {/* Прогресс-бар */}
-                      <div className="mt-2">
-                        <Progress 
-                          value={score} 
-                          className="h-2"
-                          style={{
-                            backgroundColor: isHighest ? '#e0e7ff' : '#f3f4f6'
-                          }}
-                        />
+                      <div className="flex items-center gap-3">
+                        <div className="text-right">
+                          <div className={`
+                            text-2xl font-bold
+                            ${isHighest ? 'text-purple-600' : 'text-gray-600'}
+                          `}>
+                            {score}%
+                          </div>
+                          <div className="text-xs text-gray-500">
+                            {isHighest ? 'Наиболее вероятно' : 'Менее вероятно'}
+                          </div>
+                        </div>
                       </div>
                     </div>
-                  )
-                })}
-              </div>
-            </CardContent>
-          </Card>
+                    
+                    {/* Прогресс-бар */}
+                    <div className="mt-2">
+                      <Progress 
+                        value={score} 
+                        className="h-2"
+                        style={{
+                          backgroundColor: isHighest ? '#e0e7ff' : '#f3f4f6'
+                        }}
+                      />
+                    </div>
+                  </div>
+                )
+              })}
+            </div>
+          </div>
         ))}
       </div>
 
