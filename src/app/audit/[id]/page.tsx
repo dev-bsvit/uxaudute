@@ -172,7 +172,7 @@ export default function AuditPage() {
         {/* Результаты анализа */}
         {audit.result_data ? (
           <Tabs defaultValue="ux-analysis" className="w-full">
-            <TabsList className="grid w-full grid-cols-4 mb-6 bg-gray-100">
+            <TabsList className="grid w-full grid-cols-4 mb-6 bg-gray-100 h-14">
               <TabsTrigger value="ux-analysis">UX Анализ</TabsTrigger>
               <TabsTrigger value="ab-test">AB тест</TabsTrigger>
               <TabsTrigger value="hypotheses">Гипотезы</TabsTrigger>
