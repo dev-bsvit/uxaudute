@@ -348,14 +348,7 @@ export default function DashboardPage() {
         {user && result && (
           <>
             <div className="flex items-center justify-between">
-              <Button
-                onClick={handleNewAnalysis}
-                variant="outline"
-                className="flex items-center gap-2"
-              >
-                <BackArrow className="w-4 h-4" />
-                Новый анализ
-              </Button>
+              <BackArrow onClick={handleNewAnalysis} />
               
               <div className="flex items-center gap-3">
                 <Button variant="outline" className="flex items-center gap-2">

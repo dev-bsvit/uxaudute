@@ -1,24 +1,23 @@
 import React from 'react';
 
 interface BackArrowProps {
+  onClick?: () => void;
   className?: string;
-  width?: number;
-  height?: number;
 }
 
 export const BackArrow: React.FC<BackArrowProps> = ({ 
-  className = "w-4 h-4", 
-  width = 32, 
-  height = 32 
+  onClick,
+  className = "cursor-pointer hover:opacity-80 transition-opacity" 
 }) => {
   return (
     <svg 
-      width={width} 
-      height={height} 
+      width={32} 
+      height={32} 
       viewBox="0 0 32 32" 
       fill="none" 
       xmlns="http://www.w3.org/2000/svg"
       className={className}
+      onClick={onClick}
     >
       <rect 
         x="32" 

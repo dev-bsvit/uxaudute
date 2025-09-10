@@ -120,10 +120,7 @@ export default function AuditPage() {
             {error || 'Аудит с указанным ID не существует'}
           </p>
           <Link href="/dashboard">
-            <Button className="flex items-center gap-2">
-              <BackArrow className="w-4 h-4" />
-              Вернуться к Dashboard
-            </Button>
+            <BackArrow />
           </Link>
         </div>
       </div>
@@ -137,10 +134,7 @@ export default function AuditPage() {
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-4">
             <Link href={audit?.project_id ? `/projects/${audit.project_id}` : '/dashboard'}>
-              <Button variant="outline" className="flex items-center gap-2">
-                <BackArrow className="w-4 h-4" />
-                Назад к проекту
-              </Button>
+              <BackArrow />
             </Link>
             <div>
               <h1 className="text-3xl font-bold text-slate-900">{audit.name}</h1>

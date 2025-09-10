@@ -112,10 +112,7 @@ export default function AuditPage() {
             <h2 className="text-2xl font-bold text-slate-900 mb-4">
               {error || 'Аудит не найден'}
             </h2>
-            <Button onClick={() => router.push('/projects')}>
-              <BackArrow className="w-4 h-4 mr-2" />
-              К проектам
-            </Button>
+            <BackArrow onClick={() => router.push('/projects')} />
           </div>
         </div>
       </Layout>

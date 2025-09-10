@@ -396,10 +396,7 @@ export default function ProjectDetailPage() {
         <div className="text-center py-12 bg-white rounded-2xl shadow-lg p-8">
           <h2 className="text-2xl font-bold text-slate-900 mb-4">Проект не найден</h2>
           <Link href="/projects">
-            <Button>
-              <BackArrow className="w-4 h-4 mr-2" />
-              К проектам
-            </Button>
+            <BackArrow />
           </Link>
         </div>
       </div>
@@ -413,10 +410,7 @@ export default function ProjectDetailPage() {
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-4">
             <Link href="/projects">
-              <Button variant="outline" size="sm">
-                <BackArrow className="w-4 h-4 mr-2" />
-                К проектам
-              </Button>
+              <BackArrow />
             </Link>
             <div>
               <h1 className="text-3xl font-bold text-slate-900">{project.name}</h1>
