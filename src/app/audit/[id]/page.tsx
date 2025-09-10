@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Badge } from '@/components/ui/badge'
+import { CanvasAnnotations } from '@/components/ui/canvas-annotations'
 import { ArrowLeft, Download, Share2, RefreshCw, Monitor, Link2 } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 import { User } from '@supabase/supabase-js'
@@ -37,6 +38,7 @@ export default function AuditPage() {
   const [audit, setAudit] = useState<Audit | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [annotationData, setAnnotationData] = useState<string>('')
 
   useEffect(() => {
     // Проверяем текущего пользователя
@@ -83,6 +85,11 @@ export default function AuditPage() {
       console.log('Аудит загружен:', auditData)
       setAudit(auditData)
 
+      // Инициализируем аннотации из данных аудита
+      if (auditData.result_data?.annotations) {
+        setAnnotationData(auditData.result_data.annotations)
+      }
+
       // Проверяем наличие результата
       if (auditData.result_data && Object.keys(auditData.result_data).length > 0) {
         console.log('✅ Результат найден в audits:', auditData.result_data)
@@ -99,6 +106,11 @@ export default function AuditPage() {
 
   const handleRefresh = () => {
     loadAudit()
+  }
+
+  const handleAnnotationSave = (data: string) => {
+    setAnnotationData(data)
+    console.log('Annotation data saved:', data)
   }
 
   if (loading) {
@@ -346,13 +358,16 @@ export default function AuditPage() {
                   <CardContent>
                     {audit.input_data?.screenshotUrl ? (
                       <div className="space-y-4">
-                        <img
+                        <CanvasAnnotations
                           src={audit.input_data.screenshotUrl}
                           alt="Анализируемый скриншот"
-                          className="w-full h-auto max-h-[70vh] object-contain rounded-lg"
+                          className="w-full h-auto max-h-[70vh] object-contain"
+                          onAnnotationSave={handleAnnotationSave}
+                          initialAnnotationData={annotationData}
+                          auditId={audit.id}
                         />
                         <div className="text-sm text-gray-500 text-center">
-                          💡 Скриншот интерфейса для анализа
+                          💡 Редактор аннотаций открывается автоматически. Добавьте комментарии и выделения к скриншоту
                         </div>
                         <div className="text-xs text-gray-400 text-center mt-2">
                           Анализ {new Date(audit.created_at).toLocaleDateString('ru-RU')}
