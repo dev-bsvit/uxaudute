@@ -189,7 +189,7 @@ export default function ProjectDetailPage() {
         
         // Добавляем в историю
         await addAuditHistory(audit.id, 'research', { 
-          ...data, 
+          ...pendingUploadData, 
           screenshotUrl 
         }, { result: typeof analysisResult === 'object' ? JSON.stringify(analysisResult) : analysisResult })
       }
