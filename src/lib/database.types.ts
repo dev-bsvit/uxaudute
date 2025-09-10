@@ -57,6 +57,7 @@ export interface Database {
         Row: {
           id: string
           project_id: string
+          user_id: string
           name: string
           type: 'research' | 'collect' | 'business' | 'ab_test' | 'hypotheses'
           status: 'draft' | 'in_progress' | 'completed' | 'failed'
@@ -64,12 +65,14 @@ export interface Database {
           result_data: Record<string, unknown> | null
           annotations: Record<string, unknown> | null
           confidence: number | null
+          context: string | null
           created_at: string
           updated_at: string
         }
         Insert: {
           id?: string
           project_id: string
+          user_id: string
           name: string
           type: 'research' | 'collect' | 'business' | 'ab_test' | 'hypotheses'
           status?: 'draft' | 'in_progress' | 'completed' | 'failed'
@@ -77,12 +80,14 @@ export interface Database {
           result_data?: Record<string, unknown> | null
           annotations?: Record<string, unknown> | null
           confidence?: number | null
+          context?: string | null
           created_at?: string
           updated_at?: string
         }
         Update: {
           id?: string
           project_id?: string
+          user_id?: string
           name?: string
           type?: 'research' | 'collect' | 'business' | 'ab_test' | 'hypotheses'
           status?: 'draft' | 'in_progress' | 'completed' | 'failed'
@@ -90,6 +95,7 @@ export interface Database {
           result_data?: Record<string, unknown> | null
           annotations?: Record<string, unknown> | null
           confidence?: number | null
+          context?: string | null
           created_at?: string
           updated_at?: string
         }
