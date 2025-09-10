@@ -16,7 +16,7 @@ interface AnalysisResultProps {
 export function AnalysisResult({ result, screenshot, url, auditId }: AnalysisResultProps) {
   console.log('AnalysisResult получил:', { result, screenshot, url, auditId })
   console.log('Тип результата:', typeof result)
-  console.log('isStructuredResponse:', isStructuredResponse(result))
+  console.log('isStructuredResponse:', typeof result === 'object' ? isStructuredResponse(result) : false)
   
   // Проверяем, является ли результат JSON структурой
   const isJsonResult = typeof result === 'object' && isStructuredResponse(result)
