@@ -72,7 +72,6 @@ export default function ProjectDetailPage() {
   const [pendingUploadData, setPendingUploadData] = useState<{ url?: string; screenshot?: string } | null>(null)
   const [editContext, setEditContext] = useState('')
   const [isUpdatingContext, setIsUpdatingContext] = useState(false)
-  const [isEditingContext, setIsEditingContext] = useState(false)
   const [hasChanges, setHasChanges] = useState(false)
 
   useEffect(() => {
@@ -230,18 +229,6 @@ export default function ProjectDetailPage() {
   }
 
 
-  const handleStartEdit = () => {
-    setEditContext(project?.context || '')
-    setIsEditingContext(true)
-    setHasChanges(false)
-  }
-
-  const handleCancelEdit = () => {
-    setEditContext(project?.context || '')
-    setIsEditingContext(false)
-    setHasChanges(false)
-  }
-
   const handleContextChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     const newValue = e.target.value
     setEditContext(newValue)
@@ -255,7 +242,6 @@ export default function ProjectDetailPage() {
     try {
       await updateProjectContext(project.id, editContext)
       setProject({ ...project, context: editContext })
-      setIsEditingContext(false)
       setHasChanges(false)
     } catch (error) {
       console.error('Error updating context:', error)
@@ -263,6 +249,11 @@ export default function ProjectDetailPage() {
     } finally {
       setIsUpdatingContext(false)
     }
+  }
+
+  const handleCancelEdit = () => {
+    setEditContext(project?.context || '')
+    setHasChanges(false)
   }
 
   const handleAction = async (action: ActionType) => {
@@ -517,22 +508,22 @@ export default function ProjectDetailPage() {
                   <CardTitle>Контекст проекта</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  {isEditingContext ? (
-                    <div className="space-y-4">
-                      <textarea
-                        value={editContext}
-                        onChange={handleContextChange}
-                        className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
-                        rows={6}
-                        placeholder="Например: Мобильное приложение для заказа еды. Основная аудитория - молодые люди 18-35 лет. Ключевые цели: быстрое оформление заказа, удобная навигация по меню, прозрачная система оплаты..."
-                      />
-                      <p className="text-sm text-slate-500">
-                        Этот контекст будет применяться ко всем аудитам в проекте
-                      </p>
+                  <div className="space-y-4">
+                    <textarea
+                      value={editContext}
+                      onChange={handleContextChange}
+                      className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+                      rows={6}
+                      placeholder="Например: Мобильное приложение для заказа еды. Основная аудитория - молодые люди 18-35 лет. Ключевые цели: быстрое оформление заказа, удобная навигация по меню, прозрачная система оплаты..."
+                    />
+                    <p className="text-sm text-slate-500">
+                      Этот контекст будет применяться ко всем аудитам в проекте
+                    </p>
+                    {hasChanges && (
                       <div className="flex gap-2">
                         <Button
                           onClick={handleSaveContext}
-                          disabled={!hasChanges || isUpdatingContext}
+                          disabled={isUpdatingContext}
                           size="sm"
                           className="flex items-center gap-2"
                         >
@@ -550,34 +541,8 @@ export default function ProjectDetailPage() {
                           Отмена
                         </Button>
                       </div>
-                    </div>
-                  ) : project?.context ? (
-                    <div className="space-y-4">
-                      <div 
-                        className="p-4 bg-blue-50 rounded-lg border border-blue-200 cursor-pointer hover:bg-blue-100 transition-colors"
-                        onClick={handleStartEdit}
-                      >
-                        <p className="text-sm text-blue-800 whitespace-pre-wrap">{project.context}</p>
-                      </div>
-                      <p className="text-xs text-slate-500">
-                        Нажмите на текст, чтобы редактировать
-                      </p>
-                    </div>
-                  ) : (
-                    <div className="text-center py-8">
-                      <div className="p-4 bg-gray-50 rounded-lg border border-gray-200">
-                        <h3 className="text-sm font-medium text-gray-700 mb-2">Контекст проекта не указан</h3>
-                        <p className="text-xs text-gray-500 mb-4">Добавьте контекст для более точного анализа</p>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={handleStartEdit}
-                        >
-                          Добавить контекст
-                        </Button>
-                      </div>
-                    </div>
-                  )}
+                    )}
+                  </div>
                 </CardContent>
               </Card>
             </div>
