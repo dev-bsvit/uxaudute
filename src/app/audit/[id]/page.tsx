@@ -7,7 +7,8 @@ import { SidebarDemo } from '@/components/sidebar-demo'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { ArrowLeft, Download, Share2, RefreshCw } from 'lucide-react'
+import { Badge } from '@/components/ui/badge'
+import { ArrowLeft, Download, Share2, RefreshCw, Monitor, Link2 } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 import { User } from '@supabase/supabase-js'
 import Link from 'next/link'
@@ -172,74 +173,209 @@ export default function AuditPage() {
 
         {/* Результаты анализа */}
         {audit.result_data ? (
-          <Tabs defaultValue="ux-analysis" className="w-full">
-            <TabsList className="grid w-full grid-cols-4 mb-6">
-              <TabsTrigger value="ux-analysis">UX Анализ</TabsTrigger>
-              <TabsTrigger value="ab-test">AB тест</TabsTrigger>
-              <TabsTrigger value="hypotheses">Гипотезы</TabsTrigger>
-              <TabsTrigger value="analytics">Продуктовая аналитика</TabsTrigger>
-            </TabsList>
-            
-            <TabsContent value="ux-analysis">
-              {(() => {
-                console.log('Отображаем результат аудита:', audit.result_data)
-                console.log('Ключи result_data:', Object.keys(audit.result_data))
-                console.log('analysis_result:', audit.result_data.analysis_result)
-                console.log('Весь result_data:', JSON.stringify(audit.result_data, null, 2))
+          <div className="w-full max-w-none grid grid-cols-1 lg:grid-cols-2 gap-8 min-h-screen">
+            {/* Левая колонка - Табы с результатами */}
+            <div className="space-y-8">
+              <Tabs defaultValue="ux-analysis" className="w-full">
+                <TabsList className="grid w-full grid-cols-4 mb-6">
+                  <TabsTrigger value="ux-analysis">UX Анализ</TabsTrigger>
+                  <TabsTrigger value="ab-test">AB тест</TabsTrigger>
+                  <TabsTrigger value="hypotheses">Гипотезы</TabsTrigger>
+                  <TabsTrigger value="analytics">Продуктовая аналитика</TabsTrigger>
+                </TabsList>
                 
-                // result_data содержит напрямую результат анализа
-                const result = audit.result_data
-                console.log('Результат для AnalysisResult:', result)
-                return (
-                  <AnalysisResult 
-                    result={result}
-                    screenshot={audit.input_data?.screenshotUrl}
-                    url={audit.input_data?.url}
-                    auditId={audit.id}
-                  />
-                )
-              })()}
-            </TabsContent>
-            
-            <TabsContent value="ab-test">
-              <Card>
-                <CardContent className="text-center py-12">
-                  <h3 className="text-lg font-semibold text-slate-900 mb-2">
-                    AB тест
-                  </h3>
-                  <p className="text-slate-600">
-                    Раздел в разработке
-                  </p>
-                </CardContent>
-              </Card>
-            </TabsContent>
-            
-            <TabsContent value="hypotheses">
-              <Card>
-                <CardContent className="text-center py-12">
-                  <h3 className="text-lg font-semibold text-slate-900 mb-2">
-                    Гипотезы
-                  </h3>
-                  <p className="text-slate-600">
-                    Раздел в разработке
-                  </p>
-                </CardContent>
-              </Card>
-            </TabsContent>
-            
-            <TabsContent value="analytics">
-              <Card>
-                <CardContent className="text-center py-12">
-                  <h3 className="text-lg font-semibold text-slate-900 mb-2">
-                    Продуктовая аналитика
-                  </h3>
-                  <p className="text-slate-600">
-                    Раздел в разработке
-                  </p>
-                </CardContent>
-              </Card>
-            </TabsContent>
-          </Tabs>
+                <TabsContent value="ux-analysis">
+                  {(() => {
+                    console.log('Отображаем результат аудита:', audit.result_data)
+                    console.log('Ключи result_data:', Object.keys(audit.result_data))
+                    console.log('analysis_result:', audit.result_data.analysis_result)
+                    console.log('Весь result_data:', JSON.stringify(audit.result_data, null, 2))
+                    
+                    // result_data содержит напрямую результат анализа
+                    const result = audit.result_data
+                    console.log('Результат для AnalysisResult:', result)
+                    
+                    // Создаем компонент только с левой колонкой (без скриншота)
+                    return (
+                      <div className="space-y-8">
+                        {/* Описание экрана */}
+                        <Card>
+                          <CardHeader>
+                            <CardTitle className="flex items-center gap-2">
+                              📱 Описание экрана
+                            </CardTitle>
+                          </CardHeader>
+                          <CardContent className="space-y-4">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                              <div>
+                                <h4 className="font-medium text-gray-900 mb-2">Тип экрана</h4>
+                                <p className="text-gray-600">{result.screenDescription?.screenType || 'Не указано'}</p>
+                              </div>
+                              <div>
+                                <h4 className="font-medium text-gray-900 mb-2">Цель пользователя</h4>
+                                <p className="text-gray-600">{result.screenDescription?.userGoal || 'Не указано'}</p>
+                              </div>
+                            </div>
+                            
+                            <div>
+                              <h4 className="font-medium text-gray-900 mb-2">Ключевые элементы</h4>
+                              <div className="flex flex-wrap gap-2">
+                                {result.screenDescription?.keyElements?.map((element: string, index: number) => (
+                                  <Badge key={index} variant="secondary">{element}</Badge>
+                                )) || <span className="text-gray-500">Не указано</span>}
+                              </div>
+                            </div>
+                          </CardContent>
+                        </Card>
+
+                        {/* UX Опрос */}
+                        {result.uxSurvey && (
+                          <Card>
+                            <CardHeader>
+                              <CardTitle className="flex items-center gap-2">
+                                📊 UX Опрос
+                              </CardTitle>
+                            </CardHeader>
+                            <CardContent>
+                              <div className="space-y-4">
+                                {result.uxSurvey.questions?.map((question: any, index: number) => (
+                                  <div key={index} className="border rounded-lg p-4">
+                                    <h4 className="font-medium text-gray-900 mb-2">{question.question}</h4>
+                                    <p className="text-gray-600">{question.answer}</p>
+                                  </div>
+                                )) || <span className="text-gray-500">Нет данных опроса</span>}
+                              </div>
+                            </CardContent>
+                          </Card>
+                        )}
+
+                        {/* Проблемы и решения */}
+                        {result.problems && result.problems.length > 0 && (
+                          <Card>
+                            <CardHeader>
+                              <CardTitle className="flex items-center gap-2">
+                                ⚠️ Проблемы и решения
+                              </CardTitle>
+                            </CardHeader>
+                            <CardContent>
+                              <div className="space-y-6">
+                                {result.problems.map((problem: any, index: number) => (
+                                  <div key={index} className="border rounded-lg p-4">
+                                    <div className="flex items-start justify-between mb-3">
+                                      <h4 className="font-medium text-gray-900">{problem.title}</h4>
+                                      <Badge className={problem.priority === 'high' ? 'bg-red-100 text-red-800' : 
+                                                      problem.priority === 'medium' ? 'bg-yellow-100 text-yellow-800' : 
+                                                      'bg-green-100 text-green-800'}>
+                                        {problem.priority === 'high' ? 'Высокий' : 
+                                         problem.priority === 'medium' ? 'Средний' : 'Низкий'}
+                                      </Badge>
+                                    </div>
+                                    <p className="text-gray-600 mb-3">{problem.description}</p>
+                                    <div className="space-y-2">
+                                      <div>
+                                        <span className="font-medium text-purple-600">Решение:</span>{' '}
+                                        <span className="text-gray-700">{problem.solution}</span>
+                                      </div>
+                                      <div>
+                                        <span className="font-medium text-purple-600">Ожидаемый эффект:</span>{' '}
+                                        <span className="text-gray-700">{problem.expectedEffect}</span>
+                                      </div>
+                                    </div>
+                                  </div>
+                                ))}
+                              </div>
+                            </CardContent>
+                          </Card>
+                        )}
+                      </div>
+                    )
+                  })()}
+                </TabsContent>
+                
+                <TabsContent value="ab-test">
+                  <Card>
+                    <CardContent className="text-center py-12">
+                      <h3 className="text-lg font-semibold text-slate-900 mb-2">
+                        AB тест
+                      </h3>
+                      <p className="text-slate-600">
+                        Раздел в разработке
+                      </p>
+                    </CardContent>
+                  </Card>
+                </TabsContent>
+                
+                <TabsContent value="hypotheses">
+                  <Card>
+                    <CardContent className="text-center py-12">
+                      <h3 className="text-lg font-semibold text-slate-900 mb-2">
+                        Гипотезы
+                      </h3>
+                      <p className="text-slate-600">
+                        Раздел в разработке
+                      </p>
+                    </CardContent>
+                  </Card>
+                </TabsContent>
+                
+                <TabsContent value="analytics">
+                  <Card>
+                    <CardContent className="text-center py-12">
+                      <h3 className="text-lg font-semibold text-slate-900 mb-2">
+                        Продуктовая аналитика
+                      </h3>
+                      <p className="text-slate-600">
+                        Раздел в разработке
+                      </p>
+                    </CardContent>
+                  </Card>
+                </TabsContent>
+              </Tabs>
+            </div>
+
+            {/* Правая колонка - Анализируемый интерфейс (всегда видимый) */}
+            <div className="sticky top-4 h-fit">
+              {(audit.input_data?.screenshotUrl || audit.input_data?.url) && (
+                <Card className="h-full">
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      {audit.input_data?.screenshotUrl ? <Monitor className="w-5 h-5" /> : <Link2 className="w-5 h-5" />}
+                      {audit.input_data?.screenshotUrl ? 'Анализируемый интерфейс' : 'Анализируемый URL'}
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    {audit.input_data?.screenshotUrl ? (
+                      <div className="space-y-4">
+                        <img
+                          src={audit.input_data.screenshotUrl}
+                          alt="Анализируемый скриншот"
+                          className="w-full h-auto max-h-[70vh] object-contain rounded-lg"
+                        />
+                        <div className="text-sm text-gray-500 text-center">
+                          💡 Скриншот интерфейса для анализа
+                        </div>
+                        <div className="text-xs text-gray-400 text-center mt-2">
+                          Анализ {new Date(audit.created_at).toLocaleDateString('ru-RU')}
+                        </div>
+                      </div>
+                    ) : audit.input_data?.url ? (
+                      <div className="p-4 bg-slate-50 rounded-xl border-2 border-dashed border-slate-200">
+                        <a 
+                          href={audit.input_data.url} 
+                          target="_blank" 
+                          rel="noopener noreferrer"
+                          className="text-blue-600 hover:text-blue-800 font-medium break-all flex items-center gap-2"
+                        >
+                          <Link2 className="w-4 h-4" />
+                          {audit.input_data.url}
+                        </a>
+                      </div>
+                    ) : null}
+                  </CardContent>
+                </Card>
+              )}
+            </div>
+          </div>
         ) : (
           <Card>
             <CardContent className="text-center py-12">
