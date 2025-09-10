@@ -6,6 +6,7 @@ import { AnalysisResult } from '@/components/analysis-result'
 import { SidebarDemo } from '@/components/sidebar-demo'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { ArrowLeft, Download, Share2, RefreshCw } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 import { User } from '@supabase/supabase-js'
@@ -171,24 +172,74 @@ export default function AuditPage() {
 
         {/* Результаты анализа */}
         {audit.result_data ? (
-          (() => {
-            console.log('Отображаем результат аудита:', audit.result_data)
-            console.log('Ключи result_data:', Object.keys(audit.result_data))
-            console.log('analysis_result:', audit.result_data.analysis_result)
-            console.log('Весь result_data:', JSON.stringify(audit.result_data, null, 2))
+          <Tabs defaultValue="ux-analysis" className="w-full">
+            <TabsList className="grid w-full grid-cols-4 mb-6">
+              <TabsTrigger value="ux-analysis">UX Анализ</TabsTrigger>
+              <TabsTrigger value="ab-test">AB тест</TabsTrigger>
+              <TabsTrigger value="hypotheses">Гипотезы</TabsTrigger>
+              <TabsTrigger value="analytics">Продуктовая аналитика</TabsTrigger>
+            </TabsList>
             
-            // result_data содержит напрямую результат анализа
-            const result = audit.result_data
-            console.log('Результат для AnalysisResult:', result)
-            return (
-              <AnalysisResult 
-                result={result}
-                screenshot={audit.input_data?.screenshotUrl}
-                url={audit.input_data?.url}
-                auditId={audit.id}
-              />
-            )
-          })()
+            <TabsContent value="ux-analysis">
+              {(() => {
+                console.log('Отображаем результат аудита:', audit.result_data)
+                console.log('Ключи result_data:', Object.keys(audit.result_data))
+                console.log('analysis_result:', audit.result_data.analysis_result)
+                console.log('Весь result_data:', JSON.stringify(audit.result_data, null, 2))
+                
+                // result_data содержит напрямую результат анализа
+                const result = audit.result_data
+                console.log('Результат для AnalysisResult:', result)
+                return (
+                  <AnalysisResult 
+                    result={result}
+                    screenshot={audit.input_data?.screenshotUrl}
+                    url={audit.input_data?.url}
+                    auditId={audit.id}
+                  />
+                )
+              })()}
+            </TabsContent>
+            
+            <TabsContent value="ab-test">
+              <Card>
+                <CardContent className="text-center py-12">
+                  <h3 className="text-lg font-semibold text-slate-900 mb-2">
+                    AB тест
+                  </h3>
+                  <p className="text-slate-600">
+                    Раздел в разработке
+                  </p>
+                </CardContent>
+              </Card>
+            </TabsContent>
+            
+            <TabsContent value="hypotheses">
+              <Card>
+                <CardContent className="text-center py-12">
+                  <h3 className="text-lg font-semibold text-slate-900 mb-2">
+                    Гипотезы
+                  </h3>
+                  <p className="text-slate-600">
+                    Раздел в разработке
+                  </p>
+                </CardContent>
+              </Card>
+            </TabsContent>
+            
+            <TabsContent value="analytics">
+              <Card>
+                <CardContent className="text-center py-12">
+                  <h3 className="text-lg font-semibold text-slate-900 mb-2">
+                    Продуктовая аналитика
+                  </h3>
+                  <p className="text-slate-600">
+                    Раздел в разработке
+                  </p>
+                </CardContent>
+              </Card>
+            </TabsContent>
+          </Tabs>
         ) : (
           <Card>
             <CardContent className="text-center py-12">
