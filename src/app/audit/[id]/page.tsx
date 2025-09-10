@@ -20,6 +20,11 @@ interface Audit {
   result_data: any
   created_at: string
   updated_at: string
+  project_id: string
+  projects?: {
+    id: string
+    name: string
+  }
 }
 
 export default function AuditPage() {
@@ -60,7 +65,10 @@ export default function AuditPage() {
       
       const { data: auditData, error: auditError } = await supabase
         .from('audits')
-        .select('*')
+        .select(`
+          *,
+          projects!inner(id, name)
+        `)
         .eq('id', auditId)
         .single()
 
@@ -165,10 +173,10 @@ export default function AuditPage() {
         {/* Навигация */}
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-4">
-            <Link href="/dashboard">
+            <Link href={audit?.project_id ? `/projects/${audit.project_id}` : '/dashboard'}>
               <Button variant="outline" className="flex items-center gap-2">
                 <ArrowLeft className="w-4 h-4" />
-                Назад
+                Назад к проекту
               </Button>
             </Link>
             <div>

@@ -20,8 +20,7 @@ import {
   createAudit, 
   updateAuditResult, 
   addAuditHistory,
-  uploadScreenshotFromBase64,
-  deleteProject
+  uploadScreenshotFromBase64
 } from '@/lib/database'
 import { 
   ArrowLeft, 
@@ -238,23 +237,6 @@ export default function ProjectDetailPage() {
     }
   }
 
-  const handleDeleteProject = async () => {
-    if (!project) return
-    
-    const confirmed = confirm(`Вы уверены, что хотите удалить проект "${project.name}"? Это действие нельзя отменить.`)
-    if (!confirmed) return
-
-    try {
-      setLoading(true)
-      await deleteProject(project.id)
-      router.push('/projects')
-    } catch (error) {
-      console.error('Ошибка удаления проекта:', error)
-      alert('Ошибка при удалении проекта')
-    } finally {
-      setLoading(false)
-    }
-  }
 
   const handleViewAudit = (audit: Audit) => {
     setCurrentAudit(audit)
@@ -351,23 +333,13 @@ export default function ProjectDetailPage() {
             </div>
           </div>
           
-          <div className="flex items-center gap-3">
-            <Button
-              onClick={() => setShowCreateForm(true)}
-              className="flex items-center gap-2"
-            >
-              <Plus className="w-4 h-4" />
-              Новый аудит
-            </Button>
-            <Button
-              onClick={handleDeleteProject}
-              variant="destructive"
-              className="flex items-center gap-2"
-            >
-              <Trash2 className="w-4 h-4" />
-              Удалить проект
-            </Button>
-          </div>
+          <Button
+            onClick={() => setShowCreateForm(true)}
+            className="flex items-center gap-2"
+          >
+            <Plus className="w-4 h-4" />
+            Новый аудит
+          </Button>
         </div>
 
         {/* Статистика убрана - отображается только в разделе "Мои проекты" */}
