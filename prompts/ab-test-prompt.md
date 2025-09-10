@@ -87,3 +87,5 @@ Return the response in the following JSON structure:
 - Focus on actionable, implementable changes
 - Provide specific metrics and expected improvements
 - Include detailed implementation tasks for each test
+- Base tests on REAL problems found in the UX audit, not hypothetical ones
+- Each test should address a specific problem identified in the analysis
