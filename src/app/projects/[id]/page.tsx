@@ -21,7 +21,8 @@ import {
   createAudit, 
   updateAuditResult, 
   addAuditHistory,
-  uploadScreenshotFromBase64
+  uploadScreenshotFromBase64,
+  updateProjectContext
 } from '@/lib/database'
 import { 
   ArrowLeft, 
@@ -37,6 +38,7 @@ interface Project {
   id: string
   name: string
   description: string | null
+  context: string | null
   created_at: string
 }
 
@@ -68,6 +70,9 @@ export default function ProjectDetailPage() {
   const [analysisUrl, setAnalysisUrl] = useState<string | null>(null)
   const [showContextForm, setShowContextForm] = useState(false)
   const [pendingUploadData, setPendingUploadData] = useState<{ url?: string; screenshot?: string } | null>(null)
+  const [showEditContext, setShowEditContext] = useState(false)
+  const [editContext, setEditContext] = useState('')
+  const [isUpdatingContext, setIsUpdatingContext] = useState(false)
 
   useEffect(() => {
     checkAuthAndLoadProject()
@@ -139,6 +144,13 @@ export default function ProjectDetailPage() {
         console.log('Screenshot uploaded:', screenshotUrl)
       }
 
+      // Объединяем контекст проекта и контекст аудита
+      const projectContext = project?.context || ''
+      const auditContext = context || ''
+      const combinedContext = [projectContext, auditContext]
+        .filter(Boolean)
+        .join('\n\n---\n\n')
+
       // Создаем новый аудит с URL скриншота
       const audit = await createAudit(
         projectId,
@@ -150,7 +162,7 @@ export default function ProjectDetailPage() {
           screenshotUrl: screenshotUrl,
           timestamp: new Date().toISOString()
         },
-        context
+        combinedContext
       )
 
       setCurrentAudit(audit)
@@ -163,7 +175,7 @@ export default function ProjectDetailPage() {
         body: JSON.stringify({
           ...data,
           auditId: audit.id,
-          context
+          context: combinedContext
         })
       })
 
@@ -211,6 +223,28 @@ export default function ProjectDetailPage() {
   const handleContextSkip = () => {
     if (pendingUploadData) {
       handleContextSubmit('')
+    }
+  }
+
+  const handleEditContext = () => {
+    setEditContext(project?.context || '')
+    setShowEditContext(true)
+  }
+
+  const handleUpdateContext = async () => {
+    if (!project) return
+
+    setIsUpdatingContext(true)
+    try {
+      await updateProjectContext(project.id, editContext)
+      setProject({ ...project, context: editContext })
+      setShowEditContext(false)
+      alert('Контекст проекта обновлен')
+    } catch (error) {
+      console.error('Error updating context:', error)
+      alert('Ошибка при обновлении контекста')
+    } finally {
+      setIsUpdatingContext(false)
     }
   }
 
@@ -354,6 +388,42 @@ export default function ProjectDetailPage() {
               <p className="text-sm text-slate-500 mt-1">
                 Создан {formatDate(project.created_at)}
               </p>
+              
+              {/* Контекст проекта */}
+              {project.context && (
+                <div className="mt-4 p-4 bg-blue-50 rounded-lg border border-blue-200">
+                  <div className="flex items-center justify-between mb-2">
+                    <h3 className="text-sm font-medium text-blue-900">Контекст проекта</h3>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={handleEditContext}
+                      className="text-blue-600 hover:text-blue-700"
+                    >
+                      Редактировать
+                    </Button>
+                  </div>
+                  <p className="text-sm text-blue-800">{project.context}</p>
+                </div>
+              )}
+              
+              {!project.context && (
+                <div className="mt-4 p-4 bg-gray-50 rounded-lg border border-gray-200">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <h3 className="text-sm font-medium text-gray-700">Контекст проекта не указан</h3>
+                      <p className="text-xs text-gray-500 mt-1">Добавьте контекст для более точного анализа</p>
+                    </div>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={handleEditContext}
+                    >
+                      Добавить контекст
+                    </Button>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
           
@@ -497,6 +567,43 @@ export default function ProjectDetailPage() {
           url={analysisUrl}
           canClose={false}
         />
+
+        {/* Модальное окно редактирования контекста */}
+        {showEditContext && (
+          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+            <div className="bg-white rounded-2xl p-6 w-full max-w-2xl mx-4">
+              <h3 className="text-xl font-bold text-slate-900 mb-4">Редактировать контекст проекта</h3>
+              <textarea
+                value={editContext}
+                onChange={(e) => setEditContext(e.target.value)}
+                className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+                rows={6}
+                placeholder="Например: Мобильное приложение для заказа еды. Основная аудитория - молодые люди 18-35 лет. Ключевые цели: быстрое оформление заказа, удобная навигация по меню, прозрачная система оплаты..."
+              />
+              <p className="text-sm text-slate-500 mt-2">
+                Этот контекст будет применяться ко всем аудитам в проекте
+              </p>
+              <div className="flex gap-3 mt-6">
+                <Button
+                  onClick={handleUpdateContext}
+                  disabled={isUpdatingContext}
+                  className="flex items-center gap-2"
+                >
+                  {isUpdatingContext ? (
+                    <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent"></div>
+                  ) : null}
+                  Сохранить
+                </Button>
+                <Button
+                  variant="outline"
+                  onClick={() => setShowEditContext(false)}
+                >
+                  Отмена
+                </Button>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </SidebarDemo>
   )

@@ -8,7 +8,7 @@ type AuditInsert = Tables['audits']['Insert']
 type AuditHistory = Tables['audit_history']['Insert']
 
 // Projects functions
-export async function createProject(name: string, description?: string) {
+export async function createProject(name: string, description?: string, context?: string) {
   try {
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) throw new Error('User not authenticated')
@@ -18,14 +18,15 @@ export async function createProject(name: string, description?: string) {
     // Убедимся, что пользователь существует в profiles
     await ensureUserProfile(user)
 
-    console.log('User profile ensured, creating project:', { name, description })
+    console.log('User profile ensured, creating project:', { name, description, context })
 
     const { data, error } = await supabase
       .from('projects')
       .insert({
         user_id: user.id,
         name,
-        description
+        description,
+        context
       })
       .select()
       .single()
@@ -114,6 +115,18 @@ export async function getProject(id: string): Promise<Project | null> {
 
   if (error) return null
   return data
+}
+
+export async function updateProjectContext(projectId: string, context: string): Promise<void> {
+  const { error } = await supabase
+    .from('projects')
+    .update({ context })
+    .eq('id', projectId)
+
+  if (error) {
+    console.error('Error updating project context:', error)
+    throw new Error(`Database error: ${error.message}`)
+  }
 }
 
 export async function getProjectAudits(projectId: string): Promise<Audit[]> {

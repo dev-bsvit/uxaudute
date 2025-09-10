@@ -43,7 +43,7 @@ export function Projects({ user, onProjectSelect }: ProjectsProps) {
   const [projects, setProjects] = useState<Project[]>([])
   const [loading, setLoading] = useState(true)
   const [showCreateForm, setShowCreateForm] = useState(false)
-  const [newProject, setNewProject] = useState({ name: '', description: '' })
+  const [newProject, setNewProject] = useState({ name: '', description: '', context: '' })
   const [creating, setCreating] = useState(false)
   const [editingProject, setEditingProject] = useState<Project | null>(null)
   const [editName, setEditName] = useState('')
@@ -84,8 +84,12 @@ export function Projects({ user, onProjectSelect }: ProjectsProps) {
 
     setCreating(true)
     try {
-      await createProject(newProject.name, newProject.description || undefined)
-      setNewProject({ name: '', description: '' })
+      await createProject(
+        newProject.name, 
+        newProject.description || undefined,
+        newProject.context || undefined
+      )
+      setNewProject({ name: '', description: '', context: '' })
       setShowCreateForm(false)
       await loadProjects()
     } catch (error) {
@@ -206,9 +210,26 @@ export function Projects({ user, onProjectSelect }: ProjectsProps) {
                 value={newProject.description}
                 onChange={(e) => setNewProject({ ...newProject, description: e.target.value })}
                 className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
-                rows={4}
+                rows={3}
                 placeholder="Краткое описание целей проекта"
               />
+            </div>
+
+            <div>
+              <label htmlFor="projectContext" className="block text-sm font-medium text-slate-700 mb-2">
+                Контекст проекта (опционально)
+              </label>
+              <textarea
+                id="projectContext"
+                value={newProject.context}
+                onChange={(e) => setNewProject({ ...newProject, context: e.target.value })}
+                className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+                rows={4}
+                placeholder="Например: Мобильное приложение для заказа еды. Основная аудитория - молодые люди 18-35 лет. Ключевые цели: быстрое оформление заказа, удобная навигация по меню, прозрачная система оплаты..."
+              />
+              <p className="text-sm text-slate-500 mt-1">
+                Этот контекст будет применяться ко всем аудитам в проекте
+              </p>
             </div>
 
             <div className="flex gap-4 pt-4">
