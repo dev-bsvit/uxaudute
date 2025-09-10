@@ -22,7 +22,8 @@ import {
   updateAuditResult, 
   addAuditHistory,
   uploadScreenshotFromBase64,
-  updateProjectContext
+  updateProjectContext,
+  updateProjectTargetAudience
 } from '@/lib/database'
 import { 
   ArrowLeft, 
@@ -39,6 +40,7 @@ interface Project {
   name: string
   description: string | null
   context: string | null
+  target_audience: string | null
   created_at: string
 }
 
@@ -73,6 +75,9 @@ export default function ProjectDetailPage() {
   const [editContext, setEditContext] = useState('')
   const [isUpdatingContext, setIsUpdatingContext] = useState(false)
   const [hasChanges, setHasChanges] = useState(false)
+  const [editTargetAudience, setEditTargetAudience] = useState('')
+  const [isUpdatingTargetAudience, setIsUpdatingTargetAudience] = useState(false)
+  const [hasTargetAudienceChanges, setHasTargetAudienceChanges] = useState(false)
 
   useEffect(() => {
     checkAuthAndLoadProject()
@@ -110,6 +115,8 @@ export default function ProjectDetailPage() {
       setProject(projectData)
       setEditContext(projectData.context || '')
       setHasChanges(false)
+      setEditTargetAudience(projectData.target_audience || '')
+      setHasTargetAudienceChanges(false)
       setAudits(auditsData)
     } catch (error) {
       console.error('Error loading project data:', error)
@@ -146,10 +153,11 @@ export default function ProjectDetailPage() {
         console.log('Screenshot uploaded:', screenshotUrl)
       }
 
-      // Объединяем контекст проекта и контекст аудита
+      // Объединяем контекст проекта, целевую аудиторию и контекст аудита
       const projectContext = project?.context || ''
+      const projectTargetAudience = project?.target_audience || ''
       const auditContext = context || ''
-      const combinedContext = [projectContext, auditContext]
+      const combinedContext = [projectContext, projectTargetAudience, auditContext]
         .filter(Boolean)
         .join('\n\n---\n\n')
 
@@ -254,6 +262,33 @@ export default function ProjectDetailPage() {
   const handleCancelEdit = () => {
     setEditContext(project?.context || '')
     setHasChanges(false)
+  }
+
+  const handleTargetAudienceChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    const newValue = e.target.value
+    setEditTargetAudience(newValue)
+    setHasTargetAudienceChanges(newValue !== (project?.target_audience || ''))
+  }
+
+  const handleSaveTargetAudience = async () => {
+    if (!project || !hasTargetAudienceChanges) return
+
+    setIsUpdatingTargetAudience(true)
+    try {
+      await updateProjectTargetAudience(project.id, editTargetAudience)
+      setProject({ ...project, target_audience: editTargetAudience })
+      setHasTargetAudienceChanges(false)
+    } catch (error) {
+      console.error('Error updating project target audience:', error)
+      alert('Ошибка при обновлении целевой аудитории')
+    } finally {
+      setIsUpdatingTargetAudience(false)
+    }
+  }
+
+  const handleCancelTargetAudienceEdit = () => {
+    setEditTargetAudience(project?.target_audience || '')
+    setHasTargetAudienceChanges(false)
   }
 
   const handleAction = async (action: ActionType) => {
@@ -436,8 +471,8 @@ export default function ProjectDetailPage() {
               </Card>
             )}
 
-            {/* Двухколоночный макет: История аудитов (слева) + Контекст проекта (справа) */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {/* Трехколоночный макет: История аудитов (слева) + Контекст проекта (центр) + Целевая аудитория (справа) */}
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
               {/* Левая колонка - Список аудитов */}
               <Card>
                 <CardHeader>
@@ -502,7 +537,7 @@ export default function ProjectDetailPage() {
                 </CardContent>
               </Card>
 
-              {/* Правая колонка - Контекст проекта */}
+              {/* Средняя колонка - Контекст проекта */}
               <Card>
                 <CardHeader>
                   <CardTitle>Контекст проекта</CardTitle>
@@ -537,6 +572,50 @@ export default function ProjectDetailPage() {
                           size="sm"
                           onClick={handleCancelEdit}
                           disabled={isUpdatingContext}
+                        >
+                          Отмена
+                        </Button>
+                      </div>
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Правая колонка - Целевая аудитория */}
+              <Card>
+                <CardHeader>
+                  <CardTitle>Целевая аудитория</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-4">
+                    <textarea
+                      value={editTargetAudience}
+                      onChange={handleTargetAudienceChange}
+                      className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+                      rows={6}
+                      placeholder="Например: Молодые люди 18-35 лет, активные пользователи смартфонов, ценят удобство и скорость, готовы платить за качественный сервис, часто заказывают еду онлайн..."
+                    />
+                    <p className="text-sm text-slate-500">
+                      Описание целевой аудитории поможет AI дать более точные рекомендации
+                    </p>
+                    {hasTargetAudienceChanges && (
+                      <div className="flex gap-2">
+                        <Button
+                          onClick={handleSaveTargetAudience}
+                          disabled={isUpdatingTargetAudience}
+                          size="sm"
+                          className="flex items-center gap-2"
+                        >
+                          {isUpdatingTargetAudience ? (
+                            <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent"></div>
+                          ) : null}
+                          Сохранить
+                        </Button>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={handleCancelTargetAudienceEdit}
+                          disabled={isUpdatingTargetAudience}
                         >
                           Отмена
                         </Button>

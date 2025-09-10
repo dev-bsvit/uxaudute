@@ -129,6 +129,18 @@ export async function updateProjectContext(projectId: string, context: string): 
   }
 }
 
+export async function updateProjectTargetAudience(projectId: string, targetAudience: string): Promise<void> {
+  const { error } = await supabase
+    .from('projects')
+    .update({ target_audience: targetAudience })
+    .eq('id', projectId)
+
+  if (error) {
+    console.error('Error updating project target audience:', error)
+    throw new Error(`Database error: ${error.message}`)
+  }
+}
+
 export async function getProjectAudits(projectId: string): Promise<Audit[]> {
   const { data, error } = await supabase
     .from('audits')
