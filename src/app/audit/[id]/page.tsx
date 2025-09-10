@@ -207,32 +207,6 @@ export default function AuditPage() {
           </div>
         </div>
 
-        {/* Информация об аудите */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Информация об аудите</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label className="text-sm font-medium text-slate-600">Тип аудита</label>
-                <p className="text-slate-900">{audit.type}</p>
-              </div>
-              <div>
-                <label className="text-sm font-medium text-slate-600">Статус</label>
-                <p className="text-slate-900">
-                  <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                    audit.status === 'completed' 
-                      ? 'bg-green-100 text-green-800' 
-                      : 'bg-yellow-100 text-yellow-800'
-                  }`}>
-                    {audit.status === 'completed' ? 'Завершен' : 'В процессе'}
-                  </span>
-                </p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
 
         {/* Результаты анализа */}
         {audit.result_data ? (
