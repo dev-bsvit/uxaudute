@@ -471,8 +471,8 @@ export default function ProjectDetailPage() {
               </Card>
             )}
 
-            {/* Трехколоночный макет: История аудитов (слева) + Контекст проекта (центр) + Целевая аудитория (справа) */}
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            {/* Двухколоночный макет: История аудитов (слева) + Контекст и Целевая аудитория (справа) */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               {/* Левая колонка - Список аудитов */}
               <Card>
                 <CardHeader>
@@ -537,90 +537,90 @@ export default function ProjectDetailPage() {
                 </CardContent>
               </Card>
 
-              {/* Средняя колонка - Контекст проекта */}
+              {/* Правая колонка - Контекст проекта и Целевая аудитория */}
               <Card>
                 <CardHeader>
-                  <CardTitle>Контекст проекта</CardTitle>
+                  <CardTitle>Контекст проекта и Целевая аудитория</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="space-y-4">
-                    <textarea
-                      value={editContext}
-                      onChange={handleContextChange}
-                      className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
-                      rows={6}
-                      placeholder="Например: Мобильное приложение для заказа еды. Основная аудитория - молодые люди 18-35 лет. Ключевые цели: быстрое оформление заказа, удобная навигация по меню, прозрачная система оплаты..."
-                    />
-                    <p className="text-sm text-slate-500">
-                      Этот контекст будет применяться ко всем аудитам в проекте
-                    </p>
-                    {hasChanges && (
-                      <div className="flex gap-2">
-                        <Button
-                          onClick={handleSaveContext}
-                          disabled={isUpdatingContext}
-                          size="sm"
-                          className="flex items-center gap-2"
-                        >
-                          {isUpdatingContext ? (
-                            <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent"></div>
-                          ) : null}
-                          Сохранить
-                        </Button>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={handleCancelEdit}
-                          disabled={isUpdatingContext}
-                        >
-                          Отмена
-                        </Button>
-                      </div>
-                    )}
-                  </div>
-                </CardContent>
-              </Card>
+                  <div className="space-y-6">
+                    {/* Контекст проекта */}
+                    <div className="space-y-3">
+                      <h4 className="text-sm font-medium text-gray-700">Контекст проекта</h4>
+                      <textarea
+                        value={editContext}
+                        onChange={handleContextChange}
+                        className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+                        rows={4}
+                        placeholder="Например: Мобильное приложение для заказа еды. Основные функции: каталог, корзина, оплата, история заказов..."
+                      />
+                      {hasChanges && (
+                        <div className="flex gap-2">
+                          <Button
+                            onClick={handleSaveContext}
+                            disabled={isUpdatingContext}
+                            size="sm"
+                            className="flex items-center gap-2"
+                          >
+                            {isUpdatingContext ? (
+                              <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent"></div>
+                            ) : null}
+                            Сохранить контекст
+                          </Button>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={handleCancelEdit}
+                            disabled={isUpdatingContext}
+                          >
+                            Отмена
+                          </Button>
+                        </div>
+                      )}
+                    </div>
 
-              {/* Правая колонка - Целевая аудитория */}
-              <Card>
-                <CardHeader>
-                  <CardTitle>Целевая аудитория</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-4">
-                    <textarea
-                      value={editTargetAudience}
-                      onChange={handleTargetAudienceChange}
-                      className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
-                      rows={6}
-                      placeholder="Например: Молодые люди 18-35 лет, активные пользователи смартфонов, ценят удобство и скорость, готовы платить за качественный сервис, часто заказывают еду онлайн..."
-                    />
+                    {/* Разделитель */}
+                    <div className="border-t border-gray-200"></div>
+
+                    {/* Целевая аудитория */}
+                    <div className="space-y-3">
+                      <h4 className="text-sm font-medium text-gray-700">Целевая аудитория</h4>
+                      <textarea
+                        value={editTargetAudience}
+                        onChange={handleTargetAudienceChange}
+                        className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+                        rows={4}
+                        placeholder="Например: Молодые люди 18-35 лет, активные пользователи смартфонов, ценят удобство и скорость, готовы платить за качественный сервис..."
+                      />
+                      {hasTargetAudienceChanges && (
+                        <div className="flex gap-2">
+                          <Button
+                            onClick={handleSaveTargetAudience}
+                            disabled={isUpdatingTargetAudience}
+                            size="sm"
+                            className="flex items-center gap-2"
+                          >
+                            {isUpdatingTargetAudience ? (
+                              <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent"></div>
+                            ) : null}
+                            Сохранить аудиторию
+                          </Button>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={handleCancelTargetAudienceEdit}
+                            disabled={isUpdatingTargetAudience}
+                          >
+                            Отмена
+                          </Button>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Общая подсказка */}
                     <p className="text-sm text-slate-500">
-                      Описание целевой аудитории поможет AI дать более точные рекомендации
+                      Эта информация поможет AI дать более точные рекомендации при анализе
                     </p>
-                    {hasTargetAudienceChanges && (
-                      <div className="flex gap-2">
-                        <Button
-                          onClick={handleSaveTargetAudience}
-                          disabled={isUpdatingTargetAudience}
-                          size="sm"
-                          className="flex items-center gap-2"
-                        >
-                          {isUpdatingTargetAudience ? (
-                            <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent"></div>
-                          ) : null}
-                          Сохранить
-                        </Button>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={handleCancelTargetAudienceEdit}
-                          disabled={isUpdatingTargetAudience}
-                        >
-                          Отмена
-                        </Button>
-                      </div>
-                    )}
                   </div>
                 </CardContent>
               </Card>
