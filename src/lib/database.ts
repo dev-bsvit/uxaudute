@@ -135,7 +135,8 @@ export async function createAudit(
   projectId: string,
   name: string,
   type: AuditInsert['type'],
-  inputData: Record<string, unknown>
+  inputData: Record<string, unknown>,
+  context?: string
 ): Promise<Audit> {
   // Получаем текущего пользователя
   const { data: { user } } = await supabase.auth.getUser()
@@ -151,7 +152,8 @@ export async function createAudit(
       name,
       type,
       status: 'in_progress',
-      input_data: inputData
+      input_data: inputData,
+      context: context || null
     })
     .select()
     .single()
