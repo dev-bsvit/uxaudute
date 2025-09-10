@@ -107,7 +107,7 @@ export default function DashboardPage() {
     }
   }, [user, loading])
 
-  const handleUpload = async (data: { url?: string; screenshot?: string }) => {
+  const handleUpload = async (data: { url?: string; screenshot?: string; context?: string }) => {
     if (!user) {
       alert('Пожалуйста, войдите в систему для выполнения анализа')
       return
@@ -117,13 +117,15 @@ export default function DashboardPage() {
     setUploadedScreenshot(data.screenshot || null)
     setAnalysisUrl(data.url || null)
 
-    // Показываем форму контекста
-    setPendingUploadData(data)
-    setShowContextForm(true)
+    // Сразу запускаем анализ с контекстом
+    await handleContextSubmit(data.context || '', data)
   }
 
-  const handleContextSubmit = async (context: string) => {
-    if (!pendingUploadData || !user) return
+  const handleContextSubmit = async (context: string, uploadData?: { url?: string; screenshot?: string }) => {
+    if (!user) return
+
+    const data = uploadData || pendingUploadData
+    if (!data) return
 
     setIsLoading(true)
     setIsAnalyzing(true)
@@ -137,8 +139,8 @@ export default function DashboardPage() {
 
       // Загружаем скриншот в Supabase Storage если есть
       let screenshotUrl = null
-      if (pendingUploadData.screenshot) {
-        screenshotUrl = await uploadScreenshotFromBase64(pendingUploadData.screenshot, user.id)
+      if (data.screenshot) {
+        screenshotUrl = await uploadScreenshotFromBase64(data.screenshot, user.id)
       }
 
       // Создаем новый аудит
@@ -147,8 +149,8 @@ export default function DashboardPage() {
         `Анализ ${new Date().toLocaleDateString('ru-RU')} ${new Date().toLocaleTimeString('ru-RU')}`,
         'research',
         {
-          url: pendingUploadData.url,
-          hasScreenshot: !!pendingUploadData.screenshot,
+          url: data.url,
+          hasScreenshot: !!data.screenshot,
           screenshotUrl,
           timestamp: new Date().toISOString()
         },
@@ -162,7 +164,7 @@ export default function DashboardPage() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          ...pendingUploadData,
+          ...data,
           auditId: audit.id,
           context
         })
@@ -214,7 +216,7 @@ export default function DashboardPage() {
       }
       
       // Добавляем в историю
-      await addAuditHistory(audit.id, 'research', pendingUploadData, { result })
+      await addAuditHistory(audit.id, 'research', data, { result })
 
     } catch (error) {
       console.error('Error:', error)
@@ -353,17 +355,6 @@ export default function DashboardPage() {
               />
             </div>
           </>
-        )}
-
-        {/* Форма контекста */}
-        {showContextForm && (
-          <div className="max-w-2xl mx-auto">
-            <ContextForm
-              onContextSubmit={handleContextSubmit}
-              onSkip={handleContextSkip}
-              isLoading={isLoading}
-            />
-          </div>
         )}
 
         {/* Модальное окно прогресса анализа */}

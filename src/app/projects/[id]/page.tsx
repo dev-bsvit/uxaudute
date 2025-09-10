@@ -110,19 +110,21 @@ export default function ProjectDetailPage() {
     }
   }
 
-  const handleCreateAudit = async (data: { url?: string; screenshot?: string }) => {
+  const handleCreateAudit = async (data: { url?: string; screenshot?: string; context?: string }) => {
     if (!user || !project) return
 
     setUploadedScreenshot(data.screenshot || null)
     setAnalysisUrl(data.url || null)
 
-    // Показываем форму контекста
-    setPendingUploadData(data)
-    setShowContextForm(true)
+    // Сразу запускаем анализ с контекстом
+    await handleContextSubmit(data.context || '', data)
   }
 
-  const handleContextSubmit = async (context: string) => {
-    if (!pendingUploadData || !user || !project) return
+  const handleContextSubmit = async (context: string, uploadData?: { url?: string; screenshot?: string }) => {
+    if (!user || !project) return
+
+    const data = uploadData || pendingUploadData
+    if (!data) return
 
     setIsAnalyzing(true)
     setShowContextForm(false)
@@ -131,9 +133,9 @@ export default function ProjectDetailPage() {
       let screenshotUrl: string | null = null
       
       // Загружаем скриншот в Supabase Storage если он есть
-      if (pendingUploadData.screenshot) {
+      if (data.screenshot) {
         console.log('Uploading screenshot to Supabase Storage...')
-        screenshotUrl = await uploadScreenshotFromBase64(pendingUploadData.screenshot, user.id)
+        screenshotUrl = await uploadScreenshotFromBase64(data.screenshot, user.id)
         console.log('Screenshot uploaded:', screenshotUrl)
       }
 
@@ -143,8 +145,8 @@ export default function ProjectDetailPage() {
         `Анализ ${new Date().toLocaleDateString('ru-RU')}`,
         'research',
         {
-          url: pendingUploadData.url,
-          hasScreenshot: !!pendingUploadData.screenshot,
+          url: data.url,
+          hasScreenshot: !!data.screenshot,
           screenshotUrl: screenshotUrl,
           timestamp: new Date().toISOString()
         },
@@ -159,7 +161,7 @@ export default function ProjectDetailPage() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          ...pendingUploadData,
+          ...data,
           auditId: audit.id,
           context
         })
@@ -189,7 +191,7 @@ export default function ProjectDetailPage() {
         
         // Добавляем в историю
         await addAuditHistory(audit.id, 'research', { 
-          ...pendingUploadData, 
+          ...data, 
           screenshotUrl 
         }, { result: typeof analysisResult === 'object' ? JSON.stringify(analysisResult) : analysisResult })
       }
@@ -388,22 +390,6 @@ export default function ProjectDetailPage() {
                       Отмена
                     </Button>
                   </div>
-                </CardContent>
-              </Card>
-            )}
-
-            {/* Форма контекста */}
-            {showContextForm && (
-              <Card>
-                <CardHeader>
-                  <CardTitle>Добавьте контекст для анализа</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <ContextForm
-                    onContextSubmit={handleContextSubmit}
-                    onSkip={handleContextSkip}
-                    isLoading={isAnalyzing}
-                  />
                 </CardContent>
               </Card>
             )}

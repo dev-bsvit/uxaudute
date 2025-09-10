@@ -3,28 +3,31 @@
 import { useState } from 'react'
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Textarea } from "@/components/ui/textarea"
+import { Label } from "@/components/ui/label"
 import { Upload, Link as LinkIcon, Sparkles, Zap } from "lucide-react"
 
 interface UploadFormProps {
-  onSubmit: (data: { url?: string; screenshot?: string }) => void
+  onSubmit: (data: { url?: string; screenshot?: string; context?: string }) => void
   isLoading?: boolean
 }
 
 export function UploadForm({ onSubmit, isLoading }: UploadFormProps) {
   const [url, setUrl] = useState('')
   const [file, setFile] = useState<File | null>(null)
+  const [context, setContext] = useState('')
   const [activeTab, setActiveTab] = useState<'url' | 'upload'>('url')
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (activeTab === 'url' && url) {
-      onSubmit({ url })
+      onSubmit({ url, context })
     } else if (activeTab === 'upload' && file) {
       // Конвертируем файл в base64
       const reader = new FileReader()
       reader.onload = () => {
         const base64String = reader.result as string
-        onSubmit({ screenshot: base64String })
+        onSubmit({ screenshot: base64String, context })
       }
       reader.readAsDataURL(file)
     }
@@ -133,6 +136,24 @@ export function UploadForm({ onSubmit, isLoading }: UploadFormProps) {
                 </p>
               </div>
             )}
+
+            {/* Поле контекста */}
+            <div className="space-y-2">
+              <Label htmlFor="context">
+                Контекст для анализа (необязательно)
+              </Label>
+              <Textarea
+                id="context"
+                placeholder="Например: Это мобильное приложение для заказа еды. Основная аудитория - молодые люди 18-35 лет. Пользователи должны быстро найти ресторан и оформить заказ..."
+                value={context}
+                onChange={(e) => setContext(e.target.value)}
+                rows={3}
+                className="resize-none"
+              />
+              <p className="text-sm text-slate-500">
+                Чем больше контекста вы предоставите, тем точнее будет анализ
+              </p>
+            </div>
 
             <Button
               type="submit"
