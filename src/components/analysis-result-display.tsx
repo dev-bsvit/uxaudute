@@ -114,10 +114,13 @@ export function AnalysisResultDisplay({
 
       {/* Аудитория */}
       {analysis.audience && (
-        <div className="space-y-6">
-          <h3 className="text-xl font-semibold text-gray-900 flex items-center gap-2">
-            👥 Аудитория
-          </h3>
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              👥 Аудитория
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-6">
             {/* Целевая аудитория */}
             <div>
               <h4 className="font-medium text-gray-900 mb-3">Целевая аудитория</h4>
@@ -154,15 +157,19 @@ export function AnalysisResultDisplay({
                 </ol>
               </div>
             </div>
-        </div>
+          </CardContent>
+        </Card>
       )}
 
       {/* Поведение */}
       {analysis.behavior && (
-        <div className="space-y-6">
-          <h3 className="text-xl font-semibold text-gray-900 flex items-center gap-2">
-            🎯 Поведение
-          </h3>
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              🎯 Поведение
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-6">
             {/* Пользовательские сценарии */}
             <div>
               <h4 className="font-medium text-gray-900 mb-3">Пользовательские сценарии</h4>
@@ -209,7 +216,8 @@ export function AnalysisResultDisplay({
                 </p>
               </div>
             </div>
-        </div>
+          </CardContent>
+        </Card>
       )}
 
       {/* Проблемы и решения */}
