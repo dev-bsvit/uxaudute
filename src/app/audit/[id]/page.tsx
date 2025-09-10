@@ -212,7 +212,12 @@ export default function AuditPage() {
         {audit.result_data ? (
           (() => {
             console.log('Отображаем результат аудита:', audit.result_data)
-            const result = audit.result_data.analysis_result || audit.result_data
+            console.log('Ключи result_data:', Object.keys(audit.result_data))
+            console.log('analysis_result:', audit.result_data.analysis_result)
+            console.log('Весь result_data:', JSON.stringify(audit.result_data, null, 2))
+            
+            // result_data содержит напрямую результат анализа
+            const result = audit.result_data
             console.log('Результат для AnalysisResult:', result)
             return (
               <AnalysisResult 
