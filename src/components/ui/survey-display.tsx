@@ -29,28 +29,11 @@ export function SurveyDisplay({
     return colors[category as keyof typeof colors] || 'bg-gray-100 text-gray-800'
   }
 
-  const getConfidenceColor = (confidence: number) => {
-    if (confidence >= 80) return 'text-green-600'
-    if (confidence >= 60) return 'text-yellow-600'
-    return 'text-red-600'
-  }
-
-  const getConfidenceLabel = (confidence: number) => {
-    if (confidence >= 80) return 'Высокая'
-    if (confidence >= 60) return 'Средняя'
-    return 'Низкая'
-  }
 
   return (
     <div className="space-y-6">
       {/* Общая статистика */}
       <div className="flex items-center justify-between">
-        <div className="text-sm text-gray-600">
-          <span className="font-medium">Уверенность:</span>{' '}
-          <span className={getConfidenceColor(survey.overallConfidence)}>
-            {survey.overallConfidence}% ({getConfidenceLabel(survey.overallConfidence)})
-          </span>
-        </div>
         <Badge variant="outline">
           {survey.summary.totalQuestions} вопросов
         </Badge>
@@ -70,11 +53,6 @@ export function SurveyDisplay({
                     {question.category}
                   </Badge>
                 )}
-                <div className="text-sm text-gray-500">
-                  Уверенность: <span className={getConfidenceColor(question.confidence)}>
-                    {question.confidence}%
-                  </span>
-                </div>
               </div>
             </div>
             

@@ -41,11 +41,6 @@ export function AnalysisResultDisplay({
     console.log('Annotation data saved:', data)
   }
 
-  const getConfidenceColor = (confidence: number) => {
-    if (confidence >= 80) return 'text-green-600'
-    if (confidence >= 60) return 'text-yellow-600'
-    return 'text-red-600'
-  }
 
   const getPriorityColor = (priority: string) => {
     switch (priority) {
@@ -65,9 +60,6 @@ export function AnalysisResultDisplay({
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             📱 Описание экрана
-            <Badge variant="outline" className={getConfidenceColor(analysis.screenDescription.confidence)}>
-              Уверенность: {analysis.screenDescription.confidence}%
-            </Badge>
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -93,10 +85,6 @@ export function AnalysisResultDisplay({
             </div>
           </div>
           
-          <div>
-            <h4 className="font-medium text-gray-900 mb-2">Обоснование уверенности</h4>
-            <p className="text-gray-600">{analysis.screenDescription.confidenceReason}</p>
-          </div>
         </CardContent>
       </Card>
 

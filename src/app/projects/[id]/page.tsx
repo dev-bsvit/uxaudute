@@ -496,11 +496,6 @@ export default function ProjectDetailPage() {
                                audit.status === 'in_progress' ? 'В процессе' : 
                                audit.status === 'failed' ? 'Ошибка' : 'Черновик'}
                             </Badge>
-                            {audit.confidence && (
-                              <Badge variant="outline">
-                                {audit.confidence}% уверенности
-                              </Badge>
-                            )}
                           </div>
                           <p className="text-sm text-slate-600">
                             {formatDate(audit.created_at)}
