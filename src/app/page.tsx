@@ -4,7 +4,10 @@ import { Layout } from '@/components/layout'
 import { useEffect, useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { HeroSection } from '@/components/hero-section'
+import { HeroSection } from '@/components/ui/hero-section'
+import { Section } from '@/components/ui/section'
+import { PageContent } from '@/components/ui/page-content'
+import { FeatureGrid } from '@/components/ui/feature-grid'
 import Link from 'next/link'
 import { ArrowRight, Zap, Shield, BarChart3, Users } from 'lucide-react'
 
@@ -44,53 +47,50 @@ export default function HomePage() {
       {/* Hero секция с градиентом на всю ширину */}
       <HeroSection />
       
-      <div className="bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-
+      <Section background="default">
+        <PageContent maxWidth="6xl">
           {/* Особенности */}
-          <div className="py-12">
-            <div className="max-w-6xl mx-auto px-6">
-              <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
-                {features.map((feature, index) => (
-                  <Card key={index} className="text-center border-0 shadow-lg hover:shadow-xl transition-shadow bg-white">
-                    <CardHeader>
-                      <div className="flex justify-center mb-4">
-                        {feature.icon}
-                      </div>
-                      <CardTitle className="text-xl text-slate-900">
-                        {feature.title}
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <p className="text-slate-600 leading-relaxed">
-                        {feature.description}
-                      </p>
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
-            </div>
-          </div>
+          <FeatureGrid columns={4}>
+            {features.map((feature, index) => (
+              <Card key={index} className="text-center border-0 shadow-lg hover:shadow-xl transition-shadow">
+                <CardHeader>
+                  <div className="flex justify-center mb-4">
+                    {feature.icon}
+                  </div>
+                  <CardTitle className="text-xl">
+                    {feature.title}
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-muted-foreground leading-relaxed">
+                    {feature.description}
+                  </p>
+                </CardContent>
+              </Card>
+            ))}
+          </FeatureGrid>
+        </PageContent>
+      </Section>
 
-          {/* CTA секция */}
-          <div className="py-20 text-center">
-            <div className="max-w-3xl mx-auto px-6">
-              <h2 className="text-3xl font-bold text-slate-900 mb-6">
-                Готовы улучшить пользовательский опыт?
-              </h2>
-              <p className="text-lg text-slate-600 mb-8">
-                Начните анализ своих интерфейсов прямо сейчас. Войдите в систему и создайте свой первый проект.
-              </p>
-              <Link href="/dashboard">
-                <Button size="lg" className="px-8 py-4 text-lg">
-                  Начать бесплатно
-                  <ArrowRight className="w-5 h-5 ml-2" />
-                </Button>
-              </Link>
-            </div>
+      {/* CTA секция */}
+      <Section background="muted" spacing="xl">
+        <PageContent maxWidth="3xl">
+          <div className="text-center">
+            <h2 className="text-3xl font-bold mb-6">
+              Готовы улучшить пользовательский опыт?
+            </h2>
+            <p className="text-lg text-muted-foreground mb-8">
+              Начните анализ своих интерфейсов прямо сейчас. Войдите в систему и создайте свой первый проект.
+            </p>
+            <Link href="/dashboard">
+              <Button size="lg" className="px-8 py-4 text-lg">
+                Начать бесплатно
+                <ArrowRight className="w-5 h-5 ml-2" />
+              </Button>
+            </Link>
           </div>
-        </div>
-      </div>
+        </PageContent>
+      </Section>
     </Layout>
   )
 }

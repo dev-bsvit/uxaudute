@@ -12,6 +12,9 @@ import { ContextForm } from '@/components/context-form'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
+import { PageHeader } from '@/components/ui/page-header'
+import { PageContent } from '@/components/ui/page-content'
+import { Section } from '@/components/ui/section'
 import { User } from '@supabase/supabase-js'
 import { supabase } from '@/lib/supabase'
 import { StructuredAnalysisResponse } from '@/lib/analysis-types'
@@ -370,30 +373,28 @@ export default function ProjectDetailPage() {
 
   return (
     <SidebarDemo user={user}>
-      <div className="p-8 space-y-6">
-        {/* Хедер проекта */}
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-4">
+      <PageContent maxWidth="7xl">
+        <div className="space-y-8">
+          {/* Хедер проекта */}
+          <PageHeader 
+            title={project.name}
+            description={project.description || `Создан ${formatDate(project.created_at)}`}
+          >
             <Link href="/projects">
               <Button variant="outline" size="sm">
                 <ArrowLeft className="w-4 h-4 mr-2" />
                 К проектам
               </Button>
             </Link>
-            <div>
-              <h1 className="text-3xl font-bold text-slate-900">{project.name}</h1>
-              {project.description && (
-                <p className="text-slate-600 mt-1">{project.description}</p>
-              )}
-              <p className="text-sm text-slate-500 mt-1">
-                Создан {formatDate(project.created_at)}
-              </p>
-              
-              {/* Контекст проекта */}
-              {project.context && (
-                <div className="mt-4 p-4 bg-blue-50 rounded-lg border border-blue-200">
-                  <div className="flex items-center justify-between mb-2">
-                    <h3 className="text-sm font-medium text-blue-900">Контекст проекта</h3>
+          </PageHeader>
+          
+          {/* Контекст проекта */}
+          <Section>
+            {project.context && (
+              <Card className="border-blue-200 bg-blue-50">
+                <CardHeader>
+                  <div className="flex items-center justify-between">
+                    <CardTitle className="text-sm text-blue-900">Контекст проекта</CardTitle>
                     <Button
                       variant="outline"
                       size="sm"
@@ -403,15 +404,19 @@ export default function ProjectDetailPage() {
                       Редактировать
                     </Button>
                   </div>
+                </CardHeader>
+                <CardContent>
                   <p className="text-sm text-blue-800">{project.context}</p>
-                </div>
-              )}
-              
-              {!project.context && (
-                <div className="mt-4 p-4 bg-gray-50 rounded-lg border border-gray-200">
+                </CardContent>
+              </Card>
+            )}
+            
+            {!project.context && (
+              <Card className="border-gray-200 bg-gray-50">
+                <CardHeader>
                   <div className="flex items-center justify-between">
                     <div>
-                      <h3 className="text-sm font-medium text-gray-700">Контекст проекта не указан</h3>
+                      <CardTitle className="text-sm text-gray-700">Контекст проекта не указан</CardTitle>
                       <p className="text-xs text-gray-500 mt-1">Добавьте контекст для более точного анализа</p>
                     </div>
                     <Button
@@ -422,52 +427,59 @@ export default function ProjectDetailPage() {
                       Добавить контекст
                     </Button>
                   </div>
-                </div>
-              )}
-            </div>
-          </div>
+                </CardHeader>
+              </Card>
+            )}
+          </Section>
           
-          <Button
-            onClick={() => setShowCreateForm(true)}
-            className="flex items-center gap-2"
-          >
-            <Plus className="w-4 h-4" />
-            Новый аудит
-          </Button>
-        </div>
+          {/* Кнопка создания аудита */}
+          <Section>
+            <div className="flex justify-end">
+              <Button
+                onClick={() => setShowCreateForm(true)}
+                className="flex items-center gap-2"
+              >
+                <Plus className="w-4 h-4" />
+                Новый аудит
+              </Button>
+            </div>
+          </Section>
 
         {/* Статистика убрана - отображается только в разделе "Мои проекты" */}
 
-        {/* Основной контент */}
-        {!currentAudit ? (
-          <>
-            {/* Форма создания аудита */}
-            {showCreateForm && (
-              <Card>
-                <CardHeader>
-                  <CardTitle>Создать новый аудит</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <UploadForm
-                    onSubmit={handleCreateAudit}
-                    isLoading={isAnalyzing}
-                  />
-                  <div className="mt-4 flex justify-end">
-                    <Button
-                      variant="outline"
-                      onClick={() => setShowCreateForm(false)}
-                    >
-                      Отмена
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
-            )}
+          {/* Основной контент */}
+          {!currentAudit ? (
+            <>
+              {/* Форма создания аудита */}
+              {showCreateForm && (
+                <Section>
+                  <Card>
+                    <CardHeader>
+                      <CardTitle>Создать новый аудит</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <UploadForm
+                        onSubmit={handleCreateAudit}
+                        isLoading={isAnalyzing}
+                      />
+                      <div className="mt-4 flex justify-end">
+                        <Button
+                          variant="outline"
+                          onClick={() => setShowCreateForm(false)}
+                        >
+                          Отмена
+                        </Button>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </Section>
+              )}
 
-            {/* Список аудитов */}
-            <Card>
-              <CardHeader>
-                <CardTitle>История аудитов</CardTitle>
+              {/* Список аудитов */}
+              <Section>
+                <Card>
+                  <CardHeader>
+                    <CardTitle>История аудитов</CardTitle>
               </CardHeader>
               <CardContent>
                 {audits.length === 0 ? (
@@ -598,8 +610,9 @@ export default function ProjectDetailPage() {
               </div>
             </div>
           </div>
-        )}
-      </div>
+          )}
+        </div>
+      </PageContent>
     </SidebarDemo>
   )
 }

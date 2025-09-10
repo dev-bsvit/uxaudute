@@ -4,6 +4,9 @@ import { useState, useEffect } from 'react'
 import { SidebarDemo } from '@/components/sidebar-demo'
 import { Projects } from '@/components/projects'
 import { Auth } from '@/components/auth'
+import { PageHeader } from '@/components/ui/page-header'
+import { PageContent } from '@/components/ui/page-content'
+import { Section } from '@/components/ui/section'
 import { User } from '@supabase/supabase-js'
 import { supabase } from '@/lib/supabase'
 import { useRouter } from 'next/navigation'
@@ -63,29 +66,18 @@ export default function ProjectsPage() {
 
   return (
     <SidebarDemo user={user}>
-      <div className="space-y-8">
-        <div className="text-center">
-          <h1 
-            className="mb-4"
-            style={{
-              color: '#1F2937',
-              textAlign: 'center',
-              fontFamily: 'Inter Display',
-              fontSize: '48px',
-              fontStyle: 'normal',
-              fontWeight: 600,
-              lineHeight: '90%'
-            }}
-          >
-            Мои проекты
-          </h1>
-          <p className="text-lg text-slate-600 max-w-2xl mx-auto">
-            Управляйте своими UX исследованиями. Создавайте новые проекты или продолжайте работу с существующими.
-          </p>
+      <PageContent maxWidth="7xl">
+        <div className="space-y-8">
+          <PageHeader 
+            title="Мои проекты"
+            description="Управляйте своими UX исследованиями. Создавайте новые проекты или продолжайте работу с существующими."
+          />
+          
+          <Section>
+            <Projects user={user} />
+          </Section>
         </div>
-        
-        <Projects user={user} />
-      </div>
+      </PageContent>
     </SidebarDemo>
   )
 }
