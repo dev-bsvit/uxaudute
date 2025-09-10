@@ -250,7 +250,7 @@ export function Projects({ user, onProjectSelect }: ProjectsProps) {
                 variant="outline"
                 onClick={() => {
                   setShowCreateForm(false)
-                  setNewProject({ name: '', description: '' })
+                  setNewProject({ name: '', description: '', context: '' })
                 }}
                 className="px-6 py-3 rounded-lg font-medium border-2 border-gray-200 hover:border-gray-300"
               >
