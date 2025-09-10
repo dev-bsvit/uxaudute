@@ -270,54 +270,6 @@ export function AnalysisResultDisplay({
         </CardContent>
       </Card>
 
-      {/* Self-Check */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            ✅ Проверка качества анализа
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div>
-              <h4 className="font-medium text-gray-900 mb-3">Чек-лист</h4>
-              <div className="space-y-2">
-                {Object.entries(analysis.selfCheck.checklist).map(([key, value]) => (
-                  <div key={key} className="flex items-center gap-2">
-                    <span className={value ? 'text-green-500' : 'text-red-500'}>
-                      {value ? '✅' : '❌'}
-                    </span>
-                    <span className="text-sm text-gray-700">
-                      {key === 'coversAllElements' && 'Покрыты все ключевые элементы'}
-                      {key === 'noContradictions' && 'Нет противоречивых рекомендаций'}
-                      {key === 'principlesJustified' && 'Каждая рекомендация обоснована принципом'}
-                      {key === 'actionClarity' && 'Проверена понятность целевого действия'}
-                    </span>
-                  </div>
-                ))}
-              </div>
-            </div>
-            
-            <div>
-              <h4 className="font-medium text-gray-900 mb-3">Уверенность по блокам</h4>
-              <div className="space-y-2">
-                {Object.entries(analysis.selfCheck.confidence).map(([key, value]) => (
-                  <div key={key} className="flex items-center justify-between">
-                    <span className="text-sm text-gray-700">
-                      {key === 'analysis' && 'Анализ'}
-                      {key === 'survey' && 'Опрос'}
-                      {key === 'recommendations' && 'Рекомендации'}
-                    </span>
-                    <span className={`font-medium ${getConfidenceColor(value)}`}>
-                      {value}%
-                    </span>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
 
       </div>
 
