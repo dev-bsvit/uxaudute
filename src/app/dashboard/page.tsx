@@ -10,10 +10,6 @@ import { ContextForm } from '@/components/context-form'
 import { Auth } from '@/components/auth'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { PageHeader } from '@/components/ui/page-header'
-import { PageContent } from '@/components/ui/page-content'
-import { Section } from '@/components/ui/section'
-import { HeroSection } from '@/components/ui/hero-section'
 import { type ActionType } from '@/lib/utils'
 import { ArrowLeft, Download, Share2, Plus } from 'lucide-react'
 import { User } from '@supabase/supabase-js'
@@ -291,42 +287,52 @@ export default function DashboardPage() {
 
   return (
     <SidebarDemo user={user}>
-      <PageContent maxWidth="7xl">
-        <div className="space-y-8">
-          {/* Если пользователь авторизован */}
-          {user && !result && (
-            <>
-              {/* Навигация */}
-              <PageHeader 
-                title="Быстрый анализ"
-                description="Результат будет автоматически сохранен в ваши проекты"
-              />
+      <div className="space-y-8">
 
-              {/* Hero секция */}
-              <HeroSection
-                title="UX Анализ с GPT-4"
-                description="Профессиональный анализ пользовательского опыта на основе эвристик Нильсена, WCAG 2.2 и современных UX-методологий"
-                variant="gradient"
-                size="lg"
-              >
+        {/* Если пользователь авторизован */}
+        {user && !result && (
+          <>
+            {/* Навигация */}
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-4">
+                <h1 className="text-3xl font-bold text-slate-900">Быстрый анализ</h1>
+              </div>
+              
+              <div className="text-sm text-slate-600">
+                Результат будет автоматически сохранен в ваши проекты
+              </div>
+            </div>
+
+            {/* Hero секция */}
+            <div className="text-center py-12 px-6 bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 rounded-3xl border border-white/20 shadow-soft relative overflow-hidden">
+              <div className="absolute inset-0 bg-gradient-to-r from-blue-400/10 to-purple-400/10"></div>
+              
+              <div className="relative z-10">
                 <div className="flex items-center justify-center mb-6">
                   <div className="flex items-center justify-center w-20 h-20 bg-slate-900 rounded-3xl shadow-lg">
                     <span className="text-3xl">🎯</span>
                   </div>
                 </div>
-              </HeroSection>
+                
+                <h2 className="text-4xl font-bold text-gradient mb-6 leading-tight">
+                  UX Анализ с GPT-4
+                </h2>
+                
+                <p className="text-xl text-slate-600 mb-8 max-w-2xl mx-auto leading-relaxed">
+                  Профессиональный анализ пользовательского опыта на основе эвристик Нильсена, WCAG 2.2 и современных UX-методологий
+                </p>
+              </div>
+            </div>
 
-              {/* Форма загрузки */}
-              <Section>
-                <PageContent maxWidth="2xl">
-                  <UploadForm
-                    onSubmit={handleUpload}
-                    isLoading={isLoading}
-                  />
-                </PageContent>
-              </Section>
-            </>
-          )}
+            {/* Форма загрузки */}
+            <div className="max-w-2xl mx-auto">
+              <UploadForm
+                onSubmit={handleUpload}
+                isLoading={isLoading}
+              />
+            </div>
+          </>
+        )}
 
         {/* Модальное окно прогресса анализа */}
         <AnalysisModal
@@ -337,52 +343,44 @@ export default function DashboardPage() {
           canClose={false}
         />
 
-          {/* Результаты анализа */}
-          {user && result && (
-            <>
-              <PageHeader 
-                title="Результаты анализа"
-                description="Детальный отчет по UX-анализу вашего интерфейса"
+        {/* Результаты анализа */}
+        {user && result && (
+          <>
+            <div className="flex items-center justify-between">
+              <Button
+                onClick={handleNewAnalysis}
+                variant="outline"
+                className="flex items-center gap-2"
               >
-                <div className="flex items-center gap-3">
-                  <Button
-                    onClick={handleNewAnalysis}
-                    variant="outline"
-                    className="flex items-center gap-2"
-                  >
-                    <ArrowLeft className="w-4 h-4" />
-                    Новый анализ
-                  </Button>
-                  
-                  <Button variant="outline" className="flex items-center gap-2">
-                    <Download className="w-4 h-4" />
-                    Скачать отчет
-                  </Button>
-                  <Button variant="outline" className="flex items-center gap-2">
-                    <Share2 className="w-4 h-4" />
-                    Поделиться
-                  </Button>
-                </div>
-              </PageHeader>
+                <ArrowLeft className="w-4 h-4" />
+                Новый анализ
+              </Button>
+              
+              <div className="flex items-center gap-3">
+                <Button variant="outline" className="flex items-center gap-2">
+                  <Download className="w-4 h-4" />
+                  Скачать отчет
+                </Button>
+                <Button variant="outline" className="flex items-center gap-2">
+                  <Share2 className="w-4 h-4" />
+                  Поделиться
+                </Button>
+              </div>
+            </div>
 
-              {/* Отображение результатов */}
-              <Section>
-                <AnalysisResult 
-                  result={result}
-                  screenshot={uploadedScreenshot}
-                  url={analysisUrl}
-                  auditId={currentAudit || undefined}
-                />
-              </Section>
+            {/* Отображение результатов */}
+            <AnalysisResult 
+              result={result}
+              screenshot={uploadedScreenshot}
+              url={analysisUrl}
+              auditId={currentAudit || undefined}
+            />
 
-              {/* Панель дополнительных действий */}
-              <Section>
-                <ActionPanel onAction={handleAction} />
-              </Section>
-            </>
-          )}
-        </div>
-      </PageContent>
+            {/* Панель дополнительных действий */}
+            <ActionPanel onAction={handleAction} />
+          </>
+        )}
+      </div>
     </SidebarDemo>
   )
 }
