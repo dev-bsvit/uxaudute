@@ -81,50 +81,11 @@ export default function AuditPage() {
       console.log('Аудит загружен:', auditData)
       setAudit(auditData)
 
-      // Если результат не загружен, пробуем загрузить из analysis_results
-      if (!auditData.result_data) {
-        console.log('Результат не найден в audits, ищем в analysis_results')
-        
-        const { data: analysisData, error: analysisError } = await supabase
-          .from('analysis_results')
-          .select('*')
-          .eq('audit_id', auditId)
-          .eq('result_type', 'ux_analysis')
-          .order('created_at', { ascending: false })
-          .limit(1)
-          .single()
-
-        console.log('Поиск в analysis_results:', { analysisData, analysisError })
-
-        if (!analysisError && analysisData) {
-          console.log('Найден результат в analysis_results:', analysisData)
-          
-          // Обновляем аудит с результатом из analysis_results
-          const updatedAudit = {
-            ...auditData,
-            result_data: analysisData.result_data
-          }
-          setAudit(updatedAudit)
-          
-          // Обновляем аудит в базе данных
-          const { error: updateError } = await supabase
-            .from('audits')
-            .update({
-              result_data: analysisData.result_data,
-              status: 'completed'
-            })
-            .eq('id', auditId)
-            
-          if (updateError) {
-            console.error('Ошибка обновления audits:', updateError)
-          } else {
-            console.log('Аудит обновлен с результатом')
-          }
-        } else {
-          console.log('Результат не найден в analysis_results')
-        }
+      // Проверяем наличие результата
+      if (auditData.result_data && Object.keys(auditData.result_data).length > 0) {
+        console.log('✅ Результат найден в audits:', auditData.result_data)
       } else {
-        console.log('Результат найден в audits:', auditData.result_data)
+        console.log('⚠️ Результат не найден в audits, аудит может быть в процессе')
       }
     } catch (err) {
       console.error('Ошибка загрузки аудита:', err)

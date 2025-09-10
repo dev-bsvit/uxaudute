@@ -117,71 +117,41 @@ export async function POST(request: NextRequest) {
       console.warn('uxSurvey не найден в результате анализа. Структура:', Object.keys(analysisResult || {}))
     }
     
-    // Сохраняем результат в таблицу analysis_results
-    let savedAnalysisId = null
-    try {
-      console.log('Сохраняем результат в analysis_results:', {
-        audit_id: auditId || 'temp-audit-id',
-        result_type: 'ux_analysis',
-        result_data: analysisResult,
-        status: 'completed'
-      })
-      
-      const { data: analysisData, error: analysisError } = await supabase
-        .from('analysis_results')
-        .insert({
-          audit_id: auditId || 'temp-audit-id',
-          result_type: 'ux_analysis',
+    // Сохраняем результат в таблицу audits (простое и надежное решение)
+    if (auditId) {
+      try {
+        console.log('Сохраняем результат в audits:', {
+          auditId,
           result_data: analysisResult,
           status: 'completed'
         })
-        .select()
-        .single()
-
-      if (analysisError) {
-        console.error('Ошибка сохранения в analysis_results:', analysisError)
-        throw new Error(`Ошибка сохранения аудита в базу данных: ${analysisError.message}`)
-      }
-      
-      savedAnalysisId = analysisData.id
-      console.log('Результат анализа сохранен с ID:', savedAnalysisId)
-      
-      // Также обновляем таблицу audits с результатом
-      if (auditId) {
-        try {
-          console.log('Обновляем audits с результатом:', {
-            auditId,
+        
+        const { error: auditUpdateError } = await supabase
+          .from('audits')
+          .update({
             result_data: analysisResult,
-            status: 'completed'
+            status: 'completed',
+            updated_at: new Date().toISOString()
           })
-          
-          const { error: auditUpdateError } = await supabase
-            .from('audits')
-            .update({
-              result_data: analysisResult,
-              status: 'completed',
-              updated_at: new Date().toISOString()
-            })
-            .eq('id', auditId)
-          
-          if (auditUpdateError) {
-            console.error('Ошибка обновления audits:', auditUpdateError)
-          } else {
-            console.log('Аудит обновлен с результатом')
-          }
-        } catch (auditError) {
-          console.error('Ошибка обновления audits:', auditError)
+          .eq('id', auditId)
+        
+        if (auditUpdateError) {
+          console.error('Ошибка обновления audits:', auditUpdateError)
+          throw new Error(`Ошибка сохранения результата: ${auditUpdateError.message}`)
+        } else {
+          console.log('✅ Аудит успешно обновлен с результатом')
         }
+      } catch (saveError) {
+        console.error('Ошибка сохранения результата:', saveError)
+        throw new Error(`Ошибка сохранения аудита: ${saveError instanceof Error ? saveError.message : 'Неизвестная ошибка'}`)
       }
-    } catch (saveError) {
-      console.error('Ошибка сохранения результата:', saveError)
-      throw new Error(`Ошибка сохранения аудита в базу данных: ${saveError instanceof Error ? saveError.message : 'Неизвестная ошибка'}`)
+    } else {
+      console.warn('⚠️ auditId не предоставлен, результат не сохранен')
     }
 
     return NextResponse.json({ 
       success: true,
       data: analysisResult,
-      analysisId: savedAnalysisId,
       format: 'json',
       validation: {
         survey: surveyValidation,

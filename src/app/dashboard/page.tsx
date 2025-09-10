@@ -189,31 +189,8 @@ export default function DashboardPage() {
         setResult(responseData.rawResponse || 'Ошибка анализа')
       }
 
-      // Сохраняем результат в базу данных
-      const resultToSave = typeof responseData.data === 'object' 
-        ? JSON.stringify(responseData.data) 
-        : responseData.rawResponse || 'Ошибка анализа'
-      // Сохраняем результат в таблицу analysis_results
-      try {
-        const { data: analysisData, error: analysisError } = await supabase
-          .from('analysis_results')
-          .insert({
-            audit_id: audit.id,
-            result_type: 'ux_analysis',
-            result_data: responseData.data,
-            status: 'completed'
-          })
-          .select()
-          .single()
-
-        if (analysisError) {
-          console.error('Ошибка сохранения в analysis_results:', analysisError)
-        } else {
-          console.log('Результат анализа сохранен с ID:', analysisData.id)
-        }
-      } catch (saveError) {
-        console.error('Ошибка сохранения результата:', saveError)
-      }
+      // Результат уже сохранен в API endpoint
+      console.log('✅ Результат анализа получен и сохранен')
       
       // Добавляем в историю
       await addAuditHistory(audit.id, 'research', data, { result })
