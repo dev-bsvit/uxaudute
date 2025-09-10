@@ -57,7 +57,7 @@ export function ActionPanel({ onAction, className }: ActionPanelProps) {
           return (
             <Card 
               key={action.id} 
-              className="group relative overflow-hidden hover:scale-105 transition-all duration-300 cursor-pointer animate-slide-up"
+              className="group relative overflow-hidden transition-all duration-300 cursor-pointer animate-slide-up"
               style={{ animationDelay: `${index * 100}ms` }}
             >
               <div className={`absolute inset-0 bg-gradient-to-br ${colors.gradient} opacity-90 group-hover:opacity-100 transition-opacity duration-300`} />

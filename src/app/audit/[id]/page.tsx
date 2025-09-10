@@ -172,28 +172,28 @@ export default function AuditPage() {
         {/* Результаты анализа */}
         {audit.result_data ? (
           <Tabs defaultValue="ux-analysis" className="w-full">
-            <TabsList className="grid w-full grid-cols-4 mb-6 bg-gray-100 h-16 relative z-10">
+            <TabsList className="grid w-full grid-cols-4 mb-6 bg-gray-100 h-16 relative z-10 p-1">
               <TabsTrigger 
                 value="ux-analysis" 
-                className="h-16 text-sm font-medium data-[state=active]:bg-white data-[state=active]:shadow-sm"
+                className="h-14 text-sm font-medium data-[state=active]:bg-white data-[state=active]:shadow-sm"
               >
                 UX Анализ
               </TabsTrigger>
               <TabsTrigger 
                 value="ab-test" 
-                className="h-16 text-sm font-medium data-[state=active]:bg-white data-[state=active]:shadow-sm"
+                className="h-14 text-sm font-medium data-[state=active]:bg-white data-[state=active]:shadow-sm"
               >
                 AB тест
               </TabsTrigger>
               <TabsTrigger 
                 value="hypotheses" 
-                className="h-16 text-sm font-medium data-[state=active]:bg-white data-[state=active]:shadow-sm"
+                className="h-14 text-sm font-medium data-[state=active]:bg-white data-[state=active]:shadow-sm"
               >
                 Гипотезы
               </TabsTrigger>
               <TabsTrigger 
                 value="analytics" 
-                className="h-16 text-sm font-medium data-[state=active]:bg-white data-[state=active]:shadow-sm"
+                className="h-14 text-sm font-medium data-[state=active]:bg-white data-[state=active]:shadow-sm"
               >
                 Продуктовая аналитика
               </TabsTrigger>
