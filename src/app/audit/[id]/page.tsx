@@ -210,12 +210,19 @@ export default function AuditPage() {
 
         {/* Результаты анализа */}
         {audit.result_data ? (
-          <AnalysisResult 
-            result={audit.result_data}
-            screenshot={audit.input_data?.screenshotUrl}
-            url={audit.input_data?.url}
-            auditId={audit.id}
-          />
+          (() => {
+            console.log('Отображаем результат аудита:', audit.result_data)
+            const result = audit.result_data.analysis_result || audit.result_data
+            console.log('Результат для AnalysisResult:', result)
+            return (
+              <AnalysisResult 
+                result={result}
+                screenshot={audit.input_data?.screenshotUrl}
+                url={audit.input_data?.url}
+                auditId={audit.id}
+              />
+            )
+          })()
         ) : (
           <Card>
             <CardContent className="text-center py-12">
