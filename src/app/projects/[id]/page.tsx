@@ -73,11 +73,9 @@ export default function ProjectDetailPage() {
   const [showContextForm, setShowContextForm] = useState(false)
   const [pendingUploadData, setPendingUploadData] = useState<{ url?: string; screenshot?: string } | null>(null)
   const [editContext, setEditContext] = useState('')
-  const [isUpdatingContext, setIsUpdatingContext] = useState(false)
-  const [hasChanges, setHasChanges] = useState(false)
   const [editTargetAudience, setEditTargetAudience] = useState('')
-  const [isUpdatingTargetAudience, setIsUpdatingTargetAudience] = useState(false)
-  const [hasTargetAudienceChanges, setHasTargetAudienceChanges] = useState(false)
+  const [isUpdating, setIsUpdating] = useState(false)
+  const [hasAnyChanges, setHasAnyChanges] = useState(false)
 
   useEffect(() => {
     checkAuthAndLoadProject()
@@ -114,9 +112,8 @@ export default function ProjectDetailPage() {
 
       setProject(projectData)
       setEditContext(projectData.context || '')
-      setHasChanges(false)
       setEditTargetAudience(projectData.target_audience || '')
-      setHasTargetAudienceChanges(false)
+      setHasAnyChanges(false)
       setAudits(auditsData)
     } catch (error) {
       console.error('Error loading project data:', error)
@@ -240,55 +237,53 @@ export default function ProjectDetailPage() {
   const handleContextChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     const newValue = e.target.value
     setEditContext(newValue)
-    setHasChanges(newValue !== (project?.context || ''))
-  }
-
-  const handleSaveContext = async () => {
-    if (!project || !hasChanges) return
-
-    setIsUpdatingContext(true)
-    try {
-      await updateProjectContext(project.id, editContext)
-      setProject({ ...project, context: editContext })
-      setHasChanges(false)
-    } catch (error) {
-      console.error('Error updating context:', error)
-      alert('Ошибка при обновлении контекста')
-    } finally {
-      setIsUpdatingContext(false)
-    }
-  }
-
-  const handleCancelEdit = () => {
-    setEditContext(project?.context || '')
-    setHasChanges(false)
+    // Обновляем состояние изменений после изменения контекста
+    const targetAudienceChanged = editTargetAudience !== (project?.target_audience || '')
+    setHasAnyChanges(newValue !== (project?.context || '') || targetAudienceChanged)
   }
 
   const handleTargetAudienceChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     const newValue = e.target.value
     setEditTargetAudience(newValue)
-    setHasTargetAudienceChanges(newValue !== (project?.target_audience || ''))
+    // Обновляем состояние изменений после изменения целевой аудитории
+    const contextChanged = editContext !== (project?.context || '')
+    setHasAnyChanges(contextChanged || newValue !== (project?.target_audience || ''))
   }
 
-  const handleSaveTargetAudience = async () => {
-    if (!project || !hasTargetAudienceChanges) return
+  const handleSaveAll = async () => {
+    if (!project || !hasAnyChanges) return
 
-    setIsUpdatingTargetAudience(true)
+    setIsUpdating(true)
     try {
-      await updateProjectTargetAudience(project.id, editTargetAudience)
-      setProject({ ...project, target_audience: editTargetAudience })
-      setHasTargetAudienceChanges(false)
+      // Сохраняем контекст если изменился
+      if (editContext !== (project.context || '')) {
+        await updateProjectContext(project.id, editContext)
+      }
+      
+      // Сохраняем целевую аудиторию если изменилась
+      if (editTargetAudience !== (project.target_audience || '')) {
+        await updateProjectTargetAudience(project.id, editTargetAudience)
+      }
+
+      // Обновляем проект
+      setProject({ 
+        ...project, 
+        context: editContext,
+        target_audience: editTargetAudience
+      })
+      setHasAnyChanges(false)
     } catch (error) {
-      console.error('Error updating project target audience:', error)
-      alert('Ошибка при обновлении целевой аудитории')
+      console.error('Error updating project data:', error)
+      alert('Ошибка при обновлении данных проекта')
     } finally {
-      setIsUpdatingTargetAudience(false)
+      setIsUpdating(false)
     }
   }
 
-  const handleCancelTargetAudienceEdit = () => {
+  const handleCancelAll = () => {
+    setEditContext(project?.context || '')
     setEditTargetAudience(project?.target_audience || '')
-    setHasTargetAudienceChanges(false)
+    setHasAnyChanges(false)
   }
 
   const handleAction = async (action: ActionType) => {
@@ -554,29 +549,6 @@ export default function ProjectDetailPage() {
                         rows={4}
                         placeholder="Например: Мобильное приложение для заказа еды. Основные функции: каталог, корзина, оплата, история заказов..."
                       />
-                      {hasChanges && (
-                        <div className="flex gap-2">
-                          <Button
-                            onClick={handleSaveContext}
-                            disabled={isUpdatingContext}
-                            size="sm"
-                            className="flex items-center gap-2"
-                          >
-                            {isUpdatingContext ? (
-                              <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent"></div>
-                            ) : null}
-                            Сохранить контекст
-                          </Button>
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={handleCancelEdit}
-                            disabled={isUpdatingContext}
-                          >
-                            Отмена
-                          </Button>
-                        </div>
-                      )}
                     </div>
 
                     {/* Разделитель */}
@@ -592,35 +564,37 @@ export default function ProjectDetailPage() {
                         rows={4}
                         placeholder="Например: Молодые люди 18-35 лет, активные пользователи смартфонов, ценят удобство и скорость, готовы платить за качественный сервис..."
                       />
-                      {hasTargetAudienceChanges && (
-                        <div className="flex gap-2">
-                          <Button
-                            onClick={handleSaveTargetAudience}
-                            disabled={isUpdatingTargetAudience}
-                            size="sm"
-                            className="flex items-center gap-2"
-                          >
-                            {isUpdatingTargetAudience ? (
-                              <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent"></div>
-                            ) : null}
-                            Сохранить аудиторию
-                          </Button>
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={handleCancelTargetAudienceEdit}
-                            disabled={isUpdatingTargetAudience}
-                          >
-                            Отмена
-                          </Button>
-                        </div>
-                      )}
                     </div>
 
                     {/* Общая подсказка */}
                     <p className="text-sm text-slate-500">
                       Эта информация поможет AI дать более точные рекомендации при анализе
                     </p>
+
+                    {/* Единые кнопки управления */}
+                    <div className="flex gap-2 pt-4">
+                      <Button
+                        onClick={handleSaveAll}
+                        disabled={!hasAnyChanges || isUpdating}
+                        size="sm"
+                        className="flex items-center gap-2"
+                      >
+                        {isUpdating ? (
+                          <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent"></div>
+                        ) : null}
+                        Сохранить
+                      </Button>
+                      {hasAnyChanges && (
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={handleCancelAll}
+                          disabled={isUpdating}
+                        >
+                          Отмена
+                        </Button>
+                      )}
+                    </div>
                   </div>
                 </CardContent>
               </Card>
