@@ -120,6 +120,13 @@ export async function POST(request: NextRequest) {
     // Сохраняем результат в таблицу analysis_results
     let savedAnalysisId = null
     try {
+      console.log('Сохраняем результат в analysis_results:', {
+        audit_id: auditId || 'temp-audit-id',
+        result_type: 'ux_analysis',
+        result_data: analysisResult,
+        status: 'completed'
+      })
+      
       const { data: analysisData, error: analysisError } = await supabase
         .from('analysis_results')
         .insert({
@@ -142,6 +149,12 @@ export async function POST(request: NextRequest) {
       // Также обновляем таблицу audits с результатом
       if (auditId) {
         try {
+          console.log('Обновляем audits с результатом:', {
+            auditId,
+            result_data: analysisResult,
+            status: 'completed'
+          })
+          
           const { error: auditUpdateError } = await supabase
             .from('audits')
             .update({
