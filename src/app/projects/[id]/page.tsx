@@ -388,42 +388,6 @@ export default function ProjectDetailPage() {
               <p className="text-sm text-slate-500 mt-1">
                 Создан {formatDate(project.created_at)}
               </p>
-              
-              {/* Контекст проекта */}
-              {project.context && (
-                <div className="mt-4 p-4 bg-blue-50 rounded-lg border border-blue-200">
-                  <div className="flex items-center justify-between mb-2">
-                    <h3 className="text-sm font-medium text-blue-900">Контекст проекта</h3>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={handleEditContext}
-                      className="text-blue-600 hover:text-blue-700"
-                    >
-                      Редактировать
-                    </Button>
-                  </div>
-                  <p className="text-sm text-blue-800">{project.context}</p>
-                </div>
-              )}
-              
-              {!project.context && (
-                <div className="mt-4 p-4 bg-gray-50 rounded-lg border border-gray-200">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <h3 className="text-sm font-medium text-gray-700">Контекст проекта не указан</h3>
-                      <p className="text-xs text-gray-500 mt-1">Добавьте контекст для более точного анализа</p>
-                    </div>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={handleEditContext}
-                    >
-                      Добавить контекст
-                    </Button>
-                  </div>
-                </div>
-              )}
             </div>
           </div>
           
@@ -464,69 +428,110 @@ export default function ProjectDetailPage() {
               </Card>
             )}
 
-            {/* Список аудитов */}
-            <Card>
-              <CardHeader>
-                <CardTitle>История аудитов</CardTitle>
-              </CardHeader>
-              <CardContent>
-                {audits.length === 0 ? (
-                  <div className="text-center py-8">
-                    <BarChart3 className="w-12 h-12 text-slate-400 mx-auto mb-4" />
-                    <p className="text-slate-600 mb-4">
-                      В этом проекте пока нет аудитов
-                    </p>
-                    <Button onClick={() => setShowCreateForm(true)}>
-                      <Plus className="w-4 h-4 mr-2" />
-                      Создать первый аудит
-                    </Button>
-                  </div>
-                ) : (
-                  <div className="space-y-4">
-                    {audits.map((audit) => (
-                      <div
-                        key={audit.id}
-                        className="flex items-center justify-between p-4 border rounded-lg hover:bg-slate-50 transition-colors"
-                      >
-                        <div className="flex-1">
-                          <div className="flex items-center gap-3 mb-2">
-                            <h3 className="font-medium text-slate-900">{audit.name}</h3>
-                            <Badge className={getStatusColor(audit.status)}>
-                              {audit.status === 'completed' ? 'Завершен' : 
-                               audit.status === 'in_progress' ? 'В процессе' : 
-                               audit.status === 'failed' ? 'Ошибка' : 'Черновик'}
-                            </Badge>
+            {/* Двухколоночный макет: История аудитов (слева) + Контекст проекта (справа) */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              {/* Левая колонка - Список аудитов */}
+              <Card>
+                <CardHeader>
+                  <CardTitle>История аудитов</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  {audits.length === 0 ? (
+                    <div className="text-center py-8">
+                      <BarChart3 className="w-12 h-12 text-slate-400 mx-auto mb-4" />
+                      <p className="text-slate-600 mb-4">
+                        В этом проекте пока нет аудитов
+                      </p>
+                      <Button onClick={() => setShowCreateForm(true)}>
+                        <Plus className="w-4 h-4 mr-2" />
+                        Создать первый аудит
+                      </Button>
+                    </div>
+                  ) : (
+                    <div className="space-y-4">
+                      {audits.map((audit) => (
+                        <div
+                          key={audit.id}
+                          className="flex items-center justify-between p-4 border rounded-lg hover:bg-slate-50 transition-colors"
+                        >
+                          <div className="flex-1">
+                            <div className="flex items-center gap-3 mb-2">
+                              <h3 className="font-medium text-slate-900">{audit.name}</h3>
+                              <Badge className={getStatusColor(audit.status)}>
+                                {audit.status === 'completed' ? 'Завершен' : 
+                                 audit.status === 'in_progress' ? 'В процессе' : 
+                                 audit.status === 'failed' ? 'Ошибка' : 'Черновик'}
+                              </Badge>
+                            </div>
+                            <p className="text-sm text-slate-600">
+                              {formatDate(audit.created_at)}
+                              {audit.input_data?.url && (
+                                <span className="ml-4 inline-flex items-center gap-1">
+                                  <ExternalLink className="w-3 h-3" />
+                                  URL анализ
+                                </span>
+                              )}
+                              {audit.input_data?.hasScreenshot && (
+                                <span className="ml-4">📸 Скриншот</span>
+                              )}
+                            </p>
                           </div>
-                          <p className="text-sm text-slate-600">
-                            {formatDate(audit.created_at)}
-                            {audit.input_data?.url && (
-                              <span className="ml-4 inline-flex items-center gap-1">
-                                <ExternalLink className="w-3 h-3" />
-                                URL анализ
-                              </span>
-                            )}
-                            {audit.input_data?.hasScreenshot && (
-                              <span className="ml-4">📸 Скриншот</span>
-                            )}
-                          </p>
+                          <div className="flex items-center gap-2">
+                            <Link href={`/audit/${audit.id}`}>
+                              <Button
+                                size="sm"
+                                variant="outline"
+                              >
+                                <Eye className="w-4 h-4 mr-2" />
+                                Просмотр
+                              </Button>
+                            </Link>
+                          </div>
                         </div>
-                        <div className="flex items-center gap-2">
-                          <Link href={`/audit/${audit.id}`}>
-                            <Button
-                              size="sm"
-                              variant="outline"
-                            >
-                              <Eye className="w-4 h-4 mr-2" />
-                              Просмотр
-                            </Button>
-                          </Link>
-                        </div>
+                      ))}
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+
+              {/* Правая колонка - Контекст проекта */}
+              <Card>
+                <CardHeader>
+                  <CardTitle>Контекст проекта</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  {project.context ? (
+                    <div className="space-y-4">
+                      <div className="p-4 bg-blue-50 rounded-lg border border-blue-200">
+                        <p className="text-sm text-blue-800">{project.context}</p>
                       </div>
-                    ))}
-                  </div>
-                )}
-              </CardContent>
-            </Card>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={handleEditContext}
+                        className="text-blue-600 hover:text-blue-700"
+                      >
+                        Редактировать контекст
+                      </Button>
+                    </div>
+                  ) : (
+                    <div className="text-center py-8">
+                      <div className="p-4 bg-gray-50 rounded-lg border border-gray-200">
+                        <h3 className="text-sm font-medium text-gray-700 mb-2">Контекст проекта не указан</h3>
+                        <p className="text-xs text-gray-500 mb-4">Добавьте контекст для более точного анализа</p>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={handleEditContext}
+                        >
+                          Добавить контекст
+                        </Button>
+                      </div>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            </div>
           </>
         ) : (
           <>
