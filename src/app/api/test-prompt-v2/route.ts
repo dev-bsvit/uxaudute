@@ -29,14 +29,14 @@ export async function POST(request: NextRequest) {
         role: 'user' as const,
         content: [
           {
-            type: 'text',
+            type: 'text' as const,
             text: `Проанализируй этот скриншот интерфейса. ${context ? `Контекст: ${context}` : ''} ${targetAudience ? `Целевая аудитория: ${targetAudience}` : ''}`
           },
           {
-            type: 'image_url',
+            type: 'image_url' as const,
             image_url: {
               url: imageUrl,
-              detail: 'high'
+              detail: 'high' as const
             }
           }
         ]
