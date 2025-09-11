@@ -8,9 +8,12 @@ import { supabase } from '@/lib/supabase'
 
 export async function POST(request: NextRequest) {
   try {
+    console.log('=== OpenAI API вызван ===')
     const { url, screenshot, context, auditId } = await request.json()
+    console.log('Параметры запроса:', { url: !!url, screenshot: !!screenshot, context: !!context, auditId })
 
     if (!url && !screenshot) {
+      console.log('Ошибка: нет URL или скриншота')
       return NextResponse.json(
         { error: 'URL или скриншот обязательны для анализа' },
         { status: 400 }
@@ -18,8 +21,11 @@ export async function POST(request: NextRequest) {
     }
 
     // Загружаем JSON-структурированный промпт
-    const jsonPrompt = await loadJSONPrompt()
+    console.log('Загружаем промпт...')
+    const jsonPrompt = loadJSONPrompt()
+    console.log('Промпт загружен, длина:', jsonPrompt.length)
     const finalPrompt = combineWithContext(jsonPrompt, context)
+    console.log('Финальный промпт готов, длина:', finalPrompt.length)
 
     let analysisResult: StructuredAnalysisResponse
 
@@ -49,6 +55,7 @@ export async function POST(request: NextRequest) {
       }
     } else if (screenshot) {
       // Реальный анализ скриншота через GPT-4o Vision
+      console.log('Анализируем скриншот через GPT-4o Vision...')
       const completion = await openai.chat.completions.create({
         model: "gpt-4o",
         messages: [
@@ -75,11 +82,15 @@ export async function POST(request: NextRequest) {
       })
 
       const result = completion.choices[0]?.message?.content || '{}'
+      console.log('Получен ответ от OpenAI, длина:', result.length)
+      console.log('Первые 200 символов ответа:', result.substring(0, 200))
       
       try {
         analysisResult = JSON.parse(result) as StructuredAnalysisResponse
+        console.log('JSON успешно распарсен')
       } catch (parseError) {
         console.error('Ошибка парсинга JSON:', parseError)
+        console.error('Полный ответ:', result)
         return NextResponse.json({
           success: false,
           error: 'Ошибка парсинга JSON ответа',
