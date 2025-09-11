@@ -20,42 +20,23 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Приоритет: скриншот важнее URL
-    const hasScreenshot = !!screenshot
-    const hasUrl = !!url
-
     // Загружаем JSON-структурированный промпт
     console.log('Загружаем промпт...')
-    const jsonPrompt = loadJSONPrompt()
+    const jsonPrompt = await loadJSONPrompt()
     console.log('Промпт загружен, длина:', jsonPrompt.length)
     const finalPrompt = combineWithContext(jsonPrompt, context)
     console.log('Финальный промпт готов, длина:', finalPrompt.length)
 
     let analysisResult: StructuredAnalysisResponse
 
-    if (hasScreenshot) {
-      // Приоритет: анализ скриншота через GPT-4o Vision
-      console.log('Анализируем скриншот через GPT-4o Vision...')
+    if (url) {
+      // Реальный анализ через OpenAI
+      console.log('Анализируем URL через OpenAI...')
+      const analysisPrompt = `${finalPrompt}\n\nПроанализируй сайт по URL: ${url}\n\nПоскольку я не могу получить скриншот, проведи анализ основываясь на общих принципах UX для данного типа сайта.`
+      
       const completion = await openai.chat.completions.create({
         model: "gpt-4o",
-        messages: [
-          {
-            role: "user",
-            content: [
-              {
-                type: "text",
-                text: finalPrompt
-              },
-              {
-                type: "image_url",
-                image_url: {
-                  url: screenshot,
-                  detail: "high"
-                }
-              }
-            ]
-          }
-        ],
+        messages: [{ role: "user", content: analysisPrompt }],
         temperature: 0.7,
         max_tokens: 3000,
         response_format: { type: "json_object" }
@@ -77,14 +58,29 @@ export async function POST(request: NextRequest) {
           rawResponse: result
         }, { status: 500 })
       }
-    } else if (hasUrl) {
-      // Анализ URL через OpenAI
-      console.log('Анализируем URL через OpenAI...')
-      const analysisPrompt = `${finalPrompt}\n\nПроанализируй сайт по URL: ${url}\n\nПоскольку я не могу получить скриншот, проведи анализ основываясь на общих принципах UX для данного типа сайта.`
-      
+    } else if (screenshot) {
+      // Реальный анализ скриншота через GPT-4o Vision
+      console.log('Анализируем скриншот через GPT-4o Vision...')
       const completion = await openai.chat.completions.create({
         model: "gpt-4o",
-        messages: [{ role: "user", content: analysisPrompt }],
+        messages: [
+          {
+            role: "user",
+            content: [
+              {
+                type: "text",
+                text: finalPrompt
+              },
+              {
+                type: "image_url",
+                image_url: {
+                  url: screenshot,
+                  detail: "high"
+                }
+              }
+            ]
+          }
+        ],
         temperature: 0.7,
         max_tokens: 3000,
         response_format: { type: "json_object" }
@@ -204,7 +200,7 @@ export async function POST(request: NextRequest) {
 /**
  * Загружает JSON-структурированный промпт из файла
  */
-function loadJSONPrompt(): string {
+async function loadJSONPrompt(): Promise<string> {
   try {
     // Простой путь к файлу промпта
     const promptPath = join(process.cwd(), 'prompts', 'json-structured-prompt.md')
