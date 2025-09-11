@@ -10,15 +10,32 @@ import { RefreshCw, Upload, CheckCircle } from 'lucide-react'
 
 export default function TestPromptV2Page() {
   const [imageUrl, setImageUrl] = useState('')
+  const [imageFile, setImageFile] = useState<File | null>(null)
+  const [imagePreview, setImagePreview] = useState('')
   const [context, setContext] = useState('')
   const [targetAudience, setTargetAudience] = useState('')
   const [isLoading, setIsLoading] = useState(false)
   const [result, setResult] = useState<any>(null)
   const [error, setError] = useState('')
 
+  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0]
+    if (file) {
+      setImageFile(file)
+      setImageUrl('') // Очищаем URL при загрузке файла
+      
+      // Создаем preview
+      const reader = new FileReader()
+      reader.onload = (e) => {
+        setImagePreview(e.target?.result as string)
+      }
+      reader.readAsDataURL(file)
+    }
+  }
+
   const handleTest = async () => {
-    if (!imageUrl) {
-      setError('Введите URL изображения')
+    if (!imageUrl && !imageFile) {
+      setError('Загрузите изображение или введите URL')
       return
     }
 
@@ -27,13 +44,25 @@ export default function TestPromptV2Page() {
     setResult(null)
 
     try {
+      let finalImageUrl = imageUrl
+      
+      // Если загружен файл, конвертируем в base64
+      if (imageFile && !imageUrl) {
+        const reader = new FileReader()
+        finalImageUrl = await new Promise((resolve, reject) => {
+          reader.onload = () => resolve(reader.result as string)
+          reader.onerror = reject
+          reader.readAsDataURL(imageFile)
+        })
+      }
+
       const response = await fetch('/api/test-prompt-v2', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          imageUrl,
+          imageUrl: finalImageUrl,
           context: context || undefined,
           targetAudience: targetAudience || undefined,
         }),
@@ -63,16 +92,57 @@ export default function TestPromptV2Page() {
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-6">
-          <div className="grid md:grid-cols-2 gap-4">
-            <div>
-              <Label htmlFor="imageUrl">URL изображения *</Label>
-              <Input
-                id="imageUrl"
-                value={imageUrl}
-                onChange={(e) => setImageUrl(e.target.value)}
-                placeholder="https://example.com/image.jpg"
-              />
+          {/* Загрузка изображения */}
+          <div className="space-y-4">
+            <div className="grid md:grid-cols-2 gap-4">
+              <div>
+                <Label htmlFor="imageFile">Загрузить изображение</Label>
+                <Input
+                  id="imageFile"
+                  type="file"
+                  accept="image/*"
+                  onChange={handleFileUpload}
+                  className="cursor-pointer"
+                />
+                {imageFile && (
+                  <p className="text-sm text-green-600 mt-1">
+                    ✓ Загружен файл: {imageFile.name}
+                  </p>
+                )}
+              </div>
+              <div>
+                <Label htmlFor="imageUrl">Или URL изображения</Label>
+                <Input
+                  id="imageUrl"
+                  value={imageUrl}
+                  onChange={(e) => {
+                    setImageUrl(e.target.value)
+                    if (e.target.value) {
+                      setImageFile(null)
+                      setImagePreview('')
+                    }
+                  }}
+                  placeholder="https://example.com/image.jpg"
+                />
+              </div>
             </div>
+            
+            {/* Preview изображения */}
+            {imagePreview && (
+              <div className="mt-4">
+                <Label>Предварительный просмотр:</Label>
+                <div className="mt-2 border rounded-lg p-4">
+                  <img 
+                    src={imagePreview} 
+                    alt="Preview" 
+                    className="max-w-full h-auto max-h-64 mx-auto"
+                  />
+                </div>
+              </div>
+            )}
+          </div>
+
+          <div className="grid md:grid-cols-2 gap-4">
             <div>
               <Label htmlFor="context">Контекст (опционально)</Label>
               <Input
@@ -82,22 +152,20 @@ export default function TestPromptV2Page() {
                 placeholder="Лендинг для SaaS продукта"
               />
             </div>
-          </div>
-
-          <div>
-            <Label htmlFor="targetAudience">Целевая аудитория (опционально)</Label>
-            <Textarea
-              id="targetAudience"
-              value={targetAudience}
-              onChange={(e) => setTargetAudience(e.target.value)}
-              placeholder="Малый и средний бизнес, 25-45 лет, технически подкованные"
-              rows={3}
-            />
+            <div>
+              <Label htmlFor="targetAudience">Целевая аудитория (опционально)</Label>
+              <Input
+                id="targetAudience"
+                value={targetAudience}
+                onChange={(e) => setTargetAudience(e.target.value)}
+                placeholder="Малый и средний бизнес"
+              />
+            </div>
           </div>
 
           <Button 
             onClick={handleTest} 
-            disabled={isLoading || !imageUrl}
+            disabled={isLoading || (!imageUrl && !imageFile)}
             className="w-full"
           >
             {isLoading ? (
