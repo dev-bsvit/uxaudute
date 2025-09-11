@@ -77,9 +77,9 @@ export const HypothesesDisplay: React.FC<HypothesesDisplayProps> = ({
       {/* Заголовок и действия */}
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-bold text-slate-900">Гипотезы</h2>
+          <h2 className="text-2xl font-bold text-slate-900">Гипотезы для улучшения UX</h2>
           <p className="text-slate-600">
-            Сгенерировано {data.hypotheses.length} гипотез
+            Сгенерировано {data.hypotheses.length} гипотез с ICE-оценкой
           </p>
         </div>
         <div className="flex gap-2">
@@ -96,6 +96,101 @@ export const HypothesesDisplay: React.FC<HypothesesDisplayProps> = ({
         </div>
       </div>
 
+      {/* Анализ KPI */}
+      {data.kpi_analysis && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center">
+              <Target className="w-5 h-5 mr-2" />
+              Анализ KPI и болевых точек
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid md:grid-cols-2 gap-6">
+              {/* Текущие метрики */}
+              <div>
+                <h4 className="font-semibold text-slate-900 mb-3">Текущие метрики</h4>
+                <div className="space-y-2">
+                  {data.kpi_analysis.current_metrics.map((metric, index) => (
+                    <div key={index} className="bg-slate-50 p-3 rounded-lg">
+                      <div className="flex justify-between items-center mb-1">
+                        <span className="font-medium text-slate-900">{metric.metric}</span>
+                        <span className="text-sm text-slate-600">{metric.current_value}</span>
+                      </div>
+                      <div className="text-xs text-slate-600">
+                        Цель: {metric.target_value} | Бенчмарк: {metric.industry_benchmark}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Болевые точки */}
+              <div>
+                <h4 className="font-semibold text-slate-900 mb-3">Болевые точки</h4>
+                <div className="space-y-2">
+                  {data.kpi_analysis.pain_points.map((point, index) => (
+                    <div key={index} className="border-l-4 border-red-200 pl-3 py-2">
+                      <div className="flex items-center gap-2 mb-1">
+                        <Badge variant="outline" className="text-xs">
+                          {point.type}
+                        </Badge>
+                        <span className="text-xs text-slate-600">{point.frequency}</span>
+                      </div>
+                      <p className="text-sm text-slate-700 mb-1">{point.description}</p>
+                      <p className="text-xs text-slate-600">{point.impact}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* ICE Рейтинг */}
+      {data.ice_ranking && data.ice_ranking.length > 0 && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center">
+              <CheckCircle className="w-5 h-5 mr-2" />
+              ICE Рейтинг гипотез
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="border-b">
+                    <th className="text-left py-2">Ранг</th>
+                    <th className="text-left py-2">Гипотеза</th>
+                    <th className="text-center py-2">ICE</th>
+                    <th className="text-center py-2">Impact</th>
+                    <th className="text-center py-2">Confidence</th>
+                    <th className="text-center py-2">Effort</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {data.ice_ranking.map((item) => {
+                    const hypothesis = data.hypotheses.find(h => h.id === item.hypothesis_id)
+                    return (
+                      <tr key={item.rank} className="border-b">
+                        <td className="py-2 font-medium">{item.rank}</td>
+                        <td className="py-2">{hypothesis?.title || 'Не найдено'}</td>
+                        <td className="py-2 text-center font-bold text-blue-600">{item.ice_score.toFixed(2)}</td>
+                        <td className="py-2 text-center">{item.impact}</td>
+                        <td className="py-2 text-center">{item.confidence}</td>
+                        <td className="py-2 text-center">{item.effort}</td>
+                      </tr>
+                    )
+                  })}
+                </tbody>
+              </table>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
       {/* Список гипотез */}
       <div className="space-y-4">
         {data.hypotheses.map((hypothesis, index) => (
@@ -111,12 +206,20 @@ export const HypothesesDisplay: React.FC<HypothesesDisplayProps> = ({
                     <Badge className={getPriorityColor(hypothesis.priority)}>
                       Приоритет: {hypothesis.priority}
                     </Badge>
-                    <Badge className={getEffortColor(hypothesis.effort)}>
-                      Усилия: {hypothesis.effort}
+                    <Badge className={getEffortColor(hypothesis.effort_days <= 3 ? 'low' : hypothesis.effort_days <= 7 ? 'medium' : 'high')}>
+                      Усилия: {hypothesis.effort_days} дней
                     </Badge>
-                    <Badge className={getConfidenceColor(hypothesis.confidence)}>
-                      Уверенность: {hypothesis.confidence}/10
+                    <Badge className={getConfidenceColor(hypothesis.confidence_score * 10)}>
+                      Уверенность: {Math.round(hypothesis.confidence_score * 10)}/10
                     </Badge>
+                    <Badge className="bg-blue-100 text-blue-800">
+                      ICE: {hypothesis.ice_score.ice_total.toFixed(2)}
+                    </Badge>
+                    {hypothesis.is_top_3 && (
+                      <Badge className="bg-green-100 text-green-800">
+                        Топ-3
+                      </Badge>
+                    )}
                   </div>
                 </div>
               </div>
@@ -145,19 +248,77 @@ export const HypothesesDisplay: React.FC<HypothesesDisplayProps> = ({
                   <p className="text-slate-700">{hypothesis.solution}</p>
                 </div>
                 <div>
-                  <h4 className="font-semibold text-slate-900 mb-2">Ожидаемый эффект</h4>
-                  <p className="text-slate-700">{hypothesis.expected_impact}</p>
+                  <h4 className="font-semibold text-slate-900 mb-2">ICE Оценка</h4>
+                  <div className="grid grid-cols-3 gap-2 text-sm">
+                    <div className="text-center">
+                      <div className="font-bold text-blue-600">{hypothesis.ice_score.impact}</div>
+                      <div className="text-slate-600">Impact</div>
+                    </div>
+                    <div className="text-center">
+                      <div className="font-bold text-green-600">{hypothesis.ice_score.confidence}</div>
+                      <div className="text-slate-600">Confidence</div>
+                    </div>
+                    <div className="text-center">
+                      <div className="font-bold text-orange-600">{hypothesis.ice_score.effort}</div>
+                      <div className="text-slate-600">Effort</div>
+                    </div>
+                  </div>
                 </div>
               </div>
 
-              {/* Метод валидации */}
+              {/* User Story и UX Patterns для топ-3 */}
+              {hypothesis.is_top_3 && (
+                <div className="grid md:grid-cols-2 gap-4">
+                  {hypothesis.user_story && (
+                    <div>
+                      <h4 className="font-semibold text-slate-900 mb-2">User Story</h4>
+                      <div className="bg-green-50 p-3 rounded-lg">
+                        <p className="text-slate-700 italic">"{hypothesis.user_story}"</p>
+                      </div>
+                    </div>
+                  )}
+                  {hypothesis.ux_patterns && (
+                    <div>
+                      <h4 className="font-semibold text-slate-900 mb-2">UX Паттерны</h4>
+                      <div className="bg-blue-50 p-3 rounded-lg">
+                        <p className="text-slate-700">{hypothesis.ux_patterns}</p>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* План валидации */}
               <div>
                 <h4 className="font-semibold text-slate-900 mb-2 flex items-center">
                   <CheckCircle className="w-4 h-4 mr-2" />
-                  Метод валидации
+                  План валидации
                 </h4>
                 <div className="bg-blue-50 p-4 rounded-lg">
-                  <p className="text-slate-700">{hypothesis.validation_method}</p>
+                  <div className="grid md:grid-cols-2 gap-4">
+                    <div>
+                      <span className="text-sm font-medium text-slate-600">Метод:</span>
+                      <p className="text-slate-700">{hypothesis.validation_plan.method}</p>
+                    </div>
+                    <div>
+                      <span className="text-sm font-medium text-slate-600">Длительность:</span>
+                      <p className="text-slate-700">{hypothesis.validation_plan.duration}</p>
+                    </div>
+                    <div>
+                      <span className="text-sm font-medium text-slate-600">Размер выборки:</span>
+                      <p className="text-slate-700">{hypothesis.validation_plan.sample_size}</p>
+                    </div>
+                    <div>
+                      <span className="text-sm font-medium text-slate-600">Δ-метрики:</span>
+                      <div className="flex flex-wrap gap-1 mt-1">
+                        {hypothesis.validation_plan.delta_metrics.map((metric, idx) => (
+                          <Badge key={idx} variant="outline" className="text-xs">
+                            {metric}
+                          </Badge>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
 

@@ -159,23 +159,70 @@ export function isABTestResponse(response: AllAnalysisResponse): response is ABT
 }
 
 // Hypotheses Types
+export interface KPIMetric {
+  metric: string
+  current_value: string
+  target_value: string
+  industry_benchmark: string
+}
+
+export interface PainPoint {
+  type: 'quantitative' | 'qualitative' | 'ux_heuristic'
+  description: string
+  impact: string
+  frequency: string
+}
+
+export interface KPIAnalysis {
+  current_metrics: KPIMetric[]
+  pain_points: PainPoint[]
+}
+
+export interface ICEScore {
+  impact: number
+  confidence: number
+  effort: number
+  ice_total: number
+}
+
+export interface ValidationPlan {
+  method: string
+  duration: string
+  sample_size: string
+  delta_metrics: string[]
+}
+
 export interface Hypothesis {
   id: string
   title: string
   description: string
   problem: string
   solution: string
-  expected_impact: string
-  validation_method: string
+  user_story?: string
+  ux_patterns?: string
+  ice_score: ICEScore
+  validation_plan: ValidationPlan
   priority: 'high' | 'medium' | 'low'
-  effort: 'high' | 'medium' | 'low'
-  confidence: number
+  effort_days: number
+  confidence_score: number
   metrics: string[]
   assumptions: string[]
+  is_top_3: boolean
+}
+
+export interface ICERanking {
+  rank: number
+  hypothesis_id: string
+  ice_score: number
+  impact: number
+  confidence: number
+  effort: number
 }
 
 export interface HypothesisResponse {
+  kpi_analysis: KPIAnalysis
   hypotheses: Hypothesis[]
+  ice_ranking: ICERanking[]
   next_steps: string[]
   metadata: {
     timestamp: string
