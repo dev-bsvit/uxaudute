@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import OpenAI from 'openai'
+import fs from 'fs'
+import path from 'path'
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
@@ -7,17 +9,20 @@ const openai = new OpenAI({
 
 export async function POST(request: NextRequest) {
   try {
+    console.log('Test-prompt-v2 API called')
     const { imageUrl, context, targetAudience } = await request.json()
+    console.log('Request data:', { imageUrl: imageUrl?.substring(0, 50) + '...', context, targetAudience })
 
     if (!imageUrl) {
+      console.log('Error: No image URL provided')
       return NextResponse.json({ error: 'Image URL is required' }, { status: 400 })
     }
 
     // Загружаем новый промпт
-    const fs = require('fs')
-    const path = require('path')
     const promptPath = path.join(process.cwd(), 'prompts', 'json-structured-prompt-v2.md')
+    console.log('Loading prompt from:', promptPath)
     const prompt = fs.readFileSync(promptPath, 'utf8')
+    console.log('Prompt loaded, length:', prompt.length)
 
     // Формируем сообщение для AI
     const messages = [
@@ -43,12 +48,14 @@ export async function POST(request: NextRequest) {
       }
     ]
 
+    console.log('Sending request to OpenAI...')
     const response = await openai.chat.completions.create({
       model: 'gpt-4o',
       messages,
       max_tokens: 4000,
       temperature: 0.3,
     })
+    console.log('OpenAI response received')
 
     const analysisResult = response.choices[0]?.message?.content
 
