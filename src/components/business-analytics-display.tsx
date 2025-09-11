@@ -186,7 +186,7 @@ export const BusinessAnalyticsDisplay: React.FC<BusinessAnalyticsDisplayProps> =
           <div className="grid md:grid-cols-3 gap-4">
             <div className="text-center">
               <h4 className="text-sm text-slate-600 mb-1">Текущие показатели</h4>
-              <p className="text-2xl font-bold text-slate-900">{data.business_metrics.revenue_impact.current_performance}</p>
+              <p className="text-2xl font-bold text-slate-900">{data.business_metrics.revenue_impact.current_monthly_revenue}</p>
             </div>
             <div className="text-center">
               <h4 className="text-sm text-slate-600 mb-1">Потенциальный рост</h4>
