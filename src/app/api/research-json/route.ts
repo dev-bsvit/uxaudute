@@ -22,7 +22,7 @@ export async function POST(request: NextRequest) {
 
     // Загружаем JSON-структурированный промпт
     console.log('Загружаем промпт...')
-    const jsonPrompt = await loadJSONPrompt()
+    const jsonPrompt = loadJSONPrompt()
     console.log('Промпт загружен, длина:', jsonPrompt.length)
     const finalPrompt = combineWithContext(jsonPrompt, context)
     console.log('Финальный промпт готов, длина:', finalPrompt.length)
@@ -200,7 +200,7 @@ export async function POST(request: NextRequest) {
 /**
  * Загружает JSON-структурированный промпт из файла
  */
-async function loadJSONPrompt(): Promise<string> {
+function loadJSONPrompt(): string {
   try {
     // Простой путь к файлу промпта
     const promptPath = join(process.cwd(), 'prompts', 'json-structured-prompt.md')
