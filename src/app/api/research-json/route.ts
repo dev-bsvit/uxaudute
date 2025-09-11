@@ -20,6 +20,10 @@ export async function POST(request: NextRequest) {
       )
     }
 
+    // Приоритет: скриншот важнее URL
+    const hasScreenshot = !!screenshot
+    const hasUrl = !!url
+
     // Загружаем JSON-структурированный промпт
     console.log('Загружаем промпт...')
     const jsonPrompt = loadJSONPrompt()
@@ -29,32 +33,8 @@ export async function POST(request: NextRequest) {
 
     let analysisResult: StructuredAnalysisResponse
 
-    if (url) {
-      // Реальный анализ через OpenAI
-      const analysisPrompt = `${finalPrompt}\n\nПроанализируй сайт по URL: ${url}\n\nПоскольку я не могу получить скриншот, проведи анализ основываясь на общих принципах UX для данного типа сайта.`
-      
-      const completion = await openai.chat.completions.create({
-        model: "gpt-4o",
-        messages: [{ role: "user", content: analysisPrompt }],
-        temperature: 0.7,
-        max_tokens: 3000,
-        response_format: { type: "json_object" }
-      })
-
-      const result = completion.choices[0]?.message?.content || '{}'
-      
-      try {
-        analysisResult = JSON.parse(result) as StructuredAnalysisResponse
-      } catch (parseError) {
-        console.error('Ошибка парсинга JSON:', parseError)
-        return NextResponse.json({
-          success: false,
-          error: 'Ошибка парсинга JSON ответа',
-          rawResponse: result
-        }, { status: 500 })
-      }
-    } else if (screenshot) {
-      // Реальный анализ скриншота через GPT-4o Vision
+    if (hasScreenshot) {
+      // Приоритет: анализ скриншота через GPT-4o Vision
       console.log('Анализируем скриншот через GPT-4o Vision...')
       const completion = await openai.chat.completions.create({
         model: "gpt-4o",
@@ -97,6 +77,35 @@ export async function POST(request: NextRequest) {
           rawResponse: result
         }, { status: 500 })
       }
+    } else if (hasUrl) {
+      // Анализ URL через OpenAI
+      console.log('Анализируем URL через OpenAI...')
+      const analysisPrompt = `${finalPrompt}\n\nПроанализируй сайт по URL: ${url}\n\nПоскольку я не могу получить скриншот, проведи анализ основываясь на общих принципах UX для данного типа сайта.`
+      
+      const completion = await openai.chat.completions.create({
+        model: "gpt-4o",
+        messages: [{ role: "user", content: analysisPrompt }],
+        temperature: 0.7,
+        max_tokens: 3000,
+        response_format: { type: "json_object" }
+      })
+
+      const result = completion.choices[0]?.message?.content || '{}'
+      console.log('Получен ответ от OpenAI, длина:', result.length)
+      console.log('Первые 200 символов ответа:', result.substring(0, 200))
+      
+      try {
+        analysisResult = JSON.parse(result) as StructuredAnalysisResponse
+        console.log('JSON успешно распарсен')
+      } catch (parseError) {
+        console.error('Ошибка парсинга JSON:', parseError)
+        console.error('Полный ответ:', result)
+        return NextResponse.json({
+          success: false,
+          error: 'Ошибка парсинга JSON ответа',
+          rawResponse: result
+        }, { status: 500 })
+      }
     } else {
       return NextResponse.json(
         { error: 'Не удалось выполнить анализ' },
@@ -104,6 +113,8 @@ export async function POST(request: NextRequest) {
       )
     }
 
+    console.log('Анализ завершен, начинаем валидацию...')
+    
     // Валидируем опрос (с проверкой на существование)
     let surveyValidation: { isValid: boolean; errors: string[] } = { isValid: true, errors: [] }
     let surveyAnalysis: any = { totalQuestions: 0, averageConfidence: 0, criticalIssues: 0 }
@@ -160,6 +171,7 @@ export async function POST(request: NextRequest) {
       console.warn('⚠️ auditId не предоставлен, результат не сохранен')
     }
 
+    console.log('Возвращаем успешный ответ...')
     return NextResponse.json({ 
       success: true,
       data: analysisResult,
