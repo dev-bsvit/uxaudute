@@ -236,20 +236,42 @@ export interface OptimizationOpportunity {
 }
 
 export interface BusinessAnalyticsResponse {
+  industry_analysis: {
+    identified_industry: string
+    industry_standards: string
+    market_context: string
+  }
   business_metrics: {
     conversion_funnel: ConversionFunnel
     key_kpis: KPI[]
     revenue_impact: RevenueImpact
   }
+  business_risks: BusinessRisk[]
+  missed_opportunities: MissedOpportunity[]
   user_behavior_insights: UserBehaviorInsight[]
   conversion_barriers: ConversionBarrier[]
-  optimization_opportunities: OptimizationOpportunity[]
   next_steps: string[]
   metadata: {
     timestamp: string
     version: string
     model: string
   }
+}
+
+export interface BusinessRisk {
+  risk: string
+  severity: 'high' | 'medium' | 'low'
+  affected_users: string
+  business_consequences: string
+  mitigation: string
+}
+
+export interface MissedOpportunity {
+  opportunity: string
+  potential_impact: string
+  effort_required: 'high' | 'medium' | 'low'
+  priority: 'high' | 'medium' | 'low'
+  implementation: string
 }
 
 // Union тип для всех возможных ответов

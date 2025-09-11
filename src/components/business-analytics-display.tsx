@@ -90,6 +90,32 @@ export const BusinessAnalyticsDisplay: React.FC<BusinessAnalyticsDisplayProps> =
         </div>
       </div>
 
+      {/* Анализ индустрии */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center">
+            <BarChart3 className="w-5 h-5 mr-2" />
+            Анализ индустрии
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-4">
+            <div>
+              <h4 className="font-semibold text-slate-900 mb-2">Определенная индустрия</h4>
+              <p className="text-slate-700">{data.industry_analysis.identified_industry}</p>
+            </div>
+            <div>
+              <h4 className="font-semibold text-slate-900 mb-2">Соответствие отраслевым стандартам</h4>
+              <p className="text-slate-700">{data.industry_analysis.industry_standards}</p>
+            </div>
+            <div>
+              <h4 className="font-semibold text-slate-900 mb-2">Контекст рынка</h4>
+              <p className="text-slate-700">{data.industry_analysis.market_context}</p>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
       {/* Конверсионная воронка */}
       <Card>
         <CardHeader>
@@ -159,8 +185,8 @@ export const BusinessAnalyticsDisplay: React.FC<BusinessAnalyticsDisplayProps> =
         <CardContent>
           <div className="grid md:grid-cols-3 gap-4">
             <div className="text-center">
-              <h4 className="text-sm text-slate-600 mb-1">Текущая выручка</h4>
-              <p className="text-2xl font-bold text-slate-900">{data.business_metrics.revenue_impact.current_monthly_revenue}</p>
+              <h4 className="text-sm text-slate-600 mb-1">Текущие показатели</h4>
+              <p className="text-2xl font-bold text-slate-900">{data.business_metrics.revenue_impact.current_performance}</p>
             </div>
             <div className="text-center">
               <h4 className="text-sm text-slate-600 mb-1">Потенциальный рост</h4>
@@ -173,6 +199,88 @@ export const BusinessAnalyticsDisplay: React.FC<BusinessAnalyticsDisplayProps> =
           </div>
         </CardContent>
       </Card>
+
+      {/* Бизнес-риски */}
+      {data.business_risks && data.business_risks.length > 0 && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center">
+              <Target className="w-5 h-5 mr-2" />
+              Бизнес-риски
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              {data.business_risks.map((risk, index) => (
+                <div key={index} className="border-l-4 border-red-200 pl-4 py-2">
+                  <div className="flex items-center justify-between mb-2">
+                    <h4 className="font-semibold text-slate-900">{risk.risk}</h4>
+                    <div className="flex gap-2">
+                      <Badge className={getImpactColor(risk.severity)}>
+                        {risk.severity}
+                      </Badge>
+                      <Badge variant="outline">
+                        {risk.affected_users}
+                      </Badge>
+                    </div>
+                  </div>
+                  <div className="grid md:grid-cols-2 gap-4 text-sm">
+                    <div>
+                      <span className="text-slate-600">Бизнес-последствия:</span>
+                      <p className="font-medium text-red-600">{risk.business_consequences}</p>
+                    </div>
+                    <div>
+                      <span className="text-slate-600">Рекомендации по снижению:</span>
+                      <p className="font-medium">{risk.mitigation}</p>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Упущенные возможности */}
+      {data.missed_opportunities && data.missed_opportunities.length > 0 && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center">
+              <TrendingUp className="w-5 h-5 mr-2" />
+              Упущенные возможности
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              {data.missed_opportunities.map((opportunity, index) => (
+                <div key={index} className="bg-slate-50 p-4 rounded-lg">
+                  <div className="flex items-center justify-between mb-2">
+                    <h4 className="font-semibold text-slate-900">{opportunity.opportunity}</h4>
+                    <div className="flex gap-2">
+                      <Badge className={getPriorityColor(opportunity.priority)}>
+                        {opportunity.priority}
+                      </Badge>
+                      <Badge className={getImpactColor(opportunity.effort_required)}>
+                        {opportunity.effort_required}
+                      </Badge>
+                    </div>
+                  </div>
+                  <div className="grid md:grid-cols-2 gap-4 text-sm">
+                    <div>
+                      <span className="text-slate-600">Потенциальное влияние:</span>
+                      <p className="font-medium text-green-600">{opportunity.potential_impact}</p>
+                    </div>
+                    <div>
+                      <span className="text-slate-600">Как реализовать:</span>
+                      <p className="font-medium">{opportunity.implementation}</p>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       {/* Барьеры конверсии */}
       <Card>
@@ -210,41 +318,6 @@ export const BusinessAnalyticsDisplay: React.FC<BusinessAnalyticsDisplayProps> =
         </CardContent>
       </Card>
 
-      {/* Возможности оптимизации */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Возможности оптимизации</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-4">
-            {data.optimization_opportunities.map((opportunity, index) => (
-              <div key={index} className="bg-slate-50 p-4 rounded-lg">
-                <div className="flex items-center justify-between mb-2">
-                  <h4 className="font-semibold text-slate-900">{opportunity.opportunity}</h4>
-                  <div className="flex gap-2">
-                    <Badge className={getPriorityColor(opportunity.priority)}>
-                      {opportunity.priority}
-                    </Badge>
-                    <Badge className={getImpactColor(opportunity.effort_required)}>
-                      {opportunity.effort_required}
-                    </Badge>
-                  </div>
-                </div>
-                <div className="grid md:grid-cols-2 gap-4 text-sm">
-                  <div>
-                    <span className="text-slate-600">Потенциальный эффект:</span>
-                    <p className="font-medium">{opportunity.potential_impact}</p>
-                  </div>
-                  <div>
-                    <span className="text-slate-600">Ожидаемый ROI:</span>
-                    <p className="font-medium text-green-600">{opportunity.expected_roi}</p>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
 
       {/* Инсайты поведения пользователей */}
       <Card>
