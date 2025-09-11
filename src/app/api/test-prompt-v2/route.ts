@@ -59,12 +59,38 @@ export async function POST(request: NextRequest) {
     // Парсим JSON ответ
     let parsedResult
     try {
-      parsedResult = JSON.parse(analysisResult)
+      // Пытаемся найти JSON в ответе (может быть обернут в markdown или иметь дополнительный текст)
+      let jsonString = analysisResult.trim()
+      
+      // Убираем markdown блоки если есть
+      if (jsonString.includes('```json')) {
+        const jsonMatch = jsonString.match(/```json\s*([\s\S]*?)\s*```/)
+        if (jsonMatch) {
+          jsonString = jsonMatch[1]
+        }
+      } else if (jsonString.includes('```')) {
+        const jsonMatch = jsonString.match(/```\s*([\s\S]*?)\s*```/)
+        if (jsonMatch) {
+          jsonString = jsonMatch[1]
+        }
+      }
+      
+      // Ищем JSON объект в тексте
+      const jsonStart = jsonString.indexOf('{')
+      const jsonEnd = jsonString.lastIndexOf('}')
+      
+      if (jsonStart !== -1 && jsonEnd !== -1 && jsonEnd > jsonStart) {
+        jsonString = jsonString.substring(jsonStart, jsonEnd + 1)
+      }
+      
+      parsedResult = JSON.parse(jsonString)
     } catch (parseError) {
       console.error('JSON Parse Error:', parseError)
+      console.error('Raw response:', analysisResult)
       return NextResponse.json({ 
         error: 'Failed to parse AI response as JSON',
-        rawResponse: analysisResult 
+        rawResponse: analysisResult,
+        parseError: parseError instanceof Error ? parseError.message : 'Unknown parse error'
       }, { status: 500 })
     }
 
