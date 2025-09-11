@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { openai } from '@/lib/openai'
 import { supabase } from '@/lib/supabase'
-import { ABTestResponse } from '@/lib/analysis-types'
+import { BusinessAnalyticsResponse } from '@/lib/analysis-types'
 import fs from 'fs'
 import path from 'path'
 
@@ -37,9 +37,9 @@ export async function POST(request: NextRequest) {
       }, { status: 400 })
     }
 
-    // Загружаем промт для AB тестов
-    const promptPath = path.join(process.cwd(), 'prompts', 'ab-test-prompt.md')
-    const abTestPrompt = fs.readFileSync(promptPath, 'utf-8')
+    // Загружаем промт для бизнес аналитики
+    const promptPath = path.join(process.cwd(), 'prompts', 'business-analytics-prompt.md')
+    const businessAnalyticsPrompt = fs.readFileSync(promptPath, 'utf-8')
 
     // Подготавливаем данные для промта
     const auditData = {
@@ -51,7 +51,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Формируем промт с данными аудита
-    const fullPrompt = `${abTestPrompt}
+    const fullPrompt = `${businessAnalyticsPrompt}
 
 **Данные для анализа:**
 - Изображение: ${auditData.imageUrl}
@@ -60,7 +60,7 @@ export async function POST(request: NextRequest) {
 - Целевая аудитория: ${auditData.targetAudience}
 - Результат UX анализа: ${JSON.stringify(auditData.analysisResult, null, 2)}
 
-Сгенерируй AB тесты на основе этих данных.`
+Сгенерируй бизнес аналитику на основе этих данных.`
 
     // Отправляем запрос к OpenAI
     const completion = await openai.chat.completions.create({
@@ -68,7 +68,7 @@ export async function POST(request: NextRequest) {
       messages: [
         {
           role: "system",
-          content: "Ты - Senior UI/UX & CRO консультант. Генерируй AB тесты в JSON формате."
+          content: "Ты - Senior Product Analyst. Генерируй бизнес аналитику в JSON формате."
         },
         {
           role: "user",
@@ -85,14 +85,14 @@ export async function POST(request: NextRequest) {
     }
 
     // Парсим JSON ответ
-    let abTestData: ABTestResponse
+    let businessAnalyticsData: BusinessAnalyticsResponse
     try {
       // Ищем JSON в ответе (может быть обернут в markdown)
       const jsonMatch = responseText.match(/```json\n([\s\S]*?)\n```/) || 
                        responseText.match(/\{[\s\S]*\}/)
       
       if (jsonMatch) {
-        abTestData = JSON.parse(jsonMatch[1] || jsonMatch[0])
+        businessAnalyticsData = JSON.parse(jsonMatch[1] || jsonMatch[0])
       } else {
         throw new Error('No JSON found in response')
       }
@@ -100,18 +100,18 @@ export async function POST(request: NextRequest) {
       console.error('JSON parse error:', parseError)
       console.error('Response text:', responseText)
       return NextResponse.json({ 
-        error: 'Failed to parse AB test response',
+        error: 'Failed to parse business analytics response',
         details: responseText 
       }, { status: 500 })
     }
 
-    // Сохраняем результат AB тестов в базу
+    // Сохраняем результат бизнес аналитики в базу
     const { error: updateError } = await supabase
       .from('audits')
       .update({
         result_data: {
           ...audit.result_data,
-          ab_tests: abTestData
+          business_analytics: businessAnalyticsData
         }
       })
       .eq('id', auditId)
@@ -119,17 +119,17 @@ export async function POST(request: NextRequest) {
     if (updateError) {
       console.error('Database update error:', updateError)
       return NextResponse.json({ 
-        error: 'Failed to save AB tests' 
+        error: 'Failed to save business analytics' 
       }, { status: 500 })
     }
 
     return NextResponse.json({
       success: true,
-      data: abTestData
+      data: businessAnalyticsData
     })
 
   } catch (error) {
-    console.error('AB test generation error:', error)
+    console.error('Business analytics generation error:', error)
     return NextResponse.json({ 
       error: 'Internal server error',
       details: error instanceof Error ? error.message : 'Unknown error'

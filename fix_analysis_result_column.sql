@@ -16,3 +16,4 @@ UPDATE public.audits
 SET analysis_result = result_data 
 WHERE analysis_result IS NULL AND result_data IS NOT NULL;
 
+

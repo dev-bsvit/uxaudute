@@ -37,3 +37,4 @@ CREATE POLICY "Users can update own audits" ON public.audits
 CREATE POLICY "Users can delete own audits" ON public.audits
   FOR DELETE USING (auth.uid() = user_id);
 
+

@@ -1,83 +1,138 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { openai } from '@/lib/openai'
+import { supabase } from '@/lib/supabase'
+import { HypothesisResponse } from '@/lib/analysis-types'
+import fs from 'fs'
+import path from 'path'
 
 export async function POST(request: NextRequest) {
   try {
-    const { context } = await request.json()
+    const { auditId } = await request.json()
 
-    if (!context) {
-      return NextResponse.json(
-        { error: 'Контекст обязателен для анализа' },
-        { status: 400 }
-      )
+    if (!auditId) {
+      return NextResponse.json({ error: 'Audit ID is required' }, { status: 400 })
     }
 
-    const prompt = `Ты Senior Product Manager и эксперт по созданию продуктовых гипотез. Создай продуктовые гипотезы на основе UX проблем.
+    // Получаем данные аудита из базы
+    const { data: audit, error: auditError } = await supabase
+      .from('audits')
+      .select(`
+        *,
+        projects (
+          context,
+          target_audience
+        )
+      `)
+      .eq('id', auditId)
+      .single()
 
-Данные UX анализа:
-${context}
+    if (auditError || !audit) {
+      return NextResponse.json({ error: 'Audit not found' }, { status: 404 })
+    }
 
-Создай гипотезы со следующей структурой:
+    // Проверяем, что основной аудит завершен
+    if (audit.status !== 'completed' || !audit.result_data) {
+      return NextResponse.json({ 
+        error: 'Main audit must be completed first' 
+      }, { status: 400 })
+    }
 
-## Продуктовые гипотезы для UX улучшений
+    // Загружаем промт для гипотез
+    const promptPath = path.join(process.cwd(), 'prompts', 'hypotheses-prompt.md')
+    const hypothesesPrompt = fs.readFileSync(promptPath, 'utf-8')
 
-### Гипотеза #1: [Краткое название]
-**Проблема**: Из UX анализа
-**Мы верим, что**: [описание решения]
-**Приведет к**: [ожидаемый результат]
-**Для**: [целевая аудитория]
-**Мы узнаем это по**: [метрики успеха]
+    // Подготавливаем данные для промта
+    const auditData = {
+      imageUrl: audit.screenshot_url,
+      context: audit.context || '',
+      projectContext: audit.projects?.context || '',
+      targetAudience: audit.projects?.target_audience || '',
+      analysisResult: audit.result_data
+    }
 
-**ICE Score оценка**:
-- Impact (Влияние): X/10
-- Confidence (Уверенность): X/10  
-- Ease (Простота): X/10
-- **Общий балл**: XX/30
+    // Формируем промт с данными аудита
+    const fullPrompt = `${hypothesesPrompt}
 
-**План валидации**:
-- MVP для тестирования
-- Способы измерения
-- Критерии принятия/отклонения
+**Данные для анализа:**
+- Изображение: ${auditData.imageUrl}
+- Контекст аудита: ${auditData.context}
+- Контекст проекта: ${auditData.projectContext}
+- Целевая аудитория: ${auditData.targetAudience}
+- Результат UX анализа: ${JSON.stringify(auditData.analysisResult, null, 2)}
 
-### Гипотеза #2: [Название]
-[Аналогичная структура]
+Сгенерируй гипотезы на основе этих данных.`
 
-### Roadmap гипотез
-- Последовательность тестирования
-- Зависимости между гипотезами
-- Timeline на квартал
-
-### Success Metrics Framework
-- North Star метрика
-- Leading indicators
-- Lagging indicators
-- Guardrail метрики
-
-### Learning Agenda
-- Ключевые вопросы для исследования
-- Методы сбора данных (аналитика, интервью, опросы)
-- План итераций
-
-Используй фреймворки Lean Startup и Jobs-to-be-Done. Отвечай на русском языке.`
-
+    // Отправляем запрос к OpenAI
     const completion = await openai.chat.completions.create({
       model: "gpt-4o",
-      messages: [{ role: "user", content: prompt }],
+      messages: [
+        {
+          role: "system",
+          content: "Ты - Senior UX Researcher. Генерируй гипотезы в JSON формате."
+        },
+        {
+          role: "user",
+          content: fullPrompt
+        }
+      ],
       temperature: 0.7,
-      max_tokens: 2000,
+      max_tokens: 3000
     })
 
-    const result = completion.choices[0]?.message?.content || 'Не удалось создать гипотезы'
-    return NextResponse.json({ result })
+    const responseText = completion.choices[0]?.message?.content
+    if (!responseText) {
+      throw new Error('No response from OpenAI')
+    }
+
+    // Парсим JSON ответ
+    let hypothesesData: HypothesisResponse
+    try {
+      // Ищем JSON в ответе (может быть обернут в markdown)
+      const jsonMatch = responseText.match(/```json\n([\s\S]*?)\n```/) || 
+                       responseText.match(/\{[\s\S]*\}/)
+      
+      if (jsonMatch) {
+        hypothesesData = JSON.parse(jsonMatch[1] || jsonMatch[0])
+      } else {
+        throw new Error('No JSON found in response')
+      }
+    } catch (parseError) {
+      console.error('JSON parse error:', parseError)
+      console.error('Response text:', responseText)
+      return NextResponse.json({ 
+        error: 'Failed to parse hypotheses response',
+        details: responseText 
+      }, { status: 500 })
+    }
+
+    // Сохраняем результат гипотез в базу
+    const { error: updateError } = await supabase
+      .from('audits')
+      .update({
+        result_data: {
+          ...audit.result_data,
+          hypotheses: hypothesesData
+        }
+      })
+      .eq('id', auditId)
+
+    if (updateError) {
+      console.error('Database update error:', updateError)
+      return NextResponse.json({ 
+        error: 'Failed to save hypotheses' 
+      }, { status: 500 })
+    }
+
+    return NextResponse.json({
+      success: true,
+      data: hypothesesData
+    })
 
   } catch (error) {
-    console.error('Hypotheses API error:', error)
-    return NextResponse.json(
-      { error: 'Не удалось создать гипотезы. Попробуйте позже.' },
-      { status: 500 }
-    )
+    console.error('Hypotheses generation error:', error)
+    return NextResponse.json({ 
+      error: 'Internal server error',
+      details: error instanceof Error ? error.message : 'Unknown error'
+    }, { status: 500 })
   }
 }
-
-
-

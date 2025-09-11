@@ -50,3 +50,4 @@ target_audience  | text      | YES
 5. Nullable: `true`
 6. Нажать "Save"
 
+

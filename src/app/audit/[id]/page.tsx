@@ -4,6 +4,8 @@ import { useState, useEffect } from 'react'
 import { useParams } from 'next/navigation'
 import { AnalysisResult } from '@/components/analysis-result'
 import { ABTestDisplay } from '@/components/ab-test-display'
+import { HypothesesDisplay } from '@/components/hypotheses-display'
+import { BusinessAnalyticsDisplay } from '@/components/business-analytics-display'
 import { SidebarDemo } from '@/components/sidebar-demo'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card'
@@ -12,7 +14,7 @@ import { Download, Share2, RefreshCw } from 'lucide-react'
 import { BackArrow } from '@/components/icons/back-arrow'
 import { supabase } from '@/lib/supabase'
 import { User } from '@supabase/supabase-js'
-import { ABTestResponse } from '@/lib/analysis-types'
+import { ABTestResponse, HypothesisResponse, BusinessAnalyticsResponse } from '@/lib/analysis-types'
 import Link from 'next/link'
 
 interface Audit {
@@ -41,6 +43,10 @@ export default function AuditPage() {
   const [error, setError] = useState<string | null>(null)
   const [abTestData, setAbTestData] = useState<ABTestResponse | null>(null)
   const [abTestLoading, setAbTestLoading] = useState(false)
+  const [hypothesesData, setHypothesesData] = useState<HypothesisResponse | null>(null)
+  const [hypothesesLoading, setHypothesesLoading] = useState(false)
+  const [businessAnalyticsData, setBusinessAnalyticsData] = useState<BusinessAnalyticsResponse | null>(null)
+  const [businessAnalyticsLoading, setBusinessAnalyticsLoading] = useState(false)
 
   // Функция для генерации AB тестов
   const generateABTests = async () => {
@@ -75,6 +81,78 @@ export default function AuditPage() {
       console.error('Error generating AB tests:', error)
     } finally {
       setAbTestLoading(false)
+    }
+  }
+
+  // Функция для генерации гипотез
+  const generateHypotheses = async () => {
+    if (!audit) return
+    
+    setHypothesesLoading(true)
+    try {
+      const response = await fetch('/api/hypotheses', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ auditId: audit.id }),
+      })
+
+      if (!response.ok) {
+        throw new Error('Failed to generate hypotheses')
+      }
+
+      const data = await response.json()
+      setHypothesesData(data.data)
+      
+      // Обновляем данные аудита
+      setAudit(prev => prev ? {
+        ...prev,
+        result_data: {
+          ...prev.result_data,
+          hypotheses: data.data
+        }
+      } : null)
+    } catch (error) {
+      console.error('Error generating hypotheses:', error)
+    } finally {
+      setHypothesesLoading(false)
+    }
+  }
+
+  // Функция для генерации бизнес аналитики
+  const generateBusinessAnalytics = async () => {
+    if (!audit) return
+    
+    setBusinessAnalyticsLoading(true)
+    try {
+      const response = await fetch('/api/business-analytics', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ auditId: audit.id }),
+      })
+
+      if (!response.ok) {
+        throw new Error('Failed to generate business analytics')
+      }
+
+      const data = await response.json()
+      setBusinessAnalyticsData(data.data)
+      
+      // Обновляем данные аудита
+      setAudit(prev => prev ? {
+        ...prev,
+        result_data: {
+          ...prev.result_data,
+          business_analytics: data.data
+        }
+      } : null)
+    } catch (error) {
+      console.error('Error generating business analytics:', error)
+    } finally {
+      setBusinessAnalyticsLoading(false)
     }
   }
 
@@ -130,6 +208,16 @@ export default function AuditPage() {
         // Загружаем AB тесты если они есть
         if (auditData.result_data.ab_tests) {
           setAbTestData(auditData.result_data.ab_tests)
+        }
+        
+        // Загружаем гипотезы если они есть
+        if (auditData.result_data.hypotheses) {
+          setHypothesesData(auditData.result_data.hypotheses)
+        }
+        
+        // Загружаем бизнес аналитику если она есть
+        if (auditData.result_data.business_analytics) {
+          setBusinessAnalyticsData(auditData.result_data.business_analytics)
         }
       } else {
         console.log('⚠️ Результат не найден в audits, аудит может быть в процессе')
@@ -289,67 +377,19 @@ export default function AuditPage() {
             </TabsContent>
             
             <TabsContent value="hypotheses">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Гипотезы</CardTitle>
-                  <p className="text-sm text-muted-foreground">
-                    Предложения по улучшению интерфейса на основе анализа
-                  </p>
-                </CardHeader>
-                <CardContent className="text-center py-12">
-                  <h3 className="text-lg font-semibold text-slate-900 mb-2">
-                    Гипотезы
-                  </h3>
-                  <p className="text-slate-600 mb-4">
-                    Раздел в разработке
-                  </p>
-                  <p className="text-sm text-slate-500">
-                    Здесь будут отображаться гипотезы для улучшения пользовательского опыта
-                  </p>
-                </CardContent>
-                <CardFooter className="flex gap-2">
-                  <Button variant="outline" size="sm" disabled>
-                    <Download className="w-4 h-4 mr-2" />
-                    Скачать отчет
-                  </Button>
-                  <Button variant="outline" size="sm" disabled>
-                    <Share2 className="w-4 h-4 mr-2" />
-                    Поделиться
-                  </Button>
-                </CardFooter>
-              </Card>
+              <HypothesesDisplay 
+                data={hypothesesData}
+                isLoading={hypothesesLoading}
+                onGenerate={audit?.status === 'completed' ? generateHypotheses : undefined}
+              />
             </TabsContent>
             
             <TabsContent value="analytics">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Продуктовая аналитика</CardTitle>
-                  <p className="text-sm text-muted-foreground">
-                    Метрики и аналитика продукта для принятия решений
-                  </p>
-                </CardHeader>
-                <CardContent className="text-center py-12">
-                  <h3 className="text-lg font-semibold text-slate-900 mb-2">
-                    Продуктовая аналитика
-                  </h3>
-                  <p className="text-slate-600 mb-4">
-                    Раздел в разработке
-                  </p>
-                  <p className="text-sm text-slate-500">
-                    Здесь будут отображаться метрики продукта и аналитические данные
-                  </p>
-                </CardContent>
-                <CardFooter className="flex gap-2">
-                  <Button variant="outline" size="sm" disabled>
-                    <Download className="w-4 h-4 mr-2" />
-                    Скачать отчет
-                  </Button>
-                  <Button variant="outline" size="sm" disabled>
-                    <Share2 className="w-4 h-4 mr-2" />
-                    Поделиться
-                  </Button>
-                </CardFooter>
-              </Card>
+              <BusinessAnalyticsDisplay 
+                data={businessAnalyticsData}
+                isLoading={businessAnalyticsLoading}
+                onGenerate={audit?.status === 'completed' ? generateBusinessAnalytics : undefined}
+              />
             </TabsContent>
           </Tabs>
         ) : (

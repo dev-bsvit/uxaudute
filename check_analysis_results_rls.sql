@@ -16,3 +16,4 @@ FROM information_schema.columns
 WHERE table_name = 'analysis_results' 
 ORDER BY ordinal_position;
 
+

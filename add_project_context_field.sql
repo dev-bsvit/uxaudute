@@ -10,3 +10,4 @@ UPDATE projects
 SET context = 'Контекст не указан' 
 WHERE context IS NULL;
 
+

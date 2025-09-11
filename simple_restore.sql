@@ -43,3 +43,4 @@ CREATE TABLE IF NOT EXISTS public.audit_history (
   created_at timestamp with time zone DEFAULT timezone('utc'::text, now()) NOT NULL
 );
 
+

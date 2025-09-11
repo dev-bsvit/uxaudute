@@ -153,10 +153,109 @@ export interface ABTestResponse {
   }
 }
 
-// Union тип для всех возможных ответов
-export type AllAnalysisResponse = AnalysisResponse | ABTestResponse
-
 // Утилита для проверки AB тестов
 export function isABTestResponse(response: AllAnalysisResponse): response is ABTestResponse {
   return 'ab_tests' in response
+}
+
+// Hypotheses Types
+export interface Hypothesis {
+  id: string
+  title: string
+  description: string
+  problem: string
+  solution: string
+  expected_impact: string
+  validation_method: string
+  priority: 'high' | 'medium' | 'low'
+  effort: 'high' | 'medium' | 'low'
+  confidence: number
+  metrics: string[]
+  assumptions: string[]
+}
+
+export interface HypothesisResponse {
+  hypotheses: Hypothesis[]
+  next_steps: string[]
+  metadata: {
+    timestamp: string
+    version: string
+    model: string
+  }
+}
+
+// Утилита для проверки гипотез
+export function isHypothesisResponse(response: AllAnalysisResponse): response is HypothesisResponse {
+  return 'hypotheses' in response
+}
+
+// Business Analytics Types
+export interface ConversionFunnel {
+  awareness: string
+  interest: string
+  consideration: string
+  purchase: string
+  retention: string
+}
+
+export interface KPI {
+  metric: string
+  current_value: string
+  benchmark: string
+  impact: string
+  potential_improvement: string
+}
+
+export interface RevenueImpact {
+  current_monthly_revenue: string
+  potential_increase: string
+  cost_of_issues: string
+}
+
+export interface UserBehaviorInsight {
+  pattern: string
+  description: string
+  business_impact: string
+  recommendation: string
+}
+
+export interface ConversionBarrier {
+  barrier: string
+  impact_level: 'high' | 'medium' | 'low'
+  affected_users: string
+  business_cost: string
+  solution: string
+}
+
+export interface OptimizationOpportunity {
+  opportunity: string
+  potential_impact: string
+  effort_required: 'high' | 'medium' | 'low'
+  priority: 'high' | 'medium' | 'low'
+  expected_roi: string
+}
+
+export interface BusinessAnalyticsResponse {
+  business_metrics: {
+    conversion_funnel: ConversionFunnel
+    key_kpis: KPI[]
+    revenue_impact: RevenueImpact
+  }
+  user_behavior_insights: UserBehaviorInsight[]
+  conversion_barriers: ConversionBarrier[]
+  optimization_opportunities: OptimizationOpportunity[]
+  next_steps: string[]
+  metadata: {
+    timestamp: string
+    version: string
+    model: string
+  }
+}
+
+// Union тип для всех возможных ответов
+export type AllAnalysisResponse = AnalysisResponse | ABTestResponse | HypothesisResponse | BusinessAnalyticsResponse
+
+// Утилита для проверки бизнес аналитики
+export function isBusinessAnalyticsResponse(response: AllAnalysisResponse): response is BusinessAnalyticsResponse {
+  return 'business_metrics' in response
 }
