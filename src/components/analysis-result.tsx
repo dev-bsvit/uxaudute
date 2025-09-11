@@ -37,8 +37,18 @@ export function AnalysisResult({ result, screenshot, url, auditId }: AnalysisRes
   }
 
   // Для текстовых результатов используем старый формат
-  const parseAnalysis = (text: string) => {
-    const sections = text.split(/(?=##?\s)/g).filter(s => s.trim())
+  const parseAnalysis = (text: string | StructuredAnalysisResponse) => {
+    // Если это объект с analysis_result, извлекаем строку
+    let textToParse = ''
+    if (typeof text === 'string') {
+      textToParse = text
+    } else if (typeof text === 'object' && text && 'analysis_result' in text) {
+      textToParse = (text as any).analysis_result || ''
+    } else {
+      textToParse = ''
+    }
+    
+    const sections = textToParse.split(/(?=##?\s)/g).filter(s => s.trim())
     
     let description = ''
     let survey = ''
@@ -61,7 +71,7 @@ export function AnalysisResult({ result, screenshot, url, auditId }: AnalysisRes
     return { description, survey, problems, selfCheck }
   }
   
-  const { description, survey, problems, selfCheck } = parseAnalysis(typeof result === 'string' ? result : '')
+  const { description, survey, problems, selfCheck } = parseAnalysis(result)
   
   const formatText = (text: string | undefined | null) => {
     if (!text || typeof text !== 'string') return ''
