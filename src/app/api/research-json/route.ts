@@ -22,7 +22,7 @@ export async function POST(request: NextRequest) {
 
     // Загружаем JSON-структурированный промпт
     console.log('Загружаем промпт...')
-    const jsonPrompt = await loadJSONPrompt()
+    const jsonPrompt = loadJSONPrompt()
     console.log('Промпт загружен, длина:', jsonPrompt.length)
     const finalPrompt = combineWithContext(jsonPrompt, context)
     console.log('Финальный промпт готов, длина:', finalPrompt.length)
@@ -192,34 +192,14 @@ export async function POST(request: NextRequest) {
 /**
  * Загружает JSON-структурированный промпт из файла
  */
-async function loadJSONPrompt(): Promise<string> {
+function loadJSONPrompt(): string {
   try {
-    // Пробуем разные пути к файлу промпта
-    const possiblePaths = [
-      join(process.cwd(), 'prompts', 'json-structured-prompt.md'),
-      join(process.cwd(), 'src', 'prompts', 'json-structured-prompt.md'),
-      join(process.cwd(), '..', 'prompts', 'json-structured-prompt.md')
-    ]
+    // Простой путь к файлу промпта
+    const promptPath = join(process.cwd(), 'prompts', 'json-structured-prompt.md')
+    console.log('Загружаем промпт из:', promptPath)
     
-    let prompt = ''
-    let loaded = false
-    
-    for (const promptPath of possiblePaths) {
-      try {
-        console.log('Пробуем загрузить промпт из:', promptPath)
-        prompt = readFileSync(promptPath, 'utf-8')
-        console.log('Промпт загружен успешно, длина:', prompt.length)
-        loaded = true
-        break
-      } catch (pathError) {
-        console.log('Не удалось загрузить из:', promptPath)
-        continue
-      }
-    }
-    
-    if (!loaded) {
-      throw new Error('Не удалось найти файл промпта ни по одному из путей')
-    }
+    const prompt = readFileSync(promptPath, 'utf-8')
+    console.log('Промпт загружен успешно, длина:', prompt.length)
     
     return prompt
   } catch (error) {
