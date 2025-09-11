@@ -3,41 +3,34 @@ import { openai } from '@/lib/openai'
 
 export async function POST(request: NextRequest) {
   try {
-    console.log('=== Тестируем OpenAI API ===')
+    console.log('=== TEST OPENAI API вызван ===')
     
-    const response = await openai.chat.completions.create({
-      model: 'gpt-4o',
-      messages: [
-        {
-          role: 'system',
-          content: 'Ты опытный UX-дизайнер. Отвечай только в формате JSON.'
-        },
-        {
-          role: 'user',
-          content: 'Проанализируй этот экран и верни JSON с полем "screenType" и "userGoal".'
-        }
-      ],
+    // Простой тест OpenAI API
+    const completion = await openai.chat.completions.create({
+      model: "gpt-4o",
+      messages: [{ 
+        role: "user", 
+        content: "Привет! Это тест. Ответь просто 'Тест прошел успешно'." 
+      }],
       temperature: 0.7,
-      max_tokens: 1000,
-      response_format: { type: "json_object" }
+      max_tokens: 100
     })
 
-    const result = response.choices[0]?.message?.content || '{}'
-    console.log('OpenAI test response:', result)
+    const result = completion.choices[0]?.message?.content || 'Нет ответа'
+    console.log('OpenAI ответил:', result)
     
     return NextResponse.json({
       success: true,
-      response: result,
-      length: result.length
+      message: 'OpenAI API работает',
+      response: result
     })
     
   } catch (error) {
-    console.error('OpenAI test error:', error)
+    console.error('Ошибка в test-openai API:', error)
     return NextResponse.json({
       success: false,
-      error: error instanceof Error ? error.message : 'Unknown error'
+      error: 'Ошибка OpenAI API',
+      details: error instanceof Error ? error.message : 'Unknown error'
     }, { status: 500 })
   }
 }
-
-
