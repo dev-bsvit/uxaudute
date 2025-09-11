@@ -18,12 +18,14 @@ export interface UXQuestion {
   options: string[]
   scores: number[]
   confidence: number
-  category: 'clarity' | 'usability' | 'accessibility' | 'conversion' | 'navigation' | 'content'
+  category: 'clarity' | 'usability' | 'accessibility' | 'conversion' | 'navigation' | 'content' | 'trust' | 'value'
   principle?: string // UX принцип, который тестируется
   explanation?: string // Объяснение вопроса
 }
 
 export interface UXSurvey {
+  dynamicQuestionsAdded?: boolean // v2: были ли добавлены контекстные вопросы
+  screenType?: string // v2: тип экрана для адаптации вопросов
   questions: UXQuestion[]
   overallConfidence: number
   summary: {
@@ -42,25 +44,59 @@ export interface Audience {
 }
 
 // Блок "Поведение"
+export interface UserScenarios {
+  idealPath: string // Идеальный путь пользователя
+  typicalError: string // Типичная ошибка пользователей
+  alternativeWorkaround: string // Альтернативный обход проблем
+}
+
+export interface FrictionPoint {
+  point: string // Описание точки трения
+  impact: 'minor' | 'major' // Уровень влияния
+}
+
 export interface Behavior {
-  userScenarios: string // Пользовательские сценарии - 1-2 абзаца
+  userScenarios: UserScenarios // v2: объект вместо строки
   behavioralPatterns: string // Поведенческие паттерны - 1 абзац
-  frictionPoints: string[] // Точки трения - от 2 до 8 коротких предложений
+  frictionPoints: FrictionPoint[] // v2: массив объектов вместо строк
   actionMotivation: string // Мотивация к действию - 1 абзац
 }
 
 // Блок "Проблемы и решения"
+export interface BusinessImpact {
+  metric: string // Метрика, на которую влияет проблема
+  impactLevel: 'high' | 'medium' | 'low' // Уровень влияния
+  description: string // Описание влияния на бизнес
+}
+
 export interface ProblemSolution {
   element: string
   problem: string
   principle: string
   consequence: string
+  businessImpact?: BusinessImpact // v2: влияние на бизнес-метрики
   recommendation: string
   expectedEffect: string
   priority: 'high' | 'medium' | 'low'
+  confidence?: number // v2: уверенность в рекомендации
+  confidenceSource?: string // v2: источник уверенности
 }
 
 // Блок "Self-Check & Confidence"
+export interface VarietyCheck {
+  passed: boolean // Проверка на разнообразие рекомендаций
+  description: string // Описание проверки
+  principleVariety: string[] // Разнообразие принципов
+  issueTypes: string[] // Типы проблем
+}
+
+export interface ConfidenceVariation {
+  min: number // Минимальная уверенность
+  max: number // Максимальная уверенность
+  average: number // Средняя уверенность
+  explanation: string // Объяснение вариации
+}
+
 export interface SelfCheck {
   checklist: {
     coversAllElements: boolean
@@ -68,11 +104,13 @@ export interface SelfCheck {
     principlesJustified: boolean
     actionClarity: boolean
   }
+  varietyCheck?: VarietyCheck // v2: проверка на шаблонность
   confidence: {
     analysis: number
     survey: number
     recommendations: number
   }
+  confidenceVariation?: ConfidenceVariation // v2: анализ вариации уверенности
 }
 
 // Полная структура ответа
