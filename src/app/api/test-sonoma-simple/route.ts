@@ -79,7 +79,7 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     console.error('❌ Ошибка запроса:', error)
     
-    if (error.name === 'AbortError') {
+    if (error instanceof Error && error.name === 'AbortError') {
       return NextResponse.json({ 
         error: 'Таймаут - Sonoma Sky Alpha не отвечает в течение 10 секунд',
         timeout: true
@@ -87,7 +87,7 @@ export async function POST(request: NextRequest) {
     }
     
     return NextResponse.json({ 
-      error: `Ошибка: ${error}` 
+      error: `Ошибка: ${error instanceof Error ? error.message : 'Unknown error'}` 
     }, { status: 500 })
   }
 }
