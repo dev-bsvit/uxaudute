@@ -18,7 +18,7 @@ const openrouterConfig = {
     claude: process.env.OPENROUTER_MODEL_CLAUDE || 'anthropic/claude-3.5-sonnet',
     sonoma: process.env.OPENROUTER_MODEL_SONOMA || 'openrouter/sonoma-sky-alpha',
     gpt4: process.env.OPENROUTER_MODEL_GPT4 || 'openai/gpt-4o',
-    deepseek: process.env.OPENROUTER_MODEL_DEEPSEEK || 'deepseek/deepseek-chat-v3.1:free',
+    deepseek: 'deepseek/deepseek-chat-v3.1:free',
     default: process.env.OPENROUTER_DEFAULT_MODEL || 'anthropic/claude-3.5-sonnet'
   }
 }
