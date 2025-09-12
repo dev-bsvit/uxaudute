@@ -3,16 +3,16 @@
 > **Ветка**: `feature/openrouter-integration`  
 > **Статус**: Готово к тестированию
 
-## 🚀 Быстрый тест
+## 🚀 Быстрый тест на продакшене
 
-### 1. **Запуск локального сервера:**
-```bash
-npm run dev
+### 1. **Продакшен URL:**
+```
+https://uxaudute.vercel.app
 ```
 
 ### 2. **Тест конфигурации OpenRouter:**
 ```bash
-curl -X GET http://localhost:3000/api/test-openrouter
+curl -X GET https://uxaudute.vercel.app/api/test-openrouter
 ```
 
 **Ожидаемый результат:**
@@ -36,7 +36,7 @@ curl -X GET http://localhost:3000/api/test-openrouter
 
 ### 3. **Тест подключения (без API ключа):**
 ```bash
-curl -X POST http://localhost:3000/api/test-openrouter
+curl -X POST https://uxaudute.vercel.app/api/test-openrouter
 ```
 
 **Ожидаемый результат:**
@@ -80,25 +80,26 @@ OPENROUTER_MODEL=anthropic/claude-3.5-sonnet
 AI_PROVIDER_PRIORITY=openrouter,openai
 ```
 
-### 3. **Перезапустить сервер:**
+### 3. **Деплой на Vercel:**
 ```bash
-npm run dev
+git push origin feature/openrouter-integration
+# Vercel автоматически задеплоит изменения
 ```
 
-### 4. **Повторить тесты:**
+### 4. **Повторить тесты на продакшене:**
 ```bash
 # Тест конфигурации
-curl -X GET http://localhost:3000/api/test-openrouter
+curl -X GET https://uxaudute.vercel.app/api/test-openrouter
 
 # Тест подключения
-curl -X POST http://localhost:3000/api/test-openrouter
+curl -X POST https://uxaudute.vercel.app/api/test-openrouter
 ```
 
 ## 🎯 Тест экспериментального режима
 
 ### **Тест анализа через OpenAI (основной):**
 ```bash
-curl -X POST http://localhost:3000/api/research-experimental \
+curl -X POST https://uxaudute.vercel.app/api/research-experimental \
   -H "Content-Type: application/json" \
   -d '{
     "url": "https://example.com",
@@ -120,7 +121,7 @@ curl -X POST http://localhost:3000/api/research-experimental \
 
 ### **Тест анализа через OpenRouter Sonoma (экспериментальный):**
 ```bash
-curl -X POST http://localhost:3000/api/research-experimental \
+curl -X POST https://uxaudute.vercel.app/api/research-experimental \
   -H "Content-Type: application/json" \
   -d '{
     "url": "https://example.com",
@@ -143,7 +144,7 @@ curl -X POST http://localhost:3000/api/research-experimental \
 
 ### **Тест fallback системы:**
 ```bash
-curl -X POST http://localhost:3000/api/research-with-fallback \
+curl -X POST https://uxaudute.vercel.app/api/research-with-fallback \
   -H "Content-Type: application/json" \
   -d '{
     "url": "https://example.com",
@@ -156,7 +157,7 @@ curl -X POST http://localhost:3000/api/research-with-fallback \
 ### **Существующий функционал должен работать:**
 ```bash
 # Оригинальный endpoint должен работать как раньше
-curl -X POST http://localhost:3000/api/research \
+curl -X POST https://uxaudute.vercel.app/api/research \
   -H "Content-Type: application/json" \
   -d '{
     "url": "https://example.com",
@@ -165,10 +166,10 @@ curl -X POST http://localhost:3000/api/research \
 ```
 
 ### **Все остальные endpoints:**
-- `/api/health` - должен работать
-- `/api/debug` - должен работать
-- `/api/collect` - должен работать
-- `/api/business` - должен работать
+- `https://uxaudute.vercel.app/api/health` - должен работать
+- `https://uxaudute.vercel.app/api/debug` - должен работать
+- `https://uxaudute.vercel.app/api/collect` - должен работать
+- `https://uxaudute.vercel.app/api/business` - должен работать
 
 ## 🚨 Что проверить
 

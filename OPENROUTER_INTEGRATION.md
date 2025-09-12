@@ -77,24 +77,24 @@ AI_PROVIDER_PRIORITY=openai,openrouter
 
 #### Тест конфигурации:
 ```bash
-curl -X GET http://localhost:3000/api/test-openrouter
+curl -X GET https://uxaudute.vercel.app/api/test-openrouter
 ```
 
 #### Тест подключения:
 ```bash
-curl -X POST http://localhost:3000/api/test-openrouter
+curl -X POST https://uxaudute.vercel.app/api/test-openrouter
 ```
 
 #### Анализ с fallback:
 ```bash
-curl -X POST http://localhost:3000/api/research-with-fallback \
+curl -X POST https://uxaudute.vercel.app/api/research-with-fallback \
   -H "Content-Type: application/json" \
   -d '{"url": "https://example.com", "context": "E-commerce site"}'
 ```
 
 #### Экспериментальный анализ (OpenAI):
 ```bash
-curl -X POST http://localhost:3000/api/research-experimental \
+curl -X POST https://uxaudute.vercel.app/api/research-experimental \
   -H "Content-Type: application/json" \
   -d '{
     "url": "https://example.com", 
@@ -105,7 +105,7 @@ curl -X POST http://localhost:3000/api/research-experimental \
 
 #### Экспериментальный анализ (OpenRouter Sonoma):
 ```bash
-curl -X POST http://localhost:3000/api/research-experimental \
+curl -X POST https://uxaudute.vercel.app/api/research-experimental \
   -H "Content-Type: application/json" \
   -d '{
     "url": "https://example.com", 
@@ -117,7 +117,7 @@ curl -X POST http://localhost:3000/api/research-experimental \
 
 #### Тест конкретной модели:
 ```bash
-curl -X POST http://localhost:3000/api/test-openrouter \
+curl -X POST https://uxaudute.vercel.app/api/test-openrouter \
   -H "Content-Type: application/json" \
   -d '{"model": "sonoma"}'
 ```
