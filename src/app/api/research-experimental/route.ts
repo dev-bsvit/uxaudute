@@ -1,7 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { executeAIRequest } from '@/lib/ai-provider'
-import { readFileSync } from 'fs'
-import { join } from 'path'
 import { StructuredAnalysisResponse, isStructuredResponse } from '@/lib/analysis-types'
 import { validateSurvey, analyzeSurveyResults } from '@/lib/survey-utils'
 import { supabase } from '@/lib/supabase'
@@ -46,7 +44,7 @@ export async function POST(request: NextRequest) {
       jsonPrompt = await loadJSONPromptV2()
       console.log('Используем стандартный промпт v2')
     }
-    console.log('Промпт загружен, длина:', jsonPrompt.length)
+    
     const finalPrompt = combineWithContext(jsonPrompt, context)
     console.log('Финальный промпт готов, длина:', finalPrompt.length)
 
@@ -76,15 +74,12 @@ export async function POST(request: NextRequest) {
 
       const result = aiResponse.content
       console.log('Получен ответ от AI, длина:', result.length)
-      console.log('Первые 200 символов ответа:', result.substring(0, 200))
-      console.log('Полный ответ AI:', result)
       
       try {
         analysisResult = JSON.parse(result) as StructuredAnalysisResponse
         console.log('✅ JSON успешно распарсен')
       } catch (parseError) {
         console.error('Ошибка парсинга JSON:', parseError)
-        console.error('Ответ AI:', result)
         return NextResponse.json(
           { error: 'Ошибка обработки ответа AI. Попробуйте позже.' },
           { status: 500 }
@@ -93,20 +88,17 @@ export async function POST(request: NextRequest) {
     }
 
     if (screenshot) {
-      // Анализ скриншота через выбранный AI провайдер
+      // Анализ скриншота - упрощенная логика
       console.log(`Анализируем скриншот через ${provider} (${openrouterModel})...`)
       
-      // Упрощенная логика: используем текстовое описание для всех провайдеров
-      console.log(`🎯 Используем текстовое описание скриншота для ${provider}`)
+      // Используем текстовое описание для всех провайдеров
       const description = `Пользователь загрузил скриншот интерфейса для UX анализа. 
       
       Проведи анализ основываясь на общих принципах UX для интерфейсов.
       
       Учти, что это скриншот веб-интерфейса или мобильного приложения.
       Проанализируй возможные проблемы UX и предложи улучшения.`
-      console.log('✅ Используем текстовое описание скриншота')
-
-      // Теперь анализируем описание через выбранный провайдер
+      
       const analysisPrompt = `${finalPrompt}\n\nПроанализируй этот интерфейс на основе описания:\n\n${description}`
       
       const analysisResponse = await executeAIRequest([
@@ -126,15 +118,14 @@ export async function POST(request: NextRequest) {
         )
       }
 
-      const analysis = analysisResponse.content
-      console.log(`✅ UX анализ выполнен через ${analysisResponse.provider}`)
+      const result = analysisResponse.content
+      console.log('Получен ответ от AI, длина:', result.length)
       
       try {
-        analysisResult = JSON.parse(analysis) as StructuredAnalysisResponse
+        analysisResult = JSON.parse(result) as StructuredAnalysisResponse
         console.log('✅ JSON успешно распарсен')
       } catch (parseError) {
         console.error('Ошибка парсинга JSON:', parseError)
-        console.error('Ответ AI:', analysis)
         return NextResponse.json(
           { error: 'Ошибка обработки ответа AI. Попробуйте позже.' },
           { status: 500 }
@@ -142,9 +133,8 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // Проверяем что результат получен
     if (!analysisResult) {
-      console.error('Результат анализа не получен')
+      console.error('Нет результата анализа')
       return NextResponse.json(
         { error: 'Не удалось получить результат анализа' },
         { status: 500 }
@@ -152,362 +142,83 @@ export async function POST(request: NextRequest) {
     }
 
     // Валидация результата
-    console.log('🔍 Валидация результата:')
-    console.log('analysisResult:', analysisResult)
-    console.log('isStructuredResponse:', isStructuredResponse(analysisResult))
+    let validation, surveyValidation, surveyAnalysis
     
-    if (!analysisResult) {
-      console.error('❌ analysisResult is null')
-      return NextResponse.json(
-        { error: 'Не удалось получить результат анализа' },
-        { status: 500 }
-      )
-    }
-    
-    // Для Sonoma Sky Alpha пропускаем валидацию и логируем ответ
     if (provider === 'openrouter' && openrouterModel === 'sonoma') {
       console.log('🎯 Sonoma Sky Alpha - пропускаем валидацию')
-      console.log('📋 Полный ответ Sonoma Sky Alpha:')
-      console.log(JSON.stringify(analysisResult, null, 2))
-      console.log('📊 Структура ответа:', Object.keys(analysisResult))
+      validation = { isValid: true, errors: [] }
+      surveyValidation = { isValid: true, errors: [] }
+      surveyAnalysis = { totalScore: 0, averageScore: 0, categoryScores: {} }
     } else {
-      // Валидация для других провайдеров
-      if (!isStructuredResponse(analysisResult)) {
-        console.error('❌ Результат не соответствует ожидаемой структуре')
-        console.error('Ожидаемые поля: screenDescription, uxSurvey, problemsAndSolutions')
-        console.error('Полученные поля:', Object.keys(analysisResult))
+      // Стандартная валидация для OpenAI
+      validation = isStructuredResponse(analysisResult)
+      if (!validation.isValid) {
+        console.error('Ошибки валидации:', validation.errors)
         return NextResponse.json(
           { error: 'Результат анализа не соответствует ожидаемому формату' },
           { status: 500 }
         )
       }
-    }
 
-    console.log('✅ Результат прошел валидацию')
-
-    // Валидация UX-опроса (только для не-Sonoma провайдеров)
-    let surveyValidation, surveyAnalysis
-    if (provider === 'openrouter' && openrouterModel === 'sonoma') {
-      console.log('🎯 Sonoma Sky Alpha - пропускаем валидацию UX-опроса')
-      // Создаем пустые объекты для совместимости
-      surveyValidation = { isValid: true, errors: [] }
-      surveyAnalysis = { totalScore: 0, averageScore: 0, categoryScores: {} }
-    } else {
+      // Валидация UX-опроса
       surveyValidation = validateSurvey(analysisResult.uxSurvey)
+      if (!surveyValidation.isValid) {
+        console.error('Ошибки валидации опроса:', surveyValidation.errors)
+        return NextResponse.json(
+          { error: 'UX-опрос не соответствует ожидаемому формату' },
+          { status: 500 }
+        )
+      }
+
       surveyAnalysis = analyzeSurveyResults(analysisResult.uxSurvey)
-      console.log('✅ UX-опрос прошел валидацию')
     }
 
-    // Сохраняем результат в базу данных если есть auditId
+    // Сохранение в базу данных
     if (auditId) {
       try {
-        console.log('Сохраняем результат в базу данных...')
-        const { error: auditUpdateError } = await supabase
+        const { error: saveError } = await supabase
           .from('audits')
           .update({
             result_data: analysisResult,
-            status: 'completed',
             updated_at: new Date().toISOString()
           })
           .eq('id', auditId)
-        
-        if (auditUpdateError) {
-          console.error('Ошибка обновления audits:', auditUpdateError)
-          throw new Error(`Ошибка сохранения результата: ${auditUpdateError.message}`)
-        } else {
-          console.log('✅ Аудит успешно обновлен с результатом')
+
+        if (saveError) {
+          console.error('Ошибка сохранения:', saveError)
+          return NextResponse.json(
+            { error: 'Не удалось сохранить результат анализа' },
+            { status: 500 }
+          )
         }
-      } catch (saveError) {
-        console.error('Ошибка сохранения результата:', saveError)
-        throw new Error(`Ошибка сохранения аудита: ${saveError instanceof Error ? saveError.message : 'Неизвестная ошибка'}`)
+
+        console.log('✅ Результат сохранен в базу данных')
+      } catch (dbError) {
+        console.error('Ошибка базы данных:', dbError)
+        return NextResponse.json(
+          { error: 'Ошибка базы данных' },
+          { status: 500 }
+        )
       }
-    } else {
-      console.warn('⚠️ auditId не предоставлен, результат не сохранен')
     }
 
-    console.log('Возвращаем успешный ответ...')
-    return NextResponse.json({ 
+    console.log('✅ Анализ завершен успешно')
+    return NextResponse.json({
       success: true,
-      data: analysisResult,
-      format: 'json',
-      validation: {
-        survey: surveyValidation,
-        analysis: surveyAnalysis
-      },
-      provider: provider,
-      experimental: true
+      result: analysisResult,
+      validation,
+      surveyValidation,
+      surveyAnalysis,
+      provider: analysisResponse?.provider || provider,
+      model: analysisResponse?.model || 'unknown'
     })
 
   } catch (error) {
-    console.error('Research experimental API error:', error)
-    
-    // Детальная информация об ошибке для отладки
-    if (error instanceof Error) {
-      console.error('Error message:', error.message)
-      console.error('Error stack:', error.stack)
-    }
-    
+    console.error('Ошибка в research-experimental API:', error)
     return NextResponse.json(
-      { 
-        error: 'Внутренняя ошибка сервера',
-        details: error instanceof Error ? error.message : 'Неизвестная ошибка'
-      },
+      { error: 'Внутренняя ошибка сервера' },
       { status: 500 }
     )
-  }
-}
-
-
-/**
- * Fallback промпт если основной файл недоступен
- */
-function getFallbackJSONPrompt(): string {
-  return `# JSON-структурированный промпт для UX-анализа
-
-Вы — опытный UX-дизайнер-исследователь. Проанализируйте интерфейс и верните результат в формате JSON.
-
-**КРИТИЧЕСКИ ВАЖНО: 
-1. Отвечай ТОЛЬКО в формате JSON
-2. НЕ добавляй никакого текста до или после JSON
-3. НЕ оборачивай JSON в markdown блоки
-4. НЕ добавляй объяснения или комментарии
-5. Начинай ответ сразу с символа { и заканчивай символом }
-6. Убедись, что JSON валидный и полный**
-
-{
-  "screenDescription": {
-    "screenType": "Тип экрана",
-    "userGoal": "Цель пользователя",
-    "keyElements": ["Элемент 1", "Элемент 2"],
-    "confidence": 85,
-    "confidenceReason": "Обоснование уверенности"
-  },
-  "uxSurvey": {
-    "dynamicQuestionsAdded": true,
-    "screenType": "лендинг",
-    "questions": [
-      {
-        "id": 1,
-        "question": "Вопрос 1?",
-        "options": ["A) Вариант 1", "B) Вариант 2", "C) Вариант 3"],
-        "scores": [70, 20, 10],
-        "confidence": 85,
-        "category": "clarity",
-        "principle": "Принцип",
-        "explanation": "Объяснение"
-      }
-    ],
-    "overallConfidence": 82,
-    "summary": {
-      "totalQuestions": 1,
-      "averageConfidence": 82,
-      "criticalIssues": 0,
-      "recommendations": []
-    }
-  },
-  "audience": {
-    "targetAudience": "Целевая аудитория",
-    "mainPain": "Основная боль",
-    "fears": ["Страх 1", "Страх 2"]
-  },
-  "behavior": {
-    "userScenarios": {
-      "idealPath": "Идеальный путь",
-      "typicalError": "Типичная ошибка",
-      "alternativeWorkaround": "Альтернативный обход"
-    },
-    "behavioralPatterns": "Поведенческие паттерны",
-    "frictionPoints": [
-      {
-        "point": "Точка трения 1",
-        "impact": "major"
-      }
-    ],
-    "actionMotivation": "Мотивация к действию"
-  },
-  "problemsAndSolutions": [
-    {
-      "element": "Элемент",
-      "problem": "Проблема",
-      "principle": "Принцип",
-      "consequence": "Последствие",
-      "businessImpact": {
-        "metric": "conversion",
-        "impactLevel": "high",
-        "description": "Описание влияния"
-      },
-      "recommendation": "Рекомендация",
-      "expectedEffect": "Ожидаемый эффект",
-      "priority": "high",
-      "confidence": 85,
-      "confidenceSource": "Источник уверенности"
-    }
-  ],
-  "selfCheck": {
-    "checklist": {
-      "coversAllElements": true,
-      "noContradictions": true,
-      "principlesJustified": true,
-      "actionClarity": true
-    },
-    "varietyCheck": {
-      "passed": true,
-      "description": "Описание разнообразия",
-      "principleVariety": ["Принцип 1"],
-      "issueTypes": ["visual"]
-    },
-    "confidence": {
-      "analysis": 85,
-      "survey": 82,
-      "recommendations": 88
-    },
-    "confidenceVariation": {
-      "min": 70,
-      "max": 90,
-      "average": 82,
-      "explanation": "Объяснение вариации"
-    }
-  },
-  "metadata": {
-    "timestamp": "2024-01-01T12:00:00Z",
-    "version": "1.0",
-    "model": "gpt-4o"
-  }
-}
-
-Отвечай ТОЛЬКО в формате JSON на русском языке.`
-}
-
-/**
- * Загружает специальный промпт для Sonoma Sky Alpha
- */
-function loadSonomaPrompt(): string {
-  try {
-    // Пытаемся загрузить новый промпт из файла
-    const promptPath = join(process.cwd(), 'prompts', 'sonoma-structured-prompt.md')
-    const prompt = readFileSync(promptPath, 'utf-8')
-    console.log('✅ Загружен новый промпт Sonoma из файла')
-    return prompt
-  } catch (error) {
-    console.log('⚠️ Не удалось загрузить новый промпт, используем fallback')
-    // Fallback к старому промпту
-    return `You are an expert UX designer with 20 years of experience. Analyze the provided screenshot or URL and return a comprehensive UX analysis in JSON format.
-
-## Instructions:
-1. Always respond with valid JSON
-2. Do not add any text before or after the JSON
-3. Start your response with { and end with }
-4. Use English for all field names, Russian for content
-5. Ensure all required fields are present
-
-## Required JSON Structure:
-{
-  "screenDescription": {
-    "screenType": "Type of screen (e.g., landing page, form, dashboard)",
-    "userGoal": "User's main goal on this screen",
-    "keyElements": ["List of key UI elements"],
-    "confidence": 85,
-    "confidenceReason": "Reason for confidence level"
-  },
-  "uxSurvey": {
-    "dynamicQuestionsAdded": true,
-    "screenType": "landing",
-    "questions": [
-      {
-        "id": 1,
-        "question": "What is the main purpose of this page?",
-        "options": ["A) Register/Login", "B) Get product info", "C) Make purchase"],
-        "scores": [70, 20, 10],
-        "confidence": 85,
-        "category": "clarity",
-        "principle": "Goal Clarity Principle",
-        "explanation": "User should understand the page purpose"
-      }
-    ],
-    "overallConfidence": 82,
-    "summary": {
-      "totalQuestions": 1,
-      "averageConfidence": 82,
-      "criticalIssues": 1,
-      "recommendations": ["Improve visual hierarchy"]
-    }
-  },
-  "audience": {
-    "targetAudience": "Target audience description",
-    "mainPain": "Main user pain point",
-    "fears": ["User fear 1", "User fear 2", "User fear 3"]
-  },
-  "behavior": {
-    "userScenarios": {
-      "idealPath": "Ideal user path",
-      "typicalError": "Typical user error",
-      "alternativeWorkaround": "Alternative workaround"
-    },
-    "behavioralPatterns": "User behavior patterns",
-    "frictionPoints": [
-      {"point": "Friction point 1", "impact": "major"},
-      {"point": "Friction point 2", "impact": "minor"}
-    ],
-    "actionMotivation": "What motivates users to act"
-  },
-  "problemsAndSolutions": [
-    {
-      "element": "Button element",
-      "problem": "Problem description",
-      "principle": "UX Principle",
-      "consequence": "Consequence of problem",
-      "businessImpact": {
-        "metric": "conversion",
-        "impactLevel": "high",
-        "description": "Impact description"
-      },
-      "recommendation": "Recommended solution",
-      "expectedEffect": "Expected improvement",
-      "priority": "high",
-      "confidence": 85,
-      "confidenceSource": "Source of confidence"
-    }
-  ],
-  "selfCheck": {
-    "checklist": {
-      "coversAllElements": true,
-      "noContradictions": true,
-      "principlesJustified": true,
-      "actionClarity": true
-    },
-    "varietyCheck": {
-      "passed": true,
-      "description": "Recommendations are diverse",
-      "principleVariety": ["Visibility", "Error Prevention"],
-      "issueTypes": ["visual", "functional"]
-    },
-    "confidence": {
-      "analysis": 85,
-      "survey": 82,
-      "recommendations": 88
-    },
-    "confidenceVariation": {
-      "min": 70,
-      "max": 90,
-      "average": 82,
-      "explanation": "Confidence varies by data source"
-    }
-  },
-  "metadata": {
-    "timestamp": "2024-01-01T12:00:00Z",
-    "version": "1.0",
-    "model": "sonoma-sky-alpha"
-  }
-}
-
-## Analysis Guidelines:
-- Analyze all visible UI elements
-- Identify 3-5 real problems based on the interface
-- Provide specific, actionable recommendations
-- Use realistic confidence levels (70-90%)
-- Focus on user experience and business impact
-
-Respond with valid JSON only.`
   }
 }
 
@@ -515,7 +226,7 @@ Respond with valid JSON only.`
  * Комбинирует промпт с контекстом
  */
 function combineWithContext(prompt: string, context?: string): string {
-  if (!context) {
+  if (!context || context.trim() === '') {
     return prompt
   }
   
