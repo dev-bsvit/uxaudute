@@ -16,6 +16,10 @@ export async function POST(request: NextRequest) {
     
     console.log('🔑 API ключ найден, длина:', OPENROUTER_API_KEY.length)
     
+    // Создаем AbortController для таймаута
+    const controller = new AbortController()
+    const timeoutId = setTimeout(() => controller.abort(), 10000) // 10 секунд таймаут
+    
     const response = await fetch(`${OPENROUTER_BASE_URL}/chat/completions`, {
       method: 'POST',
       headers: {
@@ -34,8 +38,11 @@ export async function POST(request: NextRequest) {
         ],
         max_tokens: 100,
         temperature: 0.7
-      })
+      }),
+      signal: controller.signal
     })
+    
+    clearTimeout(timeoutId)
 
     console.log('📡 Статус ответа:', response.status)
     
@@ -70,6 +77,14 @@ export async function POST(request: NextRequest) {
 
   } catch (error) {
     console.error('❌ Ошибка запроса:', error)
+    
+    if (error.name === 'AbortError') {
+      return NextResponse.json({ 
+        error: 'Таймаут - Sonoma Sky Alpha не отвечает в течение 10 секунд',
+        timeout: true
+      }, { status: 408 })
+    }
+    
     return NextResponse.json({ 
       error: `Ошибка: ${error}` 
     }, { status: 500 })
