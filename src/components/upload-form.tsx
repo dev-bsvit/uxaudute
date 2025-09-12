@@ -8,7 +8,7 @@ import { Label } from "@/components/ui/label"
 import { Upload, Link as LinkIcon, Sparkles, Zap } from "lucide-react"
 
 interface UploadFormProps {
-  onSubmit: (data: { url?: string; screenshot?: string; context?: string }) => void
+  onSubmit: (data: { url?: string; screenshot?: string; context?: string; provider?: string; openrouterModel?: string }) => void
   isLoading?: boolean
 }
 
@@ -17,17 +17,21 @@ export function UploadForm({ onSubmit, isLoading }: UploadFormProps) {
   const [file, setFile] = useState<File | null>(null)
   const [context, setContext] = useState('')
   const [activeTab, setActiveTab] = useState<'url' | 'upload'>('url')
+  const [provider, setProvider] = useState<'openai' | 'openrouter'>('openai')
+  const [openrouterModel, setOpenrouterModel] = useState<'claude' | 'sonoma' | 'gpt4'>('sonoma')
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    const providerData = { provider, openrouterModel }
+    
     if (activeTab === 'url' && url) {
-      onSubmit({ url, context })
+      onSubmit({ url, context, ...providerData })
     } else if (activeTab === 'upload' && file) {
       // Конвертируем файл в base64
       const reader = new FileReader()
       reader.onload = () => {
         const base64String = reader.result as string
-        onSubmit({ screenshot: base64String, context })
+        onSubmit({ screenshot: base64String, context, ...providerData })
       }
       reader.readAsDataURL(file)
     }
@@ -155,6 +159,92 @@ export function UploadForm({ onSubmit, isLoading }: UploadFormProps) {
               </p>
             </div>
 
+            {/* Выбор AI провайдера */}
+            <div className="space-y-3">
+              <Label className="text-lg font-semibold text-slate-800">
+                AI Провайдер
+              </Label>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {/* OpenAI */}
+                <div 
+                  className={`p-4 border-2 rounded-xl cursor-pointer transition-all duration-200 ${
+                    provider === 'openai' 
+                      ? 'border-blue-500 bg-blue-50 shadow-md' 
+                      : 'border-slate-200 hover:border-slate-300'
+                  }`}
+                  onClick={() => setProvider('openai')}
+                >
+                  <div className="flex items-center space-x-3">
+                    <div className={`w-4 h-4 rounded-full border-2 ${
+                      provider === 'openai' ? 'border-blue-500 bg-blue-500' : 'border-slate-300'
+                    }`} />
+                    <div>
+                      <h3 className="font-semibold text-slate-800">OpenAI</h3>
+                      <p className="text-sm text-slate-600">GPT-4o - Стабильный</p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* OpenRouter */}
+                <div 
+                  className={`p-4 border-2 rounded-xl cursor-pointer transition-all duration-200 ${
+                    provider === 'openrouter' 
+                      ? 'border-purple-500 bg-purple-50 shadow-md' 
+                      : 'border-slate-200 hover:border-slate-300'
+                  }`}
+                  onClick={() => setProvider('openrouter')}
+                >
+                  <div className="flex items-center space-x-3">
+                    <div className={`w-4 h-4 rounded-full border-2 ${
+                      provider === 'openrouter' ? 'border-purple-500 bg-purple-500' : 'border-slate-300'
+                    }`} />
+                    <div>
+                      <h3 className="font-semibold text-slate-800">OpenRouter</h3>
+                      <p className="text-sm text-slate-600">Экспериментальный</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Выбор модели OpenRouter */}
+              {provider === 'openrouter' && (
+                <div className="mt-3 p-3 bg-purple-50 border border-purple-200 rounded-lg">
+                  <Label className="text-sm font-medium text-purple-800 mb-2 block">
+                    Модель OpenRouter:
+                  </Label>
+                  <div className="flex space-x-4">
+                    {[
+                      { value: 'sonoma', label: 'Sonoma Sky Alpha', desc: 'Новейшая' },
+                      { value: 'claude', label: 'Claude 3.5 Sonnet', desc: 'Стабильная' },
+                      { value: 'gpt4', label: 'GPT-4o', desc: 'Быстрая' }
+                    ].map((model) => (
+                      <label key={model.value} className="flex items-center space-x-2 cursor-pointer">
+                        <input
+                          type="radio"
+                          name="openrouterModel"
+                          value={model.value}
+                          checked={openrouterModel === model.value}
+                          onChange={(e) => setOpenrouterModel(e.target.value as any)}
+                          className="text-purple-600"
+                        />
+                        <div>
+                          <span className="text-sm font-medium text-purple-800">{model.label}</span>
+                          <span className="text-xs text-purple-600 ml-1">({model.desc})</span>
+                        </div>
+                      </label>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              <p className="text-sm text-slate-500">
+                {provider === 'openai' 
+                  ? 'Используется проверенный OpenAI GPT-4o для стабильного анализа'
+                  : 'Экспериментальный режим с различными моделями через OpenRouter'
+                }
+              </p>
+            </div>
+
             <Button
               type="submit"
               disabled={!isValid || isLoading}
@@ -165,12 +255,12 @@ export function UploadForm({ onSubmit, isLoading }: UploadFormProps) {
               {isLoading ? (
                 <>
                   <div className="animate-spin rounded-full h-5 w-5 border-2 border-white border-t-transparent mr-3"></div>
-                  Анализируем с помощью ИИ...
+                  Анализируем с помощью {provider === 'openai' ? 'OpenAI' : 'OpenRouter'}...
                 </>
               ) : (
                 <>
                   <Sparkles className="w-5 h-5 mr-3" />
-                  Начать анализ
+                  Начать анализ с {provider === 'openai' ? 'OpenAI' : 'OpenRouter'}
                 </>
               )}
             </Button>

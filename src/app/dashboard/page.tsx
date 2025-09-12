@@ -29,7 +29,7 @@ export default function DashboardPage() {
   const [analysisUrl, setAnalysisUrl] = useState<string | null>(null)
   const [currentAudit, setCurrentAudit] = useState<string | null>(null)
   const [showContextForm, setShowContextForm] = useState(false)
-  const [pendingUploadData, setPendingUploadData] = useState<{ url?: string; screenshot?: string } | null>(null)
+  const [pendingUploadData, setPendingUploadData] = useState<{ url?: string; screenshot?: string; provider?: string; openrouterModel?: string } | null>(null)
 
   useEffect(() => {
     // Проверяем текущего пользователя
@@ -122,7 +122,7 @@ export default function DashboardPage() {
     await handleContextSubmit(data.context || '', data)
   }
 
-  const handleContextSubmit = async (context: string, uploadData?: { url?: string; screenshot?: string }) => {
+  const handleContextSubmit = async (context: string, uploadData?: { url?: string; screenshot?: string; provider?: string; openrouterModel?: string }) => {
     if (!user) return
 
     const data = uploadData || pendingUploadData
@@ -160,8 +160,11 @@ export default function DashboardPage() {
 
       setCurrentAudit(audit.id)
 
-      // Отправляем запрос на анализ (используем JSON API)
-      const response = await fetch('/api/research-json', {
+      // Выбираем API endpoint в зависимости от провайдера
+      const apiEndpoint = data.provider === 'openrouter' ? '/api/research-experimental' : '/api/research-json'
+      
+      // Отправляем запрос на анализ
+      const response = await fetch(apiEndpoint, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -172,6 +175,34 @@ export default function DashboardPage() {
       })
 
       if (!response.ok) {
+        // Fallback на старый API если экспериментальный не работает
+        if (data.provider === 'openrouter') {
+          console.log('OpenRouter API не работает, переключаемся на OpenAI...')
+          const fallbackResponse = await fetch('/api/research-json', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              url: data.url,
+              screenshot: data.screenshot,
+              auditId: audit.id,
+              context
+            })
+          })
+          
+          if (!fallbackResponse.ok) {
+            throw new Error(`Ошибка ${fallbackResponse.status}: ${fallbackResponse.statusText}`)
+          }
+          
+          const fallbackData = await fallbackResponse.json()
+          if (fallbackData.success) {
+            setResult(fallbackData.result)
+            setAnalysisUrl(data.url || '')
+            setUploadedScreenshot(data.screenshot || '')
+            setIsAnalyzing(false)
+            setIsLoading(false)
+            return
+          }
+        }
         throw new Error(`Ошибка ${response.status}: ${response.statusText}`)
       }
 

@@ -71,7 +71,7 @@ export default function ProjectDetailPage() {
   const [uploadedScreenshot, setUploadedScreenshot] = useState<string | null>(null)
   const [analysisUrl, setAnalysisUrl] = useState<string | null>(null)
   const [showContextForm, setShowContextForm] = useState(false)
-  const [pendingUploadData, setPendingUploadData] = useState<{ url?: string; screenshot?: string } | null>(null)
+  const [pendingUploadData, setPendingUploadData] = useState<{ url?: string; screenshot?: string; provider?: string; openrouterModel?: string } | null>(null)
   const [editContext, setEditContext] = useState('')
   const [editTargetAudience, setEditTargetAudience] = useState('')
   const [isUpdating, setIsUpdating] = useState(false)
@@ -131,7 +131,7 @@ export default function ProjectDetailPage() {
     await handleContextSubmit(data.context || '', data)
   }
 
-  const handleContextSubmit = async (context: string, uploadData?: { url?: string; screenshot?: string }) => {
+  const handleContextSubmit = async (context: string, uploadData?: { url?: string; screenshot?: string; provider?: string; openrouterModel?: string }) => {
     if (!user || !project) return
 
     const data = uploadData || pendingUploadData
@@ -175,8 +175,11 @@ export default function ProjectDetailPage() {
       setCurrentAudit(audit)
       setShowCreateForm(false)
 
+      // Выбираем API endpoint в зависимости от провайдера
+      const apiEndpoint = data.provider === 'openrouter' ? '/api/research-experimental' : '/api/research-json'
+      
       // Отправляем запрос на анализ
-      const response = await fetch('/api/research-json', {
+      const response = await fetch(apiEndpoint, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -187,6 +190,31 @@ export default function ProjectDetailPage() {
       })
 
       if (!response.ok) {
+        // Fallback на старый API если экспериментальный не работает
+        if (data.provider === 'openrouter') {
+          console.log('OpenRouter API не работает, переключаемся на OpenAI...')
+          const fallbackResponse = await fetch('/api/research-json', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              url: data.url,
+              screenshot: data.screenshot,
+              auditId: audit.id,
+              context: combinedContext
+            })
+          })
+          
+          if (!fallbackResponse.ok) {
+            throw new Error(`Ошибка ${fallbackResponse.status}: ${fallbackResponse.statusText}`)
+          }
+          
+          const fallbackData = await fallbackResponse.json()
+          if (fallbackData.success) {
+            // Перенаправляем на страницу аудита
+            router.push(`/audit/${audit.id}`)
+            return
+          }
+        }
         throw new Error(`Ошибка ${response.status}: ${response.statusText}`)
       }
 
