@@ -86,7 +86,7 @@ const createProviderConfig = (provider: AIProvider, openrouterModel: OpenRouterM
 
 // Основная функция для выполнения запроса с fallback
 export const executeAIRequest = async (
-  messages: Array<{ role: string; content: string }>,
+  messages: Array<{ role: string; content: string | any[] }>,
   options: AIRequestOptions = {}
 ): Promise<AIResponse> => {
   const { 
