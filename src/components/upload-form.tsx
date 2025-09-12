@@ -18,7 +18,7 @@ export function UploadForm({ onSubmit, isLoading }: UploadFormProps) {
   const [context, setContext] = useState('')
   const [activeTab, setActiveTab] = useState<'url' | 'upload'>('url')
   const [provider, setProvider] = useState<'openai' | 'openrouter'>('openai')
-  const [openrouterModel, setOpenrouterModel] = useState<'claude' | 'sonoma' | 'gpt4'>('sonoma')
+  const [openrouterModel, setOpenrouterModel] = useState<'claude' | 'sonoma' | 'gpt4'>('claude')
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
