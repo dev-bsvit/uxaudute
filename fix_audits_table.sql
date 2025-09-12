@@ -38,3 +38,5 @@ CREATE POLICY "Users can delete own audits" ON public.audits
   FOR DELETE USING (auth.uid() = user_id);
 
 
+
+

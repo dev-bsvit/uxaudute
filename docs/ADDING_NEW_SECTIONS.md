@@ -149,3 +149,5 @@ onGenerate={audit?.status === 'completed' ? generateSection : undefined}
 - Результаты сохраняются в `result_data`
 - Кнопки активируются только после основного аудита
 
+
+

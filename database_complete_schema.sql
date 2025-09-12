@@ -419,3 +419,5 @@ WHERE table_schema = 'public'
 AND table_name IN ('profiles', 'projects', 'audits', 'audit_history', 'analysis_results', 'annotations', 'storage_objects');
 
 
+
+

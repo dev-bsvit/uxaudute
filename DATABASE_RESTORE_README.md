@@ -199,3 +199,5 @@ ORDER BY pg_total_relation_size(schemaname||'.'||tablename) DESC;
 *Документация обновлена: 10.09.2025*
 
 
+
+

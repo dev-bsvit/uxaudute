@@ -59,3 +59,5 @@ CREATE POLICY "Allow all for audits" ON public.audits FOR ALL USING (true);
 CREATE POLICY "Allow all for audit_history" ON public.audit_history FOR ALL USING (true);
 
 
+
+

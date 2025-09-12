@@ -6,3 +6,5 @@ ADD COLUMN context TEXT;
 COMMENT ON COLUMN audits.context IS 'Пользовательский контекст для анализа интерфейса';
 
 
+
+
