@@ -60,6 +60,7 @@ export const getAvailableModels = () => {
     claude: openrouterConfig.models.claude,
     sonoma: openrouterConfig.models.sonoma,
     gpt4: openrouterConfig.models.gpt4,
+    deepseek: openrouterConfig.models.deepseek,
     default: openrouterConfig.models.default
   }
 }
