@@ -203,12 +203,21 @@ export function AnalysisResultDisplay({
               <h4 className="font-medium text-gray-900 mb-3">Точки трения</h4>
               <div className="bg-orange-50 border border-orange-200 rounded-lg p-4">
                 <ol className="space-y-2">
-                  {analysis.behavior.frictionPoints.map((point, index) => (
+                  {analysis.behavior.frictionPoints.map((frictionPoint, index) => (
                     <li key={index} className="flex items-start gap-2">
                       <span className="flex-shrink-0 w-6 h-6 bg-orange-200 text-orange-800 rounded-full flex items-center justify-center text-sm font-medium">
                         {index + 1}
                       </span>
-                      <span className="text-gray-700">{point}</span>
+                      <div className="flex-1">
+                        <span className="text-gray-700">{frictionPoint.point}</span>
+                        <span className={`ml-2 px-2 py-1 rounded-full text-xs font-medium ${
+                          frictionPoint.impact === 'major' 
+                            ? 'bg-red-100 text-red-800' 
+                            : 'bg-yellow-100 text-yellow-800'
+                        }`}>
+                          {frictionPoint.impact === 'major' ? 'Высокое' : 'Низкое'} влияние
+                        </span>
+                      </div>
                     </li>
                   ))}
                 </ol>
