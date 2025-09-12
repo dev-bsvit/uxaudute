@@ -87,8 +87,7 @@ export async function POST(request: NextRequest) {
       // Анализ скриншота через выбранный AI провайдер
       console.log(`Анализируем скриншот через ${provider} (${openrouterModel})...`)
       
-      // Для изображений пока используем только OpenAI (GPT-4o Vision)
-      // TODO: Добавить поддержку изображений в OpenRouter когда будет доступно
+      // Описание изображения через выбранный провайдер
       const descriptionPrompt = `Опиши детально этот интерфейс. Укажи:
 1. Тип экрана (лендинг, форма, дашборд, каталог и т.д.)
 2. Основные элементы интерфейса
@@ -117,7 +116,8 @@ export async function POST(request: NextRequest) {
       ], {
         temperature: 0.3,
         max_tokens: 1000,
-        provider: 'openai'  // Принудительно OpenAI для изображений
+        provider: provider as 'openai' | 'openrouter',
+        openrouterModel: openrouterModel as 'claude' | 'sonoma' | 'gpt4' | 'default'
       })
 
       if (!descriptionResponse.success) {
