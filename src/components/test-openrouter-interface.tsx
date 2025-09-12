@@ -17,14 +17,16 @@ export function TestOpenRouterInterface() {
   const [isLoading, setIsLoading] = useState(false)
   const [customMessage, setCustomMessage] = useState('Hello! Please respond.')
 
-  // Список моделей для тестирования
+  // Список моделей для тестирования (обновлен на основе тестов)
   const models = [
     { id: 'openai/gpt-4o', name: 'GPT-4o', description: 'OpenAI GPT-4o' },
     { id: 'anthropic/claude-3.5-sonnet', name: 'Claude 3.5 Sonnet', description: 'Anthropic Claude' },
-    { id: 'deepseek/deepseek-chat-v3.1:free', name: 'DeepSeek Chat v3.1', description: 'DeepSeek (Free)' },
-    { id: 'openrouter/sonoma-sky-alpha', name: 'Sonoma Sky Alpha', description: 'Oak AI Sonoma' },
-    { id: 'meta-llama/llama-3.1-8b-instruct:free', name: 'Llama 3.1 8B', description: 'Meta Llama (Free)' },
-    { id: 'google/gemini-pro-1.5', name: 'Gemini Pro 1.5', description: 'Google Gemini' }
+    { id: 'deepseek/deepseek-chat-v3.1:free', name: 'DeepSeek Chat v3.1', description: 'DeepSeek (Free) ✅ РАБОТАЕТ' },
+    { id: 'openrouter/sonoma-sky-alpha', name: 'Sonoma Sky Alpha', description: 'Oak AI Sonoma ⚠️ ПУСТОЙ ОТВЕТ' },
+    { id: 'meta-llama/llama-3.1-70b-instruct:free', name: 'Llama 3.1 70B', description: 'Meta Llama 70B (Free)' },
+    { id: 'google/gemini-pro-1.5', name: 'Gemini Pro 1.5', description: 'Google Gemini' },
+    { id: 'mistralai/mistral-7b-instruct:free', name: 'Mistral 7B', description: 'Mistral (Free)' },
+    { id: 'microsoft/phi-3-medium-128k-instruct:free', name: 'Phi-3 Medium', description: 'Microsoft Phi-3 (Free)' }
   ]
 
   const testModel = async (modelId: string, modelName: string) => {

@@ -34,7 +34,7 @@ export async function POST(request: NextRequest) {
           content: message
         }
       ],
-      max_tokens: 100,
+      max_tokens: 500,
       temperature: 0.7
     }
     
