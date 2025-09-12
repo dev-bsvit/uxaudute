@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { executeAIRequest } from '@/lib/ai-provider'
 import { loadMainPrompt, combineWithContext } from '@/lib/prompt-loader'
+import { supabase } from '@/lib/supabase'
 
 export async function POST(request: NextRequest) {
   try {
@@ -55,8 +56,31 @@ export async function POST(request: NextRequest) {
 
       console.log(`✅ Анализ выполнен через ${aiResponse.provider} (${aiResponse.model})`)
       
+      // Сохраняем результат в базу данных если есть auditId
+      if (auditId) {
+        try {
+          const { error: auditUpdateError } = await supabase
+            .from('audits')
+            .update({
+              result_data: { analysis_result: aiResponse.content },
+              status: 'completed',
+              updated_at: new Date().toISOString()
+            })
+            .eq('id', auditId)
+          
+          if (auditUpdateError) {
+            console.error('Ошибка обновления audits:', auditUpdateError)
+          } else {
+            console.log('✅ Аудит успешно обновлен с результатом')
+          }
+        } catch (saveError) {
+          console.error('Ошибка сохранения результата:', saveError)
+        }
+      }
+
       return NextResponse.json({ 
-        result: aiResponse.content,
+        success: true,
+        data: aiResponse.content,
         provider: aiResponse.provider,
         model: aiResponse.model,
         usage: aiResponse.usage,
@@ -150,8 +174,31 @@ ${description}
 
 ${analysis}`
 
+      // Сохраняем результат в базу данных если есть auditId
+      if (auditId) {
+        try {
+          const { error: auditUpdateError } = await supabase
+            .from('audits')
+            .update({
+              result_data: { analysis_result: result },
+              status: 'completed',
+              updated_at: new Date().toISOString()
+            })
+            .eq('id', auditId)
+          
+          if (auditUpdateError) {
+            console.error('Ошибка обновления audits:', auditUpdateError)
+          } else {
+            console.log('✅ Аудит успешно обновлен с результатом')
+          }
+        } catch (saveError) {
+          console.error('Ошибка сохранения результата:', saveError)
+        }
+      }
+
       return NextResponse.json({ 
-        result,
+        success: true,
+        data: result,
         provider: analysisResponse.provider,
         model: analysisResponse.model,
         usage: analysisResponse.usage,
