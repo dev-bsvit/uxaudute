@@ -62,6 +62,7 @@ export function TestOpenRouterInterface() {
         model: modelName,
         response: 'Ошибка запроса',
         finishReason: 'error',
+        usage: null,
         error: error instanceof Error ? error.message : 'Unknown error'
       }
       
