@@ -5,6 +5,7 @@ import { join } from 'path'
 import { StructuredAnalysisResponse, isStructuredResponse } from '@/lib/analysis-types'
 import { validateSurvey, analyzeSurveyResults } from '@/lib/survey-utils'
 import { supabase } from '@/lib/supabase'
+import { loadJSONPromptV2 } from '@/lib/prompt-loader'
 
 export async function POST(request: NextRequest) {
   try {
@@ -260,26 +261,6 @@ export async function POST(request: NextRequest) {
   }
 }
 
-/**
- * Загружает JSON-структурированный промпт v2 из файла
- */
-function loadJSONPromptV2(): string {
-  try {
-    // Путь к файлу промпта v2
-    const promptPath = join(process.cwd(), 'prompts', 'json-structured-prompt-v2.md')
-    console.log('Загружаем промпт v2 из:', promptPath)
-    
-    const prompt = readFileSync(promptPath, 'utf-8')
-    console.log('Промпт v2 загружен успешно, длина:', prompt.length)
-    
-    return prompt
-  } catch (error) {
-    console.error('Ошибка загрузки JSON промпта v2:', error)
-    console.error('Используем fallback промпт')
-    // Возвращаем fallback промпт
-    return getFallbackJSONPrompt()
-  }
-}
 
 /**
  * Fallback промпт если основной файл недоступен
