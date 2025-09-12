@@ -398,7 +398,7 @@ export default function DashboardPage() {
               result={result}
               screenshot={uploadedScreenshot}
               url={analysisUrl}
-              auditId={currentAudit || undefined}
+              auditId={currentAudit?.id || undefined}
             />
 
             {/* Панель дополнительных действий */}
