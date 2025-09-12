@@ -175,8 +175,15 @@ export default function ProjectDetailPage() {
       setCurrentAudit(audit)
       setShowCreateForm(false)
 
-      // Выбираем API endpoint в зависимости от провайдера
-      const apiEndpoint = data.provider === 'openrouter' ? '/api/research-experimental' : '/api/research-json'
+      // Выбираем API endpoint в зависимости от провайдера и модели
+      let apiEndpoint: string
+      if (data.provider === 'openrouter' && data.openrouterModel === 'sonoma') {
+        apiEndpoint = '/api/research-sonoma'
+      } else if (data.provider === 'openrouter') {
+        apiEndpoint = '/api/research-experimental'
+      } else {
+        apiEndpoint = '/api/research-json'
+      }
       
       // Отправляем запрос на анализ
       const response = await fetch(apiEndpoint, {
