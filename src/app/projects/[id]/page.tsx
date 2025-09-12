@@ -180,7 +180,7 @@ export default function ProjectDetailPage() {
       if (data.provider === 'openrouter' && data.openrouterModel === 'sonoma') {
         apiEndpoint = '/api/research-sonoma'
       } else if (data.provider === 'openrouter') {
-        apiEndpoint = '/api/research-experimental'
+        apiEndpoint = '/api/research-stable'
       } else {
         apiEndpoint = '/api/research-json'
       }
