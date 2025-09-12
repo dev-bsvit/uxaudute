@@ -172,10 +172,19 @@ export function AnalysisResultDisplay({
             {/* Пользовательские сценарии */}
             <div>
               <h4 className="font-medium text-gray-900 mb-3">Пользовательские сценарии</h4>
-              <div className="bg-green-50 border border-green-200 rounded-lg p-4">
-                <p className="text-gray-700 leading-relaxed whitespace-pre-line">
-                  {analysis.behavior.userScenarios}
-                </p>
+              <div className="bg-green-50 border border-green-200 rounded-lg p-4 space-y-3">
+                <div>
+                  <span className="font-medium text-green-800">Идеальный путь:</span>
+                  <p className="text-gray-700 mt-1">{analysis.behavior.userScenarios.idealPath}</p>
+                </div>
+                <div>
+                  <span className="font-medium text-orange-800">Типичная ошибка:</span>
+                  <p className="text-gray-700 mt-1">{analysis.behavior.userScenarios.typicalError}</p>
+                </div>
+                <div>
+                  <span className="font-medium text-blue-800">Альтернативный обход:</span>
+                  <p className="text-gray-700 mt-1">{analysis.behavior.userScenarios.alternativeWorkaround}</p>
+                </div>
               </div>
             </div>
 
