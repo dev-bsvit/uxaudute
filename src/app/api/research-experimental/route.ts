@@ -96,8 +96,15 @@ export async function POST(request: NextRequest) {
       // Анализ скриншота через выбранный AI провайдер
       console.log(`Анализируем скриншот через ${provider} (${openrouterModel})...`)
       
-      // Описание изображения через выбранный провайдер
-      const descriptionPrompt = `Опиши детально этот интерфейс. Укажи:
+      // Проверяем, поддерживает ли провайдер мультимодальность
+      const isMultimodalSupported = !(provider === 'openrouter' && openrouterModel === 'sonoma')
+      console.log(`🎯 Поддержка мультимодальности: ${isMultimodalSupported}`)
+      
+      let description: string
+      
+      if (isMultimodalSupported) {
+        // Описание изображения через мультимодальный запрос
+        const descriptionPrompt = `Опиши детально этот интерфейс. Укажи:
 1. Тип экрана (лендинг, форма, дашборд, каталог и т.д.)
 2. Основные элементы интерфейса
 3. Цветовую схему и стиль
@@ -108,37 +115,49 @@ export async function POST(request: NextRequest) {
 
 Будь максимально детальным в описании. Это поможет для дальнейшего UX анализа.`
 
-      const descriptionResponse = await executeAIRequest([
-        {
-          role: "user",
-          content: [
-            { type: "text", text: descriptionPrompt },
-            {
-              type: "image_url",
-              image_url: {
-                url: screenshot,
-                detail: "high"
+        const descriptionResponse = await executeAIRequest([
+          {
+            role: "user",
+            content: [
+              { type: "text", text: descriptionPrompt },
+              {
+                type: "image_url",
+                image_url: {
+                  url: screenshot,
+                  detail: "high"
+                }
               }
-            }
-          ]
+            ]
+          }
+        ], {
+          temperature: 0.3,
+          max_tokens: 1000,
+          provider: provider as 'openai' | 'openrouter',
+          openrouterModel: openrouterModel as 'claude' | 'sonoma' | 'gpt4' | 'default'
+        })
+
+        if (!descriptionResponse.success) {
+          console.error('Описание изображения не удалось:', descriptionResponse.error)
+          return NextResponse.json(
+            { error: 'Не удалось описать изображение. Попробуйте позже.' },
+            { status: 500 }
+          )
         }
-      ], {
-        temperature: 0.3,
-        max_tokens: 1000,
-        provider: provider as 'openai' | 'openrouter',
-        openrouterModel: openrouterModel as 'claude' | 'sonoma' | 'gpt4' | 'default'
-      })
 
-      if (!descriptionResponse.success) {
-        console.error('Описание изображения не удалось:', descriptionResponse.error)
-        return NextResponse.json(
-          { error: 'Не удалось описать изображение. Попробуйте позже.' },
-          { status: 500 }
-        )
+        description = descriptionResponse.content
+        console.log('✅ Описание изображения получено')
+      } else {
+        // Для Sonoma Sky Alpha используем текстовое описание
+        console.log('🎯 Sonoma Sky Alpha - используем текстовое описание скриншота')
+        description = `Пользователь загрузил скриншот интерфейса для UX анализа. 
+        
+        Поскольку Sonoma Sky Alpha не поддерживает мультимодальные запросы, 
+        проведи анализ основываясь на общих принципах UX для интерфейсов.
+        
+        Учти, что это скриншот веб-интерфейса или мобильного приложения.
+        Проанализируй возможные проблемы UX и предложи улучшения.`
+        console.log('✅ Используем текстовое описание для Sonoma Sky Alpha')
       }
-
-      const description = descriptionResponse.content
-      console.log('✅ Описание изображения получено')
 
       // Теперь анализируем описание через выбранный провайдер
       const analysisPrompt = `${finalPrompt}\n\nПроанализируй этот интерфейс на основе описания:\n\n${description}`
