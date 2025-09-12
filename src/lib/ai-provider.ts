@@ -138,6 +138,18 @@ export const executeAIRequest = async (
       
       console.log(`✅ Получен ответ от ${provider}:`, JSON.stringify(completion, null, 2))
 
+      // Проверяем на ошибки в ответе
+      if (completion.error) {
+        console.error(`❌ Ошибка от ${provider}:`, completion.error)
+        return {
+          success: false,
+          content: '',
+          provider: config.provider,
+          model: config.model,
+          error: `Ошибка API: ${completion.error.message || 'Неизвестная ошибка'}`
+        }
+      }
+
       const content = completion.choices[0]?.message?.content || 'Нет ответа'
       
       console.log(`✅ Успешно использован провайдер: ${provider}`)
