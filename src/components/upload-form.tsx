@@ -18,7 +18,7 @@ export function UploadForm({ onSubmit, isLoading }: UploadFormProps) {
   const [context, setContext] = useState('')
   const [activeTab, setActiveTab] = useState<'url' | 'upload'>('url')
   const [provider, setProvider] = useState<'openai' | 'openrouter'>('openai')
-  const [openrouterModel, setOpenrouterModel] = useState<'claude' | 'sonoma' | 'gpt4' | 'deepseek'>('deepseek')
+  const [openrouterModel, setOpenrouterModel] = useState<'sonoma'>('sonoma')
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -206,34 +206,15 @@ export function UploadForm({ onSubmit, isLoading }: UploadFormProps) {
                 </div>
               </div>
 
-              {/* Выбор модели OpenRouter */}
+              {/* Sonoma Sky Alpha - единственная модель OpenRouter */}
               {provider === 'openrouter' && (
                 <div className="mt-3 p-3 bg-purple-50 border border-purple-200 rounded-lg">
-                  <Label className="text-sm font-medium text-purple-800 mb-2 block">
-                    Модель OpenRouter:
-                  </Label>
-                  <div className="flex space-x-4">
-                    {[
-                      { value: 'deepseek', label: 'DeepSeek Chat v3.1', desc: 'Бесплатная' },
-                      { value: 'claude', label: 'Claude 3.5 Sonnet', desc: 'Стабильная' },
-                      { value: 'gpt4', label: 'GPT-4o', desc: 'Быстрая' },
-                      { value: 'sonoma', label: 'Sonoma Sky Alpha', desc: 'Новейшая (не работает)' }
-                    ].map((model) => (
-                      <label key={model.value} className="flex items-center space-x-2 cursor-pointer">
-                        <input
-                          type="radio"
-                          name="openrouterModel"
-                          value={model.value}
-                          checked={openrouterModel === model.value}
-                          onChange={(e) => setOpenrouterModel(e.target.value as any)}
-                          className="text-purple-600"
-                        />
-                        <div>
-                          <span className="text-sm font-medium text-purple-800">{model.label}</span>
-                          <span className="text-xs text-purple-600 ml-1">({model.desc})</span>
-                        </div>
-                      </label>
-                    ))}
+                  <div className="flex items-center space-x-3">
+                    <div className="w-4 h-4 rounded-full border-2 border-purple-500 bg-purple-500" />
+                    <div>
+                      <h3 className="font-semibold text-purple-800">Sonoma Sky Alpha</h3>
+                      <p className="text-sm text-purple-600">Экспериментальная модель</p>
+                    </div>
                   </div>
                 </div>
               )}
@@ -241,7 +222,7 @@ export function UploadForm({ onSubmit, isLoading }: UploadFormProps) {
               <p className="text-sm text-slate-500">
                 {provider === 'openai' 
                   ? 'Используется проверенный OpenAI GPT-4o для стабильного анализа'
-                  : 'Экспериментальный режим с различными моделями через OpenRouter'
+                  : 'Экспериментальный режим с Sonoma Sky Alpha через OpenRouter'
                 }
               </p>
             </div>
