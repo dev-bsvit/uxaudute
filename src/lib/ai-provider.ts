@@ -123,7 +123,7 @@ export const executeAIRequest = async (
         temperature: isSonoma ? 0.8 : temperature,
         max_tokens: isSonoma ? Math.max(max_tokens, 200) : max_tokens,
         stream,
-        ...(isSonoma ? {} : { response_format: { type: "json_object" } })
+        response_format: { type: "json_object" } // Включаем JSON формат для всех моделей
       })
 
       const content = completion.choices[0]?.message?.content || 'Нет ответа'
@@ -174,7 +174,7 @@ export const executeAIRequest = async (
         temperature: isSonoma ? 0.8 : temperature,
         max_tokens: isSonoma ? Math.max(max_tokens, 200) : max_tokens,
         stream,
-        ...(isSonoma ? {} : { response_format: { type: "json_object" } })
+        response_format: { type: "json_object" } // Включаем JSON формат для всех моделей
       })
 
       const content = completion.choices[0]?.message?.content || 'Нет ответа'
