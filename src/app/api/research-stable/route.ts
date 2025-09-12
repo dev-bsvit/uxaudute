@@ -210,8 +210,8 @@ export async function POST(request: NextRequest) {
       validation,
       surveyValidation,
       surveyAnalysis,
-      provider: analysisResponse?.provider || provider,
-      model: analysisResponse?.model || 'unknown'
+      provider: provider,
+      model: 'unknown'
     })
 
   } catch (error) {
