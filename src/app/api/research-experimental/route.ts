@@ -186,8 +186,22 @@ export async function POST(request: NextRequest) {
     }
 
     // Валидация результата
+    console.log('🔍 Валидация результата:')
+    console.log('analysisResult:', analysisResult)
+    console.log('isStructuredResponse:', isStructuredResponse(analysisResult))
+    
+    if (!analysisResult) {
+      console.error('❌ analysisResult is null')
+      return NextResponse.json(
+        { error: 'Не удалось получить результат анализа' },
+        { status: 500 }
+      )
+    }
+    
     if (!isStructuredResponse(analysisResult)) {
-      console.error('Результат не соответствует ожидаемой структуре')
+      console.error('❌ Результат не соответствует ожидаемой структуре')
+      console.error('Ожидаемые поля: screenDescription, uxSurvey, problemsAndSolutions')
+      console.error('Полученные поля:', Object.keys(analysisResult))
       return NextResponse.json(
         { error: 'Результат анализа не соответствует ожидаемому формату' },
         { status: 500 }
