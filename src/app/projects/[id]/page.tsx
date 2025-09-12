@@ -190,31 +190,31 @@ export default function ProjectDetailPage() {
       })
 
       if (!response.ok) {
-        // Fallback на старый API если экспериментальный не работает
-        if (data.provider === 'openrouter') {
-          console.log('OpenRouter API не работает, переключаемся на OpenAI...')
-          const fallbackResponse = await fetch('/api/research-json', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              url: data.url,
-              screenshot: data.screenshot,
-              auditId: audit.id,
-              context: combinedContext
-            })
-          })
-          
-          if (!fallbackResponse.ok) {
-            throw new Error(`Ошибка ${fallbackResponse.status}: ${fallbackResponse.statusText}`)
-          }
-          
-          const fallbackData = await fallbackResponse.json()
-          if (fallbackData.success) {
-            // Перенаправляем на страницу аудита
-            router.push(`/audit/${audit.id}`)
-            return
-          }
-        }
+        // ВРЕМЕННО ОТКЛЮЧЕН: Fallback на старый API если экспериментальный не работает
+        // if (data.provider === 'openrouter') {
+        //   console.log('OpenRouter API не работает, переключаемся на OpenAI...')
+        //   const fallbackResponse = await fetch('/api/research-json', {
+        //     method: 'POST',
+        //     headers: { 'Content-Type': 'application/json' },
+        //     body: JSON.stringify({
+        //       url: data.url,
+        //       screenshot: data.screenshot,
+        //       auditId: audit.id,
+        //       context: combinedContext
+        //     })
+        //   })
+        //   
+        //   if (!fallbackResponse.ok) {
+        //     throw new Error(`Ошибка ${fallbackResponse.status}: ${fallbackResponse.statusText}`)
+        //   }
+        //   
+        //   const fallbackData = await fallbackResponse.json()
+        //   if (fallbackData.success) {
+        //     // Перенаправляем на страницу аудита
+        //     router.push(`/audit/${audit.id}`)
+        //     return
+        //   }
+        // }
         throw new Error(`Ошибка ${response.status}: ${response.statusText}`)
       }
 
