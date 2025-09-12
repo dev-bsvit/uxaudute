@@ -151,9 +151,9 @@ export async function POST(request: NextRequest) {
       surveyAnalysis = { totalScore: 0, averageScore: 0, categoryScores: {} }
     } else {
       // Стандартная валидация для OpenAI
-      validation = isStructuredResponse(analysisResult)
-      if (!validation.isValid) {
-        console.error('Ошибки валидации:', validation.errors)
+      const isValidStructure = isStructuredResponse(analysisResult)
+      if (!isValidStructure) {
+        console.error('Результат не соответствует ожидаемой структуре')
         return NextResponse.json(
           { error: 'Результат анализа не соответствует ожидаемому формату' },
           { status: 500 }
@@ -171,6 +171,7 @@ export async function POST(request: NextRequest) {
       }
 
       surveyAnalysis = analyzeSurveyResults(analysisResult.uxSurvey)
+      validation = { isValid: true, errors: [] }
     }
 
     // Сохранение в базу данных
