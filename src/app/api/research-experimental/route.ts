@@ -11,7 +11,8 @@ export async function POST(request: NextRequest) {
       screenshot, 
       context, 
       provider = 'openai',  // По умолчанию OpenAI
-      openrouterModel = 'sonoma'  // По умолчанию Sonoma для экспериментов
+      openrouterModel = 'sonoma',  // По умолчанию Sonoma для экспериментов
+      auditId  // ID аудита для сохранения результата
     } = await request.json()
     
     console.log('Параметры запроса:', { 
