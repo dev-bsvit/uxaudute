@@ -116,7 +116,7 @@ export const getOpenRouterInfo = () => {
   return {
     available: isOpenRouterAvailable(),
     baseURL: openrouterConfig.baseURL,
-    model: openrouterConfig.model,
+    models: openrouterConfig.models,
     hasApiKey: !!openrouterConfig.apiKey
   }
 }
