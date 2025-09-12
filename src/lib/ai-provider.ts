@@ -114,13 +114,16 @@ export const executeAIRequest = async (
     try {
       console.log(`Используем указанный провайдер: ${provider} (модель: ${config.model})`)
       
+      // Специальные параметры для Sonoma Sky Alpha
+      const isSonoma = config.model.includes('sonoma-sky-alpha')
+      
       const completion = await config.client.chat.completions.create({
         model: config.model,
         messages: messages as any,
-        temperature,
-        max_tokens,
+        temperature: isSonoma ? 0.8 : temperature,
+        max_tokens: isSonoma ? Math.max(max_tokens, 200) : max_tokens,
         stream,
-        response_format: { type: "json_object" }
+        ...(isSonoma ? {} : { response_format: { type: "json_object" } })
       })
 
       const content = completion.choices[0]?.message?.content || 'Нет ответа'
@@ -162,13 +165,16 @@ export const executeAIRequest = async (
     try {
       console.log(`Пробуем провайдер: ${providerName} (модель: ${config.model})`)
       
+      // Специальные параметры для Sonoma Sky Alpha
+      const isSonoma = config.model.includes('sonoma-sky-alpha')
+      
       const completion = await config.client.chat.completions.create({
         model: config.model,
         messages: messages as any,
-        temperature,
-        max_tokens,
+        temperature: isSonoma ? 0.8 : temperature,
+        max_tokens: isSonoma ? Math.max(max_tokens, 200) : max_tokens,
         stream,
-        response_format: { type: "json_object" }
+        ...(isSonoma ? {} : { response_format: { type: "json_object" } })
       })
 
       const content = completion.choices[0]?.message?.content || 'Нет ответа'

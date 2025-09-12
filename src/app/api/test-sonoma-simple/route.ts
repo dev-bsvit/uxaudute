@@ -32,12 +32,17 @@ export async function POST(request: NextRequest) {
         model: 'openrouter/sonoma-sky-alpha',
         messages: [
           {
+            role: 'system',
+            content: 'You are a helpful assistant. Always respond with text.'
+          },
+          {
             role: 'user',
-            content: 'Привет! Как дела? Ответь коротко.'
+            content: 'Hello! How are you? Please respond briefly.'
           }
         ],
-        max_tokens: 100,
-        temperature: 0.7
+        max_tokens: 150,
+        temperature: 0.8,
+        stream: false
       }),
       signal: controller.signal
     })
