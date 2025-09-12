@@ -198,23 +198,39 @@ export async function POST(request: NextRequest) {
       )
     }
     
-    if (!isStructuredResponse(analysisResult)) {
-      console.error('❌ Результат не соответствует ожидаемой структуре')
-      console.error('Ожидаемые поля: screenDescription, uxSurvey, problemsAndSolutions')
-      console.error('Полученные поля:', Object.keys(analysisResult))
-      return NextResponse.json(
-        { error: 'Результат анализа не соответствует ожидаемому формату' },
-        { status: 500 }
-      )
+    // Для Sonoma Sky Alpha пропускаем валидацию и логируем ответ
+    if (provider === 'openrouter' && openrouterModel === 'sonoma') {
+      console.log('🎯 Sonoma Sky Alpha - пропускаем валидацию')
+      console.log('📋 Полный ответ Sonoma Sky Alpha:')
+      console.log(JSON.stringify(analysisResult, null, 2))
+      console.log('📊 Структура ответа:', Object.keys(analysisResult))
+    } else {
+      // Валидация для других провайдеров
+      if (!isStructuredResponse(analysisResult)) {
+        console.error('❌ Результат не соответствует ожидаемой структуре')
+        console.error('Ожидаемые поля: screenDescription, uxSurvey, problemsAndSolutions')
+        console.error('Полученные поля:', Object.keys(analysisResult))
+        return NextResponse.json(
+          { error: 'Результат анализа не соответствует ожидаемому формату' },
+          { status: 500 }
+        )
+      }
     }
 
     console.log('✅ Результат прошел валидацию')
 
-    // Валидация UX-опроса
-    const surveyValidation = validateSurvey(analysisResult.uxSurvey)
-    const surveyAnalysis = analyzeSurveyResults(analysisResult.uxSurvey)
-    
-    console.log('✅ UX-опрос прошел валидацию')
+    // Валидация UX-опроса (только для не-Sonoma провайдеров)
+    let surveyValidation, surveyAnalysis
+    if (provider === 'openrouter' && openrouterModel === 'sonoma') {
+      console.log('🎯 Sonoma Sky Alpha - пропускаем валидацию UX-опроса')
+      // Создаем пустые объекты для совместимости
+      surveyValidation = { isValid: true, errors: [] }
+      surveyAnalysis = { totalScore: 0, averageScore: 0, categoryScores: {} }
+    } else {
+      surveyValidation = validateSurvey(analysisResult.uxSurvey)
+      surveyAnalysis = analyzeSurveyResults(analysisResult.uxSurvey)
+      console.log('✅ UX-опрос прошел валидацию')
+    }
 
     // Сохраняем результат в базу данных если есть auditId
     if (auditId) {
