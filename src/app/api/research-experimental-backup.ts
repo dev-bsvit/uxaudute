@@ -405,16 +405,7 @@ function getFallbackJSONPrompt(): string {
  * Загружает специальный промпт для Sonoma Sky Alpha
  */
 function loadSonomaPrompt(): string {
-  try {
-    // Пытаемся загрузить новый промпт из файла
-    const promptPath = join(process.cwd(), 'prompts', 'sonoma-structured-prompt.md')
-    const prompt = readFileSync(promptPath, 'utf-8')
-    console.log('✅ Загружен новый промпт Sonoma из файла')
-    return prompt
-  } catch (error) {
-    console.log('⚠️ Не удалось загрузить новый промпт, используем fallback')
-    // Fallback к старому промпту
-    return `You are an expert UX designer with 20 years of experience. Analyze the provided screenshot or URL and return a comprehensive UX analysis in JSON format.
+  return `You are an expert UX designer with 20 years of experience. Analyze the provided screenshot or URL and return a comprehensive UX analysis in JSON format.
 
 ## Instructions:
 1. Always respond with valid JSON
@@ -531,7 +522,6 @@ function loadSonomaPrompt(): string {
 - Focus on user experience and business impact
 
 Respond with valid JSON only.`
-  }
 }
 
 /**
