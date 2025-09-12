@@ -184,7 +184,21 @@ Respond with valid JSON only.`
     // Парсим JSON ответ
     let analysisResult: any
     try {
-      analysisResult = JSON.parse(content)
+      // Попытка очистить JSON от возможных проблем
+      let cleanedContent = content.trim()
+      
+      // Удаляем возможные markdown блоки
+      if (cleanedContent.startsWith('```json')) {
+        cleanedContent = cleanedContent.replace(/^```json\s*/, '').replace(/\s*```$/, '')
+      }
+      
+      // Попытка найти JSON в тексте
+      const jsonMatch = cleanedContent.match(/\{[\s\S]*\}/)
+      if (jsonMatch) {
+        cleanedContent = jsonMatch[0]
+      }
+      
+      analysisResult = JSON.parse(cleanedContent)
       console.log('✅ JSON успешно распарсен')
     } catch (parseError) {
       console.error('❌ Ошибка парсинга JSON:', parseError)
@@ -210,11 +224,51 @@ Respond with valid JSON only.`
             categoryBreakdown: {}
           }
         },
-        problemsAndSolutions: {
-          criticalIssues: [],
-          recommendations: [],
-          overallScore: 0,
-          summary: "Не удалось проанализировать интерфейс"
+        problemsAndSolutions: [],
+        audience: {
+          targetAudience: "Не определена",
+          mainPain: "Не определена",
+          fears: []
+        },
+        behavior: {
+          userScenarios: {
+            idealPath: "Не определен",
+            typicalError: "Не определена",
+            alternativeWorkaround: "Не определен"
+          },
+          frictionPoints: [],
+          actionMotivation: "Не определена",
+          behavioralPatterns: "Не определены"
+        },
+        selfCheck: {
+          checklist: {
+            coversAllElements: false,
+            noContradictions: false,
+            principlesJustified: false,
+            actionClarity: false
+          },
+          confidence: {
+            analysis: 0,
+            survey: 0,
+            recommendations: 0
+          },
+          varietyCheck: {
+            passed: false,
+            description: "Ошибка парсинга",
+            principleVariety: [],
+            issueTypes: []
+          },
+          confidenceVariation: {
+            min: 0,
+            max: 0,
+            average: 0,
+            explanation: "Ошибка парсинга"
+          }
+        },
+        metadata: {
+          timestamp: new Date().toISOString(),
+          version: "1.0",
+          model: "sonoma-sky-alpha"
         },
         rawResponse: content,
         parseError: parseError instanceof Error ? parseError.message : 'Unknown error'
