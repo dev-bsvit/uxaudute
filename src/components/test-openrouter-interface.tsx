@@ -30,7 +30,30 @@ export function TestOpenRouterInterface() {
   const testModel = async (modelId: string, modelName: string) => {
     setIsLoading(true)
     
+    // Добавляем лог в интерфейс
+    const addLog = (message: string, type: 'info' | 'success' | 'error' = 'info') => {
+      const timestamp = new Date().toLocaleTimeString()
+      const logMessage = `[${timestamp}] ${message}`
+      console.log(logMessage)
+      
+      // Добавляем в результаты для отображения
+      const logResult: TestResult = {
+        success: type === 'success',
+        model: `📝 LOG: ${modelName}`,
+        response: logMessage,
+        finishReason: type,
+        usage: null,
+        error: type === 'error' ? message : undefined
+      }
+      setResults(prev => [logResult, ...prev])
+    }
+    
+    addLog(`🧪 Начинаем тест модели: ${modelName} (${modelId})`)
+    addLog(`💬 Сообщение: ${customMessage}`)
+    
     try {
+      addLog(`📤 Отправляем запрос к /api/test-openrouter-simple`)
+      
       const response = await fetch('/api/test-openrouter-simple', {
         method: 'POST',
         headers: {
@@ -42,7 +65,11 @@ export function TestOpenRouterInterface() {
         })
       })
 
+      addLog(`📡 Получен ответ: ${response.status} ${response.statusText}`)
+      
       const data = await response.json()
+      
+      addLog(`📊 Данные ответа получены, success: ${data.success}`)
       
       const result: TestResult = {
         success: data.success,
@@ -55,15 +82,19 @@ export function TestOpenRouterInterface() {
       }
 
       setResults(prev => [result, ...prev])
+      addLog(`✅ Тест завершен для ${modelName}`, 'success')
       
     } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error'
+      addLog(`❌ Ошибка: ${errorMessage}`, 'error')
+      
       const result: TestResult = {
         success: false,
         model: modelName,
         response: 'Ошибка запроса',
         finishReason: 'error',
         usage: null,
-        error: error instanceof Error ? error.message : 'Unknown error'
+        error: errorMessage
       }
       
       setResults(prev => [result, ...prev])
@@ -135,6 +166,17 @@ export function TestOpenRouterInterface() {
             >
               🗑️ Очистить результаты
             </button>
+            
+            <button
+              onClick={() => {
+                console.log('📋 Полные логи сервера доступны в консоли браузера (F12)')
+                console.log('📋 Также проверьте Vercel Dashboard -> Functions -> test-openrouter-simple')
+                alert('Логи сервера смотрите в консоли браузера (F12) или в Vercel Dashboard')
+              }}
+              className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+            >
+              📋 Показать логи сервера
+            </button>
           </div>
         </div>
       </div>
@@ -199,6 +241,17 @@ export function TestOpenRouterInterface() {
                     <div className="text-red-600 text-xs">
                       <span className="font-medium">Ошибка:</span> {result.error}
                     </div>
+                  )}
+                  
+                  {result.fullResponse && (
+                    <details className="text-xs">
+                      <summary className="cursor-pointer text-blue-600 hover:text-blue-800">
+                        🔍 Показать полный ответ сервера
+                      </summary>
+                      <pre className="mt-2 p-2 bg-gray-100 rounded text-xs overflow-auto max-h-40">
+                        {JSON.stringify(result.fullResponse, null, 2)}
+                      </pre>
+                    </details>
                   )}
                 </div>
               </div>
