@@ -280,7 +280,6 @@ function getFallbackJSONPrompt(): string {
 5. Начинай ответ сразу с символа { и заканчивай символом }
 6. Убедись, что JSON валидный и полный**
 
-```json
 {
   "screenDescription": {
     "screenType": "Тип экрана",
@@ -381,7 +380,6 @@ function getFallbackJSONPrompt(): string {
     "model": "gpt-4o"
   }
 }
-```
 
 Отвечай ТОЛЬКО в формате JSON на русском языке.`
 }
