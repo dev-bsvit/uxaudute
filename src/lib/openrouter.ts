@@ -14,7 +14,12 @@ import OpenAI from 'openai'
 const openrouterConfig = {
   apiKey: process.env.OPENROUTER_API_KEY,
   baseURL: process.env.OPENROUTER_BASE_URL || 'https://openrouter.ai/api/v1',
-  model: process.env.OPENROUTER_MODEL || 'anthropic/claude-3.5-sonnet',
+  models: {
+    claude: process.env.OPENROUTER_MODEL_CLAUDE || 'anthropic/claude-3.5-sonnet',
+    sonoma: process.env.OPENROUTER_MODEL_SONOMA || 'openrouter/sonoma-sky-alpha',
+    gpt4: process.env.OPENROUTER_MODEL_GPT4 || 'openai/gpt-4o',
+    default: process.env.OPENROUTER_DEFAULT_MODEL || 'anthropic/claude-3.5-sonnet'
+  }
 }
 
 // Проверка доступности OpenRouter
@@ -44,15 +49,26 @@ export const createOpenRouterClient = (): OpenAI | null => {
 }
 
 // Получение модели для использования
-export const getOpenRouterModel = (): string => {
-  return openrouterConfig.model
+export const getOpenRouterModel = (modelType: 'claude' | 'sonoma' | 'gpt4' | 'default' = 'default'): string => {
+  return openrouterConfig.models[modelType]
 }
 
-// Тест подключения к OpenRouter
-export const testOpenRouterConnection = async (): Promise<{
+// Получение всех доступных моделей
+export const getAvailableModels = () => {
+  return {
+    claude: openrouterConfig.models.claude,
+    sonoma: openrouterConfig.models.sonoma,
+    gpt4: openrouterConfig.models.gpt4,
+    default: openrouterConfig.models.default
+  }
+}
+
+// Тест подключения к OpenRouter с конкретной моделью
+export const testOpenRouterConnection = async (modelType: 'claude' | 'sonoma' | 'gpt4' | 'default' = 'default'): Promise<{
   success: boolean
   message: string
   response?: string
+  model?: string
 }> => {
   const client = createOpenRouterClient()
   
@@ -63,12 +79,14 @@ export const testOpenRouterConnection = async (): Promise<{
     }
   }
 
+  const model = getOpenRouterModel(modelType)
+
   try {
     const completion = await client.chat.completions.create({
-      model: openrouterConfig.model,
+      model: model,
       messages: [{ 
         role: "user", 
-        content: "Привет! Это тест OpenRouter. Ответь просто 'OpenRouter работает'." 
+        content: `Привет! Это тест OpenRouter с моделью ${model}. Ответь просто 'OpenRouter работает с ${model}'."` 
       }],
       temperature: 0.7,
       max_tokens: 100
@@ -78,15 +96,17 @@ export const testOpenRouterConnection = async (): Promise<{
     
     return {
       success: true,
-      message: 'OpenRouter API работает',
-      response
+      message: `OpenRouter API работает с ${model}`,
+      response,
+      model
     }
   } catch (error) {
-    console.error('OpenRouter: Ошибка тестирования:', error)
+    console.error(`OpenRouter: Ошибка тестирования модели ${model}:`, error)
     return {
       success: false,
-      message: 'Ошибка OpenRouter API',
-      response: error instanceof Error ? error.message : 'Unknown error'
+      message: `Ошибка OpenRouter API с моделью ${model}`,
+      response: error instanceof Error ? error.message : 'Unknown error',
+      model
     }
   }
 }

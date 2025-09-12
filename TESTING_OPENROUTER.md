@@ -94,15 +94,39 @@ curl -X GET http://localhost:3000/api/test-openrouter
 curl -X POST http://localhost:3000/api/test-openrouter
 ```
 
-## 🎯 Тест fallback системы
+## 🎯 Тест экспериментального режима
 
-### **Тест анализа с fallback:**
+### **Тест анализа через OpenAI (основной):**
 ```bash
-curl -X POST http://localhost:3000/api/research-with-fallback \
+curl -X POST http://localhost:3000/api/research-experimental \
   -H "Content-Type: application/json" \
   -d '{
     "url": "https://example.com",
-    "context": "E-commerce website"
+    "context": "E-commerce website",
+    "provider": "openai"
+  }'
+```
+
+**Ожидаемый результат:**
+```json
+{
+  "result": "UX анализ сайта...",
+  "provider": "openai",
+  "model": "gpt-4o",
+  "usage": { "prompt_tokens": 150, "completion_tokens": 500, "total_tokens": 650 },
+  "experimental": true
+}
+```
+
+### **Тест анализа через OpenRouter Sonoma (экспериментальный):**
+```bash
+curl -X POST http://localhost:3000/api/research-experimental \
+  -H "Content-Type: application/json" \
+  -d '{
+    "url": "https://example.com",
+    "context": "E-commerce website",
+    "provider": "openrouter",
+    "openrouterModel": "sonoma"
   }'
 ```
 
@@ -111,13 +135,20 @@ curl -X POST http://localhost:3000/api/research-with-fallback \
 {
   "result": "UX анализ сайта...",
   "provider": "openrouter",
-  "model": "anthropic/claude-3.5-sonnet",
-  "usage": {
-    "prompt_tokens": 150,
-    "completion_tokens": 500,
-    "total_tokens": 650
-  }
+  "model": "openrouter/sonoma-sky-alpha",
+  "usage": { "prompt_tokens": 150, "completion_tokens": 500, "total_tokens": 650 },
+  "experimental": true
 }
+```
+
+### **Тест fallback системы:**
+```bash
+curl -X POST http://localhost:3000/api/research-with-fallback \
+  -H "Content-Type: application/json" \
+  -d '{
+    "url": "https://example.com",
+    "context": "E-commerce website"
+  }'
 ```
 
 ## 🔍 Проверка безопасности

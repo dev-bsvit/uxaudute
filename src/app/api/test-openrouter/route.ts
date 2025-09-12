@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { testOpenRouterConnection, getOpenRouterInfo } from '@/lib/openrouter'
+import { testOpenRouterConnection, getOpenRouterInfo, getAvailableModels } from '@/lib/openrouter'
 import { testAllProviders, getProvidersInfo } from '@/lib/ai-provider'
 
 export async function GET(request: NextRequest) {
@@ -9,12 +9,14 @@ export async function GET(request: NextRequest) {
     // Получаем информацию о конфигурации
     const openrouterInfo = getOpenRouterInfo()
     const providersInfo = getProvidersInfo()
+    const availableModels = getAvailableModels()
     
     return NextResponse.json({
       success: true,
       message: 'OpenRouter тест endpoint',
       openrouter: openrouterInfo,
       providers: providersInfo,
+      models: availableModels,
       timestamp: new Date().toISOString()
     })
     
@@ -32,17 +34,20 @@ export async function POST(request: NextRequest) {
   try {
     console.log('=== TEST OPENROUTER CONNECTION вызван ===')
     
-    // Тестируем подключение к OpenRouter
-    const openrouterTest = await testOpenRouterConnection()
+    const { model = 'default' } = await request.json()
+    
+    // Тестируем подключение к OpenRouter с конкретной моделью
+    const openrouterTest = await testOpenRouterConnection(model as any)
     
     // Тестируем все провайдеры
     const allProvidersTest = await testAllProviders()
     
     return NextResponse.json({
       success: true,
-      message: 'Тестирование провайдеров завершено',
+      message: `Тестирование провайдеров завершено (модель: ${model})`,
       openrouter: openrouterTest,
       allProviders: allProvidersTest,
+      testedModel: model,
       timestamp: new Date().toISOString()
     })
     

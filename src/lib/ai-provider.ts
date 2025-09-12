@@ -17,11 +17,20 @@ import { createOpenRouterClient, getOpenRouterModel, isOpenRouterAvailable } fro
 
 // Типы для провайдеров
 export type AIProvider = 'openai' | 'openrouter'
+export type OpenRouterModel = 'claude' | 'sonoma' | 'gpt4' | 'default'
 
 export interface AIProviderConfig {
   provider: AIProvider
   model: string
   client: any
+}
+
+export interface AIRequestOptions {
+  temperature?: number
+  max_tokens?: number
+  stream?: boolean
+  provider?: AIProvider
+  openrouterModel?: OpenRouterModel
 }
 
 export interface AIResponse {
@@ -44,7 +53,7 @@ const getProviderPriority = (): AIProvider[] => {
 }
 
 // Создание конфигурации провайдера
-const createProviderConfig = (provider: AIProvider): AIProviderConfig | null => {
+const createProviderConfig = (provider: AIProvider, openrouterModel: OpenRouterModel = 'default'): AIProviderConfig | null => {
   switch (provider) {
     case 'openai':
       return {
@@ -65,7 +74,7 @@ const createProviderConfig = (provider: AIProvider): AIProviderConfig | null => 
       }
       return {
         provider: 'openrouter',
-        model: getOpenRouterModel(),
+        model: getOpenRouterModel(openrouterModel),
         client: openrouterClient
       }
     
@@ -78,18 +87,71 @@ const createProviderConfig = (provider: AIProvider): AIProviderConfig | null => 
 // Основная функция для выполнения запроса с fallback
 export const executeAIRequest = async (
   messages: Array<{ role: string; content: string }>,
-  options: {
-    temperature?: number
-    max_tokens?: number
-    stream?: boolean
-  } = {}
+  options: AIRequestOptions = {}
 ): Promise<AIResponse> => {
+  const { 
+    temperature = 0.7, 
+    max_tokens = 2000, 
+    stream = false,
+    provider,
+    openrouterModel = 'default'
+  } = options
+
+  // Если указан конкретный провайдер, используем его
+  if (provider) {
+    const config = createProviderConfig(provider, openrouterModel)
+    
+    if (!config) {
+      return {
+        success: false,
+        content: '',
+        provider: provider,
+        model: 'unknown',
+        error: `Провайдер ${provider} недоступен`
+      }
+    }
+
+    try {
+      console.log(`Используем указанный провайдер: ${provider} (модель: ${config.model})`)
+      
+      const completion = await config.client.chat.completions.create({
+        model: config.model,
+        messages: messages as any,
+        temperature,
+        max_tokens,
+        stream
+      })
+
+      const content = completion.choices[0]?.message?.content || 'Нет ответа'
+      
+      console.log(`✅ Успешно использован провайдер: ${provider}`)
+      
+      return {
+        success: true,
+        content,
+        provider: config.provider,
+        model: config.model,
+        usage: completion.usage
+      }
+      
+    } catch (error) {
+      console.error(`❌ Ошибка указанного провайдера ${provider}:`, error)
+      return {
+        success: false,
+        content: '',
+        provider: config.provider,
+        model: config.model,
+        error: error instanceof Error ? error.message : 'Unknown error'
+      }
+    }
+  }
+
+  // Иначе используем fallback систему
   const providers = getProviderPriority()
-  const { temperature = 0.7, max_tokens = 2000, stream = false } = options
 
   // Пробуем каждый провайдер по порядку приоритета
   for (const providerName of providers) {
-    const config = createProviderConfig(providerName)
+    const config = createProviderConfig(providerName, openrouterModel)
     
     if (!config) {
       console.log(`Пропускаем провайдер ${providerName}: конфигурация недоступна`)

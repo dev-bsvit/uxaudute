@@ -70,6 +70,9 @@ AI_PROVIDER_PRIORITY=openai,openrouter
 ### **Анализ с fallback системой:**
 - **POST /api/research-with-fallback** - UX анализ с автоматическим fallback между провайдерами
 
+### **Экспериментальный анализ:**
+- **POST /api/research-experimental** - UX анализ с возможностью выбора провайдера и модели
+
 ### **Примеры использования:**
 
 #### Тест конфигурации:
@@ -87,6 +90,36 @@ curl -X POST http://localhost:3000/api/test-openrouter
 curl -X POST http://localhost:3000/api/research-with-fallback \
   -H "Content-Type: application/json" \
   -d '{"url": "https://example.com", "context": "E-commerce site"}'
+```
+
+#### Экспериментальный анализ (OpenAI):
+```bash
+curl -X POST http://localhost:3000/api/research-experimental \
+  -H "Content-Type: application/json" \
+  -d '{
+    "url": "https://example.com", 
+    "context": "E-commerce site",
+    "provider": "openai"
+  }'
+```
+
+#### Экспериментальный анализ (OpenRouter Sonoma):
+```bash
+curl -X POST http://localhost:3000/api/research-experimental \
+  -H "Content-Type: application/json" \
+  -d '{
+    "url": "https://example.com", 
+    "context": "E-commerce site",
+    "provider": "openrouter",
+    "openrouterModel": "sonoma"
+  }'
+```
+
+#### Тест конкретной модели:
+```bash
+curl -X POST http://localhost:3000/api/test-openrouter \
+  -H "Content-Type: application/json" \
+  -d '{"model": "sonoma"}'
 ```
 
 ## 📊 Отслеживание проблем
