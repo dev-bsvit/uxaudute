@@ -43,7 +43,7 @@ export async function POST(request: NextRequest) {
       jsonPrompt = loadSonomaPrompt()
       console.log('Используем специальный промпт для Sonoma Sky Alpha')
     } else {
-      jsonPrompt = loadJSONPromptV2()
+      jsonPrompt = await loadJSONPromptV2()
       console.log('Используем стандартный промпт v2')
     }
     console.log('Промпт загружен, длина:', jsonPrompt.length)
