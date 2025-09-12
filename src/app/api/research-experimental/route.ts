@@ -42,7 +42,7 @@ export async function POST(request: NextRequest) {
     const finalPrompt = combineWithContext(jsonPrompt, context)
     console.log('Финальный промпт готов, длина:', finalPrompt.length)
 
-    let analysisResult: StructuredAnalysisResponse
+    let analysisResult: StructuredAnalysisResponse | null = null
 
     if (url) {
       // Анализ URL через выбранный AI провайдер
@@ -165,6 +165,15 @@ export async function POST(request: NextRequest) {
           { status: 500 }
         )
       }
+    }
+
+    // Проверяем что результат получен
+    if (!analysisResult) {
+      console.error('Результат анализа не получен')
+      return NextResponse.json(
+        { error: 'Не удалось получить результат анализа' },
+        { status: 500 }
+      )
     }
 
     // Валидация результата
