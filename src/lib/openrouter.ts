@@ -18,6 +18,7 @@ const openrouterConfig = {
     claude: process.env.OPENROUTER_MODEL_CLAUDE || 'anthropic/claude-3.5-sonnet',
     sonoma: process.env.OPENROUTER_MODEL_SONOMA || 'openrouter/sonoma-sky-alpha',
     gpt4: process.env.OPENROUTER_MODEL_GPT4 || 'openai/gpt-4o',
+    deepseek: process.env.OPENROUTER_MODEL_DEEPSEEK || 'deepseek/deepseek-chat-v3.1:free',
     default: process.env.OPENROUTER_DEFAULT_MODEL || 'anthropic/claude-3.5-sonnet'
   }
 }
@@ -49,7 +50,7 @@ export const createOpenRouterClient = (): OpenAI | null => {
 }
 
 // Получение модели для использования
-export const getOpenRouterModel = (modelType: 'claude' | 'sonoma' | 'gpt4' | 'default' = 'default'): string => {
+export const getOpenRouterModel = (modelType: 'claude' | 'sonoma' | 'gpt4' | 'deepseek' | 'default' = 'default'): string => {
   return openrouterConfig.models[modelType]
 }
 
@@ -64,7 +65,7 @@ export const getAvailableModels = () => {
 }
 
 // Тест подключения к OpenRouter с конкретной моделью
-export const testOpenRouterConnection = async (modelType: 'claude' | 'sonoma' | 'gpt4' | 'default' = 'default'): Promise<{
+export const testOpenRouterConnection = async (modelType: 'claude' | 'sonoma' | 'gpt4' | 'deepseek' | 'default' = 'default'): Promise<{
   success: boolean
   message: string
   response?: string

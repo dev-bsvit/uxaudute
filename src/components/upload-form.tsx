@@ -18,7 +18,7 @@ export function UploadForm({ onSubmit, isLoading }: UploadFormProps) {
   const [context, setContext] = useState('')
   const [activeTab, setActiveTab] = useState<'url' | 'upload'>('url')
   const [provider, setProvider] = useState<'openai' | 'openrouter'>('openai')
-  const [openrouterModel, setOpenrouterModel] = useState<'claude' | 'sonoma' | 'gpt4'>('claude')
+  const [openrouterModel, setOpenrouterModel] = useState<'claude' | 'sonoma' | 'gpt4' | 'deepseek'>('deepseek')
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -214,9 +214,10 @@ export function UploadForm({ onSubmit, isLoading }: UploadFormProps) {
                   </Label>
                   <div className="flex space-x-4">
                     {[
-                      { value: 'sonoma', label: 'Sonoma Sky Alpha', desc: 'Новейшая' },
+                      { value: 'deepseek', label: 'DeepSeek Chat v3.1', desc: 'Бесплатная' },
                       { value: 'claude', label: 'Claude 3.5 Sonnet', desc: 'Стабильная' },
-                      { value: 'gpt4', label: 'GPT-4o', desc: 'Быстрая' }
+                      { value: 'gpt4', label: 'GPT-4o', desc: 'Быстрая' },
+                      { value: 'sonoma', label: 'Sonoma Sky Alpha', desc: 'Новейшая (не работает)' }
                     ].map((model) => (
                       <label key={model.value} className="flex items-center space-x-2 cursor-pointer">
                         <input

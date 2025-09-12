@@ -17,7 +17,7 @@ import { createOpenRouterClient, getOpenRouterModel, isOpenRouterAvailable } fro
 
 // Типы для провайдеров
 export type AIProvider = 'openai' | 'openrouter'
-export type OpenRouterModel = 'claude' | 'sonoma' | 'gpt4' | 'default'
+export type OpenRouterModel = 'claude' | 'sonoma' | 'gpt4' | 'deepseek' | 'default'
 
 export interface AIProviderConfig {
   provider: AIProvider
