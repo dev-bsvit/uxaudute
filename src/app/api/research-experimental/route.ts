@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { executeAIRequest } from '@/lib/ai-provider'
-import { loadMainPrompt, combineWithContext } from '@/lib/prompt-loader'
+import { readFileSync } from 'fs'
+import { join } from 'path'
+import { StructuredAnalysisResponse, isStructuredResponse } from '@/lib/analysis-types'
+import { validateSurvey, analyzeSurveyResults } from '@/lib/survey-utils'
 import { supabase } from '@/lib/supabase'
 
 export async function POST(request: NextRequest) {
@@ -20,92 +23,83 @@ export async function POST(request: NextRequest) {
       screenshot: !!screenshot, 
       context: !!context,
       provider,
-      openrouterModel
+      openrouterModel,
+      auditId
     })
 
     if (!url && !screenshot) {
+      console.log('Ошибка: нет URL или скриншота')
       return NextResponse.json(
         { error: 'URL или скриншот обязательны для анализа' },
         { status: 400 }
       )
     }
 
-    // Загружаем основной промпт и объединяем с контекстом
-    const mainPrompt = await loadMainPrompt()
-    const finalPrompt = combineWithContext(mainPrompt, context)
+    // Загружаем JSON-структурированный промпт v2
+    console.log('Загружаем промпт v2...')
+    const jsonPrompt = loadJSONPromptV2()
+    console.log('Промпт загружен, длина:', jsonPrompt.length)
+    const finalPrompt = combineWithContext(jsonPrompt, context)
+    console.log('Финальный промпт готов, длина:', finalPrompt.length)
+
+    let analysisResult: StructuredAnalysisResponse
 
     if (url) {
-      // Анализ через выбранный AI провайдер
+      // Анализ URL через выбранный AI провайдер
+      console.log(`Анализируем URL через ${provider} (${openrouterModel})...`)
       const analysisPrompt = `${finalPrompt}\n\nПроанализируй сайт по URL: ${url}\n\nПоскольку я не могу получить скриншот, проведи анализ основываясь на общих принципах UX для данного типа сайта.`
       
       const aiResponse = await executeAIRequest([
         { role: "user", content: analysisPrompt }
       ], {
         temperature: 0.7,
-        max_tokens: 2000,
-        provider: provider as any,
-        openrouterModel: openrouterModel as any
+        max_tokens: 3000,
+        provider: provider as 'openai' | 'openrouter',
+        openrouterModel: openrouterModel as 'claude' | 'sonoma' | 'gpt4' | 'default'
       })
 
       if (!aiResponse.success) {
-        console.error('AI анализ не удался:', aiResponse.error)
+        console.error('Ошибка AI анализа:', aiResponse.error)
         return NextResponse.json(
-          { error: `Не удалось выполнить анализ через ${provider}. Попробуйте другой провайдер.` },
+          { error: 'Не удалось выполнить анализ. Попробуйте позже.' },
           { status: 500 }
         )
       }
 
-      console.log(`✅ Анализ выполнен через ${aiResponse.provider} (${aiResponse.model})`)
+      const result = aiResponse.content
+      console.log('Получен ответ от AI, длина:', result.length)
+      console.log('Первые 200 символов ответа:', result.substring(0, 200))
       
-      // Сохраняем результат в базу данных если есть auditId
-      if (auditId) {
-        try {
-          const { error: auditUpdateError } = await supabase
-            .from('audits')
-            .update({
-              result_data: { analysis_result: aiResponse.content },
-              status: 'completed',
-              updated_at: new Date().toISOString()
-            })
-            .eq('id', auditId)
-          
-          if (auditUpdateError) {
-            console.error('Ошибка обновления audits:', auditUpdateError)
-          } else {
-            console.log('✅ Аудит успешно обновлен с результатом')
-          }
-        } catch (saveError) {
-          console.error('Ошибка сохранения результата:', saveError)
-        }
+      try {
+        analysisResult = JSON.parse(result) as StructuredAnalysisResponse
+        console.log('✅ JSON успешно распарсен')
+      } catch (parseError) {
+        console.error('Ошибка парсинга JSON:', parseError)
+        console.error('Ответ AI:', result)
+        return NextResponse.json(
+          { error: 'Ошибка обработки ответа AI. Попробуйте позже.' },
+          { status: 500 }
+        )
       }
-
-      return NextResponse.json({ 
-        success: true,
-        data: aiResponse.content,
-        provider: aiResponse.provider,
-        model: aiResponse.model,
-        usage: aiResponse.usage,
-        experimental: true
-      })
     }
 
     if (screenshot) {
       // Анализ скриншота через выбранный AI провайдер
       console.log(`Анализируем скриншот через ${provider} (${openrouterModel})...`)
       
-      // Шаг 1: Описываем что видим на картинке
-      const descriptionPrompt = `Ты эксперт по UX дизайну. Внимательно изучи это изображение интерфейса и опиши:
-
-1. Тип интерфейса (веб-сайт, мобильное приложение, дашборд и т.д.)
-2. Основные элементы, которые ты видишь (заголовки, кнопки, формы, меню и т.д.)
-3. Цветовую схему и визуальный стиль
+      // Для изображений пока используем только OpenAI (GPT-4o Vision)
+      // TODO: Добавить поддержку изображений в OpenRouter когда будет доступно
+      const descriptionPrompt = `Опиши детально этот интерфейс. Укажи:
+1. Тип экрана (лендинг, форма, дашборд, каталог и т.д.)
+2. Основные элементы интерфейса
+3. Цветовую схему и стиль
 4. Расположение ключевых элементов
-5. Текстовый контент, который можно прочитать
+5. Навигационные элементы
+6. Формы и поля ввода
+7. Кнопки и призывы к действию
 
 Будь максимально детальным в описании. Это поможет для дальнейшего UX анализа.`
 
-      // Для изображений пока используем только OpenAI (GPT-4o Vision)
-      // TODO: Добавить поддержку изображений в OpenRouter когда будет доступно
       const descriptionResponse = await executeAIRequest([
         {
           role: "user",
@@ -135,29 +129,24 @@ export async function POST(request: NextRequest) {
       }
 
       const description = descriptionResponse.content
-      console.log(`✅ Описание создано через ${descriptionResponse.provider}`)
+      console.log('✅ Описание изображения получено')
+
+      // Теперь анализируем описание через выбранный провайдер
+      const analysisPrompt = `${finalPrompt}\n\nПроанализируй этот интерфейс на основе описания:\n\n${description}`
       
-      // Шаг 2: Проводим UX анализ на основе описания через выбранный провайдер
-      const analysisPrompt = `${finalPrompt}
-
-Описание интерфейса из изображения:
-${description}
-
-Теперь проведи профессиональный UX анализ этого интерфейса, основываясь на описании выше.`
-
       const analysisResponse = await executeAIRequest([
         { role: "user", content: analysisPrompt }
       ], {
         temperature: 0.7,
-        max_tokens: 2000,
-        provider: provider as any,
-        openrouterModel: openrouterModel as any
+        max_tokens: 3000,
+        provider: provider as 'openai' | 'openrouter',
+        openrouterModel: openrouterModel as 'claude' | 'sonoma' | 'gpt4' | 'default'
       })
 
       if (!analysisResponse.success) {
-        console.error('UX анализ не удался:', analysisResponse.error)
+        console.error('Анализ не удался:', analysisResponse.error)
         return NextResponse.json(
-          { error: `Не удалось выполнить UX анализ через ${provider}. Попробуйте другой провайдер.` },
+          { error: 'Не удалось выполнить анализ. Попробуйте позже.' },
           { status: 500 }
         )
       }
@@ -165,48 +154,75 @@ ${description}
       const analysis = analysisResponse.content
       console.log(`✅ UX анализ выполнен через ${analysisResponse.provider}`)
       
-      // Объединяем описание и анализ
-      const result = `# UX Анализ интерфейса (Экспериментальный)
-
-## Описание интерфейса
-${description}
-
----
-
-${analysis}`
-
-      // Сохраняем результат в базу данных если есть auditId
-      if (auditId) {
-        try {
-          const { error: auditUpdateError } = await supabase
-            .from('audits')
-            .update({
-              result_data: { analysis_result: result },
-              status: 'completed',
-              updated_at: new Date().toISOString()
-            })
-            .eq('id', auditId)
-          
-          if (auditUpdateError) {
-            console.error('Ошибка обновления audits:', auditUpdateError)
-          } else {
-            console.log('✅ Аудит успешно обновлен с результатом')
-          }
-        } catch (saveError) {
-          console.error('Ошибка сохранения результата:', saveError)
-        }
+      try {
+        analysisResult = JSON.parse(analysis) as StructuredAnalysisResponse
+        console.log('✅ JSON успешно распарсен')
+      } catch (parseError) {
+        console.error('Ошибка парсинга JSON:', parseError)
+        console.error('Ответ AI:', analysis)
+        return NextResponse.json(
+          { error: 'Ошибка обработки ответа AI. Попробуйте позже.' },
+          { status: 500 }
+        )
       }
-
-      return NextResponse.json({ 
-        success: true,
-        data: result,
-        provider: analysisResponse.provider,
-        model: analysisResponse.model,
-        usage: analysisResponse.usage,
-        experimental: true,
-        note: 'Описание изображения выполнено через OpenAI, анализ через выбранный провайдер'
-      })
     }
+
+    // Валидация результата
+    if (!isStructuredResponse(analysisResult)) {
+      console.error('Результат не соответствует ожидаемой структуре')
+      return NextResponse.json(
+        { error: 'Результат анализа не соответствует ожидаемому формату' },
+        { status: 500 }
+      )
+    }
+
+    console.log('✅ Результат прошел валидацию')
+
+    // Валидация UX-опроса
+    const surveyValidation = validateSurvey(analysisResult.uxSurvey)
+    const surveyAnalysis = analyzeSurveyResults(analysisResult.uxSurvey)
+    
+    console.log('✅ UX-опрос прошел валидацию')
+
+    // Сохраняем результат в базу данных если есть auditId
+    if (auditId) {
+      try {
+        console.log('Сохраняем результат в базу данных...')
+        const { error: auditUpdateError } = await supabase
+          .from('audits')
+          .update({
+            result_data: analysisResult,
+            status: 'completed',
+            updated_at: new Date().toISOString()
+          })
+          .eq('id', auditId)
+        
+        if (auditUpdateError) {
+          console.error('Ошибка обновления audits:', auditUpdateError)
+          throw new Error(`Ошибка сохранения результата: ${auditUpdateError.message}`)
+        } else {
+          console.log('✅ Аудит успешно обновлен с результатом')
+        }
+      } catch (saveError) {
+        console.error('Ошибка сохранения результата:', saveError)
+        throw new Error(`Ошибка сохранения аудита: ${saveError instanceof Error ? saveError.message : 'Неизвестная ошибка'}`)
+      }
+    } else {
+      console.warn('⚠️ auditId не предоставлен, результат не сохранен')
+    }
+
+    console.log('Возвращаем успешный ответ...')
+    return NextResponse.json({ 
+      success: true,
+      data: analysisResult,
+      format: 'json',
+      validation: {
+        survey: surveyValidation,
+        analysis: surveyAnalysis
+      },
+      provider: provider,
+      experimental: true
+    })
 
   } catch (error) {
     console.error('Research experimental API error:', error)
@@ -218,8 +234,165 @@ ${analysis}`
     }
     
     return NextResponse.json(
-      { error: 'Не удалось выполнить анализ. Попробуйте позже.' },
+      { 
+        error: 'Внутренняя ошибка сервера',
+        details: error instanceof Error ? error.message : 'Неизвестная ошибка'
+      },
       { status: 500 }
     )
   }
+}
+
+/**
+ * Загружает JSON-структурированный промпт v2 из файла
+ */
+function loadJSONPromptV2(): string {
+  try {
+    // Путь к файлу промпта v2
+    const promptPath = join(process.cwd(), 'prompts', 'json-structured-prompt-v2.md')
+    console.log('Загружаем промпт v2 из:', promptPath)
+    
+    const prompt = readFileSync(promptPath, 'utf-8')
+    console.log('Промпт v2 загружен успешно, длина:', prompt.length)
+    
+    return prompt
+  } catch (error) {
+    console.error('Ошибка загрузки JSON промпта v2:', error)
+    console.error('Используем fallback промпт')
+    // Возвращаем fallback промпт
+    return getFallbackJSONPrompt()
+  }
+}
+
+/**
+ * Fallback промпт если основной файл недоступен
+ */
+function getFallbackJSONPrompt(): string {
+  return `# JSON-структурированный промпт для UX-анализа
+
+Вы — опытный UX-дизайнер-исследователь. Проанализируйте интерфейс и верните результат в формате JSON.
+
+**КРИТИЧЕСКИ ВАЖНО: 
+1. Отвечай ТОЛЬКО в формате JSON
+2. НЕ добавляй никакого текста до или после JSON
+3. НЕ оборачивай JSON в markdown блоки
+4. НЕ добавляй объяснения или комментарии
+5. Начинай ответ сразу с символа { и заканчивай символом }
+6. Убедись, что JSON валидный и полный**
+
+```json
+{
+  "screenDescription": {
+    "screenType": "Тип экрана",
+    "userGoal": "Цель пользователя",
+    "keyElements": ["Элемент 1", "Элемент 2"],
+    "confidence": 85,
+    "confidenceReason": "Обоснование уверенности"
+  },
+  "uxSurvey": {
+    "dynamicQuestionsAdded": true,
+    "screenType": "лендинг",
+    "questions": [
+      {
+        "id": 1,
+        "question": "Вопрос 1?",
+        "options": ["A) Вариант 1", "B) Вариант 2", "C) Вариант 3"],
+        "scores": [70, 20, 10],
+        "confidence": 85,
+        "category": "clarity",
+        "principle": "Принцип",
+        "explanation": "Объяснение"
+      }
+    ],
+    "overallConfidence": 82,
+    "summary": {
+      "totalQuestions": 1,
+      "averageConfidence": 82,
+      "criticalIssues": 0,
+      "recommendations": []
+    }
+  },
+  "audience": {
+    "targetAudience": "Целевая аудитория",
+    "mainPain": "Основная боль",
+    "fears": ["Страх 1", "Страх 2"]
+  },
+  "behavior": {
+    "userScenarios": {
+      "idealPath": "Идеальный путь",
+      "typicalError": "Типичная ошибка",
+      "alternativeWorkaround": "Альтернативный обход"
+    },
+    "behavioralPatterns": "Поведенческие паттерны",
+    "frictionPoints": [
+      {
+        "point": "Точка трения 1",
+        "impact": "major"
+      }
+    ],
+    "actionMotivation": "Мотивация к действию"
+  },
+  "problemsAndSolutions": [
+    {
+      "element": "Элемент",
+      "problem": "Проблема",
+      "principle": "Принцип",
+      "consequence": "Последствие",
+      "businessImpact": {
+        "metric": "conversion",
+        "impactLevel": "high",
+        "description": "Описание влияния"
+      },
+      "recommendation": "Рекомендация",
+      "expectedEffect": "Ожидаемый эффект",
+      "priority": "high",
+      "confidence": 85,
+      "confidenceSource": "Источник уверенности"
+    }
+  ],
+  "selfCheck": {
+    "checklist": {
+      "coversAllElements": true,
+      "noContradictions": true,
+      "principlesJustified": true,
+      "actionClarity": true
+    },
+    "varietyCheck": {
+      "passed": true,
+      "description": "Описание разнообразия",
+      "principleVariety": ["Принцип 1"],
+      "issueTypes": ["visual"]
+    },
+    "confidence": {
+      "analysis": 85,
+      "survey": 82,
+      "recommendations": 88
+    },
+    "confidenceVariation": {
+      "min": 70,
+      "max": 90,
+      "average": 82,
+      "explanation": "Объяснение вариации"
+    }
+  },
+  "metadata": {
+    "timestamp": "2024-01-01T12:00:00Z",
+    "version": "1.0",
+    "model": "gpt-4o"
+  }
+}
+```
+
+Отвечай ТОЛЬКО в формате JSON на русском языке.`
+}
+
+/**
+ * Комбинирует промпт с контекстом
+ */
+function combineWithContext(prompt: string, context?: string): string {
+  if (!context) {
+    return prompt
+  }
+  
+  return `${prompt}\n\n## Контекст задачи:\n${context}\n\nУчти этот контекст при анализе.`
 }
