@@ -3,7 +3,7 @@ import { executeAIRequest } from '@/lib/ai-provider'
 import { StructuredAnalysisResponse, isStructuredResponse } from '@/lib/analysis-types'
 import { validateSurvey, analyzeSurveyResults } from '@/lib/survey-utils'
 import { supabase } from '@/lib/supabase'
-import { loadJSONPromptV2, loadSonomaPrompt } from '@/lib/prompt-loader'
+import { loadJSONPromptV2, loadSonomaStructuredPrompt } from '@/lib/prompt-loader'
 
 export async function POST(request: NextRequest) {
   try {
@@ -38,7 +38,7 @@ export async function POST(request: NextRequest) {
     console.log('Загружаем промпт...')
     let jsonPrompt: string
     if (provider === 'openrouter' && openrouterModel === 'sonoma') {
-      jsonPrompt = loadSonomaPrompt()
+      jsonPrompt = await loadSonomaStructuredPrompt()
       console.log('Используем специальный промпт для Sonoma Sky Alpha')
     } else {
       jsonPrompt = await loadJSONPromptV2()
