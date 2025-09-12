@@ -3,12 +3,13 @@ import { NextRequest, NextResponse } from 'next/server'
 // Простой тест OpenRouter без сложной логики
 export async function POST(request: NextRequest) {
   try {
-    const { model, message = 'Hello! Please respond.' } = await request.json()
+    const { model, message = 'Hello! Please respond.', screenshot } = await request.json()
     
     console.log('='.repeat(80))
     console.log(`🧪 ТЕСТ OPENROUTER API - ${new Date().toISOString()}`)
     console.log(`📝 Модель: ${model}`)
     console.log(`💬 Сообщение: ${message}`)
+    console.log(`📷 Скриншот: ${screenshot ? 'ПРИСУТСТВУЕТ' : 'НЕТ'}`)
     console.log('='.repeat(80))
     
     const OPENROUTER_API_KEY = process.env.OPENROUTER_API_KEY
@@ -26,14 +27,37 @@ export async function POST(request: NextRequest) {
     }
     
     // Подготовка запроса
+    const messages: any[] = []
+    
+    if (screenshot) {
+      // Если есть скриншот, создаем мультимодальное сообщение
+      messages.push({
+        role: 'user',
+        content: [
+          {
+            type: 'text',
+            text: message
+          },
+          {
+            type: 'image_url',
+            image_url: {
+              url: screenshot,
+              detail: 'high'
+            }
+          }
+        ]
+      })
+    } else {
+      // Обычное текстовое сообщение
+      messages.push({
+        role: 'user',
+        content: message
+      })
+    }
+
     const requestBody = {
       model: model,
-      messages: [
-        {
-          role: 'user',
-          content: message
-        }
-      ],
+      messages: messages,
       max_tokens: 4000,
       temperature: 0.7
     }

@@ -16,6 +16,8 @@ export function TestOpenRouterInterface() {
   const [results, setResults] = useState<TestResult[]>([])
   const [isLoading, setIsLoading] = useState(false)
   const [customMessage, setCustomMessage] = useState('Hello! Please respond.')
+  const [screenshot, setScreenshot] = useState<string | null>(null)
+  const [screenshotFile, setScreenshotFile] = useState<File | null>(null)
 
   // Список моделей для тестирования (обновлен на основе тестов)
   const models = [
@@ -56,15 +58,23 @@ export function TestOpenRouterInterface() {
     try {
       addLog(`📤 Отправляем запрос к /api/test-openrouter-simple`)
       
+      const requestBody: any = {
+        model: modelId,
+        message: customMessage
+      }
+
+      // Добавляем скриншот если есть
+      if (screenshot) {
+        requestBody.screenshot = screenshot
+        addLog(`📷 Отправляем скриншот: ${screenshotFile?.name || 'изображение'}`)
+      }
+
       const response = await fetch('/api/test-openrouter-simple', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({
-          model: modelId,
-          message: customMessage
-        })
+        body: JSON.stringify(requestBody)
       })
 
       addLog(`📡 Получен ответ: ${response.status} ${response.statusText}`)
@@ -122,6 +132,23 @@ export function TestOpenRouterInterface() {
     setResults([])
   }
 
+  const handleScreenshotUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0]
+    if (file) {
+      setScreenshotFile(file)
+      const reader = new FileReader()
+      reader.onload = (e) => {
+        setScreenshot(e.target?.result as string)
+      }
+      reader.readAsDataURL(file)
+    }
+  }
+
+  const clearScreenshot = () => {
+    setScreenshot(null)
+    setScreenshotFile(null)
+  }
+
   return (
     <div className="max-w-6xl mx-auto p-6 space-y-6">
       <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
@@ -150,6 +177,38 @@ export function TestOpenRouterInterface() {
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               placeholder="Введите сообщение для тестирования"
             />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Скриншот (опционально):
+            </label>
+            <div className="space-y-2">
+              <input
+                type="file"
+                accept="image/*"
+                onChange={handleScreenshotUpload}
+                className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-medium file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+              />
+              {screenshot && (
+                <div className="relative">
+                  <img
+                    src={screenshot}
+                    alt="Предварительный просмотр"
+                    className="max-w-xs max-h-48 rounded-lg border border-gray-300"
+                  />
+                  <button
+                    onClick={clearScreenshot}
+                    className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs hover:bg-red-600"
+                  >
+                    ×
+                  </button>
+                  <p className="text-xs text-gray-500 mt-1">
+                    Файл: {screenshotFile?.name} ({(screenshotFile?.size || 0) / 1024} KB)
+                  </p>
+                </div>
+              )}
+            </div>
           </div>
           
           <div className="flex space-x-3">
