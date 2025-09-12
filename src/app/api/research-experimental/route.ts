@@ -69,6 +69,7 @@ export async function POST(request: NextRequest) {
       const result = aiResponse.content
       console.log('Получен ответ от AI, длина:', result.length)
       console.log('Первые 200 символов ответа:', result.substring(0, 200))
+      console.log('Полный ответ AI:', result)
       
       try {
         analysisResult = JSON.parse(result) as StructuredAnalysisResponse
