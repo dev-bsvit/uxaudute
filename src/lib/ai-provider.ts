@@ -120,7 +120,7 @@ export const executeAIRequest = async (
         temperature,
         max_tokens,
         stream,
-        ...(config.provider === 'openai' ? { response_format: { type: "json_object" } } : {})
+        response_format: { type: "json_object" }
       })
 
       const content = completion.choices[0]?.message?.content || 'Нет ответа'
@@ -168,7 +168,7 @@ export const executeAIRequest = async (
         temperature,
         max_tokens,
         stream,
-        ...(config.provider === 'openai' ? { response_format: { type: "json_object" } } : {})
+        response_format: { type: "json_object" }
       })
 
       const content = completion.choices[0]?.message?.content || 'Нет ответа'
