@@ -99,9 +99,13 @@ export const executeAIRequest = async (
 
   // Если указан конкретный провайдер, используем его
   if (provider) {
+    console.log(`🎯 Создаем конфигурацию для провайдера: ${provider}, модель: ${openrouterModel}`)
     const config = createProviderConfig(provider, openrouterModel)
     
+    console.log(`📋 Конфигурация создана:`, config)
+    
     if (!config) {
+      console.error(`❌ Провайдер ${provider} недоступен`)
       return {
         success: false,
         content: '',
@@ -113,18 +117,26 @@ export const executeAIRequest = async (
 
     try {
       console.log(`Используем указанный провайдер: ${provider} (модель: ${config.model})`)
+      console.log(`📤 Отправляем сообщения:`, JSON.stringify(messages, null, 2))
       
       // Специальные параметры для Sonoma Sky Alpha
       const isSonoma = config.model.includes('sonoma-sky-alpha')
+      console.log(`🎯 Это Sonoma Sky Alpha: ${isSonoma}`)
       
-      const completion = await config.client.chat.completions.create({
+      const requestParams = {
         model: config.model,
         messages: messages as any,
         temperature: isSonoma ? 0.8 : temperature,
         max_tokens: isSonoma ? Math.max(max_tokens, 200) : max_tokens,
         stream,
         response_format: { type: "json_object" } // Включаем JSON формат для всех моделей
-      })
+      }
+      
+      console.log(`📋 Параметры запроса:`, JSON.stringify(requestParams, null, 2))
+      
+      const completion = await config.client.chat.completions.create(requestParams)
+      
+      console.log(`✅ Получен ответ от ${provider}:`, JSON.stringify(completion, null, 2))
 
       const content = completion.choices[0]?.message?.content || 'Нет ответа'
       
