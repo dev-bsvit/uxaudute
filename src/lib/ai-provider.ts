@@ -119,7 +119,8 @@ export const executeAIRequest = async (
         messages: messages as any,
         temperature,
         max_tokens,
-        stream
+        stream,
+        response_format: { type: "json_object" }
       })
 
       const content = completion.choices[0]?.message?.content || 'Нет ответа'
@@ -166,7 +167,8 @@ export const executeAIRequest = async (
         messages: messages as any,
         temperature,
         max_tokens,
-        stream
+        stream,
+        response_format: { type: "json_object" }
       })
 
       const content = completion.choices[0]?.message?.content || 'Нет ответа'
