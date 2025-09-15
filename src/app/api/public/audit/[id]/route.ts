@@ -59,6 +59,7 @@ export async function GET(
     }
 
     console.log('✅ Публичный аудит получен:', audit.name)
+    console.log('🔍 Формат запроса:', format)
 
     // Если запрашивается HTML формат
     if (format === 'html') {
