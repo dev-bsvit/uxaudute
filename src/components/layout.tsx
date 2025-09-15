@@ -4,7 +4,7 @@ import { ReactNode, useState, useEffect } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { Button } from '@/components/ui/button'
-import { User, LogOut, Settings, ChevronDown } from 'lucide-react'
+import { User, LogOut, Settings, ChevronDown, CreditCard } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 import { signOut } from '@/lib/database'
 import { User as SupabaseUser } from '@supabase/supabase-js'
@@ -19,6 +19,7 @@ export function Layout({ children, title = 'UX Audit', transparentHeader = false
   const pathname = usePathname()
   const [user, setUser] = useState<SupabaseUser | null>(null)
   const [showUserMenu, setShowUserMenu] = useState(false)
+  const [creditsBalance, setCreditsBalance] = useState<number | null>(null)
   
   // Навигация с Dashboard для быстрого анализа
   const navigation = [
@@ -51,6 +52,23 @@ export function Layout({ children, title = 'UX Audit', transparentHeader = false
       subscription.unsubscribe()
       document.removeEventListener('click', handleClickOutside)
     }
+  }, [])
+
+  // Загружаем баланс кредитов
+  useEffect(() => {
+    const fetchCreditsBalance = async () => {
+      try {
+        const response = await fetch('/api/credits/demo-balance')
+        const data = await response.json()
+        if (data.success) {
+          setCreditsBalance(data.balance)
+        }
+      } catch (error) {
+        console.error('Error fetching credits balance:', error)
+      }
+    }
+
+    fetchCreditsBalance()
   }, [])
 
   const handleSignOut = async () => {
@@ -135,6 +153,16 @@ export function Layout({ children, title = 'UX Audit', transparentHeader = false
                         </p>
                         <p className="text-xs text-gray-500">{user.email}</p>
                       </div>
+
+                      {/* Баланс кредитов */}
+                      <div className="px-4 py-2 border-b border-gray-100">
+                        <div className="flex items-center justify-between">
+                          <span className="text-sm font-medium text-gray-900">Баланс кредитов</span>
+                          <span className="text-lg font-bold text-blue-600">
+                            {creditsBalance !== null ? creditsBalance : '...'}
+                          </span>
+                        </div>
+                      </div>
                       
                       <Link
                         href="/dashboard"
@@ -152,6 +180,15 @@ export function Layout({ children, title = 'UX Audit', transparentHeader = false
                       >
                         <Settings className="w-4 h-4" />
                         Мои проекты
+                      </Link>
+
+                      <Link
+                        href="/credits"
+                        className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
+                        onClick={() => setShowUserMenu(false)}
+                      >
+                        <CreditCard className="w-4 h-4" />
+                        Счет
                       </Link>
                       
                       <button

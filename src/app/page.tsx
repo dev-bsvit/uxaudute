@@ -5,7 +5,6 @@ import { useEffect, useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { HeroSection } from '@/components/hero-section'
-import CreditsSidebar from '@/components/CreditsSidebar'
 import Link from 'next/link'
 import { ArrowRight, Zap, Shield, BarChart3, Users } from 'lucide-react'
 
@@ -47,13 +46,10 @@ export default function HomePage() {
       
       <div className="bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex gap-8">
-            {/* Основной контент */}
-            <div className="flex-1">
-              {/* Особенности */}
-              <div className="py-12">
-                <div className="max-w-6xl mx-auto px-6">
-                  <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+          {/* Особенности */}
+          <div className="py-12">
+            <div className="max-w-6xl mx-auto px-6">
+              <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
                 {features.map((feature, index) => (
                   <Card key={index} className="text-center border-0 shadow-lg hover:shadow-xl transition-shadow bg-white">
                     <CardHeader>
@@ -71,40 +67,31 @@ export default function HomePage() {
                     </CardContent>
                   </Card>
                 ))}
-                  </div>
-                </div>
-              </div>
-
-              {/* CTA секция */}
-              <div className="py-20 text-center">
-                <div className="max-w-3xl mx-auto px-6">
-                  <h2 className="text-3xl font-bold text-slate-900 mb-6">
-                    Готовы улучшить пользовательский опыт?
-                  </h2>
-                  <p className="text-lg text-slate-600 mb-8">
-                    Начните анализ своих интерфейсов прямо сейчас. Войдите в систему и создайте свой первый проект.
-                  </p>
-                  <div className="space-x-4">
-                    <Link href="/dashboard">
-                      <Button size="lg" className="px-8 py-4 text-lg">
-                        Начать бесплатно
-                        <ArrowRight className="w-5 h-5 ml-2" />
-                      </Button>
-                    </Link>
-                    <Link href="/credits">
-                      <Button variant="outline" size="lg" className="px-8 py-4 text-lg">
-                        💰 Управление кредитами
-                      </Button>
-                    </Link>
-                  </div>
-                </div>
               </div>
             </div>
+          </div>
 
-            {/* Сайдбар с балансом */}
-            <div className="w-80 hidden lg:block">
-              <div className="sticky top-8">
-                <CreditsSidebar />
+          {/* CTA секция */}
+          <div className="py-20 text-center">
+            <div className="max-w-3xl mx-auto px-6">
+              <h2 className="text-3xl font-bold text-slate-900 mb-6">
+                Готовы улучшить пользовательский опыт?
+              </h2>
+              <p className="text-lg text-slate-600 mb-8">
+                Начните анализ своих интерфейсов прямо сейчас. Войдите в систему и создайте свой первый проект.
+              </p>
+              <div className="space-x-4">
+                <Link href="/dashboard">
+                  <Button size="lg" className="px-8 py-4 text-lg">
+                    Начать бесплатно
+                    <ArrowRight className="w-5 h-5 ml-2" />
+                  </Button>
+                </Link>
+                <Link href="/credits">
+                  <Button variant="outline" size="lg" className="px-8 py-4 text-lg">
+                    💰 Управление кредитами
+                  </Button>
+                </Link>
               </div>
             </div>
           </div>
