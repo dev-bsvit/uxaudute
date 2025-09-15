@@ -58,7 +58,7 @@ export async function POST(request: NextRequest) {
     
     const { error: updateError } = await supabaseClient
       .from('user_balances')
-      .update({ balance: newBalance, updated_at: new Date().toISOString() })
+      .update({ balance: newBalance })
       .eq('user_id', testUserId)
 
     if (updateError) {
