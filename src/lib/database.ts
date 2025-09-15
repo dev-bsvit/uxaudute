@@ -505,7 +505,7 @@ export async function ensureUserHasInitialBalance(userId: string): Promise<void>
           type: 'credit',
           amount: 5,
           balance_after: 5,
-          source: 'manual',
+          source: 'welcome',
           description: 'Добро пожаловать! Начальный баланс 5 кредитов'
         })
         .select()

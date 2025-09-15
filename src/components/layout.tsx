@@ -6,7 +6,7 @@ import { usePathname } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { User, LogOut, Settings, ChevronDown, CreditCard } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
-import { signOut } from '@/lib/database'
+import { signOut, ensureUserHasInitialBalance } from '@/lib/database'
 import { User as SupabaseUser } from '@supabase/supabase-js'
 
 interface LayoutProps {
@@ -29,13 +29,36 @@ export function Layout({ children, title = 'UX Audit', transparentHeader = false
 
   useEffect(() => {
     // Проверяем текущего пользователя
-    supabase.auth.getUser().then(({ data: { user } }) => {
+    supabase.auth.getUser().then(async ({ data: { user } }) => {
       setUser(user)
+      
+      // Если пользователь уже авторизован, убеждаемся что у него есть начальный баланс
+      if (user) {
+        console.log('🔍 Проверяем баланс для пользователя:', user.id, user.email)
+        try {
+          await ensureUserHasInitialBalance(user.id)
+        } catch (error) {
+          console.error('❌ Ошибка при проверке баланса:', error)
+        }
+      }
     })
 
     // Слушаем изменения аутентификации
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+      console.log('🔄 Auth state change:', event, session?.user?.email, session?.user?.id)
       setUser(session?.user ?? null)
+      
+      // Если пользователь авторизовался, убеждаемся что у него есть начальный баланс
+      if (session?.user && event === 'SIGNED_IN') {
+        console.log('🔍 Создаем баланс для нового пользователя:', session.user.id, session.user.email)
+        console.log('🔍 Вызываем ensureUserHasInitialBalance...')
+        try {
+          await ensureUserHasInitialBalance(session.user.id)
+          console.log('✅ ensureUserHasInitialBalance выполнена успешно')
+        } catch (error) {
+          console.error('❌ Ошибка при создании баланса:', error)
+        }
+      }
     })
 
     // Закрываем меню при клике вне его
