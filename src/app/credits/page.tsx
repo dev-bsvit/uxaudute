@@ -21,8 +21,8 @@ export default function CreditsPage() {
   const [refreshBalance, setRefreshBalance] = useState(0)
   const router = useRouter()
 
-  // Для демонстрации используем существующего пользователя
-  const testUserId = 'cc37dfed-4dad-4e7e-bff5-1b38645e3c7d'
+  // Используем реального пользователя
+  const userId = user?.id
 
   useEffect(() => {
     // Проверяем текущего пользователя
@@ -110,7 +110,7 @@ export default function CreditsPage() {
             </CardHeader>
             <CardContent>
               <CreditsPurchase 
-                userId={testUserId}
+                userId={userId}
                 onPurchaseComplete={handlePurchaseComplete}
               />
             </CardContent>

@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { createClient } from '@supabase/supabase-js'
+import { supabase } from '@/lib/supabase'
 
 interface CreditsBalanceProps {
   userId?: string
@@ -38,8 +39,13 @@ export default function CreditsBalance({ userId, showTransactions = false }: Cre
         setLoading(true)
         setError(null)
 
-        // Получаем баланс (демо режим)
-        const balanceResponse = await fetch('/api/credits/demo-balance')
+        // Получаем баланс
+        const balanceResponse = await fetch('/api/credits/balance', {
+          method: 'GET',
+          headers: {
+            'Authorization': `Bearer ${(await supabase.auth.getSession()).data.session?.access_token}`
+          }
+        })
 
         if (!balanceResponse.ok) {
           throw new Error('Failed to fetch balance')

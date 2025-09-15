@@ -57,8 +57,15 @@ export function Layout({ children, title = 'UX Audit', transparentHeader = false
   // Загружаем баланс кредитов
   useEffect(() => {
     const fetchCreditsBalance = async () => {
+      if (!user) return
+      
       try {
-        const response = await fetch('/api/credits/demo-balance')
+        const response = await fetch('/api/credits/balance', {
+          method: 'GET',
+          headers: {
+            'Authorization': `Bearer ${(await supabase.auth.getSession()).data.session?.access_token}`
+          }
+        })
         const data = await response.json()
         if (data.success) {
           setCreditsBalance(data.balance)
@@ -68,8 +75,10 @@ export function Layout({ children, title = 'UX Audit', transparentHeader = false
       }
     }
 
-    fetchCreditsBalance()
-  }, [])
+    if (user) {
+      fetchCreditsBalance()
+    }
+  }, [user])
 
   const handleSignOut = async () => {
     try {
