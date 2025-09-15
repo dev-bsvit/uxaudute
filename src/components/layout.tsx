@@ -35,8 +35,10 @@ export function Layout({ children, title = 'UX Audit', transparentHeader = false
       // Если пользователь уже авторизован, убеждаемся что у него есть начальный баланс
       if (user) {
         console.log('🔍 Проверяем баланс для пользователя:', user.id, user.email)
+        console.log('🔍 Вызываем ensureUserHasInitialBalance для существующего пользователя...')
         try {
           await ensureUserHasInitialBalance(user.id)
+          console.log('✅ ensureUserHasInitialBalance выполнена успешно для существующего пользователя')
         } catch (error) {
           console.error('❌ Ошибка при проверке баланса:', error)
         }
@@ -49,8 +51,8 @@ export function Layout({ children, title = 'UX Audit', transparentHeader = false
       setUser(session?.user ?? null)
       
       // Если пользователь авторизовался, убеждаемся что у него есть начальный баланс
-      if (session?.user && event === 'SIGNED_IN') {
-        console.log('🔍 Создаем баланс для нового пользователя:', session.user.id, session.user.email)
+      if (session?.user && (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED')) {
+        console.log('🔍 Создаем баланс для пользователя:', session.user.id, session.user.email, 'событие:', event)
         console.log('🔍 Вызываем ensureUserHasInitialBalance...')
         try {
           await ensureUserHasInitialBalance(session.user.id)
