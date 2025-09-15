@@ -230,6 +230,26 @@ export default function AuditPage() {
     }
   }
 
+  const handleShare = async () => {
+    try {
+      const response = await fetch(`/api/audits/${auditId}/public-link`, {
+        method: 'POST'
+      })
+      const data = await response.json()
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Ошибка создания публичной ссылки')
+      }
+
+      // Копируем ссылку в буфер обмена
+      await navigator.clipboard.writeText(data.publicUrl)
+      alert('Публичная ссылка скопирована в буфер обмена!')
+    } catch (error) {
+      console.error('Error creating public link:', error)
+      alert('Ошибка создания публичной ссылки')
+    }
+  }
+
   const handleRefresh = () => {
     loadAudit()
   }
@@ -290,7 +310,7 @@ export default function AuditPage() {
               <Download className="w-4 h-4" />
               Скачать отчет
             </Button>
-            <Button variant="outline" className="flex items-center gap-2">
+            <Button variant="outline" className="flex items-center gap-2" onClick={handleShare}>
               <Share2 className="w-4 h-4" />
               Поделиться
             </Button>
@@ -360,7 +380,7 @@ export default function AuditPage() {
                     <Download className="w-4 h-4 mr-2" />
                     Скачать отчет
                   </Button>
-                  <Button variant="outline" size="sm">
+                  <Button variant="outline" size="sm" onClick={handleShare}>
                     <Share2 className="w-4 h-4 mr-2" />
                     Поделиться
                   </Button>
