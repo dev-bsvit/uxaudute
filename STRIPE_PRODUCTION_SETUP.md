@@ -129,3 +129,4 @@ curl -u sk_live_...: https://api.stripe.com/v1/payment_intents
 - Настройте алерты на ошибки
 - Ведите логи всех операций
 - Регулярно проверяйте webhook статус
+

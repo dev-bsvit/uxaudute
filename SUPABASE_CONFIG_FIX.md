@@ -78,3 +78,4 @@ curl -s "http://localhost:3000/api/test-tokens-simple" | jq '.'
 - ✅ API endpoints готовы
 - ✅ Код исправлен для fallback
 - ⚠️ Требуется обновление ключей Supabase
+

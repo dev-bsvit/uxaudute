@@ -38,32 +38,25 @@ export default function CreditsBalance({ userId, showTransactions = false }: Cre
         setLoading(true)
         setError(null)
 
-        // Получаем баланс
-        const balanceResponse = await fetch('/api/credits/balance', {
-          headers: {
-            'Authorization': `Bearer ${userId}` // В реальном приложении здесь будет JWT токен
-          }
-        })
+        // Получаем баланс (демо режим)
+        const balanceResponse = await fetch('/api/credits/demo-balance')
 
         if (!balanceResponse.ok) {
           throw new Error('Failed to fetch balance')
         }
 
-        const balanceData = await balanceResponse.json()
-        setBalance(balanceData)
+        const data = await balanceResponse.json()
+        
+        // Устанавливаем баланс
+        setBalance({
+          balance: data.balance || 0,
+          grace_limit_used: data.grace_limit_used || false,
+          last_updated: new Date().toISOString()
+        })
 
-        // Получаем транзакции если нужно
+        // Устанавливаем транзакции если нужно
         if (showTransactions) {
-          const transactionsResponse = await fetch('/api/credits/transactions', {
-            headers: {
-              'Authorization': `Bearer ${userId}`
-            }
-          })
-
-          if (transactionsResponse.ok) {
-            const transactionsData = await transactionsResponse.json()
-            setTransactions(transactionsData.transactions || [])
-          }
+          setTransactions(data.transactions || [])
         }
       } catch (err) {
         console.error('Error fetching balance:', err)

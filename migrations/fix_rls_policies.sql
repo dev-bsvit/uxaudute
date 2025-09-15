@@ -117,3 +117,4 @@ BEGIN
     ORDER BY t.table_name;
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
+
