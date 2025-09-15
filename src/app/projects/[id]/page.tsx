@@ -260,31 +260,31 @@ export default function ProjectDetailPage() {
       // Проверяем, является ли это ошибкой недостатка кредитов
       if (error instanceof Error && error.message.includes('402')) {
         try {
-          // Пытаемся получить детали ошибки из response
-          const errorResponse = await fetch(apiEndpoint, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ 
-              url: data.url, 
-              context, 
-              userId: user.id 
-            })
+          // Получаем актуальный баланс пользователя
+          const balanceResponse = await fetch('/api/credits/balance', {
+            method: 'GET',
+            headers: {
+              'Authorization': `Bearer ${(await supabase.auth.getSession()).data.session?.access_token}`
+            }
           })
           
-          if (errorResponse.status === 402) {
-            const errorData = await errorResponse.json()
-            setCreditsError({
-              required: errorData.required || 2,
-              available: errorData.available || 0
-            })
-            setShowInsufficientCredits(true)
-            return
+          let currentBalance = 0
+          if (balanceResponse.ok) {
+            const balanceData = await balanceResponse.json()
+            currentBalance = balanceData.balance || 0
           }
+          
+          setCreditsError({
+            required: 2, // UX аудит всегда стоит 2 кредита
+            available: currentBalance
+          })
+          setShowInsufficientCredits(true)
+          return
         } catch (fetchError) {
-          console.error('Error fetching error details:', fetchError)
+          console.error('Error fetching balance:', fetchError)
         }
         
-        // Fallback если не удалось получить детали
+        // Fallback если не удалось получить баланс
         setCreditsError({ required: 2, available: 0 })
         setShowInsufficientCredits(true)
       } else {
