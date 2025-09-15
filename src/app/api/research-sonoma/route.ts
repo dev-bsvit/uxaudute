@@ -3,6 +3,7 @@ import { readFileSync } from 'fs'
 import { join } from 'path'
 import { supabase } from '@/lib/supabase'
 import { createClient } from '@supabase/supabase-js'
+import { executeAIRequest } from '@/lib/ai-provider'
 
 export const dynamic = 'force-dynamic'
 
@@ -184,84 +185,44 @@ Respond with valid JSON only.`
     const finalPrompt = context ? `${jsonPrompt}\n\n## Контекст задачи:\n${context}\n\nУчти этот контекст при анализе.` : jsonPrompt
     console.log('Финальный промпт готов, длина:', finalPrompt.length)
 
-    // Прямой запрос к OpenRouter API (как в тесте)
-    const OPENROUTER_API_KEY = process.env.OPENROUTER_API_KEY
-    const OPENROUTER_BASE_URL = 'https://openrouter.ai/api/v1'
-    
-    if (!OPENROUTER_API_KEY) {
-      console.error('❌ OPENROUTER_API_KEY не настроен')
-      return NextResponse.json(
-        { error: 'OpenRouter API ключ не настроен' },
-        { status: 500 }
-      )
-    }
-
+    // Формируем промпт для анализа
     let analysisPrompt: string
     if (url) {
       analysisPrompt = `${finalPrompt}\n\nПроанализируй сайт по URL: ${url}\n\nПоскольку я не могу получить скриншот, проведи анализ основываясь на общих принципах UX для данного типа сайта.`
     } else {
-      // Для скриншота используем текстовое описание (Sonoma не поддерживает мультимодальность)
+      // Для скриншота используем текстовое описание
       analysisPrompt = `${finalPrompt}\n\nПользователь загрузил скриншот интерфейса для UX анализа. 
 
-Поскольку Sonoma Sky Alpha не поддерживает мультимодальные запросы, 
-проведи анализ основываясь на общих принципах UX для интерфейсов.
+Проведи анализ основываясь на общих принципах UX для интерфейсов.
 
 Учти, что это скриншот веб-интерфейса или мобильного приложения.
 Проанализируй возможные проблемы UX и предложи улучшения.`
     }
 
-    console.log('📤 Отправляем запрос к OpenRouter...')
+    console.log('📤 Отправляем запрос к AI провайдеру...')
     
-    const requestBody = {
-      model: 'openrouter/sonoma-sky-alpha',
-      messages: [
-        {
-          role: 'user',
-          content: analysisPrompt
-        }
-      ],
-      max_tokens: 4000,
-      temperature: 0.8
-    }
+    // Используем систему AI провайдеров с fallback
+    const aiResponse = await executeAIRequest(
+      [{ role: 'user', content: analysisPrompt }],
+      {
+        temperature: 0.8,
+        max_tokens: 4000,
+        provider: 'openrouter',
+        openrouterModel: 'sonoma'
+      }
+    )
 
-    console.log('📋 Параметры запроса:', JSON.stringify(requestBody, null, 2))
-
-    const response = await fetch(`${OPENROUTER_BASE_URL}/chat/completions`, {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${OPENROUTER_API_KEY}`,
-        'Content-Type': 'application/json',
-        'HTTP-Referer': 'https://uxaudute.vercel.app',
-        'X-Title': 'UX Audit Platform'
-      },
-      body: JSON.stringify(requestBody)
-    })
-
-    console.log('📡 Получен ответ от OpenRouter:', response.status, response.statusText)
-
-    if (!response.ok) {
-      const errorText = await response.text()
-      console.error('❌ Ошибка OpenRouter:', errorText)
+    if (!aiResponse.success) {
+      console.error('❌ Ошибка AI провайдера:', aiResponse.error)
       return NextResponse.json(
-        { error: `Ошибка OpenRouter: ${response.status} ${errorText}` },
+        { error: `Ошибка AI провайдера: ${aiResponse.error}` },
         { status: 500 }
       )
     }
 
-    const data = await response.json()
-    console.log('✅ Ответ получен:', JSON.stringify(data, null, 2))
-
-    // Проверяем на ошибки в ответе
-    if (data.error) {
-      console.error('❌ Ошибка в ответе OpenRouter:', data.error)
-      return NextResponse.json(
-        { error: `Ошибка API: ${data.error.message || 'Неизвестная ошибка'}` },
-        { status: 500 }
-      )
-    }
-
-    const content = data.choices?.[0]?.message?.content || 'Нет ответа'
-    console.log('📝 Содержимое ответа:', content)
+    console.log('✅ Получен ответ от AI:', aiResponse.provider, aiResponse.model)
+    const content = aiResponse.content
+    console.log('📝 Содержимое ответа:', content.substring(0, 200) + '...')
 
     // Парсим JSON ответ
     let analysisResult: any
