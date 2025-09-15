@@ -3,113 +3,85 @@ import { createClient } from '@supabase/supabase-js'
 
 export async function POST(request: NextRequest) {
   try {
-    console.log('=== TEST CREDITS DEDUCTION API вызван ===')
-
     const supabaseClient = createClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
       process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
     )
 
-    // Получаем пользователя с балансом
-    const { data: balances, error: balancesError } = await supabaseClient
-      .from('user_balances')
-      .select('*')
-      .limit(1)
+    const testUserId = 'cc37dfed-4dad-4e7e-bff5-1b38645e3c7d'
+    const amount = 2
 
-    if (balancesError || !balances || balances.length === 0) {
-      return NextResponse.json({ error: 'No users with balances found' }, { status: 404 })
-    }
+    console.log('🧪 Тестируем списание кредитов...')
 
-    const userBalance = balances[0]
-    const userId = userBalance.user_id
-    const currentBalance = userBalance.balance
-
-    console.log('Testing with user:', userId, 'current balance:', currentBalance)
-
-    // Тест 1: Проверяем возможность списания 2 кредитов (research audit)
-    const { data: canDeduct, error: canDeductError } = await supabaseClient
-      .rpc('can_deduct_credits', { 
-        user_uuid: userId, 
-        amount: 2 
-      })
-
-    console.log('Can deduct 2 credits:', canDeduct, canDeductError)
-
-    if (canDeductError) {
-      return NextResponse.json({ 
-        error: 'Failed to check if can deduct credits', 
-        details: canDeductError.message 
-      }, { status: 500 })
-    }
-
-    if (!canDeduct) {
-      return NextResponse.json({ 
-        error: 'Cannot deduct credits - insufficient balance',
-        current_balance: currentBalance,
-        requested_amount: 2
-      }, { status: 402 })
-    }
-
-    // Тест 2: Списываем 2 кредита
-    const { data: deductResult, error: deductError } = await supabaseClient
-      .rpc('deduct_credits', { 
-        user_uuid: userId, 
-        amount: 2,
-        source: 'audit',
-        description: 'Test deduction for research audit'
-      })
-
-    console.log('Deduct result:', deductResult, deductError)
-
-    if (deductError) {
-      return NextResponse.json({ 
-        error: 'Failed to deduct credits', 
-        details: deductError.message 
-      }, { status: 500 })
-    }
-
-    // Тест 3: Проверяем новый баланс
-    const { data: newBalance, error: newBalanceError } = await supabaseClient
+    // Проверяем текущий баланс
+    const { data: balanceData, error: balanceError } = await supabaseClient
       .from('user_balances')
       .select('balance')
-      .eq('user_id', userId)
+      .eq('user_id', testUserId)
       .single()
 
-    if (newBalanceError) {
-      return NextResponse.json({ 
-        error: 'Failed to get new balance', 
-        details: newBalanceError.message 
-      }, { status: 500 })
+    if (balanceError) {
+      console.error('Error fetching balance:', balanceError)
+      return NextResponse.json({ error: balanceError.message }, { status: 500 })
     }
 
-    // Тест 4: Проверяем транзакции
-    const { data: transactions, error: transactionsError } = await supabaseClient
+    const currentBalance = balanceData?.balance || 0
+    console.log(`💰 Текущий баланс: ${currentBalance}`)
+
+    if (currentBalance < amount) {
+      return NextResponse.json({
+        success: false,
+        error: 'Недостаточно кредитов',
+        current: currentBalance,
+        required: amount
+      })
+    }
+
+    // Списываем кредиты напрямую
+    const newBalance = currentBalance - amount
+    
+    const { error: updateError } = await supabaseClient
+      .from('user_balances')
+      .update({ balance: newBalance, updated_at: new Date().toISOString() })
+      .eq('user_id', testUserId)
+
+    if (updateError) {
+      console.error('Error updating balance:', updateError)
+      return NextResponse.json({ error: updateError.message }, { status: 500 })
+    }
+
+    // Создаем транзакцию
+    const { error: transactionError } = await supabaseClient
       .from('transactions')
-      .select('*')
-      .eq('user_id', userId)
-      .order('created_at', { ascending: false })
-      .limit(5)
+      .insert({
+        user_id: testUserId,
+        type: 'debit',
+        amount: -amount,
+        balance_after: newBalance,
+        source: 'audit',
+        description: 'UX аудит интерфейса (тест)'
+      })
 
-    if (transactionsError) {
-      console.error('Error fetching transactions:', transactionsError)
+    if (transactionError) {
+      console.error('Error creating transaction:', transactionError)
+      return NextResponse.json({ error: transactionError.message }, { status: 500 })
     }
+
+    console.log(`✅ Списано ${amount} кредитов. Новый баланс: ${newBalance}`)
 
     return NextResponse.json({
       success: true,
-      message: 'Credits deduction test completed',
-      results: {
-        user_id: userId,
-        balance_before: currentBalance,
-        balance_after: newBalance.balance,
-        deducted_amount: 2,
-        can_deduct: canDeduct,
-        deduct_result: deductResult,
-        transactions: transactions || []
-      }
+      message: `Списано ${amount} кредитов`,
+      previous_balance: currentBalance,
+      new_balance: newBalance,
+      deducted: amount
     })
 
   } catch (error) {
-    console.error('Error in test-credits-deduction API:', error)
-    return NextResponse.json({ error: 'Internal server error', details: error instanceof Error ? error.message : 'Unknown error' }, { status: 500 })
+    console.error('Error in test credits deduction:', error)
+    return NextResponse.json({
+      error: 'Internal server error',
+      details: error instanceof Error ? error.message : 'Unknown error'
+    }, { status: 500 })
   }
 }

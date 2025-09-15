@@ -26,7 +26,10 @@ export async function POST(request: NextRequest) {
 
     // Проверяем баланс
     const { data: balanceData, error: balanceError } = await supabaseClient
-      .rpc('get_user_balance', { user_uuid: testUserId })
+      .from('user_balances')
+      .select('balance')
+      .eq('user_id', testUserId)
+      .single()
 
     if (balanceError) {
       console.error('Error checking balance:', balanceError)
@@ -36,7 +39,7 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    const currentBalance = balanceData || 0
+    const currentBalance = balanceData?.balance || 0
 
     if (currentBalance < auditCost) {
       return NextResponse.json(
@@ -50,24 +53,43 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Списываем кредиты
-    const { data: deductResult, error: deductError } = await supabaseClient
-      .rpc('deduct_credits', {
-        user_uuid: testUserId,
-        amount: auditCost,
-        source: 'audit',
-        description: 'UX аудит интерфейса'
-      })
+    // Списываем кредиты напрямую
+    const newBalance = currentBalance - auditCost
+    
+    const { error: updateError } = await supabaseClient
+      .from('user_balances')
+      .update({ balance: newBalance, updated_at: new Date().toISOString() })
+      .eq('user_id', testUserId)
 
-    if (deductError || !deductResult) {
-      console.error('Error deducting credits:', deductError)
+    if (updateError) {
+      console.error('Error updating balance:', updateError)
       return NextResponse.json(
         { error: 'Ошибка списания кредитов' },
         { status: 500 }
       )
     }
 
-    console.log(`✅ Списано ${auditCost} кредитов для UX аудита. Новый баланс: ${currentBalance - auditCost}`)
+    // Создаем транзакцию
+    const { error: transactionError } = await supabaseClient
+      .from('transactions')
+      .insert({
+        user_id: testUserId,
+        type: 'debit',
+        amount: -auditCost,
+        balance_after: newBalance,
+        source: 'audit',
+        description: 'UX аудит интерфейса'
+      })
+
+    if (transactionError) {
+      console.error('Error creating transaction:', transactionError)
+      return NextResponse.json(
+        { error: 'Ошибка создания транзакции' },
+        { status: 500 }
+      )
+    }
+
+    console.log(`✅ Списано ${auditCost} кредитов для UX аудита. Новый баланс: ${newBalance}`)
 
     // Загружаем основной промпт и объединяем с контекстом
     const mainPrompt = await loadMainPrompt()
