@@ -23,7 +23,7 @@ export async function GET(
 
     console.log('🔍 Получение публичного аудита:', auditId, 'с токеном:', token)
 
-    // Получаем аудит по ID и токену
+    // Получаем аудит по ID
     const { data: audit, error: auditError } = await supabaseClient
       .from('audits')
       .select(`
@@ -37,8 +37,6 @@ export async function GET(
         confidence,
         created_at,
         updated_at,
-        public_enabled,
-        public_token,
         projects!inner(
           id,
           name,
@@ -46,13 +44,17 @@ export async function GET(
         )
       `)
       .eq('id', auditId)
-      .eq('public_token', token)
-      .eq('public_enabled', true)
       .single()
 
     if (auditError || !audit) {
-      console.error('❌ Аудит не найден или публичный доступ отключен:', auditError)
-      return NextResponse.json({ error: 'Аудит не найден или доступ запрещен' }, { status: 404 })
+      console.error('❌ Аудит не найден:', auditError)
+      return NextResponse.json({ error: 'Аудит не найден' }, { status: 404 })
+    }
+
+    // Проверяем публичный доступ через input_data
+    if (!audit.input_data?.public_enabled || audit.input_data?.public_token !== token) {
+      console.error('❌ Публичный доступ отключен или неверный токен')
+      return NextResponse.json({ error: 'Доступ запрещен' }, { status: 403 })
     }
 
     console.log('✅ Публичный аудит получен:', audit.name)

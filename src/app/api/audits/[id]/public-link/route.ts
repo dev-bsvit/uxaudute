@@ -26,12 +26,29 @@ export async function POST(
     // Генерируем публичный токен
     const publicToken = crypto.randomUUID()
     
-    // Сохраняем публичный токен в базе данных
+    // Временно используем поле input_data для хранения публичного токена
+    const { data: currentAudit, error: fetchError } = await supabaseClient
+      .from('audits')
+      .select('input_data')
+      .eq('id', auditId)
+      .single()
+
+    if (fetchError) {
+      console.error('❌ Ошибка получения аудита:', fetchError)
+      return NextResponse.json({ error: fetchError.message }, { status: 500 })
+    }
+
+    // Обновляем input_data с публичным токеном
+    const updatedInputData = {
+      ...currentAudit.input_data,
+      public_token: publicToken,
+      public_enabled: true
+    }
+
     const { error: updateError } = await supabaseClient
       .from('audits')
       .update({ 
-        public_token: publicToken,
-        public_enabled: true 
+        input_data: updatedInputData
       })
       .eq('id', auditId)
 
