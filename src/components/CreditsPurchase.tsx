@@ -19,8 +19,30 @@ interface CreditsPurchaseProps {
 }
 
 export default function CreditsPurchase({ userId, onPurchaseComplete }: CreditsPurchaseProps) {
-  const [packages, setPackages] = useState<Package[]>([])
-  const [loading, setLoading] = useState(true)
+  const [packages, setPackages] = useState<Package[]>([
+    {
+      id: 'basic',
+      package_type: 'basic',
+      credits_amount: 10,
+      price_rub: 19900, // $1.99
+      is_active: true
+    },
+    {
+      id: 'pro',
+      package_type: 'pro', 
+      credits_amount: 50,
+      price_rub: 89900, // $8.99
+      is_active: true
+    },
+    {
+      id: 'team',
+      package_type: 'team',
+      credits_amount: 200,
+      price_rub: 299900, // $29.99
+      is_active: true
+    }
+  ])
+  const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [selectedPackage, setSelectedPackage] = useState<Package | null>(null)
   const [purchasing, setPurchasing] = useState(false)
@@ -28,25 +50,26 @@ export default function CreditsPurchase({ userId, onPurchaseComplete }: CreditsP
   const [stripePromise, setStripePromise] = useState<any>(null)
 
   useEffect(() => {
-    const fetchPackages = async () => {
-      try {
-        setLoading(true)
-        setError(null)
+    // Используем моковые данные с правильными ценами
+    // const fetchPackages = async () => {
+    //   try {
+    //     setLoading(true)
+    //     setError(null)
 
-        const response = await fetch('/api/credits/packages')
-        if (!response.ok) {
-          throw new Error('Failed to fetch packages')
-        }
+    //     const response = await fetch('/api/credits/packages')
+    //     if (!response.ok) {
+    //       throw new Error('Failed to fetch packages')
+    //     }
 
-        const data = await response.json()
-        setPackages(data.packages || [])
-      } catch (err) {
-        console.error('Error fetching packages:', err)
-        setError(err instanceof Error ? err.message : 'Unknown error')
-      } finally {
-        setLoading(false)
-      }
-    }
+    //     const data = await response.json()
+    //     setPackages(data.packages || [])
+    //   } catch (err) {
+    //     console.error('Error fetching packages:', err)
+    //     setError(err instanceof Error ? err.message : 'Unknown error')
+    //   } finally {
+    //     setLoading(false)
+    //   }
+    // }
 
     // Инициализируем Stripe
     const initStripe = async () => {
@@ -54,7 +77,7 @@ export default function CreditsPurchase({ userId, onPurchaseComplete }: CreditsP
       setStripePromise(stripe)
     }
 
-    fetchPackages()
+    // fetchPackages() // Отключено, используем моковые данные
     initStripe()
   }, [])
 
@@ -192,10 +215,10 @@ export default function CreditsPurchase({ userId, onPurchaseComplete }: CreditsP
 
               <div className="mb-6">
                 <div className="text-2xl font-bold text-gray-900">
-                  {pkg.price_rub.toLocaleString('ru-RU')} ₽
+                  ${(pkg.price_rub / 100).toFixed(2)}
                 </div>
                 <div className="text-sm text-gray-500">
-                  {Math.round(pkg.price_rub / pkg.credits_amount)} ₽ за кредит
+                  ${(pkg.price_rub / 100 / pkg.credits_amount).toFixed(2)} за кредит
                 </div>
               </div>
 
