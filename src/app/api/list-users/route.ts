@@ -34,11 +34,18 @@ export async function GET(request: NextRequest) {
     }
 
     // Объединяем данные
-    const usersWithBalances = profiles?.map(profile => ({
-      ...profile,
-      hasBalance: balances?.some(balance => balance.user_id === profile.id) || false,
-      balance: balances?.find(balance => balance.user_id === profile.id)?.balance || 0
-    }))
+    console.log('📊 Профили:', profiles?.length)
+    console.log('💰 Балансы:', balances?.length)
+    
+    const usersWithBalances = profiles?.map(profile => {
+      const userBalance = balances?.find(balance => balance.user_id === profile.id)
+      console.log(`👤 ${profile.email}: balance=${userBalance?.balance || 0}`)
+      return {
+        ...profile,
+        hasBalance: !!userBalance,
+        balance: userBalance?.balance || 0
+      }
+    })
 
     return NextResponse.json({ 
       success: true, 
