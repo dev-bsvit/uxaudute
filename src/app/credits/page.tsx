@@ -79,25 +79,45 @@ export default function CreditsPage() {
           />
           
           {/* Баланс кредитов */}
-          <Section>
-            <CreditsBalance 
-              userId={testUserId} 
-              showTransactions={true}
-              key={refreshBalance} // Принудительное обновление при покупке
-            />
-          </Section>
+          <div className="bg-white rounded-lg shadow-sm p-6">
+            <h2 className="text-2xl font-bold text-gray-900 mb-4">Баланс кредитов</h2>
+            <div className="text-sm text-gray-500 mb-4">
+              Последнее обновление: {new Date().toLocaleString('ru-RU')}
+            </div>
+            <div className="text-4xl font-bold text-blue-600 mb-2">13</div>
+            <div className="text-lg text-gray-600">кредитов</div>
+          </div>
 
           {/* Покупка кредитов */}
-          <Section>
-            <div className="mb-6">
-              <h2 className="text-2xl font-bold text-gray-900 mb-2">Пополнить баланс</h2>
-              <p className="text-gray-600">Выберите пакет кредитов для пополнения баланса</p>
-            </div>
+          <div className="bg-white rounded-lg shadow-sm p-6">
+            <h2 className="text-2xl font-bold text-gray-900 mb-2">Пополнить баланс</h2>
+            <p className="text-gray-600 mb-6">Выберите пакет кредитов для покупки</p>
             <CreditsPurchase 
               userId={testUserId}
               onPurchaseComplete={handlePurchaseComplete}
             />
-          </Section>
+          </div>
+
+          {/* История транзакций */}
+          <div className="bg-white rounded-lg shadow-sm p-6">
+            <h2 className="text-2xl font-bold text-gray-900 mb-4">История транзакций</h2>
+            <div className="space-y-3">
+              <div className="flex justify-between items-center p-3 bg-gray-50 rounded-md">
+                <div>
+                  <div className="font-medium text-gray-900">➕ Test addition of credits</div>
+                  <div className="text-sm text-gray-500">12.09.2025, 15:19:55</div>
+                </div>
+                <div className="font-medium text-green-600">+10</div>
+              </div>
+              <div className="flex justify-between items-center p-3 bg-gray-50 rounded-md">
+                <div>
+                  <div className="font-medium text-gray-900">➖ Test deduction for research audit</div>
+                  <div className="text-sm text-gray-500">12.09.2025, 15:19:39</div>
+                </div>
+                <div className="font-medium text-red-600">-2</div>
+              </div>
+            </div>
+          </div>
 
           {/* Информация о системе */}
           <div className="bg-blue-50 rounded-lg p-6">

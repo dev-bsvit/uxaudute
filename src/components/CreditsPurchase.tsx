@@ -24,21 +24,21 @@ export default function CreditsPurchase({ userId, onPurchaseComplete }: CreditsP
       id: 'basic',
       package_type: 'basic',
       credits_amount: 10,
-      price_rub: 19900, // $1.99
+      price_rub: 199, // $1.99
       is_active: true
     },
     {
       id: 'pro',
       package_type: 'pro', 
       credits_amount: 50,
-      price_rub: 89900, // $8.99
+      price_rub: 899, // $8.99
       is_active: true
     },
     {
       id: 'team',
       package_type: 'team',
       credits_amount: 200,
-      price_rub: 299900, // $29.99
+      price_rub: 2999, // $29.99
       is_active: true
     }
   ])
