@@ -7,9 +7,13 @@ import { PageContent } from '@/components/ui/page-content'
 import { Section } from '@/components/ui/section'
 import CreditsBalance from '@/components/CreditsBalance'
 import CreditsPurchase from '@/components/CreditsPurchase'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Badge } from '@/components/ui/badge'
+import { Separator } from '@/components/ui/separator'
 import { User } from '@supabase/supabase-js'
 import { supabase } from '@/lib/supabase'
 import { useRouter } from 'next/navigation'
+import { CreditCard, TrendingUp, History, Info } from 'lucide-react'
 
 export default function CreditsPage() {
   const [user, setUser] = useState<User | null>(null)
@@ -79,72 +83,146 @@ export default function CreditsPage() {
           />
           
           {/* Баланс кредитов */}
-          <div className="bg-white rounded-lg shadow-sm p-6">
-            <h2 className="text-2xl font-bold text-gray-900 mb-4">Баланс кредитов</h2>
-            <div className="text-sm text-gray-500 mb-4">
-              Последнее обновление: {new Date().toLocaleString('ru-RU')}
-            </div>
-            <div className="text-4xl font-bold text-blue-600 mb-2">13</div>
-            <div className="text-lg text-gray-600">кредитов</div>
-          </div>
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-2xl font-bold">Баланс кредитов</CardTitle>
+              <CreditCard className="h-6 w-6 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-sm text-muted-foreground mb-4">
+                Последнее обновление: {new Date().toLocaleString('ru-RU')}
+              </div>
+              <div className="text-4xl font-bold text-primary mb-2">13</div>
+              <p className="text-lg text-muted-foreground">кредитов</p>
+            </CardContent>
+          </Card>
 
           {/* Покупка кредитов */}
-          <div className="bg-white rounded-lg shadow-sm p-6">
-            <h2 className="text-2xl font-bold text-gray-900 mb-2">Пополнить баланс</h2>
-            <p className="text-gray-600 mb-6">Выберите пакет кредитов для покупки</p>
-            <CreditsPurchase 
-              userId={testUserId}
-              onPurchaseComplete={handlePurchaseComplete}
-            />
-          </div>
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <TrendingUp className="h-5 w-5" />
+                Пополнить баланс
+              </CardTitle>
+              <CardDescription>
+                Выберите пакет кредитов для пополнения баланса
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <CreditsPurchase 
+                userId={testUserId}
+                onPurchaseComplete={handlePurchaseComplete}
+              />
+            </CardContent>
+          </Card>
 
           {/* История транзакций */}
-          <div className="bg-white rounded-lg shadow-sm p-6">
-            <h2 className="text-2xl font-bold text-gray-900 mb-4">История транзакций</h2>
-            <div className="space-y-3">
-              <div className="flex justify-between items-center p-3 bg-gray-50 rounded-md">
-                <div>
-                  <div className="font-medium text-gray-900">➕ Test addition of credits</div>
-                  <div className="text-sm text-gray-500">12.09.2025, 15:19:55</div>
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <History className="h-5 w-5" />
+                История транзакций
+              </CardTitle>
+              <CardDescription>
+                Последние операции с вашим балансом кредитов
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                <div className="flex items-center justify-between p-4 border rounded-lg">
+                  <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center">
+                      <span className="text-green-600 font-semibold">+</span>
+                    </div>
+                    <div>
+                      <p className="font-medium">Test addition of credits</p>
+                      <p className="text-sm text-muted-foreground">12.09.2025, 15:19:55</p>
+                    </div>
+                  </div>
+                  <Badge variant="secondary" className="bg-green-100 text-green-800">
+                    +10 кредитов
+                  </Badge>
                 </div>
-                <div className="font-medium text-green-600">+10</div>
-              </div>
-              <div className="flex justify-between items-center p-3 bg-gray-50 rounded-md">
-                <div>
-                  <div className="font-medium text-gray-900">➖ Test deduction for research audit</div>
-                  <div className="text-sm text-gray-500">12.09.2025, 15:19:39</div>
+                
+                <Separator />
+                
+                <div className="flex items-center justify-between p-4 border rounded-lg">
+                  <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 rounded-full bg-red-100 flex items-center justify-center">
+                      <span className="text-red-600 font-semibold">-</span>
+                    </div>
+                    <div>
+                      <p className="font-medium">Test deduction for research audit</p>
+                      <p className="text-sm text-muted-foreground">12.09.2025, 15:19:39</p>
+                    </div>
+                  </div>
+                  <Badge variant="secondary" className="bg-red-100 text-red-800">
+                    -2 кредита
+                  </Badge>
                 </div>
-                <div className="font-medium text-red-600">-2</div>
               </div>
-            </div>
-          </div>
+            </CardContent>
+          </Card>
 
           {/* Информация о системе */}
-          <div className="bg-blue-50 rounded-lg p-6">
-            <h3 className="text-lg font-semibold text-blue-900 mb-3">
-              Как работает система кредитов
-            </h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-blue-800">
-              <div>
-                <h4 className="font-medium mb-2">Типы аудитов:</h4>
-                <ul className="space-y-1">
-                  <li>• Основной аудит: 2 кредита</li>
-                  <li>• Дополнительный аудит: 1 кредит</li>
-                  <li>• Бизнес-анализ: 1 кредит</li>
-                  <li>• A/B тестирование: 1 кредит</li>
-                </ul>
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Info className="h-5 w-5" />
+                Как работает система кредитов
+              </CardTitle>
+              <CardDescription>
+                Подробная информация о типах аудитов и особенностях системы
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <h4 className="font-semibold mb-3 text-foreground">Типы аудитов</h4>
+                  <div className="space-y-2">
+                    <div className="flex justify-between items-center p-2 bg-muted rounded">
+                      <span className="text-sm">Основной аудит</span>
+                      <Badge variant="outline">2 кредита</Badge>
+                    </div>
+                    <div className="flex justify-between items-center p-2 bg-muted rounded">
+                      <span className="text-sm">Дополнительный аудит</span>
+                      <Badge variant="outline">1 кредит</Badge>
+                    </div>
+                    <div className="flex justify-between items-center p-2 bg-muted rounded">
+                      <span className="text-sm">Бизнес-анализ</span>
+                      <Badge variant="outline">1 кредит</Badge>
+                    </div>
+                    <div className="flex justify-between items-center p-2 bg-muted rounded">
+                      <span className="text-sm">A/B тестирование</span>
+                      <Badge variant="outline">1 кредит</Badge>
+                    </div>
+                  </div>
+                </div>
+                
+                <div>
+                  <h4 className="font-semibold mb-3 text-foreground">Особенности</h4>
+                  <div className="space-y-2">
+                    <div className="flex items-center gap-2 p-2 bg-muted rounded">
+                      <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                      <span className="text-sm">Grace-лимит: -1 кредит</span>
+                    </div>
+                    <div className="flex items-center gap-2 p-2 bg-muted rounded">
+                      <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                      <span className="text-sm">Кредиты не сгорают</span>
+                    </div>
+                    <div className="flex items-center gap-2 p-2 bg-muted rounded">
+                      <div className="w-2 h-2 bg-purple-500 rounded-full"></div>
+                      <span className="text-sm">Тестовые аккаунты: бесплатно</span>
+                    </div>
+                    <div className="flex items-center gap-2 p-2 bg-muted rounded">
+                      <div className="w-2 h-2 bg-orange-500 rounded-full"></div>
+                      <span className="text-sm">Командные аккаунты: общий пул</span>
+                    </div>
+                  </div>
+                </div>
               </div>
-              <div>
-                <h4 className="font-medium mb-2">Особенности:</h4>
-                <ul className="space-y-1">
-                  <li>• Grace-лимит: -1 кредит</li>
-                  <li>• Кредиты не сгорают</li>
-                  <li>• Тестовые аккаунты: бесплатно</li>
-                  <li>• Командные аккаунты: общий пул</li>
-                </ul>
-              </div>
-            </div>
-          </div>
+            </CardContent>
+          </Card>
 
           {/* Статус системы */}
           <div className="text-center">

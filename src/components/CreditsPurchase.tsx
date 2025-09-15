@@ -186,10 +186,6 @@ export default function CreditsPurchase({ userId, onPurchaseComplete }: CreditsP
 
   return (
     <div className="space-y-6">
-      <div className="text-center">
-        <h2 className="text-2xl font-bold text-gray-900 mb-2">Пополнить баланс</h2>
-        <p className="text-gray-600">Выберите пакет кредитов для покупки</p>
-      </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {packages.map((pkg) => (
