@@ -184,6 +184,21 @@ export default function DashboardPage() {
       })
 
       if (!response.ok) {
+        // Проверяем, является ли это ошибкой недостатка кредитов (402)
+        if (response.status === 402) {
+          try {
+            const errorData = await response.json()
+            setCreditsError({
+              required: errorData.required || 2,
+              available: errorData.available || 0
+            })
+            setShowInsufficientCredits(true)
+            return
+          } catch (jsonError) {
+            console.error('Error parsing 402 response:', jsonError)
+          }
+        }
+        
         // ВРЕМЕННО ОТКЛЮЧЕН: Fallback на старый API если экспериментальный не работает
         // if (data.provider === 'openrouter') {
         //   console.log('OpenRouter API не работает, переключаемся на OpenAI...')
@@ -238,40 +253,7 @@ export default function DashboardPage() {
 
     } catch (error) {
       console.error('Error:', error)
-      
-      // Проверяем, является ли это ошибкой недостатка кредитов
-      if (error instanceof Error && error.message.includes('402')) {
-        try {
-          // Получаем актуальный баланс пользователя
-          const balanceResponse = await fetch('/api/credits/balance', {
-            method: 'GET',
-            headers: {
-              'Authorization': `Bearer ${(await supabase.auth.getSession()).data.session?.access_token}`
-            }
-          })
-          
-          let currentBalance = 0
-          if (balanceResponse.ok) {
-            const balanceData = await balanceResponse.json()
-            currentBalance = balanceData.balance || 0
-          }
-          
-          setCreditsError({
-            required: 2, // UX аудит всегда стоит 2 кредита
-            available: currentBalance
-          })
-          setShowInsufficientCredits(true)
-          return
-        } catch (fetchError) {
-          console.error('Error fetching balance:', fetchError)
-        }
-        
-        // Fallback если не удалось получить баланс
-        setCreditsError({ required: 2, available: 0 })
-        setShowInsufficientCredits(true)
-      } else {
-        alert(`Ошибка при анализе: ${error instanceof Error ? error.message : 'Неизвестная ошибка'}`)
-      }
+      alert(`Ошибка при анализе: ${error instanceof Error ? error.message : 'Неизвестная ошибка'}`)
     } finally {
       setIsLoading(false)
       setIsAnalyzing(false)
