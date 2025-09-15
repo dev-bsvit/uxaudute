@@ -3,6 +3,8 @@ import { openai } from '@/lib/openai'
 import { loadMainPrompt, combineWithContext } from '@/lib/prompt-loader'
 import { createClient } from '@supabase/supabase-js'
 
+export const dynamic = 'force-dynamic'
+
 export async function POST(request: NextRequest) {
   try {
     const { url, screenshot, context, userId } = await request.json()
