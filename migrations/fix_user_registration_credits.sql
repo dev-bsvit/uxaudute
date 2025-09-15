@@ -54,3 +54,4 @@ END $$;
 
 -- Проверяем результат
 SELECT 'User registration credits fix applied successfully' as status;
+
