@@ -99,7 +99,7 @@ function generateSimpleHTML(audit: any): string {
     <div class="container">
         <div class="header">
             <h1 class="title">${audit.name}</h1>
-            <p class="subtitle">Проект: ${audit.projects.name} • ${new Date(audit.created_at).toLocaleDateString('ru-RU')}</p>
+            <p class="subtitle">Проект: ${audit.projects[0]?.name || 'Неизвестно'} • ${new Date(audit.created_at).toLocaleDateString('ru-RU')}</p>
         </div>
 
         <div class="section">
