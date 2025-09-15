@@ -1,4 +1,5 @@
 import { supabase } from './supabase'
+import { createClient } from '@supabase/supabase-js'
 import type { Database } from './database.types'
 
 type Tables = Database['public']['Tables']
@@ -454,8 +455,14 @@ export async function ensureUserHasInitialBalance(userId: string): Promise<void>
   try {
     console.log('🔍 ensureUserHasInitialBalance вызвана для пользователя:', userId)
     
+    // Создаем клиент с service role key для обхода RLS
+    const supabaseClient = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+    )
+    
     // Проверяем, есть ли уже баланс у пользователя
-    const { data: existingBalance, error: checkError } = await supabase
+    const { data: existingBalance, error: checkError } = await supabaseClient
       .from('user_balances')
       .select('balance')
       .eq('user_id', userId)
@@ -474,7 +481,7 @@ export async function ensureUserHasInitialBalance(userId: string): Promise<void>
       console.log('💰 Создаем начальный баланс для пользователя:', userId)
       
       // Создаем начальный баланс с 5 кредитами
-      const { data: balanceData, error: balanceError } = await supabase
+      const { data: balanceData, error: balanceError } = await supabaseClient
         .from('user_balances')
         .insert({
           user_id: userId,
@@ -491,7 +498,7 @@ export async function ensureUserHasInitialBalance(userId: string): Promise<void>
       }
 
       // Создаем транзакцию для начального баланса
-      const { data: transactionData, error: transactionError } = await supabase
+      const { data: transactionData, error: transactionError } = await supabaseClient
         .from('transactions')
         .insert({
           user_id: userId,
