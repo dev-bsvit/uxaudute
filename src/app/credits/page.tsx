@@ -14,7 +14,6 @@ import { useRouter } from 'next/navigation'
 export default function CreditsPage() {
   const [user, setUser] = useState<User | null>(null)
   const [loading, setLoading] = useState(true)
-  const [activeTab, setActiveTab] = useState<'balance' | 'purchase'>('balance')
   const [refreshBalance, setRefreshBalance] = useState(0)
   const router = useRouter()
 
@@ -43,7 +42,6 @@ export default function CreditsPage() {
 
   const handlePurchaseComplete = () => {
     setRefreshBalance(prev => prev + 1)
-    setActiveTab('balance')
   }
 
   if (loading) {
@@ -80,46 +78,25 @@ export default function CreditsPage() {
             description="Управляйте своим балансом кредитов и покупайте дополнительные пакеты для проведения аудитов."
           />
           
-          {/* Навигация */}
-          <div className="flex space-x-1 bg-white rounded-lg p-1 border border-gray-200">
-            <button
-              onClick={() => setActiveTab('balance')}
-              className={`flex-1 py-2 px-4 rounded-md font-medium transition-colors ${
-                activeTab === 'balance'
-                  ? 'bg-blue-600 text-white'
-                  : 'text-gray-600 hover:text-gray-900'
-              }`}
-            >
-              Мой баланс
-            </button>
-            <button
-              onClick={() => setActiveTab('purchase')}
-              className={`flex-1 py-2 px-4 rounded-md font-medium transition-colors ${
-                activeTab === 'purchase'
-                  ? 'bg-blue-600 text-white'
-                  : 'text-gray-600 hover:text-gray-900'
-              }`}
-            >
-              Пополнить баланс
-            </button>
-          </div>
-
-          {/* Контент */}
+          {/* Баланс кредитов */}
           <Section>
-            {activeTab === 'balance' && (
-              <CreditsBalance 
-                userId={testUserId} 
-                showTransactions={true}
-                key={refreshBalance} // Принудительное обновление при покупке
-              />
-            )}
+            <CreditsBalance 
+              userId={testUserId} 
+              showTransactions={true}
+              key={refreshBalance} // Принудительное обновление при покупке
+            />
+          </Section>
 
-            {activeTab === 'purchase' && (
-              <CreditsPurchase 
-                userId={testUserId}
-                onPurchaseComplete={handlePurchaseComplete}
-              />
-            )}
+          {/* Покупка кредитов */}
+          <Section>
+            <div className="mb-6">
+              <h2 className="text-2xl font-bold text-gray-900 mb-2">Пополнить баланс</h2>
+              <p className="text-gray-600">Выберите пакет кредитов для пополнения баланса</p>
+            </div>
+            <CreditsPurchase 
+              userId={testUserId}
+              onPurchaseComplete={handlePurchaseComplete}
+            />
           </Section>
 
           {/* Информация о системе */}
