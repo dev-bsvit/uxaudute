@@ -9,6 +9,7 @@ import { AnalysisResult } from '@/components/analysis-result'
 import { ActionPanel } from '@/components/action-panel'
 import { AnalysisModal } from '@/components/analysis-modal'
 import { ContextForm } from '@/components/context-form'
+import InsufficientCreditsModal from '@/components/InsufficientCreditsModal'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
@@ -76,6 +77,8 @@ export default function ProjectDetailPage() {
   const [editTargetAudience, setEditTargetAudience] = useState('')
   const [isUpdating, setIsUpdating] = useState(false)
   const [hasAnyChanges, setHasAnyChanges] = useState(false)
+  const [showInsufficientCredits, setShowInsufficientCredits] = useState(false)
+  const [creditsError, setCreditsError] = useState<{ required: number; available: number } | null>(null)
 
   useEffect(() => {
     checkAuthAndLoadProject()
@@ -139,6 +142,13 @@ export default function ProjectDetailPage() {
 
     setIsAnalyzing(true)
     setShowContextForm(false)
+    
+    // Выбираем API endpoint в зависимости от провайдера и модели
+    const apiEndpoint = data.provider === 'openrouter' && data.openrouterModel === 'sonoma' 
+      ? '/api/research-sonoma'
+      : data.provider === 'openrouter' 
+      ? '/api/research-stable'
+      : '/api/research-json'
 
     try {
       let screenshotUrl: string | null = null
@@ -174,16 +184,6 @@ export default function ProjectDetailPage() {
 
       setCurrentAudit(audit)
       setShowCreateForm(false)
-
-      // Выбираем API endpoint в зависимости от провайдера и модели
-      let apiEndpoint: string
-      if (data.provider === 'openrouter' && data.openrouterModel === 'sonoma') {
-        apiEndpoint = '/api/research-sonoma'
-      } else if (data.provider === 'openrouter') {
-        apiEndpoint = '/api/research-stable'
-      } else {
-        apiEndpoint = '/api/research-json'
-      }
       
       // Отправляем запрос на анализ
       const response = await fetch(apiEndpoint, {
@@ -256,7 +256,40 @@ export default function ProjectDetailPage() {
 
     } catch (error) {
       console.error('Error creating audit:', error)
-      alert(`Ошибка при создании аудита: ${error instanceof Error ? error.message : 'Неизвестная ошибка'}`)
+      
+      // Проверяем, является ли это ошибкой недостатка кредитов
+      if (error instanceof Error && error.message.includes('402')) {
+        try {
+          // Пытаемся получить детали ошибки из response
+          const errorResponse = await fetch(apiEndpoint, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ 
+              url: data.url, 
+              context, 
+              userId: user.id 
+            })
+          })
+          
+          if (errorResponse.status === 402) {
+            const errorData = await errorResponse.json()
+            setCreditsError({
+              required: errorData.required || 2,
+              available: errorData.available || 0
+            })
+            setShowInsufficientCredits(true)
+            return
+          }
+        } catch (fetchError) {
+          console.error('Error fetching error details:', fetchError)
+        }
+        
+        // Fallback если не удалось получить детали
+        setCreditsError({ required: 2, available: 0 })
+        setShowInsufficientCredits(true)
+      } else {
+        alert(`Ошибка при создании аудита: ${error instanceof Error ? error.message : 'Неизвестная ошибка'}`)
+      }
     } finally {
       setIsAnalyzing(false)
       setPendingUploadData(null)
@@ -664,6 +697,23 @@ export default function ProjectDetailPage() {
           url={analysisUrl}
           canClose={false}
         />
+
+        {/* Модальное окно недостатка кредитов */}
+        {creditsError && (
+          <InsufficientCreditsModal
+            isOpen={showInsufficientCredits}
+            onClose={() => {
+              setShowInsufficientCredits(false)
+              setCreditsError(null)
+            }}
+            required={creditsError.required}
+            available={creditsError.available}
+            onPurchaseComplete={() => {
+              setShowInsufficientCredits(false)
+              setCreditsError(null)
+            }}
+          />
+        )}
 
       </div>
     </SidebarDemo>
