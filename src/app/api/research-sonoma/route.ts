@@ -207,8 +207,7 @@ Respond with valid JSON only.`
       {
         temperature: 0.8,
         max_tokens: 4000,
-        provider: 'openrouter',
-        openrouterModel: 'sonoma'
+        provider: 'openai' // Используем OpenAI как основной провайдер
       }
     )
 
