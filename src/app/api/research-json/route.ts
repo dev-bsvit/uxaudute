@@ -5,12 +5,15 @@ import { join } from 'path'
 import { StructuredAnalysisResponse, isStructuredResponse } from '@/lib/analysis-types'
 import { validateSurvey, analyzeSurveyResults } from '@/lib/survey-utils'
 import { supabase } from '@/lib/supabase'
+import { createClient } from '@supabase/supabase-js'
+
+export const dynamic = 'force-dynamic'
 
 export async function POST(request: NextRequest) {
   try {
     console.log('=== OpenAI API вызван ===')
-    const { url, screenshot, context, auditId } = await request.json()
-    console.log('Параметры запроса:', { url: !!url, screenshot: !!screenshot, context: !!context, auditId })
+    const { url, screenshot, context, auditId, userId } = await request.json()
+    console.log('Параметры запроса:', { url: !!url, screenshot: !!screenshot, context: !!context, auditId, userId })
 
     if (!url && !screenshot) {
       console.log('Ошибка: нет URL или скриншота')
@@ -19,6 +22,83 @@ export async function POST(request: NextRequest) {
         { status: 400 }
       )
     }
+
+    // Проверяем и списываем кредиты для UX аудита
+    const supabaseClient = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+    )
+
+    // Используем тестового пользователя если userId не передан
+    const testUserId = userId || 'cc37dfed-4dad-4e7e-bff5-1b38645e3c7d'
+    const auditCost = 2 // Основной аудит стоит 2 кредита
+
+    // Проверяем баланс
+    const { data: balanceData, error: balanceError } = await supabaseClient
+      .from('user_balances')
+      .select('balance')
+      .eq('user_id', testUserId)
+      .single()
+
+    if (balanceError) {
+      console.error('Error checking balance:', balanceError)
+      return NextResponse.json(
+        { error: 'Ошибка проверки баланса кредитов' },
+        { status: 500 }
+      )
+    }
+
+    const currentBalance = balanceData?.balance || 0
+
+    if (currentBalance < auditCost) {
+      return NextResponse.json(
+        { 
+          error: 'Недостаточно кредитов для проведения аудита',
+          required: auditCost,
+          available: currentBalance,
+          message: 'Пополните баланс кредитов для продолжения'
+        },
+        { status: 402 } // Payment Required
+      )
+    }
+
+    // Списываем кредиты напрямую
+    const newBalance = currentBalance - auditCost
+    
+    const { error: updateError } = await supabaseClient
+      .from('user_balances')
+      .update({ balance: newBalance })
+      .eq('user_id', testUserId)
+
+    if (updateError) {
+      console.error('Error updating balance:', updateError)
+      return NextResponse.json(
+        { error: 'Ошибка списания кредитов' },
+        { status: 500 }
+      )
+    }
+
+    // Создаем транзакцию
+    const { error: transactionError } = await supabaseClient
+      .from('transactions')
+      .insert({
+        user_id: testUserId,
+        type: 'debit',
+        amount: -auditCost,
+        balance_after: newBalance,
+        source: 'audit',
+        description: 'UX аудит интерфейса (research-json)'
+      })
+
+    if (transactionError) {
+      console.error('Error creating transaction:', transactionError)
+      return NextResponse.json(
+        { error: 'Ошибка создания транзакции' },
+        { status: 500 }
+      )
+    }
+
+    console.log(`✅ Списано ${auditCost} кредитов для UX аудита. Новый баланс: ${newBalance}`)
 
     // Загружаем JSON-структурированный промпт
     console.log('Загружаем промпт...')

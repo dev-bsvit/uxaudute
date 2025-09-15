@@ -177,7 +177,8 @@ export default function DashboardPage() {
         body: JSON.stringify({
           ...data,
           auditId: audit.id,
-          context
+          context,
+          userId: user.id // Передаем ID пользователя для проверки кредитов
         })
       })
 

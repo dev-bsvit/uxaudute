@@ -192,7 +192,8 @@ export default function ProjectDetailPage() {
         body: JSON.stringify({
           ...data,
           auditId: audit.id,
-          context: combinedContext
+          context: combinedContext,
+          userId: user.id // Передаем ID пользователя для проверки кредитов
         })
       })
 
