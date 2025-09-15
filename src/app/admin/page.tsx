@@ -1,6 +1,9 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
+import { supabase } from '@/lib/supabase'
+import { User as SupabaseUser } from '@supabase/supabase-js'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -40,6 +43,10 @@ interface Transaction {
 }
 
 export default function AdminPanel() {
+  const router = useRouter()
+  const [user, setUser] = useState<SupabaseUser | null>(null)
+  const [isAdmin, setIsAdmin] = useState(false)
+  const [isChecking, setIsChecking] = useState(true)
   const [users, setUsers] = useState<User[]>([])
   const [transactions, setTransactions] = useState<Transaction[]>([])
   const [searchTerm, setSearchTerm] = useState('')
@@ -48,6 +55,54 @@ export default function AdminPanel() {
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
+
+  // Проверка прав администратора
+  const checkAdminRights = (user: SupabaseUser) => {
+    const adminEmails = [
+      'b.svitlik@mycredit.ua',
+      'designbsvit@gmail.com',
+      'bscamil940@gmail.com'
+    ]
+    
+    return adminEmails.includes(user.email || '')
+  }
+
+  // Проверка доступа при загрузке страницы
+  useEffect(() => {
+    const checkAccess = async () => {
+      try {
+        const { data: { user } } = await supabase.auth.getUser()
+        
+        if (!user) {
+          // Пользователь не авторизован - перенаправляем на главную
+          router.push('/')
+          return
+        }
+
+        setUser(user)
+        
+        if (!checkAdminRights(user)) {
+          // Пользователь не админ - перенаправляем на главную
+          router.push('/')
+          return
+        }
+
+        // Пользователь админ - разрешаем доступ
+        setIsAdmin(true)
+        setIsChecking(false)
+        
+        // Загружаем данные
+        loadUsers()
+        loadTransactions()
+        
+      } catch (error) {
+        console.error('Ошибка проверки доступа:', error)
+        router.push('/')
+      }
+    }
+
+    checkAccess()
+  }, [router])
 
   // Загрузка пользователей
   const loadUsers = async () => {
@@ -82,10 +137,7 @@ export default function AdminPanel() {
     }
   }
 
-  useEffect(() => {
-    loadUsers()
-    loadTransactions()
-  }, [])
+  // Удален старый useEffect - теперь загрузка происходит в checkAccess
 
   // Фильтрация пользователей
   const filteredUsers = users.filter(user =>
@@ -156,6 +208,37 @@ export default function AdminPanel() {
   const totalUsers = users.length
   const totalCredits = users.reduce((sum, user) => sum + user.balance, 0)
   const recentTransactions = transactions.slice(0, 5)
+
+  // Показываем загрузку во время проверки доступа
+  if (isChecking) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">Проверка прав доступа...</p>
+        </div>
+      </div>
+    )
+  }
+
+  // Если пользователь не админ, показываем сообщение об отказе в доступе
+  if (!isAdmin) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="text-red-500 text-6xl mb-4">🚫</div>
+          <h1 className="text-2xl font-bold text-gray-900 mb-2">Доступ запрещен</h1>
+          <p className="text-gray-600 mb-4">У вас нет прав для доступа к админ-панели</p>
+          <button
+            onClick={() => router.push('/')}
+            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+          >
+            Вернуться на главную
+          </button>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className="min-h-screen bg-gray-50 p-6">
