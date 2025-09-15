@@ -42,7 +42,8 @@ export async function POST(request: NextRequest) {
 
     for (const user of zeroBalanceUsers) {
       try {
-        console.log(`🔧 Исправляем пользователя: ${user.profiles.email} (${user.user_id})`)
+        const userEmail = Array.isArray(user.profiles) ? user.profiles[0]?.email : user.profiles?.email
+        console.log(`🔧 Исправляем пользователя: ${userEmail} (${user.user_id})`)
 
         // Обновляем баланс на 5
         const { error: updateError } = await supabaseClient
@@ -51,9 +52,9 @@ export async function POST(request: NextRequest) {
           .eq('user_id', user.user_id)
 
         if (updateError) {
-          console.error(`❌ Ошибка обновления баланса для ${user.profiles.email}:`, updateError)
+          console.error(`❌ Ошибка обновления баланса для ${userEmail}:`, updateError)
           results.push({
-            email: user.profiles.email,
+            email: userEmail,
             userId: user.user_id,
             success: false,
             error: updateError.message
@@ -74,9 +75,9 @@ export async function POST(request: NextRequest) {
           })
 
         if (transactionError) {
-          console.error(`❌ Ошибка создания транзакции для ${user.profiles.email}:`, transactionError)
+          console.error(`❌ Ошибка создания транзакции для ${userEmail}:`, transactionError)
           results.push({
-            email: user.profiles.email,
+            email: userEmail,
             userId: user.user_id,
             success: false,
             error: transactionError.message
@@ -84,18 +85,19 @@ export async function POST(request: NextRequest) {
           continue
         }
 
-        console.log(`✅ Исправлен пользователь: ${user.profiles.email}`)
+        console.log(`✅ Исправлен пользователь: ${userEmail}`)
         fixedCount++
         results.push({
-          email: user.profiles.email,
+          email: userEmail,
           userId: user.user_id,
           success: true
         })
 
       } catch (userError) {
-        console.error(`❌ Ошибка обработки пользователя ${user.profiles.email}:`, userError)
+        const userEmail = Array.isArray(user.profiles) ? user.profiles[0]?.email : user.profiles?.email
+        console.error(`❌ Ошибка обработки пользователя ${userEmail}:`, userError)
         results.push({
-          email: user.profiles.email,
+          email: userEmail,
           userId: user.user_id,
           success: false,
           error: userError instanceof Error ? userError.message : 'Unknown error'
