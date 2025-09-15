@@ -1,10 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { openai } from '@/lib/openai'
 import { loadMainPrompt, combineWithContext } from '@/lib/prompt-loader'
+import { createClient } from '@supabase/supabase-js'
 
 export async function POST(request: NextRequest) {
   try {
-    const { url, screenshot, context } = await request.json()
+    const { url, screenshot, context, userId } = await request.json()
 
     if (!url && !screenshot) {
       return NextResponse.json(
@@ -12,6 +13,61 @@ export async function POST(request: NextRequest) {
         { status: 400 }
       )
     }
+
+    // Проверяем и списываем кредиты для UX аудита
+    const supabaseClient = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+    )
+
+    // Используем тестового пользователя если userId не передан
+    const testUserId = userId || 'cc37dfed-4dad-4e7e-bff5-1b38645e3c7d'
+    const auditCost = 2 // Основной аудит стоит 2 кредита
+
+    // Проверяем баланс
+    const { data: balanceData, error: balanceError } = await supabaseClient
+      .rpc('get_user_balance', { user_uuid: testUserId })
+
+    if (balanceError) {
+      console.error('Error checking balance:', balanceError)
+      return NextResponse.json(
+        { error: 'Ошибка проверки баланса кредитов' },
+        { status: 500 }
+      )
+    }
+
+    const currentBalance = balanceData || 0
+
+    if (currentBalance < auditCost) {
+      return NextResponse.json(
+        { 
+          error: 'Недостаточно кредитов для проведения аудита',
+          required: auditCost,
+          available: currentBalance,
+          message: 'Пополните баланс кредитов для продолжения'
+        },
+        { status: 402 } // Payment Required
+      )
+    }
+
+    // Списываем кредиты
+    const { data: deductResult, error: deductError } = await supabaseClient
+      .rpc('deduct_credits', {
+        user_uuid: testUserId,
+        amount: auditCost,
+        source: 'audit',
+        description: 'UX аудит интерфейса'
+      })
+
+    if (deductError || !deductResult) {
+      console.error('Error deducting credits:', deductError)
+      return NextResponse.json(
+        { error: 'Ошибка списания кредитов' },
+        { status: 500 }
+      )
+    }
+
+    console.log(`✅ Списано ${auditCost} кредитов для UX аудита. Новый баланс: ${currentBalance - auditCost}`)
 
     // Загружаем основной промпт и объединяем с контекстом
     const mainPrompt = await loadMainPrompt()
