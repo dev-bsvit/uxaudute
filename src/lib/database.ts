@@ -425,6 +425,12 @@ export async function signUpWithEmail(email: string, password: string, fullName:
     }
   })
   if (error) throw error
+  
+  // Если регистрация успешна и есть пользователь, создаем начальный баланс
+  if (data.user) {
+    await ensureUserHasInitialBalance(data.user.id)
+  }
+  
   return data
 }
 
@@ -442,4 +448,72 @@ export async function signInWithGoogle() {
 export async function signOut() {
   const { error } = await supabase.auth.signOut()
   if (error) throw error
+}
+
+export async function ensureUserHasInitialBalance(userId: string): Promise<void> {
+  try {
+    console.log('🔍 ensureUserHasInitialBalance вызвана для пользователя:', userId)
+    
+    // Проверяем, есть ли уже баланс у пользователя
+    const { data: existingBalance, error: checkError } = await supabase
+      .from('user_balances')
+      .select('balance')
+      .eq('user_id', userId)
+      .single()
+
+    console.log('📊 Результат проверки баланса:', { existingBalance, checkError })
+
+    if (checkError && checkError.code !== 'PGRST116') {
+      // PGRST116 = no rows found, это нормально
+      console.error('❌ Ошибка проверки баланса:', checkError)
+      return
+    }
+
+    // Если баланса нет, создаем начальный
+    if (!existingBalance) {
+      console.log('💰 Создаем начальный баланс для пользователя:', userId)
+      
+      // Создаем начальный баланс с 5 кредитами
+      const { data: balanceData, error: balanceError } = await supabase
+        .from('user_balances')
+        .insert({
+          user_id: userId,
+          balance: 5,
+          grace_limit_used: false
+        })
+        .select()
+
+      console.log('📊 Результат создания баланса:', { balanceData, balanceError })
+
+      if (balanceError) {
+        console.error('❌ Ошибка создания начального баланса:', balanceError)
+        return
+      }
+
+      // Создаем транзакцию для начального баланса
+      const { data: transactionData, error: transactionError } = await supabase
+        .from('transactions')
+        .insert({
+          user_id: userId,
+          type: 'credit',
+          amount: 5,
+          balance_after: 5,
+          source: 'manual',
+          description: 'Добро пожаловать! Начальный баланс 5 кредитов'
+        })
+        .select()
+
+      console.log('📊 Результат создания транзакции:', { transactionData, transactionError })
+
+      if (transactionError) {
+        console.error('❌ Ошибка создания транзакции:', transactionError)
+      } else {
+        console.log('✅ Начальный баланс создан для пользователя:', userId)
+      }
+    } else {
+      console.log('ℹ️ У пользователя уже есть баланс:', existingBalance.balance)
+    }
+  } catch (error) {
+    console.error('❌ Ошибка при создании начального баланса:', error)
+  }
 }
