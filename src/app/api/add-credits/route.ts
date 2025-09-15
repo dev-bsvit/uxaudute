@@ -53,7 +53,7 @@ export async function POST(request: NextRequest) {
         type: amount > 0 ? 'credit' : 'debit',
         amount: amount,
         balance_after: newBalance,
-        source: source || 'manual',
+        source: source || 'purchase',
         description: description || 'Manual credit adjustment'
       })
 
