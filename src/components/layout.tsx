@@ -31,6 +31,15 @@ export function Layout({ children, title = 'UX Audit', transparentHeader = false
   useEffect(() => {
     // Проверяем текущего пользователя
     supabase.auth.getUser().then(async ({ data: { user } }) => {
+      console.log('🔍 Начальная проверка пользователя:', user?.email, user?.id)
+      console.log('🔍 Детали пользователя:', {
+        hasUser: !!user,
+        email: user?.email,
+        id: user?.id,
+        isGoogleOAuth: user?.app_metadata?.provider === 'google',
+        providers: user?.app_metadata?.providers
+      })
+      
       setUser(user)
       
       // Если пользователь уже авторизован, убеждаемся что у него есть начальный баланс
@@ -58,8 +67,19 @@ export function Layout({ children, title = 'UX Audit', transparentHeader = false
       })
       setUser(session?.user ?? null)
       
+      // Логируем ВСЕ события для отладки Google OAuth
+      console.log('🔍 ВСЕ СОБЫТИЯ АУТЕНТИФИКАЦИИ:', {
+        event: event,
+        hasUser: !!session?.user,
+        userEmail: session?.user?.email,
+        userId: session?.user?.id,
+        isGoogleOAuth: session?.user?.app_metadata?.provider === 'google',
+        providers: session?.user?.app_metadata?.providers
+      })
+      
       // Если пользователь авторизовался, убеждаемся что у него есть начальный баланс
-      if (session?.user && (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED')) {
+      // Расширяем условия для Google OAuth
+      if (session?.user && (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED' || event === 'INITIAL_SESSION')) {
         console.log('🔍 Создаем баланс для пользователя:', session.user.id, session.user.email, 'событие:', event)
         console.log('🔍 Вызываем ensureUserHasInitialBalance...')
         console.log('🔍 Текущее время:', new Date().toISOString())
