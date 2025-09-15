@@ -4,7 +4,7 @@ import { ReactNode, useState, useEffect } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { Button } from '@/components/ui/button'
-import { User, LogOut, Settings, ChevronDown, CreditCard } from 'lucide-react'
+import { User, LogOut, Settings, ChevronDown, CreditCard, Shield } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 import { signOut, ensureUserHasInitialBalance } from '@/lib/database'
 import { User as SupabaseUser } from '@supabase/supabase-js'
@@ -20,6 +20,7 @@ export function Layout({ children, title = 'UX Audit', transparentHeader = false
   const [user, setUser] = useState<SupabaseUser | null>(null)
   const [showUserMenu, setShowUserMenu] = useState(false)
   const [creditsBalance, setCreditsBalance] = useState<number | null>(null)
+  const [isAdmin, setIsAdmin] = useState(false)
   
   // Навигация с Dashboard для быстрого анализа
   const navigation = [
@@ -120,6 +121,27 @@ export function Layout({ children, title = 'UX Audit', transparentHeader = false
 
     if (user) {
       fetchCreditsBalance()
+    }
+  }, [user])
+
+  // Проверка прав администратора
+  const checkAdminRights = (user: SupabaseUser) => {
+    // Список email адресов администраторов
+    const adminEmails = [
+      'b.svitlik@mycredit.ua',
+      'designbsvit@gmail.com',
+      'bscamil940@gmail.com'
+    ]
+    
+    return adminEmails.includes(user.email || '')
+  }
+
+  // Обновляем статус админа при изменении пользователя
+  useEffect(() => {
+    if (user) {
+      setIsAdmin(checkAdminRights(user))
+    } else {
+      setIsAdmin(false)
     }
   }, [user])
 
@@ -242,6 +264,17 @@ export function Layout({ children, title = 'UX Audit', transparentHeader = false
                         <CreditCard className="w-4 h-4" />
                         Счет
                       </Link>
+
+                      {isAdmin && (
+                        <Link
+                          href="/admin"
+                          className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
+                          onClick={() => setShowUserMenu(false)}
+                        >
+                          <Shield className="w-4 h-4" />
+                          Админ-панель
+                        </Link>
+                      )}
                       
                       <button
                         onClick={handleSignOut}
