@@ -245,12 +245,26 @@ ${url ? `Дополнительная информация: URL сайта: ${ur
       })
 
       const content = completion.choices[0]?.message?.content || 'Нет ответа'
-      aiResponse = {
-        success: true,
-        content,
-        provider: 'openai',
-        model: 'gpt-4o',
-        usage: completion.usage
+      console.log('📝 Получен ответ от GPT-4o Vision, длина:', content.length)
+      console.log('📝 Первые 500 символов:', content.substring(0, 500))
+      
+      if (content === 'Нет ответа' || content.length < 50) {
+        console.error('❌ GPT-4o Vision вернул пустой или слишком короткий ответ')
+        aiResponse = {
+          success: false,
+          content: '',
+          provider: 'openai',
+          model: 'gpt-4o',
+          error: 'GPT-4o Vision вернул пустой ответ. Возможно, изображение не может быть обработано.'
+        }
+      } else {
+        aiResponse = {
+          success: true,
+          content,
+          provider: 'openai',
+          model: 'gpt-4o',
+          usage: completion.usage
+        }
       }
     } else {
       // Для текстового анализа используем систему AI провайдеров

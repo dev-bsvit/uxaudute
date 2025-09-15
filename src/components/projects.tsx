@@ -3,10 +3,26 @@
 import { useState, useEffect } from 'react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { createProject, getUserProjects, getProjectAudits } from '@/lib/database'
+import { createProject, getUserProjects, getProjectAudits, deleteProject } from '@/lib/database'
 import { User } from '@supabase/supabase-js'
-import { Plus, FolderOpen, Calendar, BarChart3 } from 'lucide-react'
+import { Plus, FolderOpen, Calendar, BarChart3, Trash2, MoreVertical } from 'lucide-react'
 import Link from 'next/link'
+import { 
+  DropdownMenu, 
+  DropdownMenuContent, 
+  DropdownMenuItem, 
+  DropdownMenuTrigger 
+} from '@/components/ui/dropdown-menu'
+import { 
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog'
 
 interface ProjectsProps {
   user: User
@@ -27,6 +43,11 @@ export function Projects({ user, onProjectSelect }: ProjectsProps) {
   const [showCreateForm, setShowCreateForm] = useState(false)
   const [newProject, setNewProject] = useState({ name: '', description: '' })
   const [creating, setCreating] = useState(false)
+  const [deleteDialog, setDeleteDialog] = useState<{ isOpen: boolean; project: Project | null }>({
+    isOpen: false,
+    project: null
+  })
+  const [deleting, setDeleting] = useState(false)
 
   useEffect(() => {
     loadProjects()
@@ -72,6 +93,27 @@ export function Projects({ user, onProjectSelect }: ProjectsProps) {
     } finally {
       setCreating(false)
     }
+  }
+
+  const handleDeleteProject = async () => {
+    if (!deleteDialog.project) return
+
+    setDeleting(true)
+    try {
+      await deleteProject(deleteDialog.project.id)
+      setDeleteDialog({ isOpen: false, project: null })
+      await loadProjects()
+    } catch (error) {
+      console.error('Error deleting project:', error)
+      const errorMessage = error instanceof Error ? error.message : 'Неизвестная ошибка'
+      alert(`Ошибка при удалении проекта: ${errorMessage}`)
+    } finally {
+      setDeleting(false)
+    }
+  }
+
+  const openDeleteDialog = (project: Project) => {
+    setDeleteDialog({ isOpen: true, project })
   }
 
   const formatDate = (dateString: string) => {
@@ -196,25 +238,53 @@ export function Projects({ user, onProjectSelect }: ProjectsProps) {
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {projects.map((project) => (
-            <div key={project.id} className="bg-white rounded-2xl border border-gray-200 shadow-lg hover:shadow-xl transition-all duration-300 cursor-pointer group">
-              <Link href={`/projects/${project.id}`}>
-                <div className="p-6">
-                  <div className="flex items-start justify-between mb-4">
-                    <div className="flex-1">
+            <div key={project.id} className="bg-white rounded-2xl border border-gray-200 shadow-lg hover:shadow-xl transition-all duration-300 group relative">
+              <div className="p-6">
+                <div className="flex items-start justify-between mb-4">
+                  <div className="flex-1">
+                    <Link href={`/projects/${project.id}`} className="block">
                       <h3 className="text-xl font-bold text-slate-900 mb-2 group-hover:text-blue-600 transition-colors">
                         {project.name}
                       </h3>
-                      {project.description && (
-                        <p className="text-slate-600 line-clamp-2 leading-relaxed">
-                          {project.description}
-                        </p>
-                      )}
-                    </div>
-                    <div className="w-10 h-10 bg-blue-50 rounded-lg flex items-center justify-center flex-shrink-0 ml-3">
+                    </Link>
+                    {project.description && (
+                      <p className="text-slate-600 line-clamp-2 leading-relaxed">
+                        {project.description}
+                      </p>
+                    )}
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <div className="w-10 h-10 bg-blue-50 rounded-lg flex items-center justify-center flex-shrink-0">
                       <FolderOpen className="w-5 h-5 text-blue-500" />
                     </div>
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="h-8 w-8 p-0 hover:bg-gray-100"
+                          onClick={(e) => e.stopPropagation()}
+                        >
+                          <MoreVertical className="h-4 w-4" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        <DropdownMenuItem
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            openDeleteDialog(project)
+                          }}
+                          className="text-red-600 focus:text-red-600"
+                        >
+                          <Trash2 className="h-4 w-4 mr-2" />
+                          Удалить проект
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
                   </div>
-                  
+                </div>
+                
+                <Link href={`/projects/${project.id}`} className="block">
                   <div className="flex items-center justify-between text-sm text-slate-500 pt-4 border-t border-gray-100">
                     <div className="flex items-center gap-2">
                       <BarChart3 className="w-4 h-4" />
@@ -225,12 +295,49 @@ export function Projects({ user, onProjectSelect }: ProjectsProps) {
                       <span>{formatDate(project.created_at)}</span>
                     </div>
                   </div>
-                </div>
-              </Link>
+                </Link>
+              </div>
             </div>
           ))}
         </div>
       )}
+
+      {/* Диалог подтверждения удаления */}
+      <AlertDialog open={deleteDialog.isOpen} onOpenChange={(open) => setDeleteDialog({ isOpen: open, project: deleteDialog.project })}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Удалить проект?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Вы уверены, что хотите удалить проект <strong>"{deleteDialog.project?.name}"</strong>?
+              <br />
+              <br />
+              Это действие нельзя отменить. Все аудиты в этом проекте также будут удалены.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={deleting}>
+              Отмена
+            </AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleDeleteProject}
+              disabled={deleting}
+              className="bg-red-600 hover:bg-red-700 focus:ring-red-600"
+            >
+              {deleting ? (
+                <div className="flex items-center gap-2">
+                  <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent"></div>
+                  Удаление...
+                </div>
+              ) : (
+                <div className="flex items-center gap-2">
+                  <Trash2 className="h-4 w-4" />
+                  Удалить проект
+                </div>
+              )}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   )
 }
