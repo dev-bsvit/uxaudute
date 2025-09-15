@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Sidebar, SidebarBody, SidebarLink } from "./ui/sidebar";
 import {
   IconArrowLeft,
@@ -10,6 +10,7 @@ import {
   IconFolder,
   IconChartBar,
   IconLogout,
+  IconCreditCard,
 } from "@tabler/icons-react";
 import { motion } from "motion/react";
 import { cn } from "@/lib/utils";
@@ -23,6 +24,8 @@ interface SidebarDemoProps {
 }
 
 export function SidebarDemo({ children, user }: SidebarDemoProps) {
+  const [creditsBalance, setCreditsBalance] = useState<number | null>(null);
+
   const links = [
     {
       label: "Главная",
@@ -46,6 +49,13 @@ export function SidebarDemo({ children, user }: SidebarDemoProps) {
       ),
     },
     {
+      label: "Счет",
+      href: "/credits",
+      icon: (
+        <IconCreditCard className="h-5 w-5 shrink-0 text-white" />
+      ),
+    },
+    {
       label: "Настройки",
       href: "/settings",
       icon: (
@@ -55,6 +65,23 @@ export function SidebarDemo({ children, user }: SidebarDemoProps) {
   ];
 
   const [open, setOpen] = useState(true);
+
+  // Загружаем баланс кредитов
+  useEffect(() => {
+    const fetchCreditsBalance = async () => {
+      try {
+        const response = await fetch('/api/credits/demo-balance');
+        const data = await response.json();
+        if (data.success) {
+          setCreditsBalance(data.balance);
+        }
+      } catch (error) {
+        console.error('Error fetching credits balance:', error);
+      }
+    };
+
+    fetchCreditsBalance();
+  }, []);
 
   const handleLogout = async () => {
     try {
@@ -83,6 +110,17 @@ export function SidebarDemo({ children, user }: SidebarDemoProps) {
               {links.map((link, idx) => (
                 <SidebarLink key={idx} link={link} />
               ))}
+              
+              {/* Баланс кредитов */}
+              <div className="mt-4 p-3 bg-white/10 rounded-lg">
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-white/80">Баланс кредитов</span>
+                  <span className="text-lg font-bold text-white">
+                    {creditsBalance !== null ? creditsBalance : '...'}
+                  </span>
+                </div>
+              </div>
+              
               <button
                 onClick={handleLogout}
                 className="flex items-center gap-3 px-3 py-2 text-sm font-medium text-white hover:bg-white/20 rounded-lg transition-colors"
