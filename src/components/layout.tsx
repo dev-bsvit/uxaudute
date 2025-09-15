@@ -52,6 +52,27 @@ export function Layout({ children, title = 'UX Audit', transparentHeader = false
         } catch (error) {
           console.error('❌ Ошибка при проверке баланса:', error)
         }
+        
+        // Дополнительная проверка баланса через API для всех пользователей
+        setTimeout(async () => {
+          try {
+            console.log('🔍 Дополнительная проверка баланса через API...')
+            const response = await fetch('/api/credits/balance', {
+              headers: {
+                'Authorization': `Bearer ${(await supabase.auth.getSession()).data.session?.access_token}`
+              }
+            })
+            const data = await response.json()
+            console.log('🔍 Результат дополнительной проверки баланса:', data)
+            
+            if (data.success && data.balance === 0) {
+              console.log('🔍 Обнаружен нулевой баланс, создаем начальный баланс...')
+              await ensureUserHasInitialBalance(user.id)
+            }
+          } catch (err) {
+            console.error('❌ Ошибка дополнительной проверки баланса:', err)
+          }
+        }, 2000)
       }
     })
 
@@ -105,6 +126,12 @@ export function Layout({ children, title = 'UX Audit', transparentHeader = false
               if (data.success) {
                 setCreditsBalance(data.balance)
                 console.log('🔍 Обновлен баланс в состоянии:', data.balance)
+                
+                // Если баланс все еще 0, попробуем еще раз создать начальный баланс
+                if (data.balance === 0) {
+                  console.log('🔍 Баланс все еще 0, повторная попытка создания начального баланса...')
+                  await ensureUserHasInitialBalance(session.user.id)
+                }
               }
             } catch (err) {
               console.error('❌ Ошибка проверки баланса:', err)

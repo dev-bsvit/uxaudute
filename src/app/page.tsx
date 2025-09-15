@@ -7,6 +7,8 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { HeroSection } from '@/components/hero-section'
 import Link from 'next/link'
 import { ArrowRight, Zap, Shield, BarChart3, Users } from 'lucide-react'
+import { createClient } from '@supabase/supabase-js'
+import { ensureUserHasInitialBalance } from '@/lib/database'
 
 export default function HomePage() {
   // Версия 1.1 - обновленная структура
@@ -14,6 +16,40 @@ export default function HomePage() {
   
   useEffect(() => {
     setMounted(true)
+    
+    // Проверяем баланс всех авторизованных пользователей
+    const checkUserBalance = async () => {
+      try {
+        const supabase = createClient(
+          process.env.NEXT_PUBLIC_SUPABASE_URL!,
+          process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+        )
+        
+        const { data: { user } } = await supabase.auth.getUser()
+        if (user) {
+          console.log('🔍 Главная страница: проверяем баланс пользователя', user.email, user.id)
+          
+          // Проверяем баланс через API
+          const response = await fetch('/api/credits/balance', {
+            headers: {
+              'Authorization': `Bearer ${(await supabase.auth.getSession()).data.session?.access_token}`
+            }
+          })
+          const data = await response.json()
+          console.log('🔍 Главная страница: результат проверки баланса', data)
+          
+          if (data.success && data.balance === 0) {
+            console.log('🔍 Главная страница: обнаружен нулевой баланс, создаем начальный баланс')
+            await ensureUserHasInitialBalance(user.id)
+          }
+        }
+      } catch (error) {
+        console.error('❌ Ошибка проверки баланса на главной странице:', error)
+      }
+    }
+    
+    // Запускаем проверку через 3 секунды после загрузки страницы
+    setTimeout(checkUserBalance, 3000)
   }, [])
   
   const features = [
