@@ -78,6 +78,13 @@ function generateAuditHTML(audit: any): string {
   const resultData = audit.result_data || {}
   const inputData = audit.input_data || {}
   
+  // Безопасное получение данных
+  const audience = resultData.audience || {}
+  const behavior = resultData.behavior || {}
+  const problems = resultData.problemsAndSolutions || []
+  const survey = resultData.uxSurvey || {}
+  const summary = survey.summary || {}
+  
   return `
 <!DOCTYPE html>
 <html lang="ru">
@@ -115,104 +122,27 @@ function generateAuditHTML(audit: any): string {
         <div class="bg-white rounded-lg card-shadow p-6">
             <h2 class="text-xl font-semibold text-gray-900 mb-4">Результаты UX Анализа</h2>
             
-            ${resultData.audience ? `
+            <!-- Основная информация -->
             <div class="mb-6">
-                <h3 class="text-lg font-medium text-gray-900 mb-3">👥 Целевая аудитория</h3>
+                <h3 class="text-lg font-medium text-gray-900 mb-3">📋 Общая информация</h3>
                 <div class="bg-gray-50 rounded-lg p-4">
-                    <p class="text-gray-700"><strong>Основная боль:</strong> ${resultData.audience.mainPain || 'Не указано'}</p>
-                    <p class="text-gray-700 mt-2"><strong>Целевая аудитория:</strong> ${resultData.audience.targetAudience || 'Не указано'}</p>
-                    ${resultData.audience.fears ? `
-                    <div class="mt-3">
-                        <p class="text-gray-700 font-medium">Страхи пользователей:</p>
-                        <ul class="list-disc list-inside text-gray-600 mt-1">
-                            ${resultData.audience.fears.map((fear: string) => `<li>${fear}</li>`).join('')}
-                        </ul>
-                    </div>
-                    ` : ''}
+                    <p class="text-gray-700"><strong>Название аудита:</strong> ${audit.name}</p>
+                    <p class="text-gray-700 mt-2"><strong>Тип:</strong> ${audit.type}</p>
+                    <p class="text-gray-700 mt-2"><strong>Статус:</strong> ${audit.status}</p>
+                    <p class="text-gray-700 mt-2"><strong>Дата создания:</strong> ${new Date(audit.created_at).toLocaleDateString('ru-RU')}</p>
+                    ${audit.confidence ? `<p class="text-gray-700 mt-2"><strong>Уверенность анализа:</strong> ${audit.confidence}%</p>` : ''}
                 </div>
             </div>
-            ` : ''}
 
-            ${resultData.behavior ? `
+            <!-- Результаты анализа -->
             <div class="mb-6">
-                <h3 class="text-lg font-medium text-gray-900 mb-3">🎯 Поведение пользователей</h3>
+                <h3 class="text-lg font-medium text-gray-900 mb-3">📊 Результаты анализа</h3>
                 <div class="bg-gray-50 rounded-lg p-4">
-                    ${resultData.behavior.userScenarios ? `
-                    <div class="mb-3">
-                        <p class="text-gray-700 font-medium">Идеальный путь:</p>
-                        <p class="text-gray-600">${resultData.behavior.userScenarios.idealPath || 'Не указано'}</p>
-                    </div>
-                    <div class="mb-3">
-                        <p class="text-gray-700 font-medium">Типичная ошибка:</p>
-                        <p class="text-gray-600">${resultData.behavior.userScenarios.typicalError || 'Не указано'}</p>
-                    </div>
-                    ` : ''}
-                    ${resultData.behavior.actionMotivation ? `
-                    <div class="mb-3">
-                        <p class="text-gray-700 font-medium">Мотивация действия:</p>
-                        <p class="text-gray-600">${resultData.behavior.actionMotivation}</p>
-                    </div>
-                    ` : ''}
+                    <pre class="whitespace-pre-wrap text-sm text-gray-700 overflow-auto">${JSON.stringify(resultData, null, 2)}</pre>
                 </div>
             </div>
-            ` : ''}
 
-            ${resultData.problemsAndSolutions ? `
-            <div class="mb-6">
-                <h3 class="text-lg font-medium text-gray-900 mb-3">🔧 Проблемы и решения</h3>
-                <div class="space-y-4">
-                    ${resultData.problemsAndSolutions.map((problem: any, index: number) => `
-                    <div class="border border-gray-200 rounded-lg p-4">
-                        <div class="flex items-start justify-between mb-2">
-                            <h4 class="font-medium text-gray-900">${problem.element || 'Элемент'}</h4>
-                            <span class="px-2 py-1 text-xs font-medium ${
-                                problem.priority === 'high' ? 'bg-red-100 text-red-800' : 
-                                problem.priority === 'medium' ? 'bg-yellow-100 text-yellow-800' : 
-                                'bg-green-100 text-green-800'
-                            } rounded-full">
-                                ${problem.priority === 'high' ? 'Высокий' : 
-                                  problem.priority === 'medium' ? 'Средний' : 'Низкий'} приоритет
-                            </span>
-                        </div>
-                        <p class="text-gray-700 mb-2"><strong>Проблема:</strong> ${problem.problem || 'Не указано'}</p>
-                        <p class="text-gray-600 mb-2"><strong>Последствие:</strong> ${problem.consequence || 'Не указано'}</p>
-                        <p class="text-gray-600"><strong>Рекомендация:</strong> ${problem.recommendation || 'Не указано'}</p>
-                    </div>
-                    `).join('')}
-                </div>
-            </div>
-            ` : ''}
-
-            ${resultData.uxSurvey ? `
-            <div class="mb-6">
-                <h3 class="text-lg font-medium text-gray-900 mb-3">📊 UX Опрос</h3>
-                <div class="bg-gray-50 rounded-lg p-4">
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
-                        <div class="text-center">
-                            <div class="text-2xl font-bold text-blue-600">${resultData.uxSurvey.summary?.totalQuestions || 0}</div>
-                            <div class="text-sm text-gray-600">Вопросов</div>
-                        </div>
-                        <div class="text-center">
-                            <div class="text-2xl font-bold text-red-600">${resultData.uxSurvey.summary?.criticalIssues || 0}</div>
-                            <div class="text-sm text-gray-600">Критических проблем</div>
-                        </div>
-                        <div class="text-center">
-                            <div class="text-2xl font-bold text-green-600">${resultData.uxSurvey.summary?.averageConfidence || 0}%</div>
-                            <div class="text-sm text-gray-600">Средняя уверенность</div>
-                        </div>
-                    </div>
-                    ${resultData.uxSurvey.summary?.recommendations ? `
-                    <div class="mt-4">
-                        <p class="text-gray-700 font-medium mb-2">Рекомендации:</p>
-                        <ul class="list-disc list-inside text-gray-600">
-                            ${resultData.uxSurvey.summary.recommendations.map((rec: string) => `<li>${rec}</li>`).join('')}
-                        </ul>
-                    </div>
-                    ` : ''}
-                </div>
-            </div>
-            ` : ''}
-
+            <!-- Скриншот если есть -->
             ${inputData.screenshotUrl ? `
             <div class="mb-6">
                 <h3 class="text-lg font-medium text-gray-900 mb-3">📸 Анализируемый интерфейс</h3>
