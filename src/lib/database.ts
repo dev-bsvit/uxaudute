@@ -454,8 +454,11 @@ export async function signOut() {
 export async function ensureUserHasInitialBalance(userId: string): Promise<void> {
   try {
     console.log('🔍 ensureUserHasInitialBalance вызвана для пользователя:', userId)
+    console.log('🔍 Текущее время в ensureUserHasInitialBalance:', new Date().toISOString())
+    console.log('🔍 URL для API:', '/api/ensure-user-balance')
     
     // Вызываем API для создания баланса
+    console.log('🔍 Отправляем запрос к API ensure-user-balance...')
     const response = await fetch('/api/ensure-user-balance', {
       method: 'POST',
       headers: {
@@ -464,16 +467,27 @@ export async function ensureUserHasInitialBalance(userId: string): Promise<void>
       body: JSON.stringify({ userId })
     })
 
+    console.log('🔍 Ответ от API:', { 
+      status: response.status, 
+      ok: response.ok, 
+      statusText: response.statusText 
+    })
+
     if (!response.ok) {
       const errorData = await response.json()
       console.error('❌ Ошибка API ensure-user-balance:', errorData)
+      console.error('❌ Статус ответа:', response.status)
       return
     }
 
     const result = await response.json()
     console.log('✅ ensureUserHasInitialBalance API результат:', result)
+    console.log('✅ Успешно обработано для пользователя:', userId)
     
   } catch (error) {
     console.error('❌ Ошибка при вызове API ensure-user-balance:', error)
+    console.error('❌ Детали ошибки:', error)
+    console.error('❌ Тип ошибки:', typeof error)
+    console.error('❌ Stack trace:', error instanceof Error ? error.stack : 'No stack')
   }
 }

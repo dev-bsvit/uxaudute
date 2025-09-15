@@ -49,19 +49,30 @@ export function Layout({ children, title = 'UX Audit', transparentHeader = false
     // Слушаем изменения аутентификации
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
       console.log('🔄 Auth state change:', event, session?.user?.email, session?.user?.id)
+      console.log('🔄 Session details:', { 
+        hasSession: !!session, 
+        hasUser: !!session?.user,
+        userEmail: session?.user?.email,
+        userId: session?.user?.id,
+        event: event
+      })
       setUser(session?.user ?? null)
       
       // Если пользователь авторизовался, убеждаемся что у него есть начальный баланс
       if (session?.user && (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED')) {
         console.log('🔍 Создаем баланс для пользователя:', session.user.id, session.user.email, 'событие:', event)
         console.log('🔍 Вызываем ensureUserHasInitialBalance...')
+        console.log('🔍 Текущее время:', new Date().toISOString())
+        
         try {
+          console.log('🔍 Начинаем вызов ensureUserHasInitialBalance...')
           await ensureUserHasInitialBalance(session.user.id)
           console.log('✅ ensureUserHasInitialBalance выполнена успешно')
           
           // Дополнительно проверим баланс через API
           setTimeout(async () => {
             try {
+              console.log('🔍 Проверяем баланс через API через 1 секунду...')
               const response = await fetch('/api/credits/balance', {
                 headers: {
                   'Authorization': `Bearer ${session.access_token}`
@@ -69,13 +80,26 @@ export function Layout({ children, title = 'UX Audit', transparentHeader = false
               })
               const data = await response.json()
               console.log('🔍 Проверка баланса после ensureUserHasInitialBalance:', data)
+              
+              // Обновляем состояние баланса
+              if (data.success) {
+                setCreditsBalance(data.balance)
+                console.log('🔍 Обновлен баланс в состоянии:', data.balance)
+              }
             } catch (err) {
               console.error('❌ Ошибка проверки баланса:', err)
             }
           }, 1000)
         } catch (error) {
           console.error('❌ Ошибка при создании баланса:', error)
+          console.error('❌ Детали ошибки:', error)
         }
+      } else {
+        console.log('🔍 Пользователь не авторизован или событие не подходит:', { 
+          hasUser: !!session?.user, 
+          event: event,
+          shouldProcess: session?.user && (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED')
+        })
       }
     })
 

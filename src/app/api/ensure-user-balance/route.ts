@@ -5,14 +5,21 @@ export const dynamic = 'force-dynamic'
 
 export async function POST(request: NextRequest) {
   try {
+    console.log('🔍 API ensure-user-balance вызван')
+    console.log('🔍 Время вызова API:', new Date().toISOString())
+    
     const supabaseClient = createClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
       process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
     )
 
+    console.log('🔍 Supabase клиент создан')
+    
     const { userId } = await request.json()
+    console.log('🔍 Получен userId из запроса:', userId)
 
     if (!userId) {
+      console.error('❌ userId не предоставлен')
       return NextResponse.json({ error: 'userId is required' }, { status: 400 })
     }
 
