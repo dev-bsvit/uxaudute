@@ -64,7 +64,7 @@ export function Layout({ children, title = 'UX Audit', transparentHeader = false
             try {
               const response = await fetch('/api/credits/balance', {
                 headers: {
-                  'Authorization': `Bearer ${session.session?.access_token}`
+                  'Authorization': `Bearer ${session.access_token}`
                 }
               })
               const data = await response.json()
