@@ -52,7 +52,7 @@ export function Layout({ children, title = 'UX Audit', transparentHeader = false
       setUser(session?.user ?? null)
       
       // Если пользователь авторизовался, убеждаемся что у него есть начальный баланс
-      if (session?.user && (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED')) {
+      if (session?.user && (event === 'SIGNED_IN' || event === 'SIGNED_UP' || event === 'TOKEN_REFRESHED')) {
         console.log('🔍 Создаем баланс для пользователя:', session.user.id, session.user.email, 'событие:', event)
         console.log('🔍 Вызываем ensureUserHasInitialBalance...')
         try {
