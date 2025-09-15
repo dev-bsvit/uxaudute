@@ -42,7 +42,8 @@ export async function POST(request: NextRequest) {
 
     for (const user of zeroBalanceUsers) {
       try {
-        const userEmail = Array.isArray(user.profiles) ? user.profiles[0]?.email : user.profiles?.email
+        // Безопасное получение email с проверкой типов
+        const userEmail = (user as any).profiles?.email || 'unknown@email.com'
         console.log(`🔧 Исправляем пользователя: ${userEmail} (${user.user_id})`)
 
         // Обновляем баланс на 5
@@ -94,7 +95,7 @@ export async function POST(request: NextRequest) {
         })
 
       } catch (userError) {
-        const userEmail = Array.isArray(user.profiles) ? user.profiles[0]?.email : user.profiles?.email
+        const userEmail = (user as any).profiles?.email || 'unknown@email.com'
         console.error(`❌ Ошибка обработки пользователя ${userEmail}:`, userError)
         results.push({
           email: userEmail,
