@@ -49,16 +49,21 @@ export default function PublicAuditPage() {
   const loadPublicAudit = async () => {
     try {
       setLoading(true)
+      console.log('🔍 Загружаем публичный аудит:', auditId, 'с токеном:', token)
+      
       const response = await fetch(`/api/public/audit/${auditId}?token=${token}`)
       const data = await response.json()
+
+      console.log('🔍 Ответ API:', { status: response.status, data })
 
       if (!response.ok) {
         throw new Error(data.error || 'Ошибка загрузки аудита')
       }
 
+      console.log('✅ Аудит загружен:', data.audit)
       setAudit(data.audit)
     } catch (err) {
-      console.error('Error loading public audit:', err)
+      console.error('❌ Ошибка загрузки публичного аудита:', err)
       setError(err instanceof Error ? err.message : 'Ошибка загрузки аудита')
     } finally {
       setLoading(false)
@@ -166,12 +171,18 @@ export default function PublicAuditPage() {
             </p>
           </CardHeader>
           <CardContent>
-            <AnalysisResult 
-              result={audit.result_data}
-              screenshot={audit.input_data?.screenshotUrl}
-              url={audit.input_data?.url}
-              auditId={audit.id}
-            />
+            {audit.result_data ? (
+              <AnalysisResult 
+                result={audit.result_data}
+                screenshot={audit.input_data?.screenshotUrl}
+                url={audit.input_data?.url}
+                auditId={audit.id}
+              />
+            ) : (
+              <div className="text-center py-8">
+                <p className="text-gray-500">Результаты анализа недоступны</p>
+              </div>
+            )}
           </CardContent>
         </Card>
 
