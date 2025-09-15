@@ -11,6 +11,7 @@ export async function GET(
     const auditId = params.id
     const { searchParams } = new URL(request.url)
     const token = searchParams.get('token')
+    const format = searchParams.get('format')
 
     if (!token) {
       return NextResponse.json({ error: 'Токен доступа не предоставлен' }, { status: 400 })
