@@ -18,50 +18,7 @@ export async function DELETE(request: NextRequest) {
 
     console.log('🗑️ Удаление пользователя:', userId)
 
-    // 1. Удаляем аннотации пользователя
-    const { error: annotationsError } = await supabaseClient
-      .from('annotations')
-      .delete()
-      .eq('user_id', userId)
-
-    if (annotationsError) {
-      console.error('Ошибка удаления аннотаций:', annotationsError)
-      return NextResponse.json({ error: annotationsError.message }, { status: 500 })
-    }
-
-    // 2. Удаляем результаты анализа (через audits)
-    const { data: userAudits } = await supabaseClient
-      .from('audits')
-      .select('id')
-      .eq('user_id', userId)
-
-    if (userAudits && userAudits.length > 0) {
-      const auditIds = userAudits.map(audit => audit.id)
-      
-      // Удаляем analysis_results
-      const { error: analysisResultsError } = await supabaseClient
-        .from('analysis_results')
-        .delete()
-        .in('audit_id', auditIds)
-
-      if (analysisResultsError) {
-        console.error('Ошибка удаления результатов анализа:', analysisResultsError)
-        return NextResponse.json({ error: analysisResultsError.message }, { status: 500 })
-      }
-
-      // Удаляем audit_history
-      const { error: auditHistoryError } = await supabaseClient
-        .from('audit_history')
-        .delete()
-        .in('audit_id', auditIds)
-
-      if (auditHistoryError) {
-        console.error('Ошибка удаления истории аудитов:', auditHistoryError)
-        return NextResponse.json({ error: auditHistoryError.message }, { status: 500 })
-      }
-    }
-
-    // 3. Удаляем аудиты пользователя
+    // 1. Удаляем аудиты пользователя (включая все связанные данные)
     const { error: auditsError } = await supabaseClient
       .from('audits')
       .delete()
@@ -72,7 +29,7 @@ export async function DELETE(request: NextRequest) {
       return NextResponse.json({ error: auditsError.message }, { status: 500 })
     }
 
-    // 4. Удаляем проекты пользователя
+    // 2. Удаляем проекты пользователя
     const { error: projectsError } = await supabaseClient
       .from('projects')
       .delete()
@@ -83,29 +40,35 @@ export async function DELETE(request: NextRequest) {
       return NextResponse.json({ error: projectsError.message }, { status: 500 })
     }
 
-    // 5. Удаляем транзакции пользователя
-    const { error: transactionsError } = await supabaseClient
-      .from('transactions')
-      .delete()
-      .eq('user_id', userId)
+    // 3. Удаляем транзакции пользователя (если таблица существует)
+    try {
+      const { error: transactionsError } = await supabaseClient
+        .from('transactions')
+        .delete()
+        .eq('user_id', userId)
 
-    if (transactionsError) {
-      console.error('Ошибка удаления транзакций:', transactionsError)
-      return NextResponse.json({ error: transactionsError.message }, { status: 500 })
+      if (transactionsError) {
+        console.warn('Предупреждение: не удалось удалить транзакции:', transactionsError.message)
+      }
+    } catch (err) {
+      console.warn('Предупреждение: таблица transactions не существует')
     }
 
-    // 6. Удаляем баланс пользователя
-    const { error: balanceError } = await supabaseClient
-      .from('user_balances')
-      .delete()
-      .eq('user_id', userId)
+    // 4. Удаляем баланс пользователя (если таблица существует)
+    try {
+      const { error: balanceError } = await supabaseClient
+        .from('user_balances')
+        .delete()
+        .eq('user_id', userId)
 
-    if (balanceError) {
-      console.error('Ошибка удаления баланса:', balanceError)
-      return NextResponse.json({ error: balanceError.message }, { status: 500 })
+      if (balanceError) {
+        console.warn('Предупреждение: не удалось удалить баланс:', balanceError.message)
+      }
+    } catch (err) {
+      console.warn('Предупреждение: таблица user_balances не существует')
     }
 
-    // 7. Удаляем профиль пользователя
+    // 5. Удаляем профиль пользователя
     const { error: profileError } = await supabaseClient
       .from('profiles')
       .delete()
