@@ -77,7 +77,7 @@ export async function POST(request: NextRequest) {
           type: 'credit',
           amount: 5,
           balance_after: 5,
-          source: 'welcome',
+          source: 'manual',
           description: 'Добро пожаловать! Начальный баланс 5 кредитов'
         })
         .select()
