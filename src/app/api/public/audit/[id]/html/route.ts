@@ -33,14 +33,10 @@ export async function GET(
         status,
         input_data,
         result_data,
-        annotations,
-        confidence,
         created_at,
-        updated_at,
         projects!inner(
           id,
-          name,
-          description
+          name
         )
       `)
       .eq('id', auditId)
@@ -59,8 +55,8 @@ export async function GET(
 
     console.log('✅ Публичный аудит получен для HTML:', audit.name)
 
-    // Генерируем HTML страницу
-    const html = generateAuditHTML(audit)
+    // Генерируем HTML
+    const html = generateSimpleHTML(audit)
 
     return new NextResponse(html, {
       headers: {
@@ -74,109 +70,66 @@ export async function GET(
   }
 }
 
-function generateAuditHTML(audit: any): string {
-  try {
-    const resultData = audit.result_data || {}
-    const inputData = audit.input_data || {}
-    
-    return `
+function generateSimpleHTML(audit: any): string {
+  const resultData = audit.result_data || {}
+  const inputData = audit.input_data || {}
+  
+  return `
 <!DOCTYPE html>
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>UX Аудит: ${audit.name}</title>
-    <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        .gradient-bg { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
-        .card-shadow { box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04); }
+        body { font-family: Arial, sans-serif; margin: 0; padding: 20px; background-color: #f5f5f5; }
+        .container { max-width: 800px; margin: 0 auto; background: white; padding: 30px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .header { border-bottom: 2px solid #e0e0e0; padding-bottom: 20px; margin-bottom: 30px; }
+        .title { color: #333; margin: 0 0 10px 0; }
+        .subtitle { color: #666; margin: 0; }
+        .section { margin-bottom: 30px; }
+        .section-title { color: #333; font-size: 18px; margin-bottom: 15px; border-left: 4px solid #007bff; padding-left: 15px; }
+        .info-box { background: #f8f9fa; padding: 15px; border-radius: 5px; margin-bottom: 15px; }
+        .screenshot { max-width: 100%; height: auto; border-radius: 5px; margin: 15px 0; }
+        .json-data { background: #f8f9fa; padding: 15px; border-radius: 5px; overflow-x: auto; font-family: monospace; font-size: 12px; }
+        .footer { text-align: center; color: #666; margin-top: 40px; padding-top: 20px; border-top: 1px solid #e0e0e0; }
     </style>
 </head>
-<body class="bg-gray-50">
-    <!-- Заголовок -->
-    <div class="bg-white border-b border-gray-200">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-            <div class="flex items-center justify-between">
-                <div>
-                    <div class="flex items-center gap-3 mb-2">
-                        <h1 class="text-2xl font-bold text-gray-900">${audit.name}</h1>
-                        <span class="px-2 py-1 text-xs font-medium bg-blue-100 text-blue-800 rounded-full">${audit.type}</span>
-                        ${audit.confidence ? `<span class="px-2 py-1 text-xs font-medium bg-green-100 text-green-800 rounded-full">Уверенность: ${audit.confidence}%</span>` : ''}
-                    </div>
-                    <p class="text-gray-600">
-                        Проект: ${audit.project.name} • ${new Date(audit.created_at).toLocaleDateString('ru-RU')}
-                    </p>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Контент -->
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div class="bg-white rounded-lg card-shadow p-6">
-            <h2 class="text-xl font-semibold text-gray-900 mb-4">Результаты UX Анализа</h2>
-            
-            <!-- Основная информация -->
-            <div class="mb-6">
-                <h3 class="text-lg font-medium text-gray-900 mb-3">📋 Общая информация</h3>
-                <div class="bg-gray-50 rounded-lg p-4">
-                    <p class="text-gray-700"><strong>Название аудита:</strong> ${audit.name}</p>
-                    <p class="text-gray-700 mt-2"><strong>Тип:</strong> ${audit.type}</p>
-                    <p class="text-gray-700 mt-2"><strong>Статус:</strong> ${audit.status}</p>
-                    <p class="text-gray-700 mt-2"><strong>Дата создания:</strong> ${new Date(audit.created_at).toLocaleDateString('ru-RU')}</p>
-                    ${audit.confidence ? `<p class="text-gray-700 mt-2"><strong>Уверенность анализа:</strong> ${audit.confidence}%</p>` : ''}
-                </div>
-            </div>
-
-            <!-- Результаты анализа -->
-            <div class="mb-6">
-                <h3 class="text-lg font-medium text-gray-900 mb-3">📊 Результаты анализа</h3>
-                <div class="bg-gray-50 rounded-lg p-4">
-                    <pre class="whitespace-pre-wrap text-sm text-gray-700 overflow-auto">${JSON.stringify(resultData, null, 2)}</pre>
-                </div>
-            </div>
-
-            <!-- Скриншот если есть -->
-            ${inputData.screenshotUrl ? `
-            <div class="mb-6">
-                <h3 class="text-lg font-medium text-gray-900 mb-3">📸 Анализируемый интерфейс</h3>
-                <div class="text-center">
-                    <img src="${inputData.screenshotUrl}" alt="Скриншот интерфейса" class="max-w-full h-auto rounded-lg border border-gray-200" />
-                </div>
-            </div>
-            ` : ''}
+<body>
+    <div class="container">
+        <div class="header">
+            <h1 class="title">${audit.name}</h1>
+            <p class="subtitle">Проект: ${audit.projects.name} • ${new Date(audit.created_at).toLocaleDateString('ru-RU')}</p>
         </div>
 
-        <!-- Футер -->
-        <div class="mt-8 text-center text-sm text-gray-500">
-            <p>
-                Создано с помощью <a href="/" class="text-blue-600 hover:text-blue-700 font-medium">UX Audit Platform</a>
-            </p>
+        <div class="section">
+            <h2 class="section-title">📋 Информация об аудите</h2>
+            <div class="info-box">
+                <p><strong>Тип:</strong> ${audit.type}</p>
+                <p><strong>Статус:</strong> ${audit.status}</p>
+                <p><strong>Дата создания:</strong> ${new Date(audit.created_at).toLocaleDateString('ru-RU')}</p>
+            </div>
+        </div>
+
+        ${inputData.screenshotUrl ? `
+        <div class="section">
+            <h2 class="section-title">📸 Анализируемый интерфейс</h2>
+            <img src="${inputData.screenshotUrl}" alt="Скриншот интерфейса" class="screenshot" />
+        </div>
+        ` : ''}
+
+        <div class="section">
+            <h2 class="section-title">📊 Результаты анализа</h2>
+            <div class="json-data">
+                <pre>${JSON.stringify(resultData, null, 2)}</pre>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p>Создано с помощью <a href="/" style="color: #007bff;">UX Audit Platform</a></p>
         </div>
     </div>
 </body>
 </html>
   `
-  } catch (error) {
-    console.error('❌ Ошибка генерации HTML:', error)
-    return `
-<!DOCTYPE html>
-<html lang="ru">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ошибка загрузки аудита</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-</head>
-<body class="bg-gray-50">
-    <div class="min-h-screen flex items-center justify-center">
-        <div class="text-center">
-            <h1 class="text-2xl font-bold text-gray-900 mb-4">Ошибка загрузки аудита</h1>
-            <p class="text-gray-600">Произошла ошибка при генерации страницы аудита.</p>
-        </div>
-    </div>
-</body>
-</html>
-    `
-  }
 }
