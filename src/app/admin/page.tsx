@@ -59,9 +59,7 @@ export default function AdminPanel() {
   // Проверка прав администратора
   const checkAdminRights = (user: SupabaseUser) => {
     const adminEmails = [
-      'b.svitlik@mycredit.ua',
-      'designbsvit@gmail.com',
-      'bscamil940@gmail.com'
+      'designbsvit@gmail.com'
     ]
     
     return adminEmails.includes(user.email || '')

@@ -128,9 +128,7 @@ export function Layout({ children, title = 'UX Audit', transparentHeader = false
   const checkAdminRights = (user: SupabaseUser) => {
     // Список email адресов администраторов
     const adminEmails = [
-      'b.svitlik@mycredit.ua',
-      'designbsvit@gmail.com',
-      'bscamil940@gmail.com'
+      'designbsvit@gmail.com'
     ]
     
     return adminEmails.includes(user.email || '')
