@@ -24,17 +24,35 @@ import {
   addAuditHistory,
   uploadScreenshotFromBase64,
   updateProjectContext,
-  updateProjectTargetAudience
+  updateProjectTargetAudience,
+  deleteAudit
 } from '@/lib/database'
 import { 
   Plus, 
   Trash2,
   ExternalLink,
   BarChart3,
-  Eye
+  Eye,
+  MoreVertical
 } from 'lucide-react'
 import { BackArrow } from '@/components/icons/back-arrow'
 import { type ActionType } from '@/lib/utils'
+import { 
+  DropdownMenu, 
+  DropdownMenuContent, 
+  DropdownMenuItem, 
+  DropdownMenuTrigger 
+} from '@/components/ui/dropdown-menu'
+import { 
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog'
 
 interface Project {
   id: string
@@ -79,6 +97,11 @@ export default function ProjectDetailPage() {
   const [hasAnyChanges, setHasAnyChanges] = useState(false)
   const [showInsufficientCredits, setShowInsufficientCredits] = useState(false)
   const [creditsError, setCreditsError] = useState<{ required: number; available: number } | null>(null)
+  const [deleteDialog, setDeleteDialog] = useState<{ isOpen: boolean; audit: Audit | null }>({
+    isOpen: false,
+    audit: null
+  })
+  const [deleting, setDeleting] = useState(false)
 
   useEffect(() => {
     checkAuthAndLoadProject()
@@ -337,6 +360,27 @@ export default function ProjectDetailPage() {
     setHasAnyChanges(false)
   }
 
+  const handleDeleteAudit = async () => {
+    if (!deleteDialog.audit) return
+
+    setDeleting(true)
+    try {
+      await deleteAudit(deleteDialog.audit.id)
+      setDeleteDialog({ isOpen: false, audit: null })
+      await loadProjectData()
+    } catch (error) {
+      console.error('Error deleting audit:', error)
+      const errorMessage = error instanceof Error ? error.message : 'Неизвестная ошибка'
+      alert(`Ошибка при удалении аудита: ${errorMessage}`)
+    } finally {
+      setDeleting(false)
+    }
+  }
+
+  const openDeleteDialog = (audit: Audit) => {
+    setDeleteDialog({ isOpen: true, audit })
+  }
+
   const handleAction = async (action: ActionType) => {
     if (!currentAudit || !result) return
 
@@ -569,6 +613,26 @@ export default function ProjectDetailPage() {
                                 Просмотр
                               </Button>
                             </Link>
+                            <DropdownMenu>
+                              <DropdownMenuTrigger asChild>
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  className="h-8 w-8 p-0 hover:bg-gray-100"
+                                >
+                                  <MoreVertical className="h-4 w-4" />
+                                </Button>
+                              </DropdownMenuTrigger>
+                              <DropdownMenuContent align="end">
+                                <DropdownMenuItem
+                                  onClick={() => openDeleteDialog(audit)}
+                                  className="text-red-600 focus:text-red-600"
+                                >
+                                  <Trash2 className="h-4 w-4 mr-2" />
+                                  Удалить аудит
+                                </DropdownMenuItem>
+                              </DropdownMenuContent>
+                            </DropdownMenu>
                           </div>
                         </div>
                       ))}
@@ -696,6 +760,43 @@ export default function ProjectDetailPage() {
             }}
           />
         )}
+
+        {/* Диалог подтверждения удаления аудита */}
+        <AlertDialog open={deleteDialog.isOpen} onOpenChange={(open) => setDeleteDialog({ isOpen: open, audit: deleteDialog.audit })}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Удалить аудит?</AlertDialogTitle>
+              <AlertDialogDescription>
+                Вы уверены, что хотите удалить аудит <strong>"{deleteDialog.audit?.name}"</strong>?
+                <br />
+                <br />
+                Это действие нельзя отменить. Все данные аудита будут безвозвратно удалены.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel disabled={deleting}>
+                Отмена
+              </AlertDialogCancel>
+              <AlertDialogAction
+                onClick={handleDeleteAudit}
+                disabled={deleting}
+                className="bg-red-600 hover:bg-red-700 focus:ring-red-600"
+              >
+                {deleting ? (
+                  <div className="flex items-center gap-2">
+                    <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent"></div>
+                    Удаление...
+                  </div>
+                ) : (
+                  <div className="flex items-center gap-2">
+                    <Trash2 className="h-4 w-4" />
+                    Удалить аудит
+                  </div>
+                )}
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
 
       </div>
     </SidebarDemo>

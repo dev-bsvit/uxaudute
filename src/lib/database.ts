@@ -282,6 +282,22 @@ export async function deleteAnnotations(auditId: string): Promise<void> {
   if (error) throw error
 }
 
+export async function deleteAudit(auditId: string): Promise<void> {
+  // Сначала проверяем права доступа через getAudit
+  const audit = await getAudit(auditId)
+  if (!audit) {
+    throw new Error('Audit not found or access denied')
+  }
+
+  // Удаляем аудит
+  const { error } = await supabase
+    .from('audits')
+    .delete()
+    .eq('id', auditId)
+
+  if (error) throw error
+}
+
 
 
 export async function getAudit(id: string): Promise<Audit | null> {
