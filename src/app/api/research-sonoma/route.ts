@@ -240,7 +240,7 @@ ${url ? `Дополнительная информация: URL сайта: ${ur
           }
         ],
         temperature: 0.8,
-        max_tokens: 4000,
+        max_tokens: 8000,
         response_format: { type: "json_object" }
       })
 
@@ -258,7 +258,7 @@ ${url ? `Дополнительная информация: URL сайта: ${ur
         [{ role: 'user', content: analysisPrompt }],
         {
           temperature: 0.8,
-          max_tokens: 4000,
+          max_tokens: 8000,
           provider: 'openai' // Используем OpenAI как основной провайдер
         }
       )
