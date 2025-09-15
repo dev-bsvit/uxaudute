@@ -31,18 +31,35 @@ export async function POST(request: NextRequest) {
     const currentBalance = balanceData?.balance || 0
     const newBalance = currentBalance + amount
 
-    // Обновляем баланс
-    const { error: updateError } = await supabaseClient
-      .from('user_balances')
-      .upsert({
-        user_id: userId,
-        balance: newBalance,
-        grace_limit_used: false
-      })
+    // Обновляем или создаем баланс
+    if (balanceData) {
+      // Пользователь существует, обновляем
+      const { error: updateError } = await supabaseClient
+        .from('user_balances')
+        .update({
+          balance: newBalance,
+          grace_limit_used: false
+        })
+        .eq('user_id', userId)
 
-    if (updateError) {
-      console.error('Error updating balance:', updateError)
-      return NextResponse.json({ error: updateError.message }, { status: 500 })
+      if (updateError) {
+        console.error('Error updating balance:', updateError)
+        return NextResponse.json({ error: updateError.message }, { status: 500 })
+      }
+    } else {
+      // Пользователя нет, создаем
+      const { error: insertError } = await supabaseClient
+        .from('user_balances')
+        .insert({
+          user_id: userId,
+          balance: newBalance,
+          grace_limit_used: false
+        })
+
+      if (insertError) {
+        console.error('Error creating balance:', insertError)
+        return NextResponse.json({ error: insertError.message }, { status: 500 })
+      }
     }
 
     // Создаем транзакцию
