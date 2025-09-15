@@ -75,17 +75,11 @@ export async function GET(
 }
 
 function generateAuditHTML(audit: any): string {
-  const resultData = audit.result_data || {}
-  const inputData = audit.input_data || {}
-  
-  // Безопасное получение данных
-  const audience = resultData.audience || {}
-  const behavior = resultData.behavior || {}
-  const problems = resultData.problemsAndSolutions || []
-  const survey = resultData.uxSurvey || {}
-  const summary = survey.summary || {}
-  
-  return `
+  try {
+    const resultData = audit.result_data || {}
+    const inputData = audit.input_data || {}
+    
+    return `
 <!DOCTYPE html>
 <html lang="ru">
 <head>
@@ -163,4 +157,26 @@ function generateAuditHTML(audit: any): string {
 </body>
 </html>
   `
+  } catch (error) {
+    console.error('❌ Ошибка генерации HTML:', error)
+    return `
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ошибка загрузки аудита</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50">
+    <div class="min-h-screen flex items-center justify-center">
+        <div class="text-center">
+            <h1 class="text-2xl font-bold text-gray-900 mb-4">Ошибка загрузки аудита</h1>
+            <p class="text-gray-600">Произошла ошибка при генерации страницы аудита.</p>
+        </div>
+    </div>
+</body>
+</html>
+    `
+  }
 }
