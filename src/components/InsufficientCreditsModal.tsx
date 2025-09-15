@@ -38,7 +38,7 @@ export default function InsufficientCreditsModal({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className="sm:max-w-md" aria-describedby="insufficient-credits-description">
         <DialogHeader>
           <div className="flex items-center gap-2 mb-2">
             <div className="w-8 h-8 rounded-full bg-red-100 flex items-center justify-center">
@@ -48,7 +48,7 @@ export default function InsufficientCreditsModal({
               Недостаточно кредитов
             </DialogTitle>
           </div>
-          <DialogDescription className="text-gray-600">
+          <DialogDescription id="insufficient-credits-description" className="text-gray-600">
             Для проведения аудита необходимо больше кредитов, чем доступно на вашем счете.
           </DialogDescription>
         </DialogHeader>
