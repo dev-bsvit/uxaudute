@@ -73,6 +73,20 @@ export function Layout({ children, title = 'UX Audit', transparentHeader = false
             console.error('❌ Ошибка дополнительной проверки баланса:', err)
           }
         }, 2000)
+        
+        // Дополнительная проверка всех новых пользователей
+        setTimeout(async () => {
+          try {
+            console.log('🔍 Layout: проверяем всех новых пользователей...')
+            const response = await fetch('/api/ensure-all-users-have-credits', {
+              method: 'POST'
+            })
+            const data = await response.json()
+            console.log('🔍 Layout: результат проверки всех пользователей:', data)
+          } catch (err) {
+            console.error('❌ Layout: ошибка проверки всех пользователей:', err)
+          }
+        }, 4000)
       }
     })
 
