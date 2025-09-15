@@ -89,11 +89,11 @@ export default function CreditsPage() {
               <CreditCard className="h-6 w-6 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-sm text-muted-foreground mb-4">
-                Последнее обновление: {new Date().toLocaleString('ru-RU')}
-              </div>
-              <div className="text-4xl font-bold text-primary mb-2">13</div>
-              <p className="text-lg text-muted-foreground">кредитов</p>
+              <CreditsBalance
+                userId={userId}
+                showTransactions={false}
+                key={refreshBalance}
+              />
             </CardContent>
           </Card>
 
@@ -128,39 +128,11 @@ export default function CreditsPage() {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="space-y-4">
-                <div className="flex items-center justify-between p-4 border rounded-lg">
-                  <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center">
-                      <span className="text-green-600 font-semibold">+</span>
-                    </div>
-                    <div>
-                      <p className="font-medium">Test addition of credits</p>
-                      <p className="text-sm text-muted-foreground">12.09.2025, 15:19:55</p>
-                    </div>
-                  </div>
-                  <Badge variant="secondary" className="bg-green-100 text-green-800">
-                    +10 кредитов
-                  </Badge>
-                </div>
-                
-                <Separator />
-                
-                <div className="flex items-center justify-between p-4 border rounded-lg">
-                  <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 rounded-full bg-red-100 flex items-center justify-center">
-                      <span className="text-red-600 font-semibold">-</span>
-                    </div>
-                    <div>
-                      <p className="font-medium">Test deduction for research audit</p>
-                      <p className="text-sm text-muted-foreground">12.09.2025, 15:19:39</p>
-                    </div>
-                  </div>
-                  <Badge variant="secondary" className="bg-red-100 text-red-800">
-                    -2 кредита
-                  </Badge>
-                </div>
-              </div>
+              <CreditsBalance
+                userId={userId}
+                showTransactions={true}
+                key={refreshBalance}
+              />
             </CardContent>
           </Card>
 
