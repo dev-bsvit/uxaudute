@@ -216,6 +216,17 @@ export const executeAIRequest = async (
     } catch (error) {
       console.error(`❌ Ошибка провайдера ${providerName}:`, error)
       
+      // Если указан конкретный провайдер, не используем fallback
+      if (provider) {
+        return {
+          success: false,
+          content: '',
+          provider: config.provider,
+          model: config.model,
+          error: error instanceof Error ? error.message : 'Unknown error'
+        }
+      }
+      
       // Если это последний провайдер, возвращаем ошибку
       if (providerName === providers[providers.length - 1]) {
         return {
