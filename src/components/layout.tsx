@@ -58,6 +58,21 @@ export function Layout({ children, title = 'UX Audit', transparentHeader = false
         try {
           await ensureUserHasInitialBalance(session.user.id)
           console.log('✅ ensureUserHasInitialBalance выполнена успешно')
+          
+          // Дополнительно проверим баланс через API
+          setTimeout(async () => {
+            try {
+              const response = await fetch('/api/credits/balance', {
+                headers: {
+                  'Authorization': `Bearer ${session.session?.access_token}`
+                }
+              })
+              const data = await response.json()
+              console.log('🔍 Проверка баланса после ensureUserHasInitialBalance:', data)
+            } catch (err) {
+              console.error('❌ Ошибка проверки баланса:', err)
+            }
+          }, 1000)
         } catch (error) {
           console.error('❌ Ошибка при создании баланса:', error)
         }
