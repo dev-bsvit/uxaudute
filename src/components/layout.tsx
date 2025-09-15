@@ -60,15 +60,33 @@ export function Layout({ children, title = 'UX Audit', transparentHeader = false
       if (!user) return
       
       try {
+        const { data: session } = await supabase.auth.getSession()
+        if (!session?.session?.access_token) {
+          console.log('No access token available')
+          return
+        }
+
         const response = await fetch('/api/credits/balance', {
           method: 'GET',
           headers: {
-            'Authorization': `Bearer ${(await supabase.auth.getSession()).data.session?.access_token}`
+            'Authorization': `Bearer ${session.session.access_token}`
           }
         })
         const data = await response.json()
         if (data.success) {
           setCreditsBalance(data.balance)
+        } else {
+          console.error('Error fetching balance:', data.error)
+          // Fallback на демо API для отладки
+          try {
+            const demoResponse = await fetch('/api/credits/demo-balance')
+            const demoData = await demoResponse.json()
+            if (demoData.success) {
+              setCreditsBalance(demoData.balance)
+            }
+          } catch (demoError) {
+            console.error('Demo API also failed:', demoError)
+          }
         }
       } catch (error) {
         console.error('Error fetching credits balance:', error)

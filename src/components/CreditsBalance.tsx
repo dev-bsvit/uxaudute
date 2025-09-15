@@ -40,14 +40,34 @@ export default function CreditsBalance({ userId, showTransactions = false }: Cre
         setError(null)
 
         // Получаем баланс
+        const { data: session } = await supabase.auth.getSession()
+        if (!session?.session?.access_token) {
+          throw new Error('No access token available')
+        }
+
         const balanceResponse = await fetch('/api/credits/balance', {
           method: 'GET',
           headers: {
-            'Authorization': `Bearer ${(await supabase.auth.getSession()).data.session?.access_token}`
+            'Authorization': `Bearer ${session.session.access_token}`
           }
         })
 
         if (!balanceResponse.ok) {
+          console.error('Failed to fetch balance, trying demo API...')
+          // Fallback на демо API
+          const demoResponse = await fetch('/api/credits/demo-balance')
+          if (demoResponse.ok) {
+            const demoData = await demoResponse.json()
+            setBalance({
+              balance: demoData.balance,
+              grace_limit_used: demoData.grace_limit_used,
+              last_updated: new Date().toISOString()
+            })
+            if (showTransactions) {
+              setTransactions(demoData.transactions || [])
+            }
+            return
+          }
           throw new Error('Failed to fetch balance')
         }
 
