@@ -208,7 +208,7 @@ export default function ProjectDetailPage() {
             console.log('❌ Недостаточно кредитов:', errorData)
             alert(`Недостаточно кредитов для проведения аудита!\nТребуется: ${errorData.required_credits || 2} кредитов\nДоступно: ${errorData.current_balance || 0} кредитов\n\nПополните баланс кредитов для продолжения.`)
             setIsAnalyzing(false)
-            setIsLoading(false)
+            setLoading(false)
             return
           } catch (parseError) {
             console.error('Ошибка парсинга ответа:', parseError)
