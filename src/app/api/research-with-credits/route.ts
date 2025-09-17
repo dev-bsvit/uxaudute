@@ -116,23 +116,36 @@ export async function POST(request: NextRequest) {
 
     console.log('Анализ завершен, результат:', Object.keys(analysisResult || {}))
 
+    // Парсим результат если он в формате {content: "JSON_STRING"}
+    let parsedResult = analysisResult
+    if (analysisResult && typeof analysisResult === 'object' && 'content' in analysisResult) {
+      try {
+        console.log('Парсим content как JSON...')
+        parsedResult = JSON.parse((analysisResult as any).content)
+        console.log('Результат распарсен:', Object.keys(parsedResult || {}))
+      } catch (parseError) {
+        console.error('Ошибка парсинга content:', parseError)
+        parsedResult = analysisResult
+      }
+    }
+
     // Валидация результата
     let validation: any = { isValid: false, errors: [] }
     let surveyValidation: any = null
     let surveyAnalysis: any = null
 
-    if (analysisResult && isStructuredResponse(analysisResult as any)) {
+    if (parsedResult && isStructuredResponse(parsedResult as any)) {
       console.log('Результат структурированный, валидируем...')
       
       // Валидация опроса
-      if ((analysisResult as any).survey) {
-        surveyValidation = validateSurvey((analysisResult as any).survey)
+      if ((parsedResult as any).uxSurvey) {
+        surveyValidation = validateSurvey((parsedResult as any).uxSurvey)
         console.log('Валидация опроса:', surveyValidation)
       }
 
       // Анализ результатов опроса
-      if ((analysisResult as any).survey && surveyValidation?.isValid) {
-        surveyAnalysis = analyzeSurveyResults((analysisResult as any).survey)
+      if ((parsedResult as any).uxSurvey && surveyValidation?.isValid) {
+        surveyAnalysis = analyzeSurveyResults((parsedResult as any).uxSurvey)
         console.log('Анализ опроса:', surveyAnalysis)
       }
 
@@ -144,14 +157,14 @@ export async function POST(request: NextRequest) {
       try {
         console.log('Сохраняем результат в audits:', {
           auditId,
-          result_data: analysisResult as any,
+          result_data: parsedResult as any,
           status: 'completed'
         })
         
         const { error: auditUpdateError } = await supabase
           .from('audits')
           .update({
-            result_data: analysisResult as any,
+            result_data: parsedResult as any,
             status: 'completed',
             updated_at: new Date().toISOString()
           })
@@ -192,7 +205,7 @@ export async function POST(request: NextRequest) {
     console.log('Возвращаем успешный ответ...')
     return NextResponse.json({ 
       success: true,
-      data: analysisResult as any,
+      data: parsedResult as any,
       format: 'json',
       validation: {
         survey: surveyValidation,
