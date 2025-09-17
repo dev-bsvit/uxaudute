@@ -160,20 +160,15 @@ export default function DashboardPage() {
 
       setCurrentAudit(audit.id)
 
-      // Выбираем API endpoint в зависимости от провайдера и модели
-      let apiEndpoint: string
-      if (data.provider === 'openrouter' && data.openrouterModel === 'sonoma') {
-        apiEndpoint = '/api/research-sonoma'
-      } else if (data.provider === 'openrouter') {
-        apiEndpoint = '/api/research-stable'
-      } else {
-        apiEndpoint = '/api/research-json'
-      }
+      // Используем API с кредитами
       
       // Отправляем запрос на анализ
-      const response = await fetch(apiEndpoint, {
+      const response = await fetch('/api/research-with-credits', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${(await supabase.auth.getSession()).data.session?.access_token}`
+        },
         body: JSON.stringify({
           ...data,
           auditId: audit.id,
