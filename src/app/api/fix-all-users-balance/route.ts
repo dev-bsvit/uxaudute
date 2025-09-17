@@ -7,107 +7,113 @@ export async function POST(request: NextRequest) {
   try {
     const supabaseClient = createClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+      process.env.SUPABASE_SERVICE_ROLE_KEY!
     )
 
-    console.log('🔧 Исправляем баланс для всех пользователей без баланса')
+    console.log('🔧 Исправляем балансы всех пользователей...')
 
-    // Получаем всех пользователей
+    // Получаем всех пользователей из profiles
     const { data: profiles, error: profilesError } = await supabaseClient
       .from('profiles')
-      .select('id, email, created_at')
+      .select('id, email')
       .order('created_at', { ascending: false })
 
     if (profilesError) {
-      console.error('Ошибка получения профилей:', profilesError)
+      console.error('❌ Ошибка получения профилей:', profilesError)
       return NextResponse.json({ error: profilesError.message }, { status: 500 })
     }
 
-    // Получаем всех пользователей с балансами
-    const { data: balances, error: balancesError } = await supabaseClient
-      .from('user_balances')
-      .select('user_id, balance')
-
-    if (balancesError) {
-      console.error('Ошибка получения балансов:', balancesError)
-      return NextResponse.json({ error: balancesError.message }, { status: 500 })
-    }
-
-    const usersWithBalances = new Set(balances?.map(b => b.user_id) || [])
-    const usersWithoutBalance = profiles?.filter(p => !usersWithBalances.has(p.id)) || []
-
-    console.log(`📊 Найдено ${usersWithoutBalance.length} пользователей без баланса`)
+    console.log(`📊 Найдено профилей: ${profiles?.length || 0}`)
 
     const results = []
+    let fixedCount = 0
 
-    for (const user of usersWithoutBalance) {
+    for (const profile of profiles || []) {
       try {
-        console.log(`💰 Создаем баланс для ${user.email} (${user.id})`)
+        console.log(`🔍 Проверяем пользователя: ${profile.email} (${profile.id})`)
 
-        // Создаем баланс
-        const { data: balanceData, error: balanceError } = await supabaseClient
+        // Проверяем, есть ли баланс
+        const { data: balance, error: balanceError } = await supabaseClient
           .from('user_balances')
-          .insert({
-            user_id: user.id,
-            balance: 5,
-            grace_limit_used: false
-          })
-          .select()
+          .select('*')
+          .eq('user_id', profile.id)
+          .single()
 
-        if (balanceError) {
-          console.error(`❌ Ошибка создания баланса для ${user.email}:`, balanceError)
-          results.push({ user: user.email, success: false, error: balanceError.message })
+        if (balanceError && balanceError.code !== 'PGRST116') {
+          console.error(`❌ Ошибка получения баланса для ${profile.email}:`, balanceError)
           continue
         }
 
-        // Создаем транзакцию
-        const { data: transactionData, error: transactionError } = await supabaseClient
-          .from('transactions')
-          .insert({
-            user_id: user.id,
-            type: 'credit',
-            amount: 5,
-            balance_after: 5,
-            source: 'manual',
-            description: 'Исправление: создание начального баланса 5 кредитов'
-          })
-          .select()
+        // Создаем баланс если его нет
+        if (!balance) {
+          console.log(`💰 Создаем баланс для ${profile.email}`)
+          
+          const { error: createBalanceError } = await supabaseClient
+            .from('user_balances')
+            .insert({
+              user_id: profile.id,
+              balance: 5,
+              grace_limit_used: false
+            })
 
-        if (transactionError) {
-          console.error(`❌ Ошибка создания транзакции для ${user.email}:`, transactionError)
-          results.push({ user: user.email, success: false, error: transactionError.message })
-          continue
+          if (createBalanceError) {
+            console.error(`❌ Ошибка создания баланса для ${profile.email}:`, createBalanceError)
+            continue
+          }
+
+          // Создаем транзакцию
+          const { error: transactionError } = await supabaseClient
+            .from('transactions')
+            .insert({
+              user_id: profile.id,
+              type: 'credit',
+              amount: 5,
+              balance_after: 5,
+              source: 'manual_fix',
+              description: 'Исправление - начальные 5 кредитов'
+            })
+
+          if (transactionError) {
+            console.error(`❌ Ошибка создания транзакции для ${profile.email}:`, transactionError)
+            continue
+          }
+
+          fixedCount++
+          console.log(`✅ Исправлен пользователь: ${profile.email}`)
+        } else {
+          console.log(`✅ Пользователь ${profile.email} уже имеет баланс: ${balance.balance}`)
         }
 
-        console.log(`✅ Баланс создан для ${user.email}`)
-        results.push({ 
-          user: user.email, 
-          success: true, 
-          balance: balanceData?.[0],
-          transaction: transactionData?.[0]
+        results.push({
+          email: profile.email,
+          userId: profile.id,
+          hasBalance: !!balance,
+          balance: balance?.balance || 0,
+          fixed: !balance
         })
 
-      } catch (error) {
-        console.error(`❌ Ошибка для ${user.email}:`, error)
-        results.push({ 
-          user: user.email, 
-          success: false, 
-          error: error instanceof Error ? error.message : 'Unknown error'
+      } catch (userError) {
+        console.error(`❌ Ошибка обработки пользователя ${profile.email}:`, userError)
+        results.push({
+          email: profile.email,
+          userId: profile.id,
+          error: userError instanceof Error ? userError.message : 'Unknown error'
         })
       }
     }
 
-    return NextResponse.json({ 
-      success: true, 
-      message: `Обработано ${usersWithoutBalance.length} пользователей`,
-      results,
-      totalProcessed: usersWithoutBalance.length,
-      successful: results.filter(r => r.success).length,
-      failed: results.filter(r => !r.success).length
+    console.log(`✅ Исправлено пользователей: ${fixedCount}`)
+
+    return NextResponse.json({
+      success: true,
+      message: `Исправлено ${fixedCount} пользователей`,
+      total: profiles?.length || 0,
+      fixed: fixedCount,
+      results
     })
 
   } catch (error) {
-    console.error('Error in POST /api/fix-all-users-balance:', error)
+    console.error('❌ Ошибка исправления пользователей:', error)
     return NextResponse.json({
       error: 'Internal server error',
       details: error instanceof Error ? error.message : 'Unknown error'
