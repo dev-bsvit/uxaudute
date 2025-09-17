@@ -1,6 +1,8 @@
 import React from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { RefreshCw } from 'lucide-react'
+import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
+import { RefreshCw, TrendingUp, DollarSign, Target, BarChart3, Users, Zap } from 'lucide-react'
 
 interface BusinessTextDisplayProps {
   data: { result: string } | null
@@ -29,88 +31,157 @@ export const BusinessTextDisplay: React.FC<BusinessTextDisplayProps> = ({
   if (!data || !data.result) {
     return (
       <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center justify-between">
-            <span>Бизнес аналитика</span>
+        <CardContent className="p-8 text-center">
+          <div className="flex flex-col items-center space-y-4">
+            <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center">
+              <BarChart3 className="w-8 h-8 text-blue-600" />
+            </div>
+            <h3 className="text-lg font-semibold text-gray-900">Бизнес аналитика не сгенерирована</h3>
+            <p className="text-gray-600 max-w-md">
+              Получите детальный анализ влияния UX проблем на бизнес-метрики и рекомендации по улучшению
+            </p>
             {onGenerate && (
-              <button
-                onClick={onGenerate}
-                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-              >
-                Сгенерировать
-              </button>
+              <Button onClick={onGenerate} className="w-full max-w-xs">
+                <BarChart3 className="w-4 h-4 mr-2" />
+                Получить бизнес аналитику
+              </Button>
             )}
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <p className="text-gray-500">Бизнес аналитика еще не сгенерирована</p>
+          </div>
         </CardContent>
       </Card>
     )
   }
 
+  // Парсим текст для структурированного отображения
+  const parseBusinessAnalytics = (text: string) => {
+    const sections = text.split(/\n(?=## )/);
+    const parsedSections: Array<{
+      title: string;
+      icon: React.ReactNode;
+      content: string[];
+      type: 'metrics' | 'roi' | 'rice' | 'recommendations' | 'other';
+    }> = [];
+
+    sections.forEach(section => {
+      const lines = section.trim().split('\n');
+      const title = lines[0]?.replace(/^## /, '') || '';
+      const content = lines.slice(1).filter(line => line.trim());
+      
+      let icon = <BarChart3 className="w-5 h-5" />;
+      let type: 'metrics' | 'roi' | 'rice' | 'recommendations' | 'other' = 'other';
+      
+      if (title.toLowerCase().includes('влияние') || title.toLowerCase().includes('метрики')) {
+        icon = <TrendingUp className="w-5 h-5" />;
+        type = 'metrics';
+      } else if (title.toLowerCase().includes('roi') || title.toLowerCase().includes('окупаемость')) {
+        icon = <DollarSign className="w-5 h-5" />;
+        type = 'roi';
+      } else if (title.toLowerCase().includes('rice') || title.toLowerCase().includes('приоритизация')) {
+        icon = <Target className="w-5 h-5" />;
+        type = 'rice';
+      } else if (title.toLowerCase().includes('рекомендации') || title.toLowerCase().includes('рост')) {
+        icon = <Zap className="w-5 h-5" />;
+        type = 'recommendations';
+      }
+
+      if (title && content.length > 0) {
+        parsedSections.push({ title, icon, content, type });
+      }
+    });
+
+    return parsedSections;
+  };
+
+  const sections = parseBusinessAnalytics(data.result);
+
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Бизнес аналитика</CardTitle>
-      </CardHeader>
-      <CardContent>
-        <div className="max-w-none">
-          <div className="whitespace-pre-wrap text-sm leading-relaxed text-gray-700 space-y-4">
-            {data.result.split('\n\n').map((paragraph, index) => (
-              <p key={index} className="mb-4 text-gray-700 leading-relaxed">
-                {paragraph.split('\n').map((line, lineIndex) => {
-                  // Обработка заголовков
-                  if (line.startsWith('### ')) {
-                    return (
-                      <h3 key={lineIndex} className="text-lg font-semibold text-gray-900 mt-6 mb-3 border-b border-gray-200 pb-2">
-                        {line.replace('### ', '')}
-                      </h3>
-                    )
-                  }
-                  if (line.startsWith('## ')) {
-                    return (
-                      <h2 key={lineIndex} className="text-xl font-semibold text-gray-900 mt-8 mb-4 border-b border-gray-300 pb-2">
-                        {line.replace('## ', '')}
-                      </h2>
-                    )
-                  }
-                  if (line.startsWith('# ')) {
-                    return (
-                      <h1 key={lineIndex} className="text-2xl font-bold text-gray-900 mt-8 mb-6 border-b-2 border-gray-400 pb-3">
-                        {line.replace('# ', '')}
-                      </h1>
-                    )
-                  }
-                  // Обработка списков
-                  if (line.startsWith('- ')) {
-                    return (
-                      <div key={lineIndex} className="ml-6 mb-2 flex items-start">
-                        <span className="text-blue-600 mr-2">•</span>
-                        <span className="text-gray-700">{line.replace('- ', '')}</span>
-                      </div>
-                    )
-                  }
-                  if (line.match(/^\d+\. /)) {
-                    return (
-                      <div key={lineIndex} className="ml-6 mb-2 flex items-start">
-                        <span className="text-blue-600 mr-2 font-semibold">{line.match(/^\d+\./)?.[0]}</span>
-                        <span className="text-gray-700">{line.replace(/^\d+\. /, '')}</span>
-                      </div>
-                    )
-                  }
-                  // Обычный текст
+    <div className="space-y-6">
+      {/* Заголовок */}
+      <div className="text-center">
+        <h2 className="text-3xl font-bold text-gray-900 mb-2 flex items-center justify-center gap-3">
+          <BarChart3 className="w-8 h-8 text-blue-600" />
+          Бизнес аналитика
+        </h2>
+        <p className="text-gray-600">Анализ влияния UX проблем на бизнес-метрики</p>
+      </div>
+
+      {/* Секции */}
+      {sections.map((section, index) => (
+        <Card key={index} className="overflow-hidden">
+          <CardHeader className="bg-gradient-to-r from-blue-50 to-indigo-50 border-b">
+            <CardTitle className="flex items-center gap-3 text-lg">
+              {section.icon}
+              {section.title}
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="p-6">
+            <div className="space-y-4">
+              {section.content.map((line, lineIndex) => {
+                // Обработка подзаголовков
+                if (line.startsWith('### ')) {
                   return (
-                    <span key={lineIndex} className="text-gray-700">
+                    <h4 key={lineIndex} className="text-md font-semibold text-gray-900 mt-4 mb-2 flex items-center gap-2">
+                      <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                      {line.replace('### ', '')}
+                    </h4>
+                  );
+                }
+                
+                // Обработка списков
+                if (line.startsWith('- ')) {
+                  return (
+                    <div key={lineIndex} className="flex items-start gap-3 ml-4">
+                      <div className="w-1.5 h-1.5 bg-blue-500 rounded-full mt-2 flex-shrink-0"></div>
+                      <span className="text-gray-700 leading-relaxed">{line.replace('- ', '')}</span>
+                    </div>
+                  );
+                }
+                
+                if (line.match(/^\d+\. /)) {
+                  return (
+                    <div key={lineIndex} className="flex items-start gap-3 ml-4">
+                      <Badge variant="outline" className="text-xs bg-blue-50 text-blue-700 border-blue-200">
+                        {line.match(/^\d+\./)?.[0]}
+                      </Badge>
+                      <span className="text-gray-700 leading-relaxed">{line.replace(/^\d+\. /, '')}</span>
+                    </div>
+                  );
+                }
+                
+                // Обычный текст
+                if (line.trim()) {
+                  return (
+                    <p key={lineIndex} className="text-gray-700 leading-relaxed">
                       {line}
-                    </span>
-                  )
-                })}
-              </p>
-            ))}
-          </div>
-        </div>
-      </CardContent>
-    </Card>
+                    </p>
+                  );
+                }
+                
+                return null;
+              })}
+            </div>
+          </CardContent>
+        </Card>
+      ))}
+
+      {/* Если не удалось распарсить, показываем как есть */}
+      {sections.length === 0 && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-3">
+              <BarChart3 className="w-5 h-5" />
+              Бизнес аналитика
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="prose prose-slate max-w-none">
+              <div className="whitespace-pre-wrap text-gray-700 leading-relaxed">
+                {data.result}
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+    </div>
   )
 }
