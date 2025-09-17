@@ -20,6 +20,8 @@ import { StructuredAnalysisResponse } from '@/lib/analysis-types'
 import Link from 'next/link'
 
 export default function DashboardPage() {
+  console.log('🔍 DashboardPage компонент загружен')
+  
   const [user, setUser] = useState<User | null>(null)
   const [loading, setLoading] = useState(true)
   const [result, setResult] = useState<string | StructuredAnalysisResponse | null>(null)
