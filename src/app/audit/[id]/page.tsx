@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useParams } from 'next/navigation'
-import { AnalysisResult } from '@/components/analysis-result'
+import { AnalysisResultDisplay } from '@/components/analysis-result-display'
 import { ABTestDisplay } from '@/components/ab-test-display'
 import { HypothesesDisplay } from '@/components/hypotheses-display'
 import { BusinessAnalyticsDisplay } from '@/components/business-analytics-display'
@@ -328,44 +328,25 @@ export default function AuditPage() {
             </TabsList>
             
             <TabsContent value="ux-analysis">
-              <Card>
-                <CardHeader>
-                  <CardTitle>UX Анализ</CardTitle>
-                  <p className="text-sm text-muted-foreground">
-                    Полный анализ пользовательского опыта интерфейса
-                  </p>
-                </CardHeader>
-                <CardContent>
-                  {(() => {
-                    console.log('Отображаем результат аудита:', audit.result_data)
-                    console.log('Ключи result_data:', Object.keys(audit.result_data))
-                    console.log('analysis_result:', audit.result_data.analysis_result)
-                    console.log('Весь result_data:', JSON.stringify(audit.result_data, null, 2))
-                    
-                    // result_data содержит напрямую результат анализа
-                    const result = audit.result_data
-                    console.log('Результат для AnalysisResult:', result)
-                    return (
-                      <AnalysisResult 
-                        result={result}
-                        screenshot={audit.input_data?.screenshotUrl}
-                        url={audit.input_data?.url}
-                        auditId={audit.id}
-                      />
-                    )
-                  })()}
-                </CardContent>
-                <CardFooter className="flex gap-2">
-                  <Button variant="outline" size="sm">
-                    <Download className="w-4 h-4 mr-2" />
-                    Скачать отчет
-                  </Button>
-                  <Button variant="outline" size="sm">
-                    <Share2 className="w-4 h-4 mr-2" />
-                    Поделиться
-                  </Button>
-                </CardFooter>
-              </Card>
+              {(() => {
+                console.log('Отображаем результат аудита:', audit.result_data)
+                console.log('Ключи result_data:', Object.keys(audit.result_data))
+                console.log('analysis_result:', audit.result_data.analysis_result)
+                console.log('Весь result_data:', JSON.stringify(audit.result_data, null, 2))
+                
+                // result_data содержит напрямую результат анализа
+                const result = audit.result_data
+                console.log('Результат для AnalysisResultDisplay:', result)
+                return (
+                  <AnalysisResultDisplay 
+                    analysis={result}
+                    screenshot={audit.input_data?.screenshotUrl}
+                    url={audit.input_data?.url}
+                    auditId={audit.id}
+                    showDetails={true}
+                  />
+                )
+              })()}
             </TabsContent>
             
             <TabsContent value="ab-test">
