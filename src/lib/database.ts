@@ -1,4 +1,5 @@
 import { supabase } from './supabase'
+import { createClient } from '@supabase/supabase-js'
 import type { Database } from './database.types'
 
 type Tables = Database['public']['Tables']
@@ -282,6 +283,22 @@ export async function deleteAnnotations(auditId: string): Promise<void> {
   if (error) throw error
 }
 
+export async function deleteAudit(auditId: string): Promise<void> {
+  // Сначала проверяем права доступа через getAudit
+  const audit = await getAudit(auditId)
+  if (!audit) {
+    throw new Error('Audit not found or access denied')
+  }
+
+  // Удаляем аудит
+  const { error } = await supabase
+    .from('audits')
+    .delete()
+    .eq('id', auditId)
+
+  if (error) throw error
+}
+
 
 
 export async function getAudit(id: string): Promise<Audit | null> {
@@ -409,6 +426,12 @@ export async function signUpWithEmail(email: string, password: string, fullName:
     }
   })
   if (error) throw error
+  
+  // Если регистрация успешна и есть пользователь, создаем начальный баланс
+  if (data.user) {
+    await ensureUserHasInitialBalance(data.user.id)
+  }
+  
   return data
 }
 
@@ -426,4 +449,45 @@ export async function signInWithGoogle() {
 export async function signOut() {
   const { error } = await supabase.auth.signOut()
   if (error) throw error
+}
+
+export async function ensureUserHasInitialBalance(userId: string): Promise<void> {
+  try {
+    console.log('🔍 ensureUserHasInitialBalance вызвана для пользователя:', userId)
+    console.log('🔍 Текущее время в ensureUserHasInitialBalance:', new Date().toISOString())
+    console.log('🔍 URL для API:', '/api/ensure-user-balance')
+    
+    // Вызываем API для создания баланса
+    console.log('🔍 Отправляем запрос к API ensure-user-balance...')
+    const response = await fetch('/api/ensure-user-balance', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ userId })
+    })
+
+    console.log('🔍 Ответ от API:', { 
+      status: response.status, 
+      ok: response.ok, 
+      statusText: response.statusText 
+    })
+
+    if (!response.ok) {
+      const errorData = await response.json()
+      console.error('❌ Ошибка API ensure-user-balance:', errorData)
+      console.error('❌ Статус ответа:', response.status)
+      return
+    }
+
+    const result = await response.json()
+    console.log('✅ ensureUserHasInitialBalance API результат:', result)
+    console.log('✅ Успешно обработано для пользователя:', userId)
+    
+  } catch (error) {
+    console.error('❌ Ошибка при вызове API ensure-user-balance:', error)
+    console.error('❌ Детали ошибки:', error)
+    console.error('❌ Тип ошибки:', typeof error)
+    console.error('❌ Stack trace:', error instanceof Error ? error.stack : 'No stack')
+  }
 }
