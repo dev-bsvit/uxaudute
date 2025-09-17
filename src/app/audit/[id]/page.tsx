@@ -334,8 +334,19 @@ export default function AuditPage() {
                 console.log('analysis_result:', audit.result_data.analysis_result)
                 console.log('Весь result_data:', JSON.stringify(audit.result_data, null, 2))
                 
-                // result_data содержит напрямую результат анализа
-                const result = audit.result_data
+                // Парсим результат если он в формате {content: "JSON_STRING"}
+                let result = audit.result_data
+                if (result && typeof result === 'object' && 'content' in result) {
+                  try {
+                    console.log('Парсим content как JSON...')
+                    result = JSON.parse(result.content)
+                    console.log('Результат распарсен:', Object.keys(result || {}))
+                  } catch (parseError) {
+                    console.error('Ошибка парсинга content:', parseError)
+                    result = audit.result_data
+                  }
+                }
+                
                 console.log('Результат для AnalysisResultDisplay:', result)
                 return (
                   <AnalysisResultDisplay 
