@@ -22,18 +22,29 @@ export function UploadForm({ onSubmit, isLoading }: UploadFormProps) {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    console.log('🔍 UploadForm handleSubmit вызвана')
+    console.log('🔍 activeTab:', activeTab)
+    console.log('🔍 url:', url)
+    console.log('🔍 file:', file?.name)
+    console.log('🔍 context:', context?.substring(0, 100) + '...')
+    
     const providerData = { provider, openrouterModel }
     
     if (activeTab === 'url' && url) {
+      console.log('✅ Отправляем URL анализ')
       onSubmit({ url, context, ...providerData })
     } else if (activeTab === 'upload' && file) {
+      console.log('✅ Отправляем файл анализ')
       // Конвертируем файл в base64
       const reader = new FileReader()
       reader.onload = () => {
         const base64String = reader.result as string
+        console.log('✅ Файл конвертирован в base64, отправляем')
         onSubmit({ screenshot: base64String, context, ...providerData })
       }
       reader.readAsDataURL(file)
+    } else {
+      console.log('❌ Нет данных для отправки')
     }
   }
 
