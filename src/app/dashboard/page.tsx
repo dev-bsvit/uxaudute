@@ -109,10 +109,15 @@ export default function DashboardPage() {
   }, [user, loading])
 
   const handleUpload = async (data: { url?: string; screenshot?: string; context?: string }) => {
+    console.log('🔍 handleUpload вызвана с данными:', data)
+    
     if (!user) {
+      console.log('❌ Пользователь не авторизован')
       alert('Пожалуйста, войдите в систему для выполнения анализа')
       return
     }
+
+    console.log('✅ Пользователь авторизован:', user.email)
 
     // Сохраняем данные для отображения
     setUploadedScreenshot(data.screenshot || null)
@@ -123,11 +128,21 @@ export default function DashboardPage() {
   }
 
   const handleContextSubmit = async (context: string, uploadData?: { url?: string; screenshot?: string; provider?: string; openrouterModel?: string }) => {
-    if (!user) return
+    console.log('🔍 handleContextSubmit вызвана с контекстом:', context?.substring(0, 100) + '...')
+    console.log('🔍 uploadData:', uploadData)
+    
+    if (!user) {
+      console.log('❌ Пользователь не авторизован в handleContextSubmit')
+      return
+    }
 
     const data = uploadData || pendingUploadData
-    if (!data) return
+    if (!data) {
+      console.log('❌ Нет данных для анализа')
+      return
+    }
 
+    console.log('✅ Начинаем анализ с данными:', data)
     setIsLoading(true)
     setIsAnalyzing(true)
     setShowContextForm(false)
