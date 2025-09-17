@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Sidebar, SidebarBody, SidebarLink } from "./ui/sidebar";
 import {
   IconArrowLeft,
@@ -10,12 +10,14 @@ import {
   IconFolder,
   IconChartBar,
   IconLogout,
+  IconCreditCard,
 } from "@tabler/icons-react";
 import { motion } from "motion/react";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 import { User } from "@supabase/supabase-js";
 import { signOut } from "@/lib/database";
+import { supabase } from "@/lib/supabase";
 
 interface SidebarDemoProps {
   children: React.ReactNode;
@@ -23,6 +25,8 @@ interface SidebarDemoProps {
 }
 
 export function SidebarDemo({ children, user }: SidebarDemoProps) {
+  const [creditsBalance, setCreditsBalance] = useState<number | null>(null);
+
   const links = [
     {
       label: "Главная",
@@ -46,6 +50,13 @@ export function SidebarDemo({ children, user }: SidebarDemoProps) {
       ),
     },
     {
+      label: "Счет",
+      href: "/credits",
+      icon: (
+        <IconCreditCard className="h-5 w-5 shrink-0 text-white" />
+      ),
+    },
+    {
       label: "Настройки",
       href: "/settings",
       icon: (
@@ -55,6 +66,40 @@ export function SidebarDemo({ children, user }: SidebarDemoProps) {
   ];
 
   const [open, setOpen] = useState(true);
+
+  // Загружаем баланс кредитов
+  useEffect(() => {
+    const fetchCreditsBalance = async () => {
+      if (!user) return;
+      
+      try {
+        const { data: session } = await supabase.auth.getSession();
+        if (!session?.session?.access_token) {
+          console.log('No access token available');
+          return;
+        }
+
+        const response = await fetch('/api/credits/balance', {
+          method: 'GET',
+          headers: {
+            'Authorization': `Bearer ${session.session.access_token}`
+          }
+        });
+        const data = await response.json();
+        if (data.success) {
+          setCreditsBalance(data.balance);
+        } else {
+          console.error('Error fetching balance:', data.error);
+        }
+      } catch (error) {
+        console.error('Error fetching credits balance:', error);
+      }
+    };
+
+    if (user) {
+      fetchCreditsBalance();
+    }
+  }, [user]);
 
   const handleLogout = async () => {
     try {
@@ -83,6 +128,17 @@ export function SidebarDemo({ children, user }: SidebarDemoProps) {
               {links.map((link, idx) => (
                 <SidebarLink key={idx} link={link} />
               ))}
+              
+              {/* Баланс кредитов */}
+              <div className="mt-4 p-3 bg-white/10 rounded-lg">
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-white/80">Баланс кредитов</span>
+                  <span className="text-lg font-bold text-white">
+                    {creditsBalance !== null ? creditsBalance : '...'}
+                  </span>
+                </div>
+              </div>
+              
               <button
                 onClick={handleLogout}
                 className="flex items-center gap-3 px-3 py-2 text-sm font-medium text-white hover:bg-white/20 rounded-lg transition-colors"
