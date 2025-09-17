@@ -14,7 +14,7 @@ import { Download, Share2, RefreshCw } from 'lucide-react'
 import { BackArrow } from '@/components/icons/back-arrow'
 import { supabase } from '@/lib/supabase'
 import { User } from '@supabase/supabase-js'
-import { ABTestResponse, HypothesisResponse, BusinessAnalyticsResponse } from '@/lib/analysis-types'
+import { ABTestResponse, HypothesisResponse } from '@/lib/analysis-types'
 import Link from 'next/link'
 
 interface Audit {
@@ -45,7 +45,7 @@ export default function AuditPage() {
   const [abTestLoading, setAbTestLoading] = useState(false)
   const [hypothesesData, setHypothesesData] = useState<HypothesisResponse | null>(null)
   const [hypothesesLoading, setHypothesesLoading] = useState(false)
-  const [businessAnalyticsData, setBusinessAnalyticsData] = useState<BusinessAnalyticsResponse | null>(null)
+  const [businessAnalyticsData, setBusinessAnalyticsData] = useState<{ result: string } | null>(null)
   const [businessAnalyticsLoading, setBusinessAnalyticsLoading] = useState(false)
 
   // Функция для генерации AB тестов
