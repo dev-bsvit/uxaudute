@@ -49,11 +49,14 @@ export async function POST(request: NextRequest) {
     }
 
     // Проверяем кредиты перед запуском аудита
-    console.log('Проверяем кредиты для пользователя:', user.id)
+    console.log('🔍 Проверяем кредиты для пользователя:', user.id)
+    console.log('🔍 Тип аудита: research')
+    
     const creditsCheck = await checkCreditsForAudit(user.id, 'research')
+    console.log('🔍 Результат проверки кредитов:', JSON.stringify(creditsCheck, null, 2))
     
     if (!creditsCheck.canProceed) {
-      console.log('Недостаточно кредитов:', creditsCheck)
+      console.log('❌ Недостаточно кредитов:', creditsCheck)
       return NextResponse.json({
         error: 'Insufficient credits',
         message: creditsCheck.message,
@@ -63,7 +66,7 @@ export async function POST(request: NextRequest) {
       }, { status: 402 }) // 402 Payment Required
     }
 
-    console.log('Кредиты проверены успешно:', creditsCheck)
+    console.log('✅ Кредиты проверены успешно:', creditsCheck)
 
     // Загружаем промпт в зависимости от модели
     console.log('Загружаем промпт...')

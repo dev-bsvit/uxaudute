@@ -30,7 +30,10 @@ export async function checkCreditsForAudit(
   auditType: 'research' | 'ab_test' | 'business' | 'hypotheses'
 ): Promise<CreditsCheckResult> {
   try {
+    console.log('🔍 checkCreditsForAudit: userId=', userId, 'auditType=', auditType)
+    
     // Получаем стоимость аудита
+    console.log('🔍 Получаем стоимость аудита из audit_credits...')
     const { data: auditCost, error: costError } = await supabaseClient
       .from('audit_credits')
       .select('credits_cost')
@@ -38,8 +41,10 @@ export async function checkCreditsForAudit(
       .eq('is_active', true)
       .single()
 
+    console.log('🔍 Результат запроса стоимости:', { auditCost, costError })
+
     if (costError || !auditCost) {
-      console.error('Error fetching audit cost:', costError)
+      console.error('❌ Error fetching audit cost:', costError)
       return {
         canProceed: false,
         isTestAccount: false,
@@ -50,16 +55,21 @@ export async function checkCreditsForAudit(
     }
 
     const requiredCredits = auditCost.credits_cost
+    console.log('🔍 Требуется кредитов:', requiredCredits)
 
     // Проверяем, является ли пользователь тестовым
-    const { data: profile } = await supabaseClient
+    console.log('🔍 Проверяем профиль пользователя...')
+    const { data: profile, error: profileError } = await supabaseClient
       .from('profiles')
       .select('is_test_account')
       .eq('id', userId)
       .single()
 
+    console.log('🔍 Результат запроса профиля:', { profile, profileError })
+
     // Если тестовый аккаунт, разрешаем без списания
     if (profile?.is_test_account) {
+      console.log('✅ Тестовый аккаунт - разрешаем без списания')
       return {
         canProceed: true,
         isTestAccount: true,
@@ -70,14 +80,17 @@ export async function checkCreditsForAudit(
     }
 
     // Проверяем возможность списания
+    console.log('🔍 Проверяем возможность списания через RPC...')
     const { data: canDeduct, error } = await supabaseClient
       .rpc('can_deduct_credits', {
         user_uuid: userId,
         amount: requiredCredits
       })
 
+    console.log('🔍 Результат RPC can_deduct_credits:', { canDeduct, error })
+
     if (error) {
-      console.error('Error checking credits:', error)
+      console.error('❌ Error checking credits:', error)
       return {
         canProceed: false,
         isTestAccount: false,
@@ -88,13 +101,16 @@ export async function checkCreditsForAudit(
     }
 
     // Получаем текущий баланс
-    const { data: balance } = await supabaseClient
+    console.log('🔍 Получаем текущий баланс...')
+    const { data: balance, error: balanceError } = await supabaseClient
       .from('user_balances')
       .select('balance')
       .eq('user_id', userId)
       .single()
 
-    return {
+    console.log('🔍 Результат запроса баланса:', { balance, balanceError })
+
+    const result = {
       canProceed: canDeduct,
       isTestAccount: false,
       currentBalance: balance?.balance || 0,
@@ -102,8 +118,11 @@ export async function checkCreditsForAudit(
       message: canDeduct ? 'Credits available' : 'Insufficient credits'
     }
 
+    console.log('🔍 Финальный результат checkCreditsForAudit:', result)
+    return result
+
   } catch (error) {
-    console.error('Error in checkCreditsForAudit:', error)
+    console.error('❌ Error in checkCreditsForAudit:', error)
     return {
       canProceed: false,
       isTestAccount: false,
