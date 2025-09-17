@@ -165,9 +165,37 @@ BEGIN
 END;
 $$;
 
+-- Функция для проверки возможности списания кредитов
+CREATE OR REPLACE FUNCTION can_deduct_credits(
+    user_uuid UUID,
+    amount INTEGER
+)
+RETURNS BOOLEAN
+LANGUAGE plpgsql
+SECURITY DEFINER
+AS $$
+DECLARE
+    current_balance INTEGER;
+BEGIN
+    -- Получаем текущий баланс
+    SELECT COALESCE(balance, 0) INTO current_balance
+    FROM user_balances
+    WHERE user_id = user_uuid;
+    
+    -- Если пользователя нет, возвращаем FALSE
+    IF current_balance IS NULL THEN
+        RETURN FALSE;
+    END IF;
+    
+    -- Проверяем, достаточно ли кредитов
+    RETURN current_balance >= amount;
+END;
+$$;
+
 -- Предоставляем права на выполнение функций
 GRANT EXECUTE ON FUNCTION get_user_balance(UUID) TO authenticated;
 GRANT EXECUTE ON FUNCTION deduct_credits(UUID, INTEGER, TEXT, TEXT) TO authenticated;
 GRANT EXECUTE ON FUNCTION add_credits(UUID, INTEGER, TEXT, TEXT) TO authenticated;
+GRANT EXECUTE ON FUNCTION can_deduct_credits(UUID, INTEGER) TO authenticated;
 
 SELECT 'RPC functions created successfully' as status;
