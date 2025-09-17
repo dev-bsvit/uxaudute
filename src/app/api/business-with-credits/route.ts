@@ -93,6 +93,43 @@ ${context}
 
     const result = completion.choices[0]?.message?.content || 'Не удалось создать бизнес-анализ'
 
+    // Сохраняем результат бизнес аналитики в базу данных
+    if (auditId) {
+      try {
+        console.log('Сохраняем результат бизнес аналитики в базу:', auditId)
+        
+        // Получаем текущие данные аудита
+        const { data: currentAudit, error: fetchError } = await supabase
+          .from('audits')
+          .select('result_data')
+          .eq('id', auditId)
+          .single()
+
+        if (fetchError) {
+          console.error('Ошибка получения данных аудита:', fetchError)
+        } else {
+          // Обновляем result_data с бизнес аналитикой
+          const { error: updateError } = await supabase
+            .from('audits')
+            .update({
+              result_data: {
+                ...currentAudit?.result_data,
+                business_analytics: { result }
+              }
+            })
+            .eq('id', auditId)
+
+          if (updateError) {
+            console.error('Ошибка сохранения бизнес аналитики:', updateError)
+          } else {
+            console.log('✅ Бизнес аналитика успешно сохранена в базу')
+          }
+        }
+      } catch (saveError) {
+        console.error('Ошибка при сохранении бизнес аналитики:', saveError)
+      }
+    }
+
     // Списываем кредиты после успешного выполнения бизнес анализа
     if (auditId) {
       console.log('Списываем кредиты за бизнес анализ:', auditId)
