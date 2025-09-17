@@ -55,9 +55,59 @@ export const BusinessTextDisplay: React.FC<BusinessTextDisplayProps> = ({
         <CardTitle>Бизнес аналитика</CardTitle>
       </CardHeader>
       <CardContent>
-        <div className="prose max-w-none">
-          <div className="whitespace-pre-wrap text-sm leading-relaxed">
-            {data.result}
+        <div className="max-w-none">
+          <div className="whitespace-pre-wrap text-sm leading-relaxed text-gray-700 space-y-4">
+            {data.result.split('\n\n').map((paragraph, index) => (
+              <p key={index} className="mb-4 text-gray-700 leading-relaxed">
+                {paragraph.split('\n').map((line, lineIndex) => {
+                  // Обработка заголовков
+                  if (line.startsWith('### ')) {
+                    return (
+                      <h3 key={lineIndex} className="text-lg font-semibold text-gray-900 mt-6 mb-3 border-b border-gray-200 pb-2">
+                        {line.replace('### ', '')}
+                      </h3>
+                    )
+                  }
+                  if (line.startsWith('## ')) {
+                    return (
+                      <h2 key={lineIndex} className="text-xl font-semibold text-gray-900 mt-8 mb-4 border-b border-gray-300 pb-2">
+                        {line.replace('## ', '')}
+                      </h2>
+                    )
+                  }
+                  if (line.startsWith('# ')) {
+                    return (
+                      <h1 key={lineIndex} className="text-2xl font-bold text-gray-900 mt-8 mb-6 border-b-2 border-gray-400 pb-3">
+                        {line.replace('# ', '')}
+                      </h1>
+                    )
+                  }
+                  // Обработка списков
+                  if (line.startsWith('- ')) {
+                    return (
+                      <div key={lineIndex} className="ml-6 mb-2 flex items-start">
+                        <span className="text-blue-600 mr-2">•</span>
+                        <span className="text-gray-700">{line.replace('- ', '')}</span>
+                      </div>
+                    )
+                  }
+                  if (line.match(/^\d+\. /)) {
+                    return (
+                      <div key={lineIndex} className="ml-6 mb-2 flex items-start">
+                        <span className="text-blue-600 mr-2 font-semibold">{line.match(/^\d+\./)?.[0]}</span>
+                        <span className="text-gray-700">{line.replace(/^\d+\. /, '')}</span>
+                      </div>
+                    )
+                  }
+                  // Обычный текст
+                  return (
+                    <span key={lineIndex} className="text-gray-700">
+                      {line}
+                    </span>
+                  )
+                })}
+              </p>
+            ))}
           </div>
         </div>
       </CardContent>
