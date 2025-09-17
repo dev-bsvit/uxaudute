@@ -5,7 +5,7 @@ import { useParams } from 'next/navigation'
 import { AnalysisResultDisplay } from '@/components/analysis-result-display'
 import { ABTestDisplay } from '@/components/ab-test-display'
 import { HypothesesDisplay } from '@/components/hypotheses-display'
-import { BusinessAnalyticsDisplay } from '@/components/business-analytics-display'
+import { BusinessTextDisplay } from '@/components/business-text-display'
 import { SidebarDemo } from '@/components/sidebar-demo'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card'
@@ -423,7 +423,7 @@ export default function AuditPage() {
             </TabsContent>
             
             <TabsContent value="analytics">
-              <BusinessAnalyticsDisplay 
+              <BusinessTextDisplay 
                 data={businessAnalyticsData}
                 isLoading={businessAnalyticsLoading}
                 onGenerate={audit?.status === 'completed' ? generateBusinessAnalytics : undefined}
