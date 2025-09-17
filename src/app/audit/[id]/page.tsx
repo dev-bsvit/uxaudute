@@ -54,15 +54,28 @@ export default function AuditPage() {
     
     setAbTestLoading(true)
     try {
-      const response = await fetch('/api/ab-test', {
+      const response = await fetch('/api/ab-test-with-credits', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'Authorization': `Bearer ${(await supabase.auth.getSession()).data.session?.access_token}`
         },
         body: JSON.stringify({ auditId: audit.id }),
       })
 
       if (!response.ok) {
+        // Проверяем, является ли это ошибкой недостатка кредитов (402)
+        if (response.status === 402) {
+          try {
+            const errorData = await response.json()
+            console.log('❌ Недостаточно кредитов для AB теста:', errorData)
+            alert(`Недостаточно кредитов для генерации AB тестов!\nТребуется: ${errorData.required_credits || 3} кредитов\nДоступно: ${errorData.current_balance || 0} кредитов\n\nПополните баланс кредитов для продолжения.`)
+            setAbTestLoading(false)
+            return
+          } catch (parseError) {
+            console.error('Ошибка парсинга ответа:', parseError)
+          }
+        }
         throw new Error('Failed to generate AB tests')
       }
 
@@ -90,15 +103,28 @@ export default function AuditPage() {
     
     setHypothesesLoading(true)
     try {
-      const response = await fetch('/api/hypotheses', {
+      const response = await fetch('/api/hypotheses-with-credits', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'Authorization': `Bearer ${(await supabase.auth.getSession()).data.session?.access_token}`
         },
         body: JSON.stringify({ auditId: audit.id }),
       })
 
       if (!response.ok) {
+        // Проверяем, является ли это ошибкой недостатка кредитов (402)
+        if (response.status === 402) {
+          try {
+            const errorData = await response.json()
+            console.log('❌ Недостаточно кредитов для гипотез:', errorData)
+            alert(`Недостаточно кредитов для генерации гипотез!\nТребуется: ${errorData.required_credits || 1} кредит\nДоступно: ${errorData.current_balance || 0} кредитов\n\nПополните баланс кредитов для продолжения.`)
+            setHypothesesLoading(false)
+            return
+          } catch (parseError) {
+            console.error('Ошибка парсинга ответа:', parseError)
+          }
+        }
         throw new Error('Failed to generate hypotheses')
       }
 
@@ -126,27 +152,47 @@ export default function AuditPage() {
     
     setBusinessAnalyticsLoading(true)
     try {
-      const response = await fetch('/api/business-analytics', {
+      // Подготавливаем контекст для бизнес анализа
+      const context = JSON.stringify(audit.result_data, null, 2)
+      
+      const response = await fetch('/api/business-with-credits', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'Authorization': `Bearer ${(await supabase.auth.getSession()).data.session?.access_token}`
         },
-        body: JSON.stringify({ auditId: audit.id }),
+        body: JSON.stringify({ 
+          context,
+          auditId: audit.id 
+        }),
       })
 
       if (!response.ok) {
+        // Проверяем, является ли это ошибкой недостатка кредитов (402)
+        if (response.status === 402) {
+          try {
+            const errorData = await response.json()
+            console.log('❌ Недостаточно кредитов для бизнес аналитики:', errorData)
+            alert(`Недостаточно кредитов для генерации бизнес аналитики!\nТребуется: ${errorData.required_credits || 4} кредита\nДоступно: ${errorData.current_balance || 0} кредитов\n\nПополните баланс кредитов для продолжения.`)
+            setBusinessAnalyticsLoading(false)
+            return
+          } catch (parseError) {
+            console.error('Ошибка парсинга ответа:', parseError)
+          }
+        }
         throw new Error('Failed to generate business analytics')
       }
 
       const data = await response.json()
-      setBusinessAnalyticsData(data.data)
+      // Бизнес аналитика возвращает текст, а не JSON объект
+      setBusinessAnalyticsData({ result: data.result } as any)
       
       // Обновляем данные аудита
       setAudit(prev => prev ? {
         ...prev,
         result_data: {
           ...prev.result_data,
-          business_analytics: data.data
+          business_analytics: { result: data.result }
         }
       } : null)
     } catch (error) {
