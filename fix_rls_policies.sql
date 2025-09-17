@@ -50,3 +50,5 @@ CREATE POLICY "Enable all for audit_history" ON public.audit_history
 
 
 
+
+
