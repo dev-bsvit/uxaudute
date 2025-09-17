@@ -385,10 +385,37 @@ export default function AuditPage() {
                 if (result && typeof result === 'object' && 'content' in result) {
                   try {
                     console.log('Парсим content как JSON...')
-                    result = JSON.parse(result.content)
+                    let contentToParse = result.content
+                    
+                    // Проверяем, не обрезан ли JSON
+                    if (!contentToParse.endsWith('}') && !contentToParse.endsWith(']')) {
+                      console.log('⚠️ JSON может быть обрезан, пытаемся восстановить...')
+                      
+                      // Пытаемся найти последнюю завершенную структуру
+                      const lastCompleteBrace = contentToParse.lastIndexOf('}')
+                      const lastCompleteBracket = contentToParse.lastIndexOf(']')
+                      const lastComplete = Math.max(lastCompleteBrace, lastCompleteBracket)
+                      
+                      if (lastComplete > 0) {
+                        // Ищем последний завершенный объект/массив
+                        let truncatedContent = contentToParse.substring(0, lastComplete + 1)
+                        
+                        // Проверяем, что это валидный JSON
+                        try {
+                          const testParse = JSON.parse(truncatedContent)
+                          console.log('✅ JSON восстановлен, используем усеченную версию')
+                          contentToParse = truncatedContent
+                        } catch (e) {
+                          console.log('❌ Не удалось восстановить JSON, используем оригинал')
+                        }
+                      }
+                    }
+                    
+                    result = JSON.parse(contentToParse)
                     console.log('Результат распарсен:', Object.keys(result || {}))
                   } catch (parseError) {
                     console.error('Ошибка парсинга content:', parseError)
+                    console.log('Используем оригинальные данные без парсинга')
                     result = audit.result_data
                   }
                 }
