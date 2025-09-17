@@ -177,6 +177,20 @@ export default function DashboardPage() {
       })
 
       if (!response.ok) {
+        // Проверяем, является ли это ошибкой недостатка кредитов (402)
+        if (response.status === 402) {
+          try {
+            const errorData = await response.json()
+            console.log('❌ Недостаточно кредитов:', errorData)
+            alert(`Недостаточно кредитов для проведения аудита!\nТребуется: ${errorData.required || 2} кредитов\nДоступно: ${errorData.available || 0} кредитов\n\nПополните баланс кредитов для продолжения.`)
+            setIsAnalyzing(false)
+            setIsLoading(false)
+            return
+          } catch (parseError) {
+            console.error('Ошибка парсинга ответа:', parseError)
+          }
+        }
+        
         // ВРЕМЕННО ОТКЛЮЧЕН: Fallback на старый API если экспериментальный не работает
         // if (data.provider === 'openrouter') {
         //   console.log('OpenRouter API не работает, переключаемся на OpenAI...')
