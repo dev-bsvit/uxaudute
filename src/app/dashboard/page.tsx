@@ -161,6 +161,13 @@ export default function DashboardPage() {
       setCurrentAudit(audit.id)
 
       // Используем API с кредитами
+      console.log('🔍 Отправляем запрос на анализ через /api/research-with-credits')
+      console.log('🔍 Данные запроса:', {
+        url: data.url,
+        hasScreenshot: !!data.screenshot,
+        auditId: audit.id,
+        context: context?.substring(0, 100) + '...'
+      })
       
       // Отправляем запрос на анализ
       const response = await fetch('/api/research-with-credits', {
@@ -175,6 +182,8 @@ export default function DashboardPage() {
           context
         })
       })
+      
+      console.log('🔍 Ответ от API:', response.status, response.statusText)
 
       if (!response.ok) {
         // Проверяем, является ли это ошибкой недостатка кредитов (402)
