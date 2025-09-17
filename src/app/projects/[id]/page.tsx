@@ -175,28 +175,46 @@ export default function ProjectDetailPage() {
       setCurrentAudit(audit)
       setShowCreateForm(false)
 
-      // Выбираем API endpoint в зависимости от провайдера и модели
-      let apiEndpoint: string
-      if (data.provider === 'openrouter' && data.openrouterModel === 'sonoma') {
-        apiEndpoint = '/api/research-sonoma'
-      } else if (data.provider === 'openrouter') {
-        apiEndpoint = '/api/research-stable'
-      } else {
-        apiEndpoint = '/api/research-json'
-      }
+      // Используем API с проверкой кредитов
+      console.log('🔍 Отправляем запрос на анализ через /api/research-with-credits')
+      console.log('🔍 Данные запроса:', {
+        url: data.url,
+        hasScreenshot: !!data.screenshot,
+        auditId: audit.id,
+        context: combinedContext?.substring(0, 100) + '...'
+      })
       
       // Отправляем запрос на анализ
-      const response = await fetch(apiEndpoint, {
+      const response = await fetch('/api/research-with-credits', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${(await supabase.auth.getSession()).data.session?.access_token}`
+        },
         body: JSON.stringify({
           ...data,
           auditId: audit.id,
           context: combinedContext
         })
       })
+      
+      console.log('🔍 Ответ от API:', response.status, response.statusText)
 
       if (!response.ok) {
+        // Проверяем, является ли это ошибкой недостатка кредитов (402)
+        if (response.status === 402) {
+          try {
+            const errorData = await response.json()
+            console.log('❌ Недостаточно кредитов:', errorData)
+            alert(`Недостаточно кредитов для проведения аудита!\nТребуется: ${errorData.required_credits || 2} кредитов\nДоступно: ${errorData.current_balance || 0} кредитов\n\nПополните баланс кредитов для продолжения.`)
+            setIsAnalyzing(false)
+            setIsLoading(false)
+            return
+          } catch (parseError) {
+            console.error('Ошибка парсинга ответа:', parseError)
+          }
+        }
+        
         // ВРЕМЕННО ОТКЛЮЧЕН: Fallback на старый API если экспериментальный не работает
         // if (data.provider === 'openrouter') {
         //   console.log('OpenRouter API не работает, переключаемся на OpenAI...')
