@@ -2,7 +2,6 @@ import { NextIntlClientProvider } from 'next-intl'
 import { getMessages } from 'next-intl/server'
 import { notFound } from 'next/navigation'
 import { locales } from '@/i18n/config'
-import { Layout } from '@/components/layout'
 
 interface LocaleLayoutProps {
   children: React.ReactNode
@@ -29,9 +28,7 @@ export default async function LocaleLayout({
     <html lang={locale}>
       <body>
         <NextIntlClientProvider messages={messages}>
-          <Layout>
-            {children}
-          </Layout>
+          {children}
         </NextIntlClientProvider>
       </body>
     </html>
