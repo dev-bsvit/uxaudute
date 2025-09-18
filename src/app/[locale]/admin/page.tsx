@@ -64,7 +64,13 @@ export default function AdminPage() {
       if (usersError) {
         console.error('Ошибка загрузки пользователей:', usersError)
       } else {
-        setUsers(usersData || [])
+        // Преобразуем данные в правильный формат
+        const formattedUsers = (usersData || []).map((user: any) => ({
+          ...user,
+          profiles: user.profiles?.[0] || null,
+          user_balances: user.user_balances?.[0] || null
+        }))
+        setUsers(formattedUsers)
       }
 
       // Загружаем транзакции
