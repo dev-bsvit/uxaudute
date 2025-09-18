@@ -13,16 +13,9 @@ export function LanguageSwitcher() {
   const pathname = usePathname()
   const locale = useLocale()
 
-  console.log('LanguageSwitcher - Current locale:', locale)
-  console.log('LanguageSwitcher - Current pathname:', pathname)
-
   const switchLanguage = (newLocale: string) => {
-    console.log('Switching language from', locale, 'to', newLocale)
-    console.log('Current pathname:', pathname)
-    
     // Заменяем текущую локаль в пути
     const newPath = pathname.replace(`/${locale}`, `/${newLocale}`)
-    console.log('New path:', newPath)
     
     // Принудительно перезагружаем страницу
     window.location.href = newPath
@@ -33,10 +26,7 @@ export function LanguageSwitcher() {
       {languages.map((lang) => (
         <button
           key={lang.code}
-          onClick={() => {
-            console.log('Button clicked:', lang.code)
-            switchLanguage(lang.code)
-          }}
+          onClick={() => switchLanguage(lang.code)}
           className={`px-3 py-2 rounded-md text-sm font-medium transition-colors cursor-pointer ${
             locale === lang.code 
               ? 'bg-blue-600 text-white' 
