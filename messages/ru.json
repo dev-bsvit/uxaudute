@@ -1,0 +1,115 @@
+{
+  "common": {
+    "loading": "Загрузка...",
+    "error": "Ошибка",
+    "success": "Успешно",
+    "cancel": "Отмена",
+    "save": "Сохранить",
+    "delete": "Удалить",
+    "edit": "Редактировать",
+    "close": "Закрыть",
+    "back": "Назад",
+    "next": "Далее",
+    "previous": "Назад",
+    "submit": "Отправить",
+    "upload": "Загрузить",
+    "download": "Скачать",
+    "share": "Поделиться",
+    "copy": "Копировать",
+    "refresh": "Обновить"
+  },
+  "navigation": {
+    "home": "Главная",
+    "dashboard": "Быстрый анализ",
+    "projects": "Мои проекты",
+    "audits": "Аудиты",
+    "profile": "Профиль",
+    "settings": "Настройки",
+    "logout": "Выйти"
+  },
+  "auth": {
+    "signIn": "Войти",
+    "signUp": "Регистрация",
+    "signOut": "Выйти",
+    "email": "Email",
+    "password": "Пароль",
+    "confirmPassword": "Подтвердите пароль",
+    "forgotPassword": "Забыли пароль?",
+    "signInWithGoogle": "Войти через Google",
+    "signUpWithGoogle": "Регистрация через Google",
+    "alreadyHaveAccount": "Уже есть аккаунт?",
+    "dontHaveAccount": "Нет аккаунта?",
+    "createAccount": "Создать аккаунт"
+  },
+  "dashboard": {
+    "title": "Интеллектуальные исследования формируют",
+    "subtitle": "следующие цифровые продукты",
+    "uploadScreenshot": "Скриншот",
+    "urlSite": "URL сайта",
+    "analyzeButton": "Получить тест бесплатно",
+    "uploadPlaceholder": "Перетащите файл сюда или нажмите для выбора",
+    "supportedFormats": "Поддерживаемые форматы: PNG, JPG, JPEG",
+    "maxFileSize": "Максимальный размер: 10MB"
+  },
+  "projects": {
+    "title": "Мои проекты",
+    "createProject": "Создать проект",
+    "projectName": "Название проекта",
+    "projectDescription": "Описание проекта",
+    "noProjects": "У вас пока нет проектов",
+    "createFirstProject": "Создать первый проект"
+  },
+  "audits": {
+    "title": "Аудиты",
+    "createAudit": "Создать аудит",
+    "auditName": "Название аудита",
+    "auditType": "Тип аудита",
+    "status": "Статус",
+    "createdAt": "Создан",
+    "updatedAt": "Обновлен",
+    "confidence": "Уверенность",
+    "viewResults": "Посмотреть результаты",
+    "noAudits": "У вас пока нет аудитов",
+    "createFirstAudit": "Создать первый аудит"
+  },
+  "analysis": {
+    "title": "Результаты анализа",
+    "screenDescription": "Описание экрана",
+    "uxSurvey": "UX опрос",
+    "audience": "Аудитория",
+    "behavior": "Поведение",
+    "problemsAndSolutions": "Проблемы и решения",
+    "selfCheck": "Самопроверка",
+    "metadata": "Метаданные",
+    "confidence": "Уверенность анализа",
+    "recommendations": "Рекомендации",
+    "issues": "Проблемы",
+    "solutions": "Решения"
+  },
+  "credits": {
+    "title": "Кредиты",
+    "balance": "Баланс",
+    "purchase": "Купить кредиты",
+    "packages": "Пакеты кредитов",
+    "insufficientCredits": "Недостаточно кредитов",
+    "buyCredits": "Купить кредиты",
+    "creditsUsed": "Кредитов использовано",
+    "creditsRemaining": "Кредитов осталось"
+  },
+  "seo": {
+    "title": "UX Audit Platform - Анализ пользовательского опыта",
+    "description": "Профессиональный анализ UX с использованием искусственного интеллекта. Загрузите скриншот интерфейса и получите детальный анализ пользовательского опыта.",
+    "keywords": "UX анализ, пользовательский опыт, интерфейс, дизайн, анализ, AI, искусственный интеллект"
+  },
+  "errors": {
+    "pageNotFound": "Страница не найдена",
+    "serverError": "Ошибка сервера",
+    "networkError": "Ошибка сети",
+    "unauthorized": "Не авторизован",
+    "forbidden": "Доступ запрещен",
+    "validationError": "Ошибка валидации",
+    "fileTooLarge": "Файл слишком большой",
+    "invalidFileFormat": "Неподдерживаемый формат файла",
+    "uploadFailed": "Ошибка загрузки файла"
+  }
+}

@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { useTranslations } from 'next-intl'
 import { Button } from '@/components/ui/button'
 import { RainbowButton } from '@/components/ui/rainbow-button'
 import { ImageUpload } from '@/components/ui/image-upload'
@@ -9,6 +10,7 @@ import Link from 'next/link'
 import { ArrowRight, Upload, Link as LinkIcon } from 'lucide-react'
 
 export function HeroSection() {
+  const t = useTranslations()
   const [url, setUrl] = useState('')
   const [file, setFile] = useState<File | null>(null)
   const [activeTab, setActiveTab] = useState<'url' | 'upload'>('upload')
@@ -83,8 +85,8 @@ export function HeroSection() {
               lineHeight: '90%'
             }}
           >
-            Intelligent Research shapes<br />
-            the next digital products
+{t('dashboard.title')}<br />
+            {t('dashboard.subtitle')}
           </h1>
           
           {/* Форма загрузки по центру */}
@@ -137,7 +139,7 @@ export function HeroSection() {
                       }}
                       onClick={() => setActiveTab('upload')}
                     >
-                      Скриншот
+{t('dashboard.uploadScreenshot')}
                     </button>
                     <button
                       type="button"
@@ -153,7 +155,7 @@ export function HeroSection() {
                       }}
                       onClick={() => setActiveTab('url')}
                     >
-                      URL сайта
+{t('dashboard.urlSite')}
                     </button>
                   </div>
 
@@ -166,7 +168,7 @@ export function HeroSection() {
                       className="text-lg font-bold bg-black hover:bg-gray-800"
                     >
                       <div className="animate-spin rounded-full h-5 w-5 border-2 border-white border-t-transparent mr-3"></div>
-                      Анализируем...
+{t('common.loading')}
                     </Button>
                   ) : (
                     <RainbowButton
@@ -174,7 +176,7 @@ export function HeroSection() {
                       disabled={!isValid}
                       className="text-lg font-bold"
                     >
-                      Get the test for free
+{t('dashboard.analyzeButton')}
                     </RainbowButton>
                   )}
                 </div>

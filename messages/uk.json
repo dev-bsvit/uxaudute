@@ -1,0 +1,115 @@
+{
+  "common": {
+    "loading": "Завантаження...",
+    "error": "Помилка",
+    "success": "Успішно",
+    "cancel": "Скасувати",
+    "save": "Зберегти",
+    "delete": "Видалити",
+    "edit": "Редагувати",
+    "close": "Закрити",
+    "back": "Назад",
+    "next": "Далі",
+    "previous": "Назад",
+    "submit": "Відправити",
+    "upload": "Завантажити",
+    "download": "Завантажити",
+    "share": "Поділитися",
+    "copy": "Копіювати",
+    "refresh": "Оновити"
+  },
+  "navigation": {
+    "home": "Головна",
+    "dashboard": "Швидкий аналіз",
+    "projects": "Мої проекти",
+    "audits": "Аудити",
+    "profile": "Профіль",
+    "settings": "Налаштування",
+    "logout": "Вийти"
+  },
+  "auth": {
+    "signIn": "Увійти",
+    "signUp": "Реєстрація",
+    "signOut": "Вийти",
+    "email": "Email",
+    "password": "Пароль",
+    "confirmPassword": "Підтвердіть пароль",
+    "forgotPassword": "Забули пароль?",
+    "signInWithGoogle": "Увійти через Google",
+    "signUpWithGoogle": "Реєстрація через Google",
+    "alreadyHaveAccount": "Вже є акаунт?",
+    "dontHaveAccount": "Немає акаунту?",
+    "createAccount": "Створити акаунт"
+  },
+  "dashboard": {
+    "title": "Інтелектуальні дослідження формують",
+    "subtitle": "наступні цифрові продукти",
+    "uploadScreenshot": "Скріншот",
+    "urlSite": "URL сайту",
+    "analyzeButton": "Отримати тест безкоштовно",
+    "uploadPlaceholder": "Перетягніть файл сюди або натисніть для вибору",
+    "supportedFormats": "Підтримувані формати: PNG, JPG, JPEG",
+    "maxFileSize": "Максимальний розмір: 10MB"
+  },
+  "projects": {
+    "title": "Мої проекти",
+    "createProject": "Створити проект",
+    "projectName": "Назва проекту",
+    "projectDescription": "Опис проекту",
+    "noProjects": "У вас поки немає проектів",
+    "createFirstProject": "Створити перший проект"
+  },
+  "audits": {
+    "title": "Аудити",
+    "createAudit": "Створити аудит",
+    "auditName": "Назва аудиту",
+    "auditType": "Тип аудиту",
+    "status": "Статус",
+    "createdAt": "Створено",
+    "updatedAt": "Оновлено",
+    "confidence": "Впевненість",
+    "viewResults": "Переглянути результати",
+    "noAudits": "У вас поки немає аудитів",
+    "createFirstAudit": "Створити перший аудит"
+  },
+  "analysis": {
+    "title": "Результати аналізу",
+    "screenDescription": "Опис екрану",
+    "uxSurvey": "UX опитування",
+    "audience": "Аудиторія",
+    "behavior": "Поведінка",
+    "problemsAndSolutions": "Проблеми та рішення",
+    "selfCheck": "Самоперевірка",
+    "metadata": "Метадані",
+    "confidence": "Впевненість аналізу",
+    "recommendations": "Рекомендації",
+    "issues": "Проблеми",
+    "solutions": "Рішення"
+  },
+  "credits": {
+    "title": "Кредити",
+    "balance": "Баланс",
+    "purchase": "Купити кредити",
+    "packages": "Пакети кредитів",
+    "insufficientCredits": "Недостатньо кредитів",
+    "buyCredits": "Купити кредити",
+    "creditsUsed": "Кредитів використано",
+    "creditsRemaining": "Кредитів залишилося"
+  },
+  "seo": {
+    "title": "UX Audit Platform - Аналіз користувацького досвіду",
+    "description": "Професійний аналіз UX з використанням штучного інтелекту. Завантажте скріншот інтерфейсу та отримайте детальний аналіз користувацького досвіду.",
+    "keywords": "UX аналіз, користувацький досвід, інтерфейс, дизайн, аналіз, AI, штучний інтелект"
+  },
+  "errors": {
+    "pageNotFound": "Сторінку не знайдено",
+    "serverError": "Помилка сервера",
+    "networkError": "Помилка мережі",
+    "unauthorized": "Не авторизовано",
+    "forbidden": "Доступ заборонено",
+    "validationError": "Помилка валідації",
+    "fileTooLarge": "Файл занадто великий",
+    "invalidFileFormat": "Непідтримуваний формат файлу",
+    "uploadFailed": "Помилка завантаження файлу"
+  }
+}
