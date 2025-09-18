@@ -12,6 +12,22 @@ export async function generateStaticParams() {
   return locales.map((locale) => ({ locale }))
 }
 
+export async function generateMetadata({ params }: { params: { locale: string } }) {
+  const t = await import('next-intl/server').then(m => m.getTranslations('seo'))
+  
+  return {
+    title: t('title'),
+    description: t('description'),
+    keywords: t('keywords'),
+    openGraph: {
+      title: t('title'),
+      description: t('description'),
+      type: 'website',
+      locale: params.locale,
+    },
+  }
+}
+
 export default async function LocaleLayout({
   children,
   params: { locale }
