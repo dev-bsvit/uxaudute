@@ -15,7 +15,14 @@ export function LanguageSwitcher() {
 
   const switchLanguage = (newLocale: string) => {
     // Заменяем текущую локаль в пути
-    const newPath = pathname.replace(`/${locale}`, `/${newLocale}`)
+    let newPath = pathname.replace(`/${locale}`, `/${newLocale}`)
+    
+    // Если путь не изменился, значит мы на корневой странице
+    if (newPath === pathname) {
+      newPath = `/${newLocale}`
+    }
+    
+    console.log('Switching from', locale, 'to', newLocale, 'path:', newPath)
     
     // Принудительно перезагружаем страницу
     window.location.href = newPath

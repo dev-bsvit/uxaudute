@@ -3,7 +3,7 @@
 import { ReactNode, useState, useEffect } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { useLocale } from 'next-intl'
+import { useLocale, useTranslations } from 'next-intl'
 import { Button } from '@/components/ui/button'
 import { User, LogOut, Settings, ChevronDown } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
@@ -19,13 +19,14 @@ interface LayoutProps {
 export function Layout({ children, title = 'UX Audit', transparentHeader = false }: LayoutProps) {
   const pathname = usePathname()
   const locale = useLocale()
+  const t = useTranslations()
   const [user, setUser] = useState<SupabaseUser | null>(null)
   const [showUserMenu, setShowUserMenu] = useState(false)
   
   // Навигация с Dashboard для быстрого анализа
   const navigation = [
-    { name: 'Быстрый анализ', href: `/${locale}/dashboard`, current: pathname === `/${locale}/dashboard` },
-    { name: 'Мои проекты', href: `/${locale}/projects`, current: pathname.startsWith(`/${locale}/projects`) },
+    { name: t('navigation.dashboard'), href: `/${locale}/dashboard`, current: pathname === `/${locale}/dashboard` },
+    { name: t('navigation.projects'), href: `/${locale}/projects`, current: pathname.startsWith(`/${locale}/projects`) },
   ]
 
   useEffect(() => {
@@ -133,7 +134,7 @@ export function Layout({ children, title = 'UX Audit', transparentHeader = false
                     <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-1 z-50">
                       <div className="px-4 py-2 border-b border-gray-100">
                         <p className="text-sm font-medium text-gray-900">
-                          {user.user_metadata?.full_name || 'Пользователь'}
+                          {user.user_metadata?.full_name || t('auth.user')}
                         </p>
                         <p className="text-xs text-gray-500">{user.email}</p>
                       </div>
@@ -144,7 +145,7 @@ export function Layout({ children, title = 'UX Audit', transparentHeader = false
                         onClick={() => setShowUserMenu(false)}
                       >
                         <span>🎯</span>
-                        Быстрый анализ
+                        {t('navigation.dashboard')}
                       </Link>
                       
                       <Link
@@ -153,7 +154,7 @@ export function Layout({ children, title = 'UX Audit', transparentHeader = false
                         onClick={() => setShowUserMenu(false)}
                       >
                         <Settings className="w-4 h-4" />
-                        Мои проекты
+                        {t('navigation.projects')}
                       </Link>
                       
                       <button
@@ -161,7 +162,7 @@ export function Layout({ children, title = 'UX Audit', transparentHeader = false
                         className="flex items-center gap-2 w-full px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors"
                       >
                         <LogOut className="w-4 h-4" />
-                        Выйти
+                        {t('auth.signOut')}
                       </button>
                     </div>
                   )}
@@ -169,7 +170,7 @@ export function Layout({ children, title = 'UX Audit', transparentHeader = false
               ) : (
                 <Link href={`/${locale}/dashboard`}>
                   <Button size="sm" className="bg-blue-600 hover:bg-blue-700 text-white">
-                    Войти
+                    {t('auth.signIn')}
                   </Button>
                 </Link>
               )}
