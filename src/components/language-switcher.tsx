@@ -13,6 +13,9 @@ export function LanguageSwitcher() {
   const pathname = usePathname()
   const locale = useLocale()
 
+  console.log('LanguageSwitcher - Current locale:', locale)
+  console.log('LanguageSwitcher - Current pathname:', pathname)
+
   const switchLanguage = (newLocale: string) => {
     console.log('Switching language from', locale, 'to', newLocale)
     console.log('Current pathname:', pathname)
@@ -21,7 +24,8 @@ export function LanguageSwitcher() {
     const newPath = pathname.replace(`/${locale}`, `/${newLocale}`)
     console.log('New path:', newPath)
     
-    router.push(newPath)
+    // Принудительно перезагружаем страницу
+    window.location.href = newPath
   }
 
   return (

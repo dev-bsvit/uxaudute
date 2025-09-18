@@ -16,6 +16,11 @@ export function HeroSection() {
   // Отладочная информация
   console.log('HeroSection - Current locale:', t('common.loading'))
   console.log('HeroSection - Dashboard title:', t('dashboard.title'))
+  
+  // Проверяем, что переводы работают
+  const title = t('dashboard.title')
+  const subtitle = t('dashboard.subtitle')
+  console.log('Title:', title, 'Subtitle:', subtitle)
   const [file, setFile] = useState<File | null>(null)
   const [activeTab, setActiveTab] = useState<'url' | 'upload'>('upload')
   const [isLoading, setIsLoading] = useState(false)
