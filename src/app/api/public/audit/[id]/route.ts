@@ -53,13 +53,23 @@ export async function GET(
     }
 
     // Проверяем публичный доступ через input_data
+    console.log('🔍 Проверяем публичный доступ:', {
+      auditId,
+      token,
+      input_data: audit.input_data,
+      public_enabled: audit.input_data?.public_enabled,
+      public_token: audit.input_data?.public_token,
+      tokens_match: audit.input_data?.public_token === token
+    })
+
     if (!audit.input_data?.public_enabled || audit.input_data?.public_token !== token) {
       console.error('❌ Публичный доступ отключен или неверный токен')
       console.error('🔍 Debug info:', {
         input_data_public_enabled: audit.input_data?.public_enabled,
         input_data_public_token: audit.input_data?.public_token,
         provided_token: token,
-        has_input_data: !!audit.input_data
+        has_input_data: !!audit.input_data,
+        tokens_match: audit.input_data?.public_token === token
       })
       return NextResponse.json({ error: 'Доступ запрещен' }, { status: 403 })
     }

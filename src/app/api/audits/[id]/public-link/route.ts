@@ -65,6 +65,19 @@ export async function POST(
       return NextResponse.json({ error: updateError.message }, { status: 500 })
     }
 
+    // Дополнительная проверка - получаем обновленный аудит
+    const { data: updatedAudit, error: verifyError } = await supabaseClient
+      .from('audits')
+      .select('input_data')
+      .eq('id', auditId)
+      .single()
+
+    if (verifyError) {
+      console.error('❌ Ошибка проверки обновления:', verifyError)
+    } else {
+      console.log('✅ Аудит обновлен, проверяем:', updatedAudit.input_data)
+    }
+
     // Формируем публичную ссылку
     const publicUrl = `${process.env.NEXT_PUBLIC_APP_URL || 'https://uxaudute.vercel.app'}/public/audit/${auditId}?token=${publicToken}`
 
