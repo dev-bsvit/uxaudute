@@ -74,11 +74,10 @@ export function HeroSection() {
         <div className="text-center">
           {/* Центрированный заголовок */}
           <h1 
-            className="mb-8 leading-tight text-white"
+            className="mb-8 leading-tight text-white font-sans"
             style={{
               color: '#FFF',
               textAlign: 'center',
-              fontFamily: 'Inter Display',
               fontSize: '80px',
               fontStyle: 'normal',
               fontWeight: 600,
@@ -127,11 +126,10 @@ export function HeroSection() {
                   <div className="flex gap-2 rounded-[30px]" style={{ borderRadius: '30px' }}>
                     <button
                       type="button"
-                      className="px-4 py-2 transition-all duration-300"
+                      className="px-4 py-2 transition-all duration-300 font-sans"
                       style={{
                         color: activeTab === 'upload' ? '#000' : 'rgba(161, 161, 161, 1)',
                         textAlign: 'center',
-                        fontFamily: 'Inter Display',
                         fontSize: '15px',
                         fontStyle: 'normal',
                         fontWeight: 600,
@@ -143,11 +141,10 @@ export function HeroSection() {
                     </button>
                     <button
                       type="button"
-                      className="px-4 py-2 transition-all duration-300"
+                      className="px-4 py-2 transition-all duration-300 font-sans"
                       style={{
                         color: activeTab === 'url' ? '#000' : 'rgba(161, 161, 161, 1)',
                         textAlign: 'center',
-                        fontFamily: 'Inter Display',
                         fontSize: '15px',
                         fontStyle: 'normal',
                         fontWeight: 600,
