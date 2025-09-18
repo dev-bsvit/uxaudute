@@ -120,10 +120,6 @@ export default function AuditPage() {
     }
   }
 
-  // Функция для обновления страницы
-  const handleRefresh = () => {
-    window.location.reload()
-  }
 
   // Функция для генерации AB тестов
   const generateABTests = async () => {
