@@ -8,8 +8,8 @@ export default createMiddleware({
   // Локаль по умолчанию
   defaultLocale,
   
-  // Не добавлять префикс для локали по умолчанию
-  localePrefix: 'as-needed'
+  // Всегда добавлять префикс локали
+  localePrefix: 'always'
 })
 
 export const config = {
