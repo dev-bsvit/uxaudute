@@ -2,18 +2,24 @@ import React from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { RefreshCw, TrendingUp, DollarSign, Target, BarChart3, Users, Zap } from 'lucide-react'
+import { RefreshCw, TrendingUp, DollarSign, Target, BarChart3, Users, Zap, Share2 } from 'lucide-react'
 
 interface BusinessTextDisplayProps {
   data: { result: string } | null
   isLoading?: boolean
   onGenerate?: () => void
+  onShare?: () => void
+  publicUrl?: string | null
+  publicUrlLoading?: boolean
 }
 
 export const BusinessTextDisplay: React.FC<BusinessTextDisplayProps> = ({ 
   data, 
   isLoading = false, 
-  onGenerate 
+  onGenerate,
+  onShare,
+  publicUrl,
+  publicUrlLoading = false
 }) => {
   if (isLoading) {
     return (
@@ -102,7 +108,33 @@ export const BusinessTextDisplay: React.FC<BusinessTextDisplayProps> = ({
           <BarChart3 className="w-8 h-8 text-blue-600" />
           Бизнес аналитика
         </h2>
-        <p className="text-gray-600">Анализ влияния UX проблем на бизнес-метрики</p>
+        <p className="text-gray-600 mb-4">Анализ влияния UX проблем на бизнес-метрики</p>
+        
+        {/* Кнопки действий */}
+        {onShare && (
+          <div className="flex justify-center gap-2">
+            {!publicUrl ? (
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={onShare}
+                disabled={publicUrlLoading}
+              >
+                <Share2 className="w-4 h-4 mr-2" />
+                {publicUrlLoading ? 'Создание...' : 'Поделиться'}
+              </Button>
+            ) : (
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={() => navigator.clipboard.writeText(publicUrl)}
+              >
+                <Share2 className="w-4 h-4 mr-2" />
+                Копировать ссылку
+              </Button>
+            )}
+          </div>
+        )}
       </div>
 
       {/* Секции */}

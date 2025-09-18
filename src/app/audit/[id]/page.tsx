@@ -585,6 +585,9 @@ export default function AuditPage() {
                 data={abTestData}
                 isLoading={abTestLoading}
                 onGenerate={audit?.status === 'completed' ? generateABTests : undefined}
+                onShare={createPublicLink}
+                publicUrl={publicUrl}
+                publicUrlLoading={publicUrlLoading}
               />
             </TabsContent>
             
@@ -593,6 +596,9 @@ export default function AuditPage() {
                 data={hypothesesData}
                 isLoading={hypothesesLoading}
                 onGenerate={audit?.status === 'completed' ? generateHypotheses : undefined}
+                onShare={createPublicLink}
+                publicUrl={publicUrl}
+                publicUrlLoading={publicUrlLoading}
               />
             </TabsContent>
             
@@ -601,6 +607,9 @@ export default function AuditPage() {
                 data={businessAnalyticsData}
                 isLoading={businessAnalyticsLoading}
                 onGenerate={audit?.status === 'completed' ? generateBusinessAnalytics : undefined}
+                onShare={createPublicLink}
+                publicUrl={publicUrl}
+                publicUrlLoading={publicUrlLoading}
               />
             </TabsContent>
           </Tabs>

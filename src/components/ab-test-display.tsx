@@ -3,18 +3,24 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { ABTestResponse, ABTest } from '@/lib/analysis-types'
-import { Download, RefreshCw } from 'lucide-react'
+import { Download, RefreshCw, Share2 } from 'lucide-react'
 
 interface ABTestDisplayProps {
   data: ABTestResponse | null
   isLoading?: boolean
   onGenerate?: () => void
+  onShare?: () => void
+  publicUrl?: string | null
+  publicUrlLoading?: boolean
 }
 
 export const ABTestDisplay: React.FC<ABTestDisplayProps> = ({ 
   data, 
   isLoading = false, 
-  onGenerate 
+  onGenerate,
+  onShare,
+  publicUrl,
+  publicUrlLoading = false
 }) => {
   if (isLoading) {
     return (
@@ -71,6 +77,28 @@ export const ABTestDisplay: React.FC<ABTestDisplayProps> = ({
           </p>
         </div>
         <div className="flex gap-2">
+          {onShare && (
+            !publicUrl ? (
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={onShare}
+                disabled={publicUrlLoading}
+              >
+                <Share2 className="w-4 h-4 mr-2" />
+                {publicUrlLoading ? 'Создание...' : 'Поделиться'}
+              </Button>
+            ) : (
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={() => navigator.clipboard.writeText(publicUrl)}
+              >
+                <Share2 className="w-4 h-4 mr-2" />
+                Копировать ссылку
+              </Button>
+            )
+          )}
           <Button variant="outline" size="sm">
             <Download className="w-4 h-4 mr-2" />
             Экспорт
