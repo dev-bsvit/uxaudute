@@ -109,9 +109,9 @@ NEXT_PUBLIC_APP_URL=http://localhost:3000
 ```
 
 ### **Git ветки:**
-- `main` - Production (автодеплой на Vercel)
+- `main` - Production (автодеплой на Vercel) - **ТОЛЬКО ПО ЗАПРОСУ**
 - `stable` - Стабильные релизы
-- `development` - Активная разработка
+- `development` - Активная разработка - **РАБОЧАЯ ВЕТКА ПО УМОЛЧАНИЮ**
 
 ---
 
@@ -170,6 +170,12 @@ NEXT_PUBLIC_APP_URL=http://localhost:3000
 ```bash
 cd "/Users/bsvit/Documents/Мои разроботки/UX_AUDIT/ux-audit" && git status
 ```
+
+### **🎯 Предустановка работы:**
+- **По умолчанию**: Работаю с веткой `development`
+- **Деплой**: В development (https://uxaudute-git-development-bsvits-projects.vercel.app/)
+- **Production**: Только по вашей просьбе переношу в `main`
+- **Команды**: `git checkout development` → изменения → `git push origin development`
 
 ---
 
