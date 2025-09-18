@@ -84,7 +84,12 @@ export async function GET(
         confidence: audit.confidence,
         created_at: audit.created_at,
         updated_at: audit.updated_at,
-        project: audit.projects
+        project: audit.projects,
+        // Добавляем данные для всех разделов
+        ab_test_data: audit.result_data?.ab_tests || null,
+        hypotheses_data: audit.result_data?.hypotheses || null,
+        business_analytics_data: audit.result_data?.business_analytics ? 
+          { result: audit.result_data.business_analytics } : null
       }
     })
 

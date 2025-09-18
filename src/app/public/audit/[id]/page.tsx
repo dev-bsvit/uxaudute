@@ -2,11 +2,15 @@
 
 import { useEffect, useState } from 'react'
 import { useParams, useSearchParams } from 'next/navigation'
-import { AnalysisResult } from '@/components/analysis-result'
+import { AnalysisResultDisplay } from '@/components/analysis-result-display'
+import { ABTestDisplay } from '@/components/ab-test-display'
+import { HypothesesDisplay } from '@/components/hypotheses-display'
+import { BusinessTextDisplay } from '@/components/business-text-display'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { Share2, Download, ExternalLink } from 'lucide-react'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { Share2, Download, ExternalLink, BarChart3, Lightbulb, Target } from 'lucide-react'
 import Link from 'next/link'
 
 interface PublicAudit {
@@ -25,6 +29,9 @@ interface PublicAudit {
     name: string
     description: string
   }
+  ab_test_data?: any
+  hypotheses_data?: any
+  business_analytics_data?: any
 }
 
 export default function PublicAuditPage() {
@@ -161,30 +168,121 @@ export default function PublicAuditPage() {
         </div>
       </div>
 
-      {/* Контент */}
+      {/* Контент с вкладками */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <Card>
-          <CardHeader>
-            <CardTitle>Результаты UX Анализа</CardTitle>
-            <p className="text-sm text-muted-foreground">
-              Детальный анализ пользовательского опыта интерфейса
-            </p>
-          </CardHeader>
-          <CardContent>
-            {audit.result_data ? (
-              <AnalysisResult 
-                result={audit.result_data}
-                screenshot={audit.input_data?.screenshotUrl}
-                url={audit.input_data?.url}
-                auditId={audit.id}
+        <Tabs defaultValue="audit" className="w-full">
+          <TabsList className="grid w-full grid-cols-4">
+            <TabsTrigger value="audit" className="flex items-center gap-2">
+              <BarChart3 className="w-4 h-4" />
+              UX Аудит
+            </TabsTrigger>
+            <TabsTrigger value="ab-test" className="flex items-center gap-2">
+              <Target className="w-4 h-4" />
+              AB тесты
+            </TabsTrigger>
+            <TabsTrigger value="hypotheses" className="flex items-center gap-2">
+              <Lightbulb className="w-4 h-4" />
+              Гипотезы
+            </TabsTrigger>
+            <TabsTrigger value="analytics" className="flex items-center gap-2">
+              <BarChart3 className="w-4 h-4" />
+              Аналитика
+            </TabsTrigger>
+          </TabsList>
+
+          {/* Вкладка UX Аудит */}
+          <TabsContent value="audit" className="mt-6">
+            <Card>
+              <CardHeader>
+                <CardTitle>Результаты UX Анализа</CardTitle>
+                <p className="text-sm text-muted-foreground">
+                  Детальный анализ пользовательского опыта интерфейса
+                </p>
+              </CardHeader>
+              <CardContent>
+                {audit.result_data ? (
+                  <AnalysisResultDisplay 
+                    analysis={audit.result_data}
+                    screenshot={audit.input_data?.screenshotUrl}
+                    url={audit.input_data?.url}
+                    auditId={audit.id}
+                    showDetails={true}
+                  />
+                ) : (
+                  <div className="text-center py-8">
+                    <p className="text-gray-500">Результаты анализа недоступны</p>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          {/* Вкладка AB тесты */}
+          <TabsContent value="ab-test" className="mt-6">
+            {audit.ab_test_data ? (
+              <ABTestDisplay 
+                data={audit.ab_test_data}
+                isLoading={false}
               />
             ) : (
-              <div className="text-center py-8">
-                <p className="text-gray-500">Результаты анализа недоступны</p>
-              </div>
+              <Card>
+                <CardContent className="text-center py-12">
+                  <Target className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+                  <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                    AB тесты не сгенерированы
+                  </h3>
+                  <p className="text-gray-600">
+                    Для генерации AB тестов необходимо войти в систему
+                  </p>
+                </CardContent>
+              </Card>
             )}
-          </CardContent>
-        </Card>
+          </TabsContent>
+
+          {/* Вкладка Гипотезы */}
+          <TabsContent value="hypotheses" className="mt-6">
+            {audit.hypotheses_data ? (
+              <HypothesesDisplay 
+                data={audit.hypotheses_data}
+                isLoading={false}
+              />
+            ) : (
+              <Card>
+                <CardContent className="text-center py-12">
+                  <Lightbulb className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+                  <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                    Гипотезы не сгенерированы
+                  </h3>
+                  <p className="text-gray-600">
+                    Для генерации гипотез необходимо войти в систему
+                  </p>
+                </CardContent>
+              </Card>
+            )}
+          </TabsContent>
+
+          {/* Вкладка Продуктовая аналитика */}
+          <TabsContent value="analytics" className="mt-6">
+            {audit.business_analytics_data ? (
+              <BusinessTextDisplay 
+                data={audit.business_analytics_data}
+                isLoading={false}
+              />
+            ) : (
+              <Card>
+                <CardContent className="text-center py-12">
+                  <BarChart3 className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+                  <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                    Продуктовая аналитика не сгенерирована
+                  </h3>
+                  <p className="text-gray-600">
+                    Для генерации аналитики необходимо войти в систему
+                  </p>
+                </CardContent>
+              </Card>
+            )}
+          </TabsContent>
+        </Tabs>
 
         {/* Информация о проекте */}
         {audit.project.description && (
