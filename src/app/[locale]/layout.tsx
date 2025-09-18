@@ -13,7 +13,8 @@ export async function generateStaticParams() {
 }
 
 export async function generateMetadata({ params }: { params: { locale: string } }) {
-  const t = await import('next-intl/server').then(m => m.getTranslations('seo'))
+  const { getTranslations } = await import('next-intl/server')
+  const t = await getTranslations({ locale: params.locale, namespace: 'seo' })
   
   return {
     title: t('title'),
@@ -38,7 +39,7 @@ export default async function LocaleLayout({
   }
 
   // Получаем сообщения для текущей локали
-  const messages = await getMessages()
+  const messages = await getMessages({ locale })
 
   return (
     <html lang={locale}>
