@@ -15,13 +15,11 @@ export function isValidLocale(locale: string): locale is Locale {
 
 // Конфигурация next-intl
 export default getRequestConfig(async ({ locale }) => {
-  // Проверяем, что локаль поддерживается
-  if (!locale || !isValidLocale(locale)) {
-    notFound()
-  }
+  // Если локаль не определена, используем локаль по умолчанию
+  const validLocale = locale && isValidLocale(locale) ? locale : defaultLocale
 
   return {
-    locale,
-    messages: (await import(`../../messages/${locale}.json`)).default
+    locale: validLocale,
+    messages: (await import(`../../messages/${validLocale}.json`)).default
   }
 })
