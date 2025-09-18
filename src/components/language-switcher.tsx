@@ -2,7 +2,6 @@
 
 import { useRouter, usePathname } from 'next/navigation'
 import { useLocale } from 'next-intl'
-import { Button } from '@/components/ui/button'
 
 const languages = [
   { code: 'ru', name: 'Русский', flag: '🇷🇺' },
@@ -15,8 +14,13 @@ export function LanguageSwitcher() {
   const locale = useLocale()
 
   const switchLanguage = (newLocale: string) => {
+    console.log('Switching language from', locale, 'to', newLocale)
+    console.log('Current pathname:', pathname)
+    
     // Заменяем текущую локаль в пути
     const newPath = pathname.replace(`/${locale}`, `/${newLocale}`)
+    console.log('New path:', newPath)
+    
     router.push(newPath)
   }
 
@@ -25,12 +29,16 @@ export function LanguageSwitcher() {
       {languages.map((lang) => (
         <button
           key={lang.code}
-          onClick={() => switchLanguage(lang.code)}
-          className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${
+          onClick={() => {
+            console.log('Button clicked:', lang.code)
+            switchLanguage(lang.code)
+          }}
+          className={`px-3 py-2 rounded-md text-sm font-medium transition-colors cursor-pointer ${
             locale === lang.code 
               ? 'bg-blue-600 text-white' 
               : 'bg-white text-gray-700 hover:bg-gray-100'
           }`}
+          style={{ border: '1px solid #ccc' }}
         >
           <span className="flex items-center gap-2">
             <span>{lang.flag}</span>

@@ -12,6 +12,10 @@ import { ArrowRight, Upload, Link as LinkIcon } from 'lucide-react'
 export function HeroSection() {
   const t = useTranslations()
   const [url, setUrl] = useState('')
+  
+  // Отладочная информация
+  console.log('HeroSection - Current locale:', t('common.loading'))
+  console.log('HeroSection - Dashboard title:', t('dashboard.title'))
   const [file, setFile] = useState<File | null>(null)
   const [activeTab, setActiveTab] = useState<'url' | 'upload'>('upload')
   const [isLoading, setIsLoading] = useState(false)
