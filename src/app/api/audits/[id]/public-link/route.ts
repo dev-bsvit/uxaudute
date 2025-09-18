@@ -39,11 +39,19 @@ export async function POST(
     }
 
     // Обновляем input_data с публичным токеном
+    const currentInputData = currentAudit.input_data || {}
     const updatedInputData = {
-      ...currentAudit.input_data,
+      ...currentInputData,
       public_token: publicToken,
       public_enabled: true
     }
+
+    console.log('🔍 Debug info:', {
+      auditId,
+      currentInputData,
+      updatedInputData,
+      publicToken
+    })
 
     const { error: updateError } = await supabaseClient
       .from('audits')
