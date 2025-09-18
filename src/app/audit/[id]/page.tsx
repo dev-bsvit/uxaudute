@@ -47,6 +47,83 @@ export default function AuditPage() {
   const [hypothesesLoading, setHypothesesLoading] = useState(false)
   const [businessAnalyticsData, setBusinessAnalyticsData] = useState<{ result: string } | null>(null)
   const [businessAnalyticsLoading, setBusinessAnalyticsLoading] = useState(false)
+  const [publicUrl, setPublicUrl] = useState<string | null>(null)
+  const [publicUrlLoading, setPublicUrlLoading] = useState(false)
+
+  // Функция для создания публичной ссылки
+  const createPublicLink = async () => {
+    if (!audit) return
+    
+    setPublicUrlLoading(true)
+    try {
+      const response = await fetch(`/api/audits/${auditId}/public-link`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${(await supabase.auth.getSession()).data.session?.access_token}`
+        }
+      })
+
+      if (!response.ok) {
+        throw new Error('Failed to create public link')
+      }
+
+      const data = await response.json()
+      setPublicUrl(data.publicUrl)
+      console.log('✅ Публичная ссылка создана:', data.publicUrl)
+    } catch (error) {
+      console.error('❌ Ошибка создания публичной ссылки:', error)
+      alert('Ошибка создания публичной ссылки')
+    } finally {
+      setPublicUrlLoading(false)
+    }
+  }
+
+  // Функция для отключения публичной ссылки
+  const disablePublicLink = async () => {
+    if (!audit) return
+    
+    setPublicUrlLoading(true)
+    try {
+      const response = await fetch(`/api/audits/${auditId}/public-link`, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${(await supabase.auth.getSession()).data.session?.access_token}`
+        }
+      })
+
+      if (!response.ok) {
+        throw new Error('Failed to disable public link')
+      }
+
+      setPublicUrl(null)
+      console.log('✅ Публичная ссылка отключена')
+    } catch (error) {
+      console.error('❌ Ошибка отключения публичной ссылки:', error)
+      alert('Ошибка отключения публичной ссылки')
+    } finally {
+      setPublicUrlLoading(false)
+    }
+  }
+
+  // Функция для копирования ссылки
+  const copyPublicLink = async () => {
+    if (!publicUrl) return
+    
+    try {
+      await navigator.clipboard.writeText(publicUrl)
+      alert('Ссылка скопирована в буфер обмена!')
+    } catch (error) {
+      console.error('❌ Ошибка копирования ссылки:', error)
+      alert('Ошибка копирования ссылки')
+    }
+  }
+
+  // Функция для обновления страницы
+  const handleRefresh = () => {
+    window.location.reload()
+  }
 
   // Функция для генерации AB тестов
   const generateABTests = async () => {
@@ -336,10 +413,37 @@ export default function AuditPage() {
               <Download className="w-4 h-4" />
               Скачать отчет
             </Button>
-            <Button variant="outline" className="flex items-center gap-2">
-              <Share2 className="w-4 h-4" />
-              Поделиться
-            </Button>
+            {/* Кнопка публичного доступа */}
+            {!publicUrl ? (
+              <Button 
+                variant="outline" 
+                onClick={createPublicLink}
+                disabled={publicUrlLoading}
+                className="flex items-center gap-2"
+              >
+                <Share2 className="w-4 h-4" />
+                {publicUrlLoading ? 'Создание...' : 'Поделиться'}
+              </Button>
+            ) : (
+              <div className="flex items-center gap-2">
+                <Button 
+                  variant="outline" 
+                  onClick={copyPublicLink}
+                  className="flex items-center gap-2"
+                >
+                  <Share2 className="w-4 h-4" />
+                  Копировать ссылку
+                </Button>
+                <Button 
+                  variant="outline" 
+                  onClick={disablePublicLink}
+                  disabled={publicUrlLoading}
+                  className="flex items-center gap-2 text-red-600 hover:text-red-700"
+                >
+                  Отключить
+                </Button>
+              </div>
+            )}
           </div>
         </div>
 
