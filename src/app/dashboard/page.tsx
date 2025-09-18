@@ -19,6 +19,102 @@ import { supabase } from '@/lib/supabase'
 import { StructuredAnalysisResponse } from '@/lib/analysis-types'
 import Link from 'next/link'
 
+// Функция для проверки и создания профиля пользователя
+async function ensureUserProfileAndBalance(user: User) {
+  try {
+    console.log('🔍 Проверяем профиль для пользователя:', user.email, user.id)
+    
+    // Проверяем, есть ли профиль
+    const { data: profile, error: profileError } = await supabase
+      .from('profiles')
+      .select('*')
+      .eq('id', user.id)
+      .single()
+
+    if (profileError && profileError.code !== 'PGRST116') {
+      console.error('❌ Ошибка проверки профиля:', profileError)
+      return
+    }
+
+    // Если профиля нет, создаем его
+    if (!profile) {
+      console.log('👤 Создаем профиль для Google пользователя:', user.email)
+      
+      const { error: createProfileError } = await supabase
+        .from('profiles')
+        .insert({
+          id: user.id,
+          email: user.email,
+          full_name: user.user_metadata?.full_name || user.user_metadata?.name || null,
+          avatar_url: user.user_metadata?.avatar_url || user.user_metadata?.picture || null
+        })
+
+      if (createProfileError) {
+        console.error('❌ Ошибка создания профиля:', createProfileError)
+        return
+      }
+
+      console.log('✅ Профиль создан')
+    } else {
+      console.log('✅ Профиль уже существует')
+    }
+
+    // Проверяем, есть ли баланс
+    const { data: balance, error: balanceError } = await supabase
+      .from('user_balances')
+      .select('*')
+      .eq('user_id', user.id)
+      .single()
+
+    if (balanceError && balanceError.code !== 'PGRST116') {
+      console.error('❌ Ошибка проверки баланса:', balanceError)
+      return
+    }
+
+    // Если баланса нет, создаем его
+    if (!balance) {
+      console.log('💰 Создаем баланс с 5 кредитами для Google пользователя')
+      
+      const { error: createBalanceError } = await supabase
+        .from('user_balances')
+        .insert({
+          user_id: user.id,
+          balance: 5,
+          grace_limit_used: false
+        })
+
+      if (createBalanceError) {
+        console.error('❌ Ошибка создания баланса:', createBalanceError)
+        return
+      }
+
+      // Создаем транзакцию
+      const { error: transactionError } = await supabase
+        .from('transactions')
+        .insert({
+          user_id: user.id,
+          type: 'credit',
+          amount: 5,
+          balance_after: 5,
+          source: 'google_oauth',
+          description: 'Google авторизация - начальные 5 кредитов'
+        })
+
+      if (transactionError) {
+        console.error('❌ Ошибка создания транзакции:', transactionError)
+        return
+      }
+
+      console.log('✅ Баланс и транзакция созданы для Google пользователя')
+    } else {
+      console.log('✅ Баланс уже существует:', balance.balance)
+    }
+
+  } catch (error) {
+    console.error('❌ Ошибка ensureUserProfileAndBalance:', error)
+  }
+}
+
 export default function DashboardPage() {
   console.log('🔍 DashboardPage компонент загружен')
   
@@ -35,15 +131,25 @@ export default function DashboardPage() {
 
   useEffect(() => {
     // Проверяем текущего пользователя
-    supabase.auth.getUser().then(({ data: { user } }) => {
+    supabase.auth.getUser().then(async ({ data: { user } }) => {
       setUser(user)
       setLoading(false)
+      
+      // Если пользователь есть, проверяем и создаем профиль
+      if (user) {
+        await ensureUserProfileAndBalance(user)
+      }
     })
 
     // Слушаем изменения аутентификации
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
       setUser(session?.user ?? null)
       setLoading(false)
+      
+      // Если пользователь авторизовался, проверяем и создаем профиль
+      if (session?.user) {
+        await ensureUserProfileAndBalance(session.user)
+      }
     })
 
     // Проверяем данные из localStorage (с главной страницы) только после загрузки пользователя
