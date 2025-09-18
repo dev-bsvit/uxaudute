@@ -39,7 +39,9 @@
     "signUpWithGoogle": "Регистрация через Google",
     "alreadyHaveAccount": "Уже есть аккаунт?",
     "dontHaveAccount": "Нет аккаунта?",
-    "createAccount": "Создать аккаунт"
+    "createAccount": "Создать аккаунт",
+    "welcome": "Добро пожаловать в UX Audit",
+    "signInDescription": "Войдите в систему для начала профессионального анализа пользовательского опыта"
   },
   "dashboard": {
     "title": "Интеллектуальные исследования формируют",
