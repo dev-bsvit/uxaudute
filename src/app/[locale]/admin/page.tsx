@@ -200,7 +200,7 @@ export default function AdminPage() {
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">
-                {users.filter(user => user.user_balances?.balance > 0).length}
+                {users.filter(user => user.user_balances?.balance && user.user_balances.balance > 0).length}
               </div>
             </CardContent>
           </Card>
