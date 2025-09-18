@@ -1,3 +1,5 @@
+'use client'
+
 import { useTranslations } from 'next-intl'
 import { HeroSection } from '@/components/hero-section'
 import { LanguageSwitcher } from '@/components/language-switcher'
