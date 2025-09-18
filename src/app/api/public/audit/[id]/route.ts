@@ -36,8 +36,6 @@ export async function GET(
         result_data,
         annotations,
         confidence,
-        public_enabled,
-        public_token,
         created_at,
         updated_at,
         projects!inner(
@@ -54,19 +52,14 @@ export async function GET(
       return NextResponse.json({ error: 'Аудит не найден' }, { status: 404 })
     }
 
-    // Проверяем публичный доступ
-    // Сначала проверяем новые поля в БД, потом fallback на input_data
-    const isPublicEnabled = audit.public_enabled || audit.input_data?.public_enabled
-    const publicToken = audit.public_token || audit.input_data?.public_token
-    
-    if (!isPublicEnabled || publicToken !== token) {
+    // Проверяем публичный доступ через input_data
+    if (!audit.input_data?.public_enabled || audit.input_data?.public_token !== token) {
       console.error('❌ Публичный доступ отключен или неверный токен')
       console.error('🔍 Debug info:', {
-        public_enabled: isPublicEnabled,
-        public_token: publicToken,
-        provided_token: token,
         input_data_public_enabled: audit.input_data?.public_enabled,
-        input_data_public_token: audit.input_data?.public_token
+        input_data_public_token: audit.input_data?.public_token,
+        provided_token: token,
+        has_input_data: !!audit.input_data
       })
       return NextResponse.json({ error: 'Доступ запрещен' }, { status: 403 })
     }
