@@ -19,18 +19,11 @@ export function LanguageSelect() {
   const currentLanguage = languages.find(lang => lang.code === locale) || languages[0]
 
   const switchLanguage = (newLocale: string) => {
-    console.log('LanguageSelect - Current locale:', locale)
-    console.log('LanguageSelect - Current pathname:', pathname)
-    console.log('LanguageSelect - New locale:', newLocale)
-    
     // Получаем путь без локали
     const pathWithoutLocale = pathname.replace(`/${locale}`, '') || '/'
     
     // Создаем новый путь с новой локалью
     const newPath = `/${newLocale}${pathWithoutLocale === '/' ? '' : pathWithoutLocale}`
-    
-    console.log('LanguageSelect - Path without locale:', pathWithoutLocale)
-    console.log('LanguageSelect - New path:', newPath)
     
     // Принудительно перезагружаем страницу
     window.location.href = newPath
