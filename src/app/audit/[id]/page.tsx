@@ -387,31 +387,78 @@ export default function AuditPage() {
                     console.log('Парсим content как JSON...')
                     let contentToParse = result.content
                     
-                    // Проверяем, не обрезан ли JSON
-                    if (!contentToParse.endsWith('}') && !contentToParse.endsWith(']')) {
-                      console.log('⚠️ JSON может быть обрезан, пытаемся восстановить...')
+                    // Умное восстановление JSON
+                    const tryParseJSON = (jsonString: string) => {
+                      try {
+                        return JSON.parse(jsonString)
+                      } catch (error) {
+                        return null
+                      }
+                    }
+
+                    // Сначала пробуем парсить как есть
+                    let parsedResult = tryParseJSON(contentToParse)
+                    
+                    if (!parsedResult) {
+                      console.log('⚠️ JSON невалиден, пытаемся восстановить...')
                       
-                      // Пытаемся найти последнюю завершенную структуру
-                      const lastCompleteBrace = contentToParse.lastIndexOf('}')
-                      const lastCompleteBracket = contentToParse.lastIndexOf(']')
-                      const lastComplete = Math.max(lastCompleteBrace, lastCompleteBracket)
-                      
-                      if (lastComplete > 0) {
-                        // Ищем последний завершенный объект/массив
-                        let truncatedContent = contentToParse.substring(0, lastComplete + 1)
+                      // Алгоритм восстановления JSON
+                      const fixTruncatedJSON = (jsonStr: string) => {
+                        // Убираем лишние пробелы в конце
+                        let fixed = jsonStr.trim()
                         
-                        // Проверяем, что это валидный JSON
-                        try {
-                          const testParse = JSON.parse(truncatedContent)
-                          console.log('✅ JSON восстановлен, используем усеченную версию')
-                          contentToParse = truncatedContent
-                        } catch (e) {
-                          console.log('❌ Не удалось восстановить JSON, используем оригинал')
+                        // Если строка не заканчивается на } или ], ищем последнюю валидную позицию
+                        if (!fixed.endsWith('}') && !fixed.endsWith(']')) {
+                          // Ищем последнюю закрывающую скобку
+                          let lastBrace = fixed.lastIndexOf('}')
+                          let lastBracket = fixed.lastIndexOf(']')
+                          let lastComplete = Math.max(lastBrace, lastBracket)
+                          
+                          if (lastComplete > 0) {
+                            // Обрезаем до последней валидной позиции
+                            fixed = fixed.substring(0, lastComplete + 1)
+                          } else {
+                            // Если нет закрывающих скобок, добавляем их
+                            const openBraces = (fixed.match(/\{/g) || []).length
+                            const closeBraces = (fixed.match(/\}/g) || []).length
+                            const openBrackets = (fixed.match(/\[/g) || []).length
+                            const closeBrackets = (fixed.match(/\]/g) || []).length
+                            
+                            // Добавляем недостающие закрывающие скобки
+                            for (let i = 0; i < openBraces - closeBraces; i++) {
+                              fixed += '}'
+                            }
+                            for (let i = 0; i < openBrackets - closeBrackets; i++) {
+                              fixed += ']'
+                            }
+                          }
+                        }
+                        
+                        return fixed
+                      }
+                      
+                      // Пробуем восстановить JSON
+                      const fixedJSON = fixTruncatedJSON(contentToParse)
+                      parsedResult = tryParseJSON(fixedJSON)
+                      
+                      if (parsedResult) {
+                        console.log('✅ JSON восстановлен успешно')
+                        contentToParse = fixedJSON
+                      } else {
+                        console.log('❌ Не удалось восстановить JSON, используем fallback')
+                        // Fallback: создаем минимальную структуру
+                        parsedResult = {
+                          screenDescription: { screenType: "Неизвестно", confidence: 0 },
+                          uxSurvey: { questions: [], overallConfidence: 0 },
+                          audience: { targetAudience: "Не удалось загрузить", mainPain: "Ошибка парсинга" },
+                          behavior: { userScenarios: {}, behavioralPatterns: "Ошибка парсинга" },
+                          problemsAndSolutions: [],
+                          selfCheck: { checklist: {}, varietyCheck: {}, confidence: { analysis: 0 } }
                         }
                       }
                     }
                     
-                    result = JSON.parse(contentToParse)
+                    result = parsedResult
                     console.log('Результат распарсен:', Object.keys(result || {}))
                   } catch (parseError) {
                     console.error('Ошибка парсинга content:', parseError)

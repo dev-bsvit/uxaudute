@@ -25,8 +25,7 @@ export function AnalysisResultDisplay({
   onAnnotationUpdate,
   auditId
 }: AnalysisResultDisplayProps) {
-  const [annotationData, setAnnotationData] = useState<string>(analysis?.annotations || '')
-
+  // Защита от ошибок - проверяем структуру данных
   if (!analysis) {
     return (
       <div className="text-center py-8">
@@ -34,6 +33,37 @@ export function AnalysisResultDisplay({
       </div>
     )
   }
+
+  // Проверяем, что у нас есть минимально необходимая структура
+  const safeAnalysis: StructuredAnalysisResponse = {
+    screenDescription: analysis.screenDescription || { screenType: "Неизвестно", confidence: 0 },
+    uxSurvey: analysis.uxSurvey || { questions: [], overallConfidence: 0 },
+    audience: analysis.audience || { 
+      targetAudience: "Не загружено", 
+      mainPain: "Ошибка загрузки",
+      fears: []
+    },
+    behavior: analysis.behavior || { 
+      userScenarios: {
+        idealPath: "Не загружено",
+        typicalError: "Не загружено", 
+        alternativeWorkaround: "Не загружено"
+      }, 
+      behavioralPatterns: "Ошибка загрузки",
+      frictionPoints: [],
+      actionMotivation: "Не загружено"
+    },
+    problemsAndSolutions: analysis.problemsAndSolutions || [],
+    selfCheck: analysis.selfCheck || { 
+      checklist: {}, 
+      varietyCheck: {}, 
+      confidence: { analysis: 0 } 
+    },
+    annotations: analysis.annotations || '',
+    metadata: analysis.metadata || { version: '1.0', model: 'Unknown', timestamp: new Date().toISOString() }
+  }
+
+  const [annotationData, setAnnotationData] = useState<string>(safeAnalysis?.annotations || '')
 
   const handleAnnotationSave = (data: string) => {
     setAnnotationData(data)
@@ -73,8 +103,8 @@ export function AnalysisResultDisplay({
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             📱 Описание экрана
-            <Badge variant="outline" className={getConfidenceColor(analysis.screenDescription.confidence)}>
-              Уверенность: {analysis.screenDescription.confidence}%
+            <Badge variant="outline" className={getConfidenceColor(safeAnalysis.screenDescription.confidence)}>
+              Уверенность: {safeAnalysis.screenDescription.confidence}%
             </Badge>
           </CardTitle>
         </CardHeader>
@@ -82,18 +112,18 @@ export function AnalysisResultDisplay({
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <h4 className="font-medium text-gray-900 mb-2">Тип экрана</h4>
-              <p className="text-gray-600">{analysis.screenDescription.screenType}</p>
+              <p className="text-gray-600">{safeAnalysis.screenDescription.screenType}</p>
             </div>
             <div>
               <h4 className="font-medium text-gray-900 mb-2">Цель пользователя</h4>
-              <p className="text-gray-600">{analysis.screenDescription.userGoal}</p>
+              <p className="text-gray-600">{safeAnalysis.screenDescription.userGoal}</p>
             </div>
           </div>
           
           <div>
             <h4 className="font-medium text-gray-900 mb-2">Ключевые элементы</h4>
             <div className="flex flex-wrap gap-2">
-              {analysis.screenDescription.keyElements.map((element, index) => (
+              {safeAnalysis.screenDescription.keyElements.map((element: string, index: number) => (
                 <Badge key={index} variant="secondary">
                   {element}
                 </Badge>
@@ -103,16 +133,16 @@ export function AnalysisResultDisplay({
           
           <div>
             <h4 className="font-medium text-gray-900 mb-2">Обоснование уверенности</h4>
-            <p className="text-gray-600">{analysis.screenDescription.confidenceReason}</p>
+            <p className="text-gray-600">{safeAnalysis.screenDescription.confidenceReason}</p>
           </div>
         </CardContent>
       </Card>
 
       {/* UX-опрос */}
-      <SurveyDisplay survey={analysis.uxSurvey} />
+      <SurveyDisplay survey={safeAnalysis.uxSurvey} />
 
       {/* Аудитория */}
-      {analysis.audience && (
+      {safeAnalysis.audience && (
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
@@ -125,7 +155,7 @@ export function AnalysisResultDisplay({
               <h4 className="font-medium text-gray-900 mb-3">Целевая аудитория</h4>
               <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
                 <p className="text-gray-700 leading-relaxed whitespace-pre-line">
-                  {analysis.audience.targetAudience}
+                  {safeAnalysis.audience.targetAudience}
                 </p>
               </div>
             </div>
@@ -135,7 +165,7 @@ export function AnalysisResultDisplay({
               <h4 className="font-medium text-gray-900 mb-3">Основная боль</h4>
               <div className="bg-red-50 border border-red-200 rounded-lg p-4">
                 <p className="text-gray-700 leading-relaxed whitespace-pre-line">
-                  {analysis.audience.mainPain}
+                  {safeAnalysis.audience.mainPain}
                 </p>
               </div>
             </div>
@@ -145,7 +175,7 @@ export function AnalysisResultDisplay({
               <h4 className="font-medium text-gray-900 mb-3">Страхи пользователей</h4>
               <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
                 <ol className="space-y-2">
-                  {analysis.audience.fears.map((fear, index) => (
+                  {safeAnalysis.audience.fears.map((fear: string, index: number) => (
                     <li key={index} className="flex items-start gap-2">
                       <span className="flex-shrink-0 w-6 h-6 bg-yellow-200 text-yellow-800 rounded-full flex items-center justify-center text-sm font-medium">
                         {index + 1}
@@ -161,7 +191,7 @@ export function AnalysisResultDisplay({
       )}
 
       {/* Поведение */}
-      {analysis.behavior && (
+      {safeAnalysis.behavior && (
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
@@ -175,15 +205,15 @@ export function AnalysisResultDisplay({
               <div className="bg-green-50 border border-green-200 rounded-lg p-4 space-y-3">
                 <div>
                   <span className="font-medium text-green-800">Идеальный путь:</span>
-                  <p className="text-gray-700 mt-1">{analysis.behavior.userScenarios.idealPath}</p>
+                  <p className="text-gray-700 mt-1">{safeAnalysis.behavior.userScenarios.idealPath}</p>
                 </div>
                 <div>
                   <span className="font-medium text-orange-800">Типичная ошибка:</span>
-                  <p className="text-gray-700 mt-1">{analysis.behavior.userScenarios.typicalError}</p>
+                  <p className="text-gray-700 mt-1">{safeAnalysis.behavior.userScenarios.typicalError}</p>
                 </div>
                 <div>
                   <span className="font-medium text-blue-800">Альтернативный обход:</span>
-                  <p className="text-gray-700 mt-1">{analysis.behavior.userScenarios.alternativeWorkaround}</p>
+                  <p className="text-gray-700 mt-1">{safeAnalysis.behavior.userScenarios.alternativeWorkaround}</p>
                 </div>
               </div>
             </div>
@@ -193,7 +223,7 @@ export function AnalysisResultDisplay({
               <h4 className="font-medium text-gray-900 mb-3">Поведенческие паттерны</h4>
               <div className="bg-purple-50 border border-purple-200 rounded-lg p-4">
                 <p className="text-gray-700 leading-relaxed whitespace-pre-line">
-                  {analysis.behavior.behavioralPatterns}
+                  {safeAnalysis.behavior.behavioralPatterns}
                 </p>
               </div>
             </div>
@@ -203,7 +233,7 @@ export function AnalysisResultDisplay({
               <h4 className="font-medium text-gray-900 mb-3">Точки трения</h4>
               <div className="bg-orange-50 border border-orange-200 rounded-lg p-4">
                 <ol className="space-y-2">
-                  {analysis.behavior.frictionPoints.map((frictionPoint, index) => (
+                  {safeAnalysis.behavior.frictionPoints.map((frictionPoint: any, index: number) => (
                     <li key={index} className="flex items-start gap-2">
                       <span className="flex-shrink-0 w-6 h-6 bg-orange-200 text-orange-800 rounded-full flex items-center justify-center text-sm font-medium">
                         {index + 1}
@@ -229,7 +259,7 @@ export function AnalysisResultDisplay({
               <h4 className="font-medium text-gray-900 mb-3">Мотивация к действию</h4>
               <div className="bg-indigo-50 border border-indigo-200 rounded-lg p-4">
                 <p className="text-gray-700 leading-relaxed whitespace-pre-line">
-                  {analysis.behavior.actionMotivation}
+                  {safeAnalysis.behavior.actionMotivation}
                 </p>
               </div>
             </div>
@@ -243,13 +273,13 @@ export function AnalysisResultDisplay({
           <CardTitle className="flex items-center gap-2">
             🔧 Проблемы и решения
             <Badge variant="outline">
-              {Array.isArray(analysis.problemsAndSolutions) ? analysis.problemsAndSolutions.length : 0} проблем
+              {Array.isArray(safeAnalysis.problemsAndSolutions) ? safeAnalysis.problemsAndSolutions.length : 0} проблем
             </Badge>
           </CardTitle>
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
-            {Array.isArray(analysis.problemsAndSolutions) ? analysis.problemsAndSolutions.map((problem, index) => (
+            {Array.isArray(safeAnalysis.problemsAndSolutions) ? safeAnalysis.problemsAndSolutions.map((problem: any, index: number) => (
               <div key={index} className="border rounded-lg p-4 space-y-3">
                 <div className="flex items-start justify-between">
                   <h4 className="font-medium text-gray-900">{problem.element}</h4>
@@ -303,7 +333,7 @@ export function AnalysisResultDisplay({
             <div>
               <h4 className="font-medium text-gray-900 mb-3">Чек-лист</h4>
               <div className="space-y-2">
-                {Object.entries(analysis.selfCheck.checklist).map(([key, value]) => (
+                {Object.entries(safeAnalysis.selfCheck.checklist).map(([key, value]: [string, any]) => (
                   <div key={key} className="flex items-center gap-2">
                     <span className={value ? 'text-green-500' : 'text-red-500'}>
                       {value ? '✅' : '❌'}
@@ -322,14 +352,14 @@ export function AnalysisResultDisplay({
             <div>
               <h4 className="font-medium text-gray-900 mb-3">Уверенность по блокам</h4>
               <div className="space-y-2">
-                {Object.entries(analysis.selfCheck.confidence).map(([key, value]) => (
+                {Object.entries(safeAnalysis.selfCheck.confidence).map(([key, value]: [string, any]) => (
                   <div key={key} className="flex items-center justify-between">
                     <span className="text-sm text-gray-700">
                       {key === 'analysis' && 'Анализ'}
                       {key === 'survey' && 'Опрос'}
                       {key === 'recommendations' && 'Рекомендации'}
                     </span>
-                    <span className={`font-medium ${getConfidenceColor(value)}`}>
+                    <span className={`font-medium ${getConfidenceColor(Number(value))}`}>
                       {value}%
                     </span>
                   </div>
@@ -347,13 +377,13 @@ export function AnalysisResultDisplay({
             <h4 className="font-medium text-gray-900 mb-2">Информация об анализе</h4>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm text-gray-600">
               <div>
-                <span className="font-medium">Версия:</span> {analysis.metadata.version}
+                <span className="font-medium">Версия:</span> {safeAnalysis.metadata?.version || '1.0'}
               </div>
               <div>
-                <span className="font-medium">Модель:</span> {analysis.metadata.model}
+                <span className="font-medium">Модель:</span> {safeAnalysis.metadata?.model || 'Unknown'}
               </div>
               <div>
-                <span className="font-medium">Время:</span> {new Date(analysis.metadata.timestamp).toLocaleString('ru-RU')}
+                <span className="font-medium">Время:</span> {safeAnalysis.metadata?.timestamp ? new Date(safeAnalysis.metadata.timestamp).toLocaleString('ru-RU') : 'Неизвестно'}
               </div>
             </div>
           </CardContent>
@@ -386,7 +416,7 @@ export function AnalysisResultDisplay({
                     💡 Редактор аннотаций открывается автоматически. Добавьте комментарии и выделения к скриншоту
                   </div>
                   <div className="text-xs text-gray-400 text-center mt-2">
-                    Анализ {new Date(analysis.metadata.timestamp).toLocaleDateString('ru-RU')}
+                    Анализ {safeAnalysis.metadata?.timestamp ? new Date(safeAnalysis.metadata.timestamp).toLocaleDateString('ru-RU') : 'Неизвестно'}
                   </div>
                 </div>
               ) : url ? (
