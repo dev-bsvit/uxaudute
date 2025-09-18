@@ -2,7 +2,6 @@
 
 import { useTranslations } from 'next-intl'
 import { HeroSection } from '@/components/hero-section'
-import { LanguageSwitcher } from '@/components/language-switcher'
 import { Layout } from '@/components/layout'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'

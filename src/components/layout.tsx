@@ -9,6 +9,7 @@ import { User, LogOut, Settings, ChevronDown } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 import { signOut } from '@/lib/database'
 import { User as SupabaseUser } from '@supabase/supabase-js'
+import { LanguageSelect } from '@/components/language-select'
 
 interface LayoutProps {
   children: ReactNode
@@ -112,6 +113,9 @@ export function Layout({ children, title = 'UX Audit', transparentHeader = false
                   {title}
                 </div>
               )}
+              
+              {/* Селект языков */}
+              <LanguageSelect />
               
               {user ? (
                 <div className="relative" data-user-menu>
