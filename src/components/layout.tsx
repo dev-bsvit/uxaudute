@@ -3,6 +3,7 @@
 import { ReactNode, useState, useEffect } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
+import { useLocale } from 'next-intl'
 import { Button } from '@/components/ui/button'
 import { User, LogOut, Settings, ChevronDown } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
@@ -17,13 +18,14 @@ interface LayoutProps {
 
 export function Layout({ children, title = 'UX Audit', transparentHeader = false }: LayoutProps) {
   const pathname = usePathname()
+  const locale = useLocale()
   const [user, setUser] = useState<SupabaseUser | null>(null)
   const [showUserMenu, setShowUserMenu] = useState(false)
   
   // Навигация с Dashboard для быстрого анализа
   const navigation = [
-    { name: 'Быстрый анализ', href: '/dashboard', current: pathname === '/dashboard' },
-    { name: 'Мои проекты', href: '/projects', current: pathname.startsWith('/projects') },
+    { name: 'Быстрый анализ', href: `/${locale}/dashboard`, current: pathname === `/${locale}/dashboard` },
+    { name: 'Мои проекты', href: `/${locale}/projects`, current: pathname.startsWith(`/${locale}/projects`) },
   ]
 
   useEffect(() => {
@@ -58,7 +60,7 @@ export function Layout({ children, title = 'UX Audit', transparentHeader = false
       await signOut()
       setUser(null)
       setShowUserMenu(false)
-      window.location.href = '/'
+      window.location.href = `/${locale}`
     } catch (error) {
       console.error('Error signing out:', error)
     }
@@ -70,7 +72,7 @@ export function Layout({ children, title = 'UX Audit', transparentHeader = false
         <div className="w-full px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             <div className="flex items-center space-x-8">
-              <Link href="/" className={`flex items-center space-x-2 text-xl font-bold transition-colors ${
+              <Link href={`/${locale}`} className={`flex items-center space-x-2 text-xl font-bold transition-colors ${
                 transparentHeader 
                   ? 'text-white hover:text-blue-200' 
                   : 'text-blue-600 hover:text-blue-700'
@@ -137,7 +139,7 @@ export function Layout({ children, title = 'UX Audit', transparentHeader = false
                       </div>
                       
                       <Link
-                        href="/dashboard"
+                        href={`/${locale}/dashboard`}
                         className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
                         onClick={() => setShowUserMenu(false)}
                       >
@@ -146,7 +148,7 @@ export function Layout({ children, title = 'UX Audit', transparentHeader = false
                       </Link>
                       
                       <Link
-                        href="/projects"
+                        href={`/${locale}/projects`}
                         className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
                         onClick={() => setShowUserMenu(false)}
                       >
@@ -165,7 +167,7 @@ export function Layout({ children, title = 'UX Audit', transparentHeader = false
                   )}
                 </div>
               ) : (
-                <Link href="/dashboard">
+                <Link href={`/${locale}/dashboard`}>
                   <Button size="sm" className="bg-blue-600 hover:bg-blue-700 text-white">
                     Войти
                   </Button>

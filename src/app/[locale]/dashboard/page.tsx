@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { useTranslations } from 'next-intl'
+import { useTranslations, useLocale } from 'next-intl'
 import { SidebarDemo } from '@/components/sidebar-demo'
 import { UploadForm } from '@/components/upload-form'
 import { ActionPanel } from '@/components/action-panel'
@@ -119,6 +119,7 @@ async function ensureUserProfileAndBalance(user: User) {
 export default function DashboardPage() {
   console.log('🔍 DashboardPage компонент загружен')
   const t = useTranslations()
+  const locale = useLocale()
   
   const [user, setUser] = useState<User | null>(null)
   const [loading, setLoading] = useState(true)
@@ -364,7 +365,7 @@ export default function DashboardPage() {
         
         // Также перенаправляем на страницу аудита через 2 секунды
         setTimeout(() => {
-          window.location.href = `/audit/${audit.id}`
+          window.location.href = `/${locale}/audit/${audit.id}`
         }, 2000)
       } else {
         // Fallback на текстовый формат
