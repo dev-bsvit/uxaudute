@@ -18,6 +18,7 @@ import Link from "next/link";
 import { User } from "@supabase/supabase-js";
 import { signOut } from "@/lib/database";
 import { supabase } from "@/lib/supabase";
+import { useLocale } from "next-intl";
 
 interface SidebarDemoProps {
   children: React.ReactNode;
@@ -26,39 +27,40 @@ interface SidebarDemoProps {
 
 export function SidebarDemo({ children, user }: SidebarDemoProps) {
   const [creditsBalance, setCreditsBalance] = useState<number | null>(null);
+  const locale = useLocale();
 
   const links = [
     {
       label: "Главная",
-      href: "/",
+      href: `/${locale}`,
       icon: (
         <IconHome className="h-5 w-5 shrink-0 text-white" />
       ),
     },
     {
       label: "Быстрый анализ",
-      href: "/dashboard",
+      href: `/${locale}/dashboard`,
       icon: (
         <IconChartBar className="h-5 w-5 shrink-0 text-white" />
       ),
     },
     {
       label: "Мои проекты",
-      href: "/projects",
+      href: `/${locale}/projects`,
       icon: (
         <IconFolder className="h-5 w-5 shrink-0 text-white" />
       ),
     },
     {
       label: "Счет",
-      href: "/credits",
+      href: `/${locale}/credits`,
       icon: (
         <IconCreditCard className="h-5 w-5 shrink-0 text-white" />
       ),
     },
     {
       label: "Настройки",
-      href: "/settings",
+      href: `/${locale}/settings`,
       icon: (
         <IconSettings className="h-5 w-5 shrink-0 text-white" />
       ),
@@ -114,7 +116,7 @@ export function SidebarDemo({ children, user }: SidebarDemoProps) {
     <div
       className={cn(
         "flex w-full flex-1 flex-col overflow-hidden md:flex-row",
-        "h-screen", // Используем h-screen для полной высоты
+        "h-screen font-sans", // Используем h-screen для полной высоты и добавляем шрифт
       )}
       style={{ backgroundColor: '#6D90BA' }}
     >

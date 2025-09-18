@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useTranslations } from 'next-intl'
-import { Layout } from '@/components/layout'
+import { SidebarDemo } from '@/components/sidebar-demo'
 import CreditsBalance from '@/components/CreditsBalance'
 import CreditsPurchase from '@/components/CreditsPurchase'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
@@ -42,35 +42,31 @@ export default function CreditsPage() {
 
   if (loading) {
     return (
-      <Layout>
-        <div className="min-h-screen bg-gray-100 flex items-center justify-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-2 border-blue-500 border-t-transparent"></div>
-        </div>
-      </Layout>
+      <div className="min-h-screen bg-gray-100 flex items-center justify-center">
+        <div className="animate-spin rounded-full h-8 w-8 border-2 border-blue-500 border-t-transparent"></div>
+      </div>
     )
   }
 
   if (!user) {
     return (
-      <Layout>
-        <div className="min-h-screen bg-gray-100 flex items-center justify-center">
-          <div className="max-w-md mx-auto bg-white rounded-2xl shadow-lg p-8">
-            <div className="text-center mb-8">
-              <h2 className="text-3xl font-bold text-slate-900 mb-4">
-                Войдите для управления кредитами
-              </h2>
-              <p className="text-lg text-slate-600">
-                Управляйте своим балансом кредитов и покупайте дополнительные пакеты
-              </p>
-            </div>
+      <div className="min-h-screen bg-gray-100 flex items-center justify-center">
+        <div className="max-w-md mx-auto bg-white rounded-2xl shadow-lg p-8">
+          <div className="text-center mb-8">
+            <h2 className="text-3xl font-bold text-slate-900 mb-4">
+              Войдите для управления кредитами
+            </h2>
+            <p className="text-lg text-slate-600">
+              Управляйте своим балансом кредитов и покупайте дополнительные пакеты
+            </p>
           </div>
         </div>
-      </Layout>
+      </div>
     )
   }
 
   return (
-    <Layout>
+    <SidebarDemo user={user}>
       <div className="min-h-screen bg-gray-100">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="space-y-8">
@@ -207,6 +203,6 @@ export default function CreditsPage() {
           </div>
         </div>
       </div>
-    </Layout>
+    </SidebarDemo>
   )
 }
