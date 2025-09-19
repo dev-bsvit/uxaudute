@@ -129,14 +129,22 @@ export interface StructuredAnalysisResponse {
   uxSurvey: UXSurvey
   audience?: Audience // Опционально для обратной совместимости
   behavior?: Behavior // Опционально для обратной совместимости
-  problemsAndSolutions: ProblemSolution[]
+  problemsAndSolutions?: ProblemSolution[] // Опционально для обратной совместимости
+  problemsAndRecommendations?: any[] // Украинская версия
   selfCheck: SelfCheck
-  metadata: {
+  metadata?: {
     timestamp: string
     version: string
     model: string
   }
   annotations?: string // Данные аннотаций изображения
+  contextNotes?: string // Контекстные заметки
+  finalConfidence?: {
+    survey: number
+    overall: number
+    analysis: number
+    recommendations: number
+  }
 }
 
 // Тип для обратной совместимости (текущий текстовый формат)

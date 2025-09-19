@@ -56,7 +56,7 @@ export function AnalysisResultDisplay({
       frictionPoints: [],
       actionMotivation: "Не загружено"
     },
-    problemsAndSolutions: analysis.problemsAndSolutions || [],
+    problemsAndSolutions: analysis.problemsAndSolutions || analysis.problemsAndRecommendations || [],
     selfCheck: analysis.selfCheck || { 
       allKeyElementsCovered: false,
       contextualQuestionsAdded: false,
