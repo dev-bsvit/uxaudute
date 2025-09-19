@@ -124,7 +124,7 @@ export function SidebarDemo({ children, user }: SidebarDemoProps) {
         <SidebarBody className="justify-between gap-10" style={{ backgroundColor: '#6D90BA' }}>
           <div className="flex flex-1 flex-col overflow-x-hidden overflow-y-auto">
             <>
-              <Logo />
+              <Logo locale={locale} />
             </>
             <div className="mt-8 flex flex-col gap-2">
               {links.map((link, idx) => (
@@ -176,10 +176,10 @@ export function SidebarDemo({ children, user }: SidebarDemoProps) {
   );
 }
 
-export const Logo = () => {
+export const Logo = ({ locale }: { locale: string }) => {
   return (
     <Link
-      href="/"
+      href={`/${locale}`}
       className="relative z-20 flex items-center space-x-2 py-1 text-sm font-normal"
     >
       <img 
@@ -191,10 +191,10 @@ export const Logo = () => {
   );
 };
 
-export const LogoIcon = () => {
+export const LogoIcon = ({ locale }: { locale: string }) => {
   return (
     <Link
-      href="/"
+      href={`/${locale}`}
       className="relative z-20 flex items-center space-x-2 py-1 text-sm font-normal text-black"
     >
       <img 

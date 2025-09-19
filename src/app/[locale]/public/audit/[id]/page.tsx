@@ -37,6 +37,7 @@ interface PublicAudit {
 export default function PublicAuditPage() {
   const params = useParams()
   const searchParams = useSearchParams()
+  const locale = params.locale as string
   const auditId = params.id as string
   const token = searchParams.get('token')
   
@@ -117,7 +118,7 @@ export default function PublicAuditPage() {
             {error || 'Аудит не найден или ссылка недействительна'}
           </p>
           <Link 
-            href="/"
+            href={`/${locale}`}
             className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
           >
             Перейти на главную
