@@ -17,14 +17,20 @@ export function LanguageSelect() {
   const [isOpen, setIsOpen] = useState(false)
   const dropdownRef = useRef<HTMLDivElement>(null)
 
+  // Определяем локаль из URL, если useLocale() не работает правильно
+  const urlLocale = pathname.split('/')[1] as 'ru' | 'uk' | undefined
+  const actualLocale = urlLocale && ['ru', 'uk'].includes(urlLocale) ? urlLocale : locale
+
   // Отладочная информация
   console.log('LanguageSelect render:', {
     locale,
     pathname,
-    currentLanguage: languages.find(lang => lang.code === locale)
+    urlLocale,
+    actualLocale,
+    currentLanguage: languages.find(lang => lang.code === actualLocale)
   })
 
-  const currentLanguage = languages.find(lang => lang.code === locale) || languages[0]
+  const currentLanguage = languages.find(lang => lang.code === actualLocale) || languages[0]
 
   // Закрытие по клику вне области
   useEffect(() => {
@@ -51,8 +57,8 @@ export function LanguageSelect() {
   }, [locale])
 
   const switchLanguage = (newLocale: string) => {
-    // Получаем путь без локали
-    let pathWithoutLocale = pathname.replace(`/${locale}`, '') || '/'
+    // Получаем путь без локали, используя actualLocale
+    let pathWithoutLocale = pathname.replace(`/${actualLocale}`, '') || '/'
     
     // Убираем дублирующиеся слеши
     pathWithoutLocale = pathWithoutLocale.replace(/\/+/g, '/')
@@ -66,7 +72,7 @@ export function LanguageSelect() {
     const newPath = `/${newLocale}${pathWithoutLocale}`
     
     console.log('Switching language:', {
-      currentLocale: locale,
+      currentLocale: actualLocale,
       newLocale,
       currentPath: pathname,
       pathWithoutLocale,
@@ -101,12 +107,12 @@ export function LanguageSelect() {
                 setIsOpen(false)
               }}
               className={`flex items-center gap-3 w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors first:rounded-t-lg last:rounded-b-lg ${
-                locale === lang.code ? 'bg-blue-50 text-blue-700 font-medium' : ''
+                actualLocale === lang.code ? 'bg-blue-50 text-blue-700 font-medium' : ''
               }`}
             >
               <span className="text-lg">{lang.flag}</span>
               <span className="flex-1 text-left">{lang.name}</span>
-              {locale === lang.code && (
+              {actualLocale === lang.code && (
                 <span className="text-blue-600 font-bold">✓</span>
               )}
             </button>
