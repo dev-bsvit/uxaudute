@@ -47,30 +47,14 @@ export default function AdminPage() {
     try {
       setLoading(true)
       
-      // Загружаем пользователей
-      const { data: usersData, error: usersError } = await supabase
-        .from('auth.users')
-        .select(`
-          id,
-          email,
-          created_at,
-          user_metadata,
-          profiles(full_name, avatar_url),
-          user_balances(balance)
-        `)
-        .order('created_at', { ascending: false })
-        .limit(50)
-
-      if (usersError) {
-        console.error('Ошибка загрузки пользователей:', usersError)
+      // Загружаем пользователей через API
+      const response = await fetch('/api/list-users')
+      const data = await response.json()
+      
+      if (data.success) {
+        setUsers(data.users)
       } else {
-        // Преобразуем данные в правильный формат
-        const formattedUsers = (usersData || []).map((user: any) => ({
-          ...user,
-          profiles: user.profiles?.[0] || null,
-          user_balances: user.user_balances?.[0] || null
-        }))
-        setUsers(formattedUsers)
+        console.error('Ошибка загрузки пользователей:', data.error)
       }
 
       // Загружаем транзакции
