@@ -123,9 +123,33 @@ export async function POST(request: NextRequest) {
     if (analysisResult && typeof analysisResult === 'object' && 'content' in analysisResult) {
       try {
         console.log('Парсим content как JSON...')
-        parsedResult = JSON.parse((analysisResult as any).content)
+        let content = (analysisResult as any).content
+        
+        // Пытаемся восстановить обрезанный JSON
+        if (!content.endsWith('}')) {
+          console.log('⚠️ JSON невалиден, пытаемся восстановить...')
+          
+          // Находим последнюю закрывающую скобку
+          const lastBrace = content.lastIndexOf('}')
+          if (lastBrace > 0) {
+            // Обрезаем до последней закрывающей скобки
+            content = content.substring(0, lastBrace + 1)
+            console.log('Обрезанный JSON:', content.substring(content.length - 100))
+          } else {
+            // Если нет закрывающих скобок, добавляем их
+            content = content.trim()
+            if (content.endsWith(',')) {
+              content = content.slice(0, -1)
+            }
+            content += '}'
+            console.log('Добавлена закрывающая скобка')
+          }
+        }
+        
+        parsedResult = JSON.parse(content)
         console.log('Результат распарсен:', Object.keys(parsedResult || {}))
       } catch (parseError) {
+        console.error('❌ Не удалось восстановить JSON, используем fallback')
         console.error('Ошибка парсинга content:', parseError)
         parsedResult = analysisResult
       }

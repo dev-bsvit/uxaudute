@@ -132,7 +132,7 @@ export function AnalysisResultDisplay({
           <div>
             <h4 className="font-medium text-gray-900 mb-2">{t('keyElements')}</h4>
             <div className="flex flex-wrap gap-2">
-              {safeAnalysis.screenDescription.keyElements.map((element: string, index: number) => (
+              {(safeAnalysis.screenDescription.keyElements || []).map((element: string, index: number) => (
                 <Badge key={index} variant="secondary">
                   {element}
                 </Badge>
@@ -184,7 +184,7 @@ export function AnalysisResultDisplay({
               <h4 className="font-medium text-gray-900 mb-3">{t('userFears')}</h4>
               <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
                 <ol className="space-y-2">
-                  {safeAnalysis.audience.fears.map((fear: string, index: number) => (
+                  {(safeAnalysis.audience.fears || []).map((fear: string, index: number) => (
                     <li key={index} className="flex items-start gap-2">
                       <span className="flex-shrink-0 w-6 h-6 bg-yellow-200 text-yellow-800 rounded-full flex items-center justify-center text-sm font-medium">
                         {index + 1}
@@ -242,7 +242,7 @@ export function AnalysisResultDisplay({
               <h4 className="font-medium text-gray-900 mb-3">{t('frictionPoints')}</h4>
               <div className="bg-orange-50 border border-orange-200 rounded-lg p-4">
                 <ol className="space-y-2">
-                  {safeAnalysis.behavior.frictionPoints.map((frictionPoint: any, index: number) => (
+                  {(safeAnalysis.behavior.frictionPoints || []).map((frictionPoint: any, index: number) => (
                     <li key={index} className="flex items-start gap-2">
                       <span className="flex-shrink-0 w-6 h-6 bg-orange-200 text-orange-800 rounded-full flex items-center justify-center text-sm font-medium">
                         {index + 1}
