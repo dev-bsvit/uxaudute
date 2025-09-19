@@ -129,21 +129,69 @@ export async function POST(request: NextRequest) {
         if (!content.endsWith('}')) {
           console.log('⚠️ JSON невалиден, пытаемся восстановить...')
           
-          // Находим последнюю закрывающую скобку
-          const lastBrace = content.lastIndexOf('}')
-          if (lastBrace > 0) {
-            // Обрезаем до последней закрывающей скобки
-            content = content.substring(0, lastBrace + 1)
-            console.log('Обрезанный JSON:', content.substring(content.length - 100))
-          } else {
-            // Если нет закрывающих скобок, добавляем их
-            content = content.trim()
-            if (content.endsWith(',')) {
-              content = content.slice(0, -1)
+          // Улучшенный алгоритм восстановления JSON
+          const fixTruncatedJSON = (jsonStr: string) => {
+            let fixed = jsonStr.trim()
+            
+            // Убираем лишние пробелы в конце
+            while (fixed.endsWith(' ') || fixed.endsWith('\n') || fixed.endsWith('\t')) {
+              fixed = fixed.slice(0, -1)
             }
-            content += '}'
-            console.log('Добавлена закрывающая скобка')
+            
+            // Если заканчивается на запятую, убираем её
+            if (fixed.endsWith(',')) {
+              fixed = fixed.slice(0, -1)
+            }
+            
+            // Подсчитываем открывающие и закрывающие скобки
+            let openBraces = 0
+            let openBrackets = 0
+            let inString = false
+            let escapeNext = false
+            
+            for (let i = 0; i < fixed.length; i++) {
+              const char = fixed[i]
+              
+              if (escapeNext) {
+                escapeNext = false
+                continue
+              }
+              
+              if (char === '\\') {
+                escapeNext = true
+                continue
+              }
+              
+              if (char === '"' && !escapeNext) {
+                inString = !inString
+                continue
+              }
+              
+              if (!inString) {
+                if (char === '{') openBraces++
+                else if (char === '}') openBraces--
+                else if (char === '[') openBrackets++
+                else if (char === ']') openBrackets--
+              }
+            }
+            
+            // Закрываем незакрытые массивы
+            while (openBrackets > 0) {
+              fixed += ']'
+              openBrackets--
+            }
+            
+            // Закрываем незакрытые объекты
+            while (openBraces > 0) {
+              fixed += '}'
+              openBraces--
+            }
+            
+            return fixed
           }
+          
+          content = fixTruncatedJSON(content)
+          console.log('Восстановленный JSON:', content.substring(content.length - 200))
         }
         
         parsedResult = JSON.parse(content)

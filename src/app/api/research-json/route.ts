@@ -39,7 +39,7 @@ export async function POST(request: NextRequest) {
         model: "gpt-4o",
         messages: [{ role: "user", content: analysisPrompt }],
         temperature: 0.7,
-        max_tokens: 6000,
+        max_tokens: 8000,
         response_format: { type: "json_object" }
       })
 
@@ -83,7 +83,7 @@ export async function POST(request: NextRequest) {
           }
         ],
         temperature: 0.7,
-        max_tokens: 6000,
+        max_tokens: 8000,
         response_format: { type: "json_object" }
       })
 
