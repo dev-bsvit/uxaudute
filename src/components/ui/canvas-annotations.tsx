@@ -1,6 +1,7 @@
 'use client'
 
 import React, { useRef, useEffect, useState, useCallback } from 'react'
+import { useTranslations } from 'next-intl'
 import { Button } from '@/components/ui/button'
 import { Edit3, Save, X, RotateCcw, Square, Circle, Type, ArrowRight } from 'lucide-react'
 
@@ -34,6 +35,7 @@ export function CanvasAnnotations({
   auditId,
   autoSave = true
 }: CanvasAnnotationsProps) {
+  const t = useTranslations('annotations')
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const imageRef = useRef<HTMLImageElement>(null)
   const [isEditing, setIsEditing] = useState(true) // Автоматически включаем режим редактирования
@@ -718,7 +720,7 @@ export function CanvasAnnotations({
         <div className="absolute inset-0 flex items-center justify-center bg-gray-100/80 rounded-xl">
           <div className="text-center">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-2"></div>
-            <p className="text-sm text-gray-600">Загрузка редактора аннотаций...</p>
+            <p className="text-sm text-gray-600">{t('loadingEditor')}</p>
           </div>
         </div>
       )}
@@ -734,7 +736,7 @@ export function CanvasAnnotations({
             onClick={() => setCurrentTool('rectangle')}
           >
             <Square className="w-4 h-4 mr-2" />
-            Прямоугольник
+            {t('rectangle')}
           </Button>
           <Button
             size="sm"
@@ -742,7 +744,7 @@ export function CanvasAnnotations({
             onClick={() => setCurrentTool('circle')}
           >
             <Circle className="w-4 h-4 mr-2" />
-            Круг
+            {t('circle')}
           </Button>
           <Button
             size="sm"
@@ -750,7 +752,7 @@ export function CanvasAnnotations({
             onClick={() => setCurrentTool('arrow')}
           >
             <ArrowRight className="w-4 h-4 mr-2" />
-            Стрелка
+            {t('arrow')}
           </Button>
           <Button
             size="sm"
@@ -758,7 +760,7 @@ export function CanvasAnnotations({
             onClick={() => setCurrentTool('text')}
           >
             <Type className="w-4 h-4 mr-2" />
-            Текст
+            {t('text')}
           </Button>
         </div>
       )}
@@ -771,7 +773,7 @@ export function CanvasAnnotations({
           onClick={saveAnnotations}
         >
           <Save className="w-4 h-4 mr-2" />
-          Сохранить
+          {t('save')}
         </Button>
         <Button
           size="sm"
@@ -779,7 +781,7 @@ export function CanvasAnnotations({
           onClick={clearAnnotations}
         >
           <RotateCcw className="w-4 h-4 mr-2" />
-          Очистить
+          {t('clear')}
         </Button>
       </div>
 
@@ -787,7 +789,7 @@ export function CanvasAnnotations({
       {!isCanvasReady && isClient && (
         <div className="mt-2 text-center">
           <span className="inline-flex items-center px-3 py-1 rounded-full text-sm bg-blue-100 text-blue-800">
-            ⏳ Загрузка редактора аннотаций...
+            ⏳ {t('loadingEditor')}
           </span>
         </div>
       )}
@@ -796,7 +798,7 @@ export function CanvasAnnotations({
       {hasAnnotations && !isEditing && isCanvasReady && (
         <div className="mt-2 text-center space-y-2">
           <span className="inline-flex items-center px-3 py-1 rounded-full text-sm bg-green-100 text-green-800">
-            ✓ {annotations.length} аннотаций сохранено
+            ✓ {annotations.length} {t('annotationsSaved')}
           </span>
           
           {/* Статус сохранения */}

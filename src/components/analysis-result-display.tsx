@@ -27,6 +27,7 @@ export function AnalysisResultDisplay({
   auditId
 }: AnalysisResultDisplayProps) {
   const t = useTranslations('analysis')
+  const tAnnotations = useTranslations('annotations')
   
   // Защита от ошибок - проверяем структуру данных
   if (!analysis) {
@@ -452,7 +453,7 @@ export function AnalysisResultDisplay({
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 {screenshot ? <Monitor className="w-5 h-5" /> : <Link2 className="w-5 h-5" />}
-                {screenshot ? 'Анализируемый интерфейс' : 'Анализируемый URL'}
+                {screenshot ? tAnnotations('analyzedInterface') : tAnnotations('analyzedUrl')}
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -460,17 +461,17 @@ export function AnalysisResultDisplay({
                 <div className="space-y-4">
                   <CanvasAnnotations
                     src={screenshot}
-                    alt="Анализируемый скриншот"
+                    alt={tAnnotations('analyzedScreenshot')}
                     className="w-full h-auto max-h-[70vh] object-contain"
                     onAnnotationSave={handleAnnotationSave}
                     initialAnnotationData={annotationData}
                     auditId={auditId}
                   />
                   <div className="text-sm text-gray-500 text-center">
-                    💡 Редактор аннотаций открывается автоматически. Добавьте комментарии и выделения к скриншоту
+                    💡 {tAnnotations('editorHint')}
                   </div>
                   <div className="text-xs text-gray-400 text-center mt-2">
-                    Анализ {safeAnalysis.metadata?.timestamp ? new Date(safeAnalysis.metadata.timestamp).toLocaleDateString('ru-RU') : 'Неизвестно'}
+                    {tAnnotations('analysis')} {safeAnalysis.metadata?.timestamp ? new Date(safeAnalysis.metadata.timestamp).toLocaleDateString('ru-RU') : 'Неизвестно'}
                   </div>
                 </div>
               ) : url ? (
