@@ -23,10 +23,10 @@ export default function NotFound() {
         <div className="mb-8">
           <h1 className="text-6xl font-bold text-gray-900 mb-4">404</h1>
           <h2 className="text-2xl font-semibold text-gray-700 mb-2">
-            {locale === 'uk' ? 'Сторінку не знайдено' : 'Страница не найдена'}
+            {locale === 'ua' ? 'Сторінку не знайдено' : 'Страница не найдена'}
           </h2>
           <p className="text-gray-600 mb-8">
-            {locale === 'uk' 
+            {locale === 'ua' 
               ? 'Вибачте, але сторінка, яку ви шукаєте, не існує.' 
               : 'Извините, но страница, которую вы ищете, не существует.'
             }
@@ -39,7 +39,7 @@ export default function NotFound() {
             className="w-full bg-blue-600 hover:bg-blue-700 text-white"
           >
             <Home className="w-4 h-4 mr-2" />
-            {locale === 'uk' ? 'На головну' : 'На главную'}
+            {locale === 'ua' ? 'На головну' : 'На главную'}
           </Button>
           
           <Button 
@@ -48,13 +48,13 @@ export default function NotFound() {
             className="w-full"
           >
             <ArrowLeft className="w-4 h-4 mr-2" />
-            {locale === 'uk' ? 'Назад' : 'Назад'}
+            {locale === 'ua' ? 'Назад' : 'Назад'}
           </Button>
         </div>
 
         <div className="mt-8 text-sm text-gray-500">
           <p>
-            {locale === 'uk' 
+            {locale === 'ua' 
               ? 'Якщо ви вважаєте, що це помилка, будь ласка, зв\'яжіться з нами.' 
               : 'Если вы считаете, что это ошибка, пожалуйста, свяжитесь с нами.'
             }

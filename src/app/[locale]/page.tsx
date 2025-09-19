@@ -8,8 +8,9 @@ import { Button } from '@/components/ui/button'
 import Link from 'next/link'
 import { ArrowRight, Zap, Shield, BarChart3, Users } from 'lucide-react'
 
-export default function HomePage() {
+export default function HomePage({ params }: { params: { locale: string } }) {
   const t = useTranslations()
+  const locale = params.locale
 
   const features = [
     {
@@ -76,13 +77,13 @@ export default function HomePage() {
                 Начните анализ своих интерфейсов прямо сейчас. Войдите в систему и создайте свой первый проект.
               </p>
               <div className="space-x-4">
-                <Link href="/ru/dashboard">
+                <Link href={`/${locale}/dashboard`}>
                   <Button size="lg" className="px-8 py-4 text-lg">
                     Начать бесплатно
                     <ArrowRight className="w-5 h-5 ml-2" />
                   </Button>
                 </Link>
-                <Link href="/ru/credits">
+                <Link href={`/${locale}/credits`}>
                   <Button variant="outline" size="lg" className="px-8 py-4 text-lg">
                     💰 Управление кредитами
                   </Button>

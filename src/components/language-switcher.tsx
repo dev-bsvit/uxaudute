@@ -5,7 +5,7 @@ import { useLocale } from 'next-intl'
 
 const languages = [
   { code: 'ru', name: 'Русский', flag: '🇷🇺' },
-  { code: 'uk', name: 'Українська', flag: '🇺🇦' }
+  { code: 'ua', name: 'Українська', flag: '🇺🇦' }
 ]
 
 export function LanguageSwitcher() {
