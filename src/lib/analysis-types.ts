@@ -98,7 +98,16 @@ export interface ConfidenceVariation {
 }
 
 export interface SelfCheck {
-  checklist: {
+  // Новые поля из украинских промптов
+  allKeyElementsCovered?: boolean
+  contextualQuestionsAdded?: boolean
+  audienceInsightsExtracted?: boolean
+  targetActionClarityChecked?: boolean
+  allRecommendationsJustified?: boolean
+  noContradictoryRecommendations?: boolean
+  
+  // Старые поля для обратной совместимости
+  checklist?: {
     coversAllElements: boolean
     noContradictions: boolean
     principlesJustified: boolean

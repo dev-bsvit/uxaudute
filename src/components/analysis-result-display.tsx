@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useState } from 'react'
-import { StructuredAnalysisResponse } from '@/lib/analysis-types'
+import { StructuredAnalysisResponse, SelfCheck } from '@/lib/analysis-types'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { SurveyDisplay } from '@/components/ui/survey-display'
@@ -55,10 +55,16 @@ export function AnalysisResultDisplay({
     },
     problemsAndSolutions: analysis.problemsAndSolutions || [],
     selfCheck: analysis.selfCheck || { 
+      allKeyElementsCovered: false,
+      contextualQuestionsAdded: false,
+      audienceInsightsExtracted: false,
+      targetActionClarityChecked: false,
+      allRecommendationsJustified: false,
+      noContradictoryRecommendations: false,
       checklist: {}, 
       varietyCheck: {}, 
-      confidence: { analysis: 0 } 
-    },
+      confidence: { analysis: 0, survey: 0, recommendations: 0 } 
+    } as SelfCheck,
     annotations: analysis.annotations || '',
     metadata: analysis.metadata || { version: '1.0', model: 'Unknown', timestamp: new Date().toISOString() }
   }
@@ -333,19 +339,64 @@ export function AnalysisResultDisplay({
             <div>
               <h4 className="font-medium text-gray-900 mb-3">Чек-лист</h4>
               <div className="space-y-2">
-                {Object.entries(safeAnalysis.selfCheck.checklist).map(([key, value]: [string, any]) => (
-                  <div key={key} className="flex items-center gap-2">
-                    <span className={value ? 'text-green-500' : 'text-red-500'}>
-                      {value ? '✅' : '❌'}
-                    </span>
-                    <span className="text-sm text-gray-700">
-                      {key === 'coversAllElements' && 'Покрыты все ключевые элементы'}
-                      {key === 'noContradictions' && 'Нет противоречивых рекомендаций'}
-                      {key === 'principlesJustified' && 'Каждая рекомендация обоснована принципом'}
-                      {key === 'actionClarity' && 'Проверена понятность целевого действия'}
-                    </span>
-                  </div>
-                ))}
+                {/* Новый формат selfCheck с булевыми полями */}
+                {safeAnalysis.selfCheck.allKeyElementsCovered !== undefined && (
+                  <>
+                    <div className="flex items-center gap-2">
+                      <span className={safeAnalysis.selfCheck.allKeyElementsCovered ? 'text-green-500' : 'text-red-500'}>
+                        {safeAnalysis.selfCheck.allKeyElementsCovered ? '✅' : '❌'}
+                      </span>
+                      <span className="text-sm text-gray-700">Покрыты все ключевые элементы</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className={safeAnalysis.selfCheck.contextualQuestionsAdded ? 'text-green-500' : 'text-red-500'}>
+                        {safeAnalysis.selfCheck.contextualQuestionsAdded ? '✅' : '❌'}
+                      </span>
+                      <span className="text-sm text-gray-700">Добавлены контекстные вопросы</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className={safeAnalysis.selfCheck.audienceInsightsExtracted ? 'text-green-500' : 'text-red-500'}>
+                        {safeAnalysis.selfCheck.audienceInsightsExtracted ? '✅' : '❌'}
+                      </span>
+                      <span className="text-sm text-gray-700">Извлечены инсайты аудитории</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className={safeAnalysis.selfCheck.targetActionClarityChecked ? 'text-green-500' : 'text-red-500'}>
+                        {safeAnalysis.selfCheck.targetActionClarityChecked ? '✅' : '❌'}
+                      </span>
+                      <span className="text-sm text-gray-700">Проверена понятность целевого действия</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className={safeAnalysis.selfCheck.allRecommendationsJustified ? 'text-green-500' : 'text-red-500'}>
+                        {safeAnalysis.selfCheck.allRecommendationsJustified ? '✅' : '❌'}
+                      </span>
+                      <span className="text-sm text-gray-700">Все рекомендации обоснованы</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className={safeAnalysis.selfCheck.noContradictoryRecommendations ? 'text-green-500' : 'text-red-500'}>
+                        {safeAnalysis.selfCheck.noContradictoryRecommendations ? '✅' : '❌'}
+                      </span>
+                      <span className="text-sm text-gray-700">Нет противоречивых рекомендаций</span>
+                    </div>
+                  </>
+                )}
+                
+                {/* Старый формат checklist для обратной совместимости */}
+                {safeAnalysis.selfCheck.checklist && Object.keys(safeAnalysis.selfCheck.checklist).length > 0 && (
+                  Object.entries(safeAnalysis.selfCheck.checklist).map(([key, value]: [string, any]) => (
+                    <div key={key} className="flex items-center gap-2">
+                      <span className={value ? 'text-green-500' : 'text-red-500'}>
+                        {value ? '✅' : '❌'}
+                      </span>
+                      <span className="text-sm text-gray-700">
+                        {key === 'coversAllElements' && 'Покрыты все ключевые элементы'}
+                        {key === 'noContradictions' && 'Нет противоречивых рекомендаций'}
+                        {key === 'principlesJustified' && 'Каждая рекомендация обоснована принципом'}
+                        {key === 'actionClarity' && 'Проверена понятность целевого действия'}
+                      </span>
+                    </div>
+                  ))
+                )}
               </div>
             </div>
             
