@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useTranslations, useLocale } from 'next-intl'
+import { useParams } from 'next/navigation'
 import { SidebarDemo } from '@/components/sidebar-demo'
 import { UploadForm } from '@/components/upload-form'
 import { ActionPanel } from '@/components/action-panel'
@@ -120,6 +121,7 @@ export default function DashboardPage() {
   console.log('🔍 DashboardPage компонент загружен')
   const t = useTranslations()
   const locale = useLocale()
+  const params = useParams()
   
   const [user, setUser] = useState<User | null>(null)
   const [loading, setLoading] = useState(true)
