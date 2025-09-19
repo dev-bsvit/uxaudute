@@ -383,7 +383,7 @@ export function AnalysisResultDisplay({
                 
                 {/* Старый формат checklist для обратной совместимости */}
                 {safeAnalysis.selfCheck.checklist && Object.keys(safeAnalysis.selfCheck.checklist).length > 0 && (
-                  Object.entries(safeAnalysis.selfCheck.checklist).map(([key, value]: [string, any]) => (
+                  Object.entries(safeAnalysis.selfCheck.checklist || {}).map(([key, value]: [string, any]) => (
                     <div key={key} className="flex items-center gap-2">
                       <span className={value ? 'text-green-500' : 'text-red-500'}>
                         {value ? '✅' : '❌'}
@@ -403,7 +403,7 @@ export function AnalysisResultDisplay({
             <div>
               <h4 className="font-medium text-gray-900 mb-3">Уверенность по блокам</h4>
               <div className="space-y-2">
-                {Object.entries(safeAnalysis.selfCheck.confidence).map(([key, value]: [string, any]) => (
+                {Object.entries(safeAnalysis.selfCheck.confidence || {}).map(([key, value]: [string, any]) => (
                   <div key={key} className="flex items-center justify-between">
                     <span className="text-sm text-gray-700">
                       {key === 'analysis' && 'Анализ'}

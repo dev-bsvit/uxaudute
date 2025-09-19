@@ -175,7 +175,7 @@ export const ABTestDisplay: React.FC<ABTestDisplayProps> = ({
               <div>
                 <h4 className="font-semibold text-slate-900 mb-3">Детальные задачи</h4>
                 <div className="grid md:grid-cols-2 gap-4">
-                  {Object.entries(test.detailed_tasks).map(([category, tasks]) => (
+                  {Object.entries(test.detailed_tasks || {}).map(([category, tasks]) => (
                     <div key={category} className="bg-slate-50 p-4 rounded-lg">
                       <h5 className="font-medium text-slate-900 mb-2 capitalize">
                         {category === 'frontend' ? 'Frontend' : 

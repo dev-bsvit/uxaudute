@@ -126,7 +126,7 @@ export const BusinessAnalyticsDisplay: React.FC<BusinessAnalyticsDisplayProps> =
         </CardHeader>
         <CardContent>
           <div className="grid md:grid-cols-5 gap-4">
-            {Object.entries(data.business_metrics.conversion_funnel).map(([stage, description], index) => (
+            {Object.entries(data.business_metrics?.conversion_funnel || {}).map(([stage, description], index) => (
               <div key={stage} className="text-center">
                 <div className="w-12 h-12 bg-blue-100 text-blue-800 rounded-full flex items-center justify-center text-lg font-bold mx-auto mb-2">
                   {index + 1}
