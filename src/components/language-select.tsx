@@ -7,7 +7,8 @@ import { useState, useEffect, useRef } from 'react'
 
 const languages = [
   { code: 'ru', name: 'Русский', flag: '🇷🇺' },
-  { code: 'ua', name: 'Українська', flag: '🇺🇦' }
+  { code: 'ua', name: 'Українська', flag: '🇺🇦' },
+  { code: 'en', name: 'English', flag: '🇺🇸' }
 ]
 
 export function LanguageSelect() {
@@ -19,8 +20,8 @@ export function LanguageSelect() {
   const dropdownRef = useRef<HTMLDivElement>(null)
 
   // Определяем локаль из URL, если useLocale() не работает правильно
-  const urlLocale = pathname.split('/')[1] as 'ru' | 'ua' | undefined
-  const actualLocale = urlLocale && ['ru', 'ua'].includes(urlLocale) ? urlLocale : locale
+  const urlLocale = pathname.split('/')[1] as 'ru' | 'ua' | 'en' | undefined
+  const actualLocale = urlLocale && ['ru', 'ua', 'en'].includes(urlLocale) ? urlLocale : locale
 
   // Отладочная информация
   console.log('LanguageSelect render:', {

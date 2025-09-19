@@ -6,7 +6,10 @@ import { join } from 'path'
  */
 export async function loadMainPrompt(locale: string = 'ru'): Promise<string> {
   try {
-    const fileName = locale === 'ua' ? 'основной-промпт-ua.md' : 'основной-промпт.md'
+    let fileName = 'основной-промпт.md'
+    if (locale === 'ua') fileName = 'основной-промпт-ua.md'
+    else if (locale === 'en') fileName = 'main-prompt-en.md'
+    
     const promptPath = join(process.cwd(), 'prompts', fileName)
     const prompt = readFileSync(promptPath, 'utf-8')
     return prompt
@@ -38,7 +41,10 @@ ${context}
  */
 export async function loadJSONPromptV2(locale: string = 'ru'): Promise<string> {
   try {
-    const fileName = locale === 'ua' ? 'json-structured-prompt-ua.md' : 'json-structured-prompt-v2.md'
+    let fileName = 'json-structured-prompt-v2.md'
+    if (locale === 'ua') fileName = 'json-structured-prompt-ua.md'
+    else if (locale === 'en') fileName = 'json-structured-prompt-en.md'
+    
     const promptPath = join(process.cwd(), 'prompts', fileName)
     const prompt = readFileSync(promptPath, 'utf-8')
     return prompt
@@ -113,7 +119,7 @@ function getJSONFallbackPrompt(locale: string = 'ru'): string {
   ]
 }
 
-**Отвечай ТОЛЬКО в формате JSON на ${locale === 'ua' ? 'украинском' : 'русском'} языке.**`
+**Отвечай ТОЛЬКО в формате JSON на ${locale === 'ua' ? 'украинском' : locale === 'en' ? 'английском' : 'русском'} языке.**`
 }
 
 /**
@@ -130,7 +136,7 @@ function getFallbackPrompt(locale: string = 'ru'): string {
 3. Проблемы и рекомендации
 4. Self-Check & Confidence
 
-Отвечай на ${locale === 'ua' ? 'украинском' : 'русском'} языке.`
+Отвечай на ${locale === 'ua' ? 'украинском' : locale === 'en' ? 'английском' : 'русском'} языке.`
 }
 
 /**
