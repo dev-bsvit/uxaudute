@@ -18,7 +18,7 @@ import Link from "next/link";
 import { User } from "@supabase/supabase-js";
 import { signOut } from "@/lib/database";
 import { supabase } from "@/lib/supabase";
-import { useLocale } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 
 interface SidebarDemoProps {
   children: React.ReactNode;
@@ -28,38 +28,39 @@ interface SidebarDemoProps {
 export function SidebarDemo({ children, user }: SidebarDemoProps) {
   const [creditsBalance, setCreditsBalance] = useState<number | null>(null);
   const locale = useLocale();
+  const t = useTranslations();
 
   const links = [
     {
-      label: "Главная",
+      label: t('navigation.home'),
       href: `/${locale}`,
       icon: (
         <IconHome className="h-5 w-5 shrink-0 text-white" />
       ),
     },
     {
-      label: "Быстрый анализ",
+      label: t('navigation.dashboard'),
       href: `/${locale}/dashboard`,
       icon: (
         <IconChartBar className="h-5 w-5 shrink-0 text-white" />
       ),
     },
     {
-      label: "Мои проекты",
+      label: t('navigation.projects'),
       href: `/${locale}/projects`,
       icon: (
         <IconFolder className="h-5 w-5 shrink-0 text-white" />
       ),
     },
     {
-      label: "Счет",
+      label: t('navigation.credits'),
       href: `/${locale}/credits`,
       icon: (
         <IconCreditCard className="h-5 w-5 shrink-0 text-white" />
       ),
     },
     {
-      label: "Настройки",
+      label: t('navigation.settings'),
       href: `/${locale}/settings`,
       icon: (
         <IconSettings className="h-5 w-5 shrink-0 text-white" />
@@ -134,7 +135,7 @@ export function SidebarDemo({ children, user }: SidebarDemoProps) {
               {/* Баланс кредитов */}
               <div className="mt-4 p-3 bg-white/10 rounded-lg">
                 <div className="flex items-center justify-between">
-                  <span className="text-sm text-white/80">Баланс кредитов</span>
+                  <span className="text-sm text-white/80">{t('credits.balance')}</span>
                   <span className="text-lg font-bold text-white">
                     {creditsBalance !== null ? creditsBalance : '...'}
                   </span>
@@ -146,14 +147,14 @@ export function SidebarDemo({ children, user }: SidebarDemoProps) {
                 className="flex items-center gap-3 px-3 py-2 text-sm font-medium text-white hover:bg-white/20 rounded-lg transition-colors"
               >
                 <IconLogout className="h-5 w-5 shrink-0" />
-                Выйти
+                {t('navigation.logout')}
               </button>
             </div>
           </div>
           <div>
             <SidebarLink
               link={{
-                label: user?.user_metadata?.full_name || user?.email?.split('@')[0] || 'Пользователь',
+                label: user?.user_metadata?.full_name || user?.email?.split('@')[0] || t('auth.user'),
                 href: "#",
                 icon: (
                   <div className="h-7 w-7 shrink-0 rounded-full bg-gradient-to-r from-blue-500 to-purple-600 flex items-center justify-center">

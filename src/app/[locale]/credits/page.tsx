@@ -54,10 +54,10 @@ export default function CreditsPage() {
         <div className="max-w-md mx-auto bg-white rounded-2xl shadow-lg p-8">
           <div className="text-center mb-8">
             <h2 className="text-3xl font-bold text-slate-900 mb-4">
-              Войдите для управления кредитами
+              {t('credits.signInRequired')}
             </h2>
             <p className="text-lg text-slate-600">
-              Управляйте своим балансом кредитов и покупайте дополнительные пакеты
+              {t('credits.signInDescription')}
             </p>
           </div>
         </div>
@@ -73,17 +73,17 @@ export default function CreditsPage() {
             {/* Заголовок */}
             <div className="text-center">
               <h1 className="text-4xl font-bold text-slate-900 mb-4">
-                Счет
+                {t('credits.title')}
               </h1>
               <p className="text-lg text-slate-600">
-                Управляйте своим балансом кредитов и покупайте дополнительные пакеты для проведения аудитов.
+                {t('credits.description')}
               </p>
             </div>
             
             {/* Баланс кредитов */}
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-2xl font-bold">Баланс кредитов</CardTitle>
+                <CardTitle className="text-2xl font-bold">{t('credits.balance')}</CardTitle>
                 <CreditCard className="h-6 w-6 text-muted-foreground" />
               </CardHeader>
               <CardContent>
