@@ -451,7 +451,7 @@ export default function ProjectDetailPage() {
       <div className="min-h-screen bg-gray-100 flex items-center justify-center">
         <div className="text-center py-12 bg-white rounded-2xl shadow-lg p-8">
           <h2 className="text-2xl font-bold text-slate-900 mb-4">Проект не найден</h2>
-          <Link href="/projects">
+          <Link href={`/${params.locale}/projects`}>
             <BackArrow />
           </Link>
         </div>
@@ -465,7 +465,7 @@ export default function ProjectDetailPage() {
         {/* Хедер проекта */}
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-4">
-            <Link href="/projects">
+            <Link href={`/${params.locale}/projects`}>
               <BackArrow />
             </Link>
             <div>

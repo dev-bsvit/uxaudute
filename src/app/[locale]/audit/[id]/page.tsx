@@ -371,7 +371,7 @@ export default function AuditPage() {
           <p className="text-slate-600 mb-6">
             {error || 'Аудит с указанным ID не существует'}
           </p>
-          <Link href="/dashboard">
+          <Link href={`/${params.locale}/dashboard`}>
             <BackArrow />
           </Link>
         </div>

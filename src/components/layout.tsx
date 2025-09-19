@@ -25,8 +25,8 @@ export function Layout({ children, title = 'UX Audit', transparentHeader = false
   const [showUserMenu, setShowUserMenu] = useState(false)
 
   // Определяем локаль из URL, если useLocale() не работает правильно
-  const urlLocale = pathname.split('/')[1] as 'ru' | 'ua' | undefined
-  const actualLocale = urlLocale && ['ru', 'ua'].includes(urlLocale) ? urlLocale : locale
+  const urlLocale = pathname.split('/')[1] as 'ru' | 'ua' | 'en' | undefined
+  const actualLocale = urlLocale && ['ru', 'ua', 'en'].includes(urlLocale) ? urlLocale : locale
   
   // Навигация с Dashboard для быстрого анализа
   const navigation = [

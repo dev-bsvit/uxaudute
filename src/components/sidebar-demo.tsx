@@ -33,8 +33,8 @@ export function SidebarDemo({ children, user }: SidebarDemoProps) {
   const t = useTranslations();
 
   // Определяем локаль из URL, если useLocale() не работает правильно
-  const urlLocale = pathname.split('/')[1] as 'ru' | 'ua' | undefined;
-  const actualLocale = urlLocale && ['ru', 'ua'].includes(urlLocale) ? urlLocale : locale;
+  const urlLocale = pathname.split('/')[1] as 'ru' | 'ua' | 'en' | undefined;
+  const actualLocale = urlLocale && ['ru', 'ua', 'en'].includes(urlLocale) ? urlLocale : locale;
 
   // Отладка локали
   console.log('SidebarDemo debug:', {

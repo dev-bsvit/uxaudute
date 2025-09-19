@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
+import { usePathname } from 'next/navigation'
 
 interface CreditsSidebarProps {
   userId?: string
@@ -17,6 +18,8 @@ export default function CreditsSidebar({ userId, className = '' }: CreditsSideba
   const [balance, setBalance] = useState<BalanceData | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const pathname = usePathname()
+  const actualLocale = pathname.split('/')[1] || 'ru'
 
   useEffect(() => {
     const fetchBalance = async () => {
@@ -50,7 +53,7 @@ export default function CreditsSidebar({ userId, className = '' }: CreditsSideba
       <div className="flex items-center justify-between mb-3">
         <h3 className="text-sm font-medium text-gray-900">💰 Баланс</h3>
         <Link 
-          href="/credits" 
+          href={`/${actualLocale}/credits`} 
           className="text-xs text-blue-600 hover:text-blue-800"
         >
           Управлять
@@ -93,7 +96,7 @@ export default function CreditsSidebar({ userId, className = '' }: CreditsSideba
 
       <div className="mt-3 pt-3 border-t border-gray-100">
         <Link 
-          href="/credits" 
+          href={`/${actualLocale}/credits`} 
           className="block w-full text-center text-xs bg-blue-50 text-blue-700 hover:bg-blue-100 py-2 px-3 rounded-md transition-colors"
         >
           Пополнить баланс
