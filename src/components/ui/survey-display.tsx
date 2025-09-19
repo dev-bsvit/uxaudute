@@ -35,7 +35,7 @@ export function SurveyDisplay({
       {/* Общая статистика */}
       <div className="flex items-center justify-between">
         <Badge variant="outline">
-          {survey.summary.totalQuestions} вопросов
+          {survey.summary?.totalQuestions || survey.questions?.length || 0} вопросов
         </Badge>
       </div>
 

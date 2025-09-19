@@ -28,12 +28,13 @@ export interface UXSurvey {
   screenType?: string // v2: тип экрана для адаптации вопросов
   questions: UXQuestion[]
   overallConfidence: number
-  summary: {
+  summary?: {
     totalQuestions: number
     averageConfidence: number
     criticalIssues: number // Количество критических проблем
     recommendations: string[] // Краткие рекомендации
   }
+  surveyReasoning?: string // v2: объяснение выбора вопросов
 }
 
 // Блок "Аудитория"
