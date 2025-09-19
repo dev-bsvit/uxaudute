@@ -15,6 +15,7 @@ export function LanguageSelect() {
   const pathname = usePathname()
   const locale = useLocale()
   const [isOpen, setIsOpen] = useState(false)
+  const [forceUpdate, setForceUpdate] = useState(0)
   const dropdownRef = useRef<HTMLDivElement>(null)
 
   // Определяем локаль из URL, если useLocale() не работает правильно
@@ -49,12 +50,14 @@ export function LanguageSelect() {
     }
   }, [isOpen])
 
-  // Принудительное обновление при изменении локали
+  // Принудительное обновление при изменении локали или pathname
   useEffect(() => {
-    console.log('Locale changed to:', locale)
+    console.log('Locale or pathname changed:', { locale, pathname, actualLocale })
     // Закрываем селект при смене языка
     setIsOpen(false)
-  }, [locale])
+    // Принудительно обновляем компонент
+    setForceUpdate(prev => prev + 1)
+  }, [locale, pathname, actualLocale])
 
   const switchLanguage = (newLocale: string) => {
     // Получаем путь без локали, используя actualLocale
@@ -84,7 +87,7 @@ export function LanguageSelect() {
   }
 
   return (
-    <div className="relative" ref={dropdownRef}>
+    <div className="relative" ref={dropdownRef} key={`${actualLocale}-${forceUpdate}`}>
       <button
         onClick={() => setIsOpen(!isOpen)}
         className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-50 rounded-md transition-colors border border-gray-200 hover:border-gray-300"
