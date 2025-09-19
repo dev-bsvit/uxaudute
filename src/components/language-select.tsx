@@ -17,6 +17,13 @@ export function LanguageSelect() {
   const [isOpen, setIsOpen] = useState(false)
   const dropdownRef = useRef<HTMLDivElement>(null)
 
+  // Отладочная информация
+  console.log('LanguageSelect render:', {
+    locale,
+    pathname,
+    currentLanguage: languages.find(lang => lang.code === locale)
+  })
+
   const currentLanguage = languages.find(lang => lang.code === locale) || languages[0]
 
   // Закрытие по клику вне области
@@ -35,6 +42,13 @@ export function LanguageSelect() {
       document.removeEventListener('mousedown', handleClickOutside)
     }
   }, [isOpen])
+
+  // Принудительное обновление при изменении локали
+  useEffect(() => {
+    console.log('Locale changed to:', locale)
+    // Закрываем селект при смене языка
+    setIsOpen(false)
+  }, [locale])
 
   const switchLanguage = (newLocale: string) => {
     // Получаем путь без локали
