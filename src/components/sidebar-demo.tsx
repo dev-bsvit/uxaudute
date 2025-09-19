@@ -19,6 +19,7 @@ import { User } from "@supabase/supabase-js";
 import { signOut } from "@/lib/database";
 import { supabase } from "@/lib/supabase";
 import { useLocale, useTranslations } from "next-intl";
+import { usePathname } from "next/navigation";
 
 interface SidebarDemoProps {
   children: React.ReactNode;
@@ -28,43 +29,53 @@ interface SidebarDemoProps {
 export function SidebarDemo({ children, user }: SidebarDemoProps) {
   const [creditsBalance, setCreditsBalance] = useState<number | null>(null);
   const locale = useLocale();
+  const pathname = usePathname();
   const t = useTranslations();
 
+  // Определяем локаль из URL, если useLocale() не работает правильно
+  const urlLocale = pathname.split('/')[1] as 'ru' | 'ua' | undefined;
+  const actualLocale = urlLocale && ['ru', 'ua'].includes(urlLocale) ? urlLocale : locale;
+
   // Отладка локали
-  console.log('SidebarDemo locale:', locale);
+  console.log('SidebarDemo debug:', {
+    locale,
+    pathname,
+    urlLocale,
+    actualLocale
+  });
 
   const links = [
     {
       label: t('navigation.home'),
-      href: `/${locale}`,
+      href: `/${actualLocale}`,
       icon: (
         <IconHome className="h-5 w-5 shrink-0 text-white" />
       ),
     },
     {
       label: t('navigation.dashboard'),
-      href: `/${locale}/dashboard`,
+      href: `/${actualLocale}/dashboard`,
       icon: (
         <IconChartBar className="h-5 w-5 shrink-0 text-white" />
       ),
     },
     {
       label: t('navigation.projects'),
-      href: `/${locale}/projects`,
+      href: `/${actualLocale}/projects`,
       icon: (
         <IconFolder className="h-5 w-5 shrink-0 text-white" />
       ),
     },
     {
       label: t('navigation.credits'),
-      href: `/${locale}/credits`,
+      href: `/${actualLocale}/credits`,
       icon: (
         <IconCreditCard className="h-5 w-5 shrink-0 text-white" />
       ),
     },
     {
       label: t('navigation.settings'),
-      href: `/${locale}/settings`,
+      href: `/${actualLocale}/settings`,
       icon: (
         <IconSettings className="h-5 w-5 shrink-0 text-white" />
       ),
@@ -131,7 +142,7 @@ export function SidebarDemo({ children, user }: SidebarDemoProps) {
         <SidebarBody className="justify-between gap-10" style={{ backgroundColor: '#6D90BA' }}>
           <div className="flex flex-1 flex-col overflow-x-hidden overflow-y-auto">
             <>
-              <Logo locale={locale} />
+              <Logo locale={actualLocale} />
             </>
             <div className="mt-8 flex flex-col gap-2">
               {links.map((link, idx) => (
