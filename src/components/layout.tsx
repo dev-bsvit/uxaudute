@@ -23,11 +23,15 @@ export function Layout({ children, title = 'UX Audit', transparentHeader = false
   const t = useTranslations()
   const [user, setUser] = useState<SupabaseUser | null>(null)
   const [showUserMenu, setShowUserMenu] = useState(false)
+
+  // Определяем локаль из URL, если useLocale() не работает правильно
+  const urlLocale = pathname.split('/')[1] as 'ru' | 'ua' | undefined
+  const actualLocale = urlLocale && ['ru', 'ua'].includes(urlLocale) ? urlLocale : locale
   
   // Навигация с Dashboard для быстрого анализа
   const navigation = [
-    { name: t('navigation.dashboard'), href: `/${locale}/dashboard`, current: pathname === `/${locale}/dashboard` },
-    { name: t('navigation.projects'), href: `/${locale}/projects`, current: pathname.startsWith(`/${locale}/projects`) },
+    { name: t('navigation.dashboard'), href: `/${actualLocale}/dashboard`, current: pathname === `/${actualLocale}/dashboard` },
+    { name: t('navigation.projects'), href: `/${actualLocale}/projects`, current: pathname.startsWith(`/${actualLocale}/projects`) },
   ]
 
   useEffect(() => {
@@ -62,7 +66,7 @@ export function Layout({ children, title = 'UX Audit', transparentHeader = false
       await signOut()
       setUser(null)
       setShowUserMenu(false)
-      window.location.href = `/${locale}`
+      window.location.href = `/${actualLocale}`
     } catch (error) {
       console.error('Error signing out:', error)
     }
@@ -74,7 +78,7 @@ export function Layout({ children, title = 'UX Audit', transparentHeader = false
         <div className="w-full px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             <div className="flex items-center space-x-8">
-              <Link href={`/${locale}`} className={`flex items-center space-x-2 text-xl font-bold transition-colors ${
+              <Link href={`/${actualLocale}`} className={`flex items-center space-x-2 text-xl font-bold transition-colors ${
                 transparentHeader 
                   ? 'text-white hover:text-blue-200' 
                   : 'text-blue-600 hover:text-blue-700'
@@ -144,7 +148,7 @@ export function Layout({ children, title = 'UX Audit', transparentHeader = false
                       </div>
                       
                       <Link
-                        href={`/${locale}/dashboard`}
+                        href={`/${actualLocale}/dashboard`}
                         className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
                         onClick={() => setShowUserMenu(false)}
                       >
@@ -153,7 +157,7 @@ export function Layout({ children, title = 'UX Audit', transparentHeader = false
                       </Link>
                       
                       <Link
-                        href={`/${locale}/projects`}
+                        href={`/${actualLocale}/projects`}
                         className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
                         onClick={() => setShowUserMenu(false)}
                       >
@@ -172,7 +176,7 @@ export function Layout({ children, title = 'UX Audit', transparentHeader = false
                   )}
                 </div>
               ) : (
-                <Link href={`/${locale}/dashboard`}>
+                <Link href={`/${actualLocale}/dashboard`}>
                   <Button size="sm" className="bg-blue-600 hover:bg-blue-700 text-white">
                     {t('auth.signIn')}
                   </Button>
