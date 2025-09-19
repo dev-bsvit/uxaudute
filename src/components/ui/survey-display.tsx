@@ -1,6 +1,7 @@
 'use client'
 
 import React from 'react'
+import { useTranslations } from 'next-intl'
 import { UXQuestion, UXSurvey } from '@/lib/analysis-types'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
@@ -17,6 +18,7 @@ export function SurveyDisplay({
   showCategories = true, 
   showPrinciples = true 
 }: SurveyDisplayProps) {
+  const t = useTranslations('analysis')
   const getCategoryColor = (category: string) => {
     const colors = {
       clarity: 'bg-blue-100 text-blue-800',
@@ -35,7 +37,7 @@ export function SurveyDisplay({
       {/* Общая статистика */}
       <div className="flex items-center justify-between">
         <Badge variant="outline">
-          {survey.summary?.totalQuestions || survey.questions?.length || 0} вопросов
+          {survey.summary?.totalQuestions || survey.questions?.length || 0} {t('questions')}
         </Badge>
       </div>
 
@@ -109,7 +111,7 @@ export function SurveyDisplay({
                             {score}%
                           </div>
                           <div className="text-xs text-gray-500">
-                            {isHighest ? 'Наиболее вероятно' : 'Менее вероятно'}
+                            {isHighest ? t('mostLikely') : t('lessLikely')}
                           </div>
                         </div>
                       </div>
