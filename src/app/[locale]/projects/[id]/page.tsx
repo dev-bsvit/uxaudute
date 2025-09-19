@@ -545,9 +545,9 @@ export default function ProjectDetailPage() {
                             <div className="flex items-center gap-3 mb-2">
                               <h3 className="font-medium text-slate-900">{audit.name}</h3>
                               <Badge className={getStatusColor(audit.status)}>
-                                {audit.status === 'completed' ? 'Завершен' : 
-                                 audit.status === 'in_progress' ? 'В процессе' : 
-                                 audit.status === 'failed' ? 'Ошибка' : 'Черновик'}
+                                {audit.status === 'completed' ? t('projectDetail.completed') : 
+                                 audit.status === 'in_progress' ? t('projectDetail.inProgress') : 
+                                 audit.status === 'failed' ? t('projectDetail.failed') : t('projectDetail.draft')}
                               </Badge>
                             </div>
                             <p className="text-sm text-slate-600">
@@ -555,11 +555,11 @@ export default function ProjectDetailPage() {
                               {audit.input_data?.url && (
                                 <span className="ml-4 inline-flex items-center gap-1">
                                   <ExternalLink className="w-3 h-3" />
-                                  URL анализ
+                                  {t('projectDetail.urlAnalysis')}
                                 </span>
                               )}
                               {audit.input_data?.hasScreenshot && (
-                                <span className="ml-4">📸 Скриншот</span>
+                                <span className="ml-4">📸 {t('projectDetail.screenshot')}</span>
                               )}
                             </p>
                           </div>
@@ -617,7 +617,7 @@ export default function ProjectDetailPage() {
 
                     {/* Общая подсказка */}
                     <p className="text-sm text-slate-500">
-                      Эта информация поможет AI дать более точные рекомендации при анализе
+                      {t('projectDetail.aiHelpText')}
                     </p>
 
                     {/* Единые кнопки управления */}

@@ -79,7 +79,12 @@
     "view": "Перегляд",
     "created": "Створено",
     "screenshot": "Скріншот",
-    "completed": "Завершено"
+    "completed": "Завершено",
+    "inProgress": "В процесі",
+    "failed": "Помилка",
+    "draft": "Чернетка",
+    "urlAnalysis": "URL аналіз",
+    "aiHelpText": "Ця інформація допоможе AI дати більш точні рекомендації при аналізі"
   },
   "audits": {
     "title": "Аудити",
