@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
+import { useTranslations } from 'next-intl'
 import { SidebarDemo } from '@/components/sidebar-demo'
 import { UploadForm } from '@/components/upload-form'
 import { AnalysisResult } from '@/components/analysis-result'
@@ -59,6 +60,7 @@ export default function ProjectDetailPage() {
   const params = useParams()
   const router = useRouter()
   const projectId = params.id as string
+  const t = useTranslations()
 
   const [user, setUser] = useState<User | null>(null)
   const [project, setProject] = useState<Project | null>(null)
@@ -481,7 +483,7 @@ export default function ProjectDetailPage() {
             className="flex items-center gap-2"
           >
             <Plus className="w-4 h-4" />
-            Новый аудит
+            {t('projectDetail.newAudit')}
           </Button>
         </div>
 
@@ -518,7 +520,7 @@ export default function ProjectDetailPage() {
               {/* Левая колонка - Список аудитов */}
               <Card>
                 <CardHeader>
-                  <CardTitle>История аудитов</CardTitle>
+                  <CardTitle>{t('projectDetail.auditHistory')}</CardTitle>
                 </CardHeader>
                 <CardContent>
                   {audits.length === 0 ? (
@@ -568,7 +570,7 @@ export default function ProjectDetailPage() {
                                 variant="outline"
                               >
                                 <Eye className="w-4 h-4 mr-2" />
-                                Просмотр
+                                {t('projectDetail.view')}
                               </Button>
                             </Link>
                           </div>
@@ -582,13 +584,13 @@ export default function ProjectDetailPage() {
               {/* Правая колонка - Контекст проекта и Целевая аудитория */}
               <Card>
                 <CardHeader>
-                  <CardTitle>Контекст проекта и Целевая аудитория</CardTitle>
+                  <CardTitle>{t('projectDetail.contextAndAudience')}</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-6">
                     {/* Контекст проекта */}
                     <div className="space-y-3">
-                      <h4 className="text-sm font-medium text-gray-700">Контекст проекта</h4>
+                      <h4 className="text-sm font-medium text-gray-700">{t('projectDetail.projectContext')}</h4>
                       <textarea
                         value={editContext}
                         onChange={handleContextChange}
@@ -603,7 +605,7 @@ export default function ProjectDetailPage() {
 
                     {/* Целевая аудитория */}
                     <div className="space-y-3">
-                      <h4 className="text-sm font-medium text-gray-700">Целевая аудитория</h4>
+                      <h4 className="text-sm font-medium text-gray-700">{t('projectDetail.targetAudience')}</h4>
                       <textarea
                         value={editTargetAudience}
                         onChange={handleTargetAudienceChange}
@@ -629,7 +631,7 @@ export default function ProjectDetailPage() {
                         {isUpdating ? (
                           <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent"></div>
                         ) : null}
-                        Сохранить
+                        {t('common.save')}
                       </Button>
                       {hasAnyChanges && (
                         <Button

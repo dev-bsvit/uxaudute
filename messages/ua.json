@@ -70,6 +70,17 @@
     "noProjects": "У вас поки немає проектів",
     "createFirstProject": "Створити перший проект"
   },
+  "projectDetail": {
+    "auditHistory": "Історія аудитів",
+    "newAudit": "Новий аудит",
+    "contextAndAudience": "Контекст проекту та Цільова аудиторія",
+    "projectContext": "Контекст проекту",
+    "targetAudience": "Цільова аудиторія",
+    "view": "Перегляд",
+    "created": "Створено",
+    "screenshot": "Скріншот",
+    "completed": "Завершено"
+  },
   "audits": {
     "title": "Аудити",
     "createAudit": "Створити аудит",
