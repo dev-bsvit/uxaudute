@@ -30,6 +30,9 @@ export function SidebarDemo({ children, user }: SidebarDemoProps) {
   const locale = useLocale();
   const t = useTranslations();
 
+  // Отладка локали
+  console.log('SidebarDemo locale:', locale);
+
   const links = [
     {
       label: t('navigation.home'),
@@ -67,6 +70,9 @@ export function SidebarDemo({ children, user }: SidebarDemoProps) {
       ),
     },
   ];
+
+  // Отладка ссылок
+  console.log('SidebarDemo links:', links);
 
   const [open, setOpen] = useState(true);
 
