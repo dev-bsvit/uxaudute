@@ -305,7 +305,8 @@ export default function DashboardPage() {
         body: JSON.stringify({
           ...data,
           auditId: audit.id,
-          context
+          context,
+          locale: params.locale
         })
       })
       

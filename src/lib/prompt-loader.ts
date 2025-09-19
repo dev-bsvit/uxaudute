@@ -4,15 +4,16 @@ import { join } from 'path'
 /**
  * Загружает основной промпт из файла
  */
-export async function loadMainPrompt(): Promise<string> {
+export async function loadMainPrompt(locale: string = 'ru'): Promise<string> {
   try {
-    const promptPath = join(process.cwd(), 'prompts', 'основной-промпт.md')
+    const fileName = locale === 'ua' ? 'основной-промпт-ua.md' : 'основной-промпт.md'
+    const promptPath = join(process.cwd(), 'prompts', fileName)
     const prompt = readFileSync(promptPath, 'utf-8')
     return prompt
   } catch (error) {
     console.error('Ошибка загрузки промпта:', error)
     // Возвращаем fallback промпт
-    return getFallbackPrompt()
+    return getFallbackPrompt(locale)
   }
 }
 
@@ -35,15 +36,16 @@ ${context}
 /**
  * Загружает JSON-структурированный промпт v2
  */
-export async function loadJSONPromptV2(): Promise<string> {
+export async function loadJSONPromptV2(locale: string = 'ru'): Promise<string> {
   try {
-    const promptPath = join(process.cwd(), 'prompts', 'json-structured-prompt-v2.md')
+    const fileName = locale === 'ua' ? 'json-structured-prompt-ua.md' : 'json-structured-prompt-v2.md'
+    const promptPath = join(process.cwd(), 'prompts', fileName)
     const prompt = readFileSync(promptPath, 'utf-8')
     return prompt
   } catch (error) {
     console.error('Ошибка загрузки JSON промпта v2:', error)
     // Возвращаем fallback промпт
-    return getJSONFallbackPrompt()
+    return getJSONFallbackPrompt(locale)
   }
 }
 
@@ -65,7 +67,7 @@ export async function loadSonomaStructuredPrompt(): Promise<string> {
 /**
  * Fallback промпт для JSON v2
  */
-function getJSONFallbackPrompt(): string {
+function getJSONFallbackPrompt(locale: string = 'ru'): string {
   return `# JSON-структурированный промпт для UX-анализа
 
 Вы — опытный UX-дизайнер-исследователь. Проанализируйте интерфейс и верните результат в формате JSON.
@@ -111,13 +113,13 @@ function getJSONFallbackPrompt(): string {
   ]
 }
 
-**Отвечай ТОЛЬКО в формате JSON на русском языке.**`
+**Отвечай ТОЛЬКО в формате JSON на ${locale === 'ua' ? 'украинском' : 'русском'} языке.**`
 }
 
 /**
  * Fallback промпт на случай ошибки загрузки файла
  */
-function getFallbackPrompt(): string {
+function getFallbackPrompt(locale: string = 'ru'): string {
   return `🧑‍💻 Роль: Вы — опытный UX-дизайнер-исследователь с 20-летним стажем. Основывайтесь на проверенных UX-методологиях: эвристики Нильсена, WCAG 2.2, Fitts' Law, Hick-Hyman, ISO 9241 и др.
 
 Вход: статичный скриншот экрана (обязателен) + при возможности контекст задачи и целевая аудитория.
@@ -128,7 +130,7 @@ function getFallbackPrompt(): string {
 3. Проблемы и рекомендации
 4. Self-Check & Confidence
 
-Отвечай на русском языке.`
+Отвечай на ${locale === 'ua' ? 'украинском' : 'русском'} языке.`
 }
 
 /**

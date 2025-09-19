@@ -5,12 +5,13 @@ import { join } from 'path'
 import { StructuredAnalysisResponse, isStructuredResponse } from '@/lib/analysis-types'
 import { validateSurvey, analyzeSurveyResults } from '@/lib/survey-utils'
 import { supabase } from '@/lib/supabase'
+import { loadJSONPromptV2 } from '@/lib/prompt-loader'
 
 export async function POST(request: NextRequest) {
   try {
     console.log('=== OpenAI API вызван ===')
-    const { url, screenshot, context, auditId } = await request.json()
-    console.log('Параметры запроса:', { url: !!url, screenshot: !!screenshot, context: !!context, auditId })
+    const { url, screenshot, context, auditId, locale = 'ru' } = await request.json()
+    console.log('Параметры запроса:', { url: !!url, screenshot: !!screenshot, context: !!context, auditId, locale })
 
     if (!url && !screenshot) {
       console.log('Ошибка: нет URL или скриншота')
@@ -21,8 +22,8 @@ export async function POST(request: NextRequest) {
     }
 
     // Загружаем JSON-структурированный промпт
-    console.log('Загружаем промпт...')
-    const jsonPrompt = loadJSONPrompt()
+    console.log('Загружаем промпт для локали:', locale)
+    const jsonPrompt = await loadJSONPromptV2(locale)
     console.log('Промпт загружен, длина:', jsonPrompt.length)
     const finalPrompt = combineWithContext(jsonPrompt, context)
     console.log('Финальный промпт готов, длина:', finalPrompt.length)

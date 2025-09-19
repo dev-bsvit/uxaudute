@@ -196,7 +196,8 @@ export default function ProjectDetailPage() {
         body: JSON.stringify({
           ...data,
           auditId: audit.id,
-          context: combinedContext
+          context: combinedContext,
+          locale: params.locale
         })
       })
       
