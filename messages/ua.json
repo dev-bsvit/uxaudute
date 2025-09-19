@@ -57,9 +57,16 @@
   },
   "projects": {
     "title": "Мої проекти",
+    "description": "Керуйте своїми UX дослідженнями. Створюйте нові проекти або продовжуйте роботу з існуючими.",
+    "signInRequired": "Увійдіть для перегляду проектів",
+    "signInDescription": "Створюйте та керуйте своїми UX дослідженнями",
+    "management": "Управління проектами",
+    "managementDescription": "Створюйте та організовуйте свої UX дослідження",
+    "newProject": "Новий проект",
     "createProject": "Створити проект",
     "projectName": "Назва проекту",
     "projectDescription": "Опис проекту",
+    "optional": "опціонально",
     "noProjects": "У вас поки немає проектів",
     "createFirstProject": "Створити перший проект"
   },

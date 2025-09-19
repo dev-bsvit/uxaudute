@@ -7,6 +7,7 @@ import { createProject, getUserProjects, getProjectAudits, updateProject, delete
 import { User } from '@supabase/supabase-js'
 import { Plus, FolderOpen, Calendar, BarChart3, Edit, Trash2, MoreVertical } from 'lucide-react'
 import Link from 'next/link'
+import { useTranslations } from 'next-intl'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -48,6 +49,7 @@ export function Projects({ user, onProjectSelect }: ProjectsProps) {
   const [editingProject, setEditingProject] = useState<Project | null>(null)
   const [editName, setEditName] = useState('')
   const [editDescription, setEditDescription] = useState('')
+  const t = useTranslations()
   const [showDeleteDialog, setShowDeleteDialog] = useState(false)
   const [projectToDelete, setProjectToDelete] = useState<Project | null>(null)
 
@@ -165,15 +167,15 @@ export function Projects({ user, onProjectSelect }: ProjectsProps) {
     <div className="space-y-8">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-bold text-slate-900">Управление проектами</h2>
-          <p className="text-slate-600">Создавайте и организуйте свои UX исследования</p>
+          <h2 className="text-2xl font-bold text-slate-900">{t('projects.management')}</h2>
+          <p className="text-slate-600">{t('projects.managementDescription')}</p>
         </div>
         <Button
           onClick={() => setShowCreateForm(true)}
           className="flex items-center gap-2 bg-black hover:bg-gray-800 text-white px-6 py-3 rounded-lg font-medium"
         >
           <Plus className="w-4 h-4" />
-          Новый проект
+          {t('projects.newProject')}
         </Button>
       </div>
 
@@ -188,7 +190,7 @@ export function Projects({ user, onProjectSelect }: ProjectsProps) {
           <form onSubmit={handleCreateProject} className="space-y-6">
             <div>
               <label htmlFor="projectName" className="block text-sm font-medium text-slate-700 mb-2">
-                Название проекта
+                {t('projects.projectName')}
               </label>
               <input
                 id="projectName"
@@ -203,7 +205,7 @@ export function Projects({ user, onProjectSelect }: ProjectsProps) {
             
             <div>
               <label htmlFor="projectDescription" className="block text-sm font-medium text-slate-700 mb-2">
-                Описание (опционально)
+                {t('projects.projectDescription')} ({t('projects.optional')})
               </label>
               <textarea
                 id="projectDescription"
@@ -243,7 +245,7 @@ export function Projects({ user, onProjectSelect }: ProjectsProps) {
                 ) : (
                   <Plus className="w-4 h-4" />
                 )}
-                Создать проект
+                {t('projects.createProject')}
               </Button>
               <Button
                 type="button"
@@ -352,7 +354,7 @@ export function Projects({ user, onProjectSelect }: ProjectsProps) {
             <form onSubmit={handleUpdateProject}>
               <div className="mb-6">
                 <Label htmlFor="editName" className="block text-sm font-medium text-slate-700 mb-2">
-                  Название проекта
+                  {t('projects.projectName')}
                 </Label>
                 <Input
                   id="editName"
@@ -364,7 +366,7 @@ export function Projects({ user, onProjectSelect }: ProjectsProps) {
               </div>
               <div className="mb-6">
                 <Label htmlFor="editDescription" className="block text-sm font-medium text-slate-700 mb-2">
-                  Описание (опционально)
+                  {t('projects.projectDescription')} ({t('projects.optional')})
                 </Label>
                 <textarea
                   id="editDescription"
