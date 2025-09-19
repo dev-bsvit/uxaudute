@@ -58,7 +58,7 @@ export default function AuditPage() {
       
       // Если analysis_result undefined, используем весь result_data как результат
       if (!analysisResult && audit.result_data) {
-        analysisResult = audit.result_data as StructuredAnalysisResponse
+        analysisResult = audit.result_data as unknown as StructuredAnalysisResponse
       }
       
       if (typeof analysisResult === 'string') {
