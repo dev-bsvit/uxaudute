@@ -108,6 +108,24 @@ function getJSONFallbackPrompt(locale: string = 'ru'): string {
       }
     ]
   },
+  "audience": {
+    "targetAudience": "Целевая аудитория - детальный портрет в 1-2 абзаца",
+    "mainPain": "Основная боль пользователей в 1 абзаце",
+    "fears": ["Страх 1", "Страх 2", "Страх 3"]
+  },
+  "behavior": {
+    "userScenarios": {
+      "idealPath": "Идеальный путь пользователя в 1 абзаце",
+      "typicalMistake": "Типичная ошибка в 1 абзаце",
+      "alternativeWorkaround": "Альтернативный обход в 1 абзаце"
+    },
+    "behavioralPatterns": ["Паттерн 1", "Паттерн 2", "Паттерн 3"],
+    "frictionPoints": [
+      {"point": "Точка трения 1", "impact": "major"},
+      {"point": "Точка трения 2", "impact": "minor"}
+    ],
+    "actionMotivation": "Мотивация к действию в 1 абзаце"
+  },
   "problemsAndSolutions": [
     {
       "element": "Название элемента",
@@ -116,7 +134,26 @@ function getJSONFallbackPrompt(locale: string = 'ru'): string {
       "recommendation": "Конкретная рекомендация",
       "priority": "high/medium/low"
     }
-  ]
+  ],
+  "selfCheck": {
+    "checklist": {
+      "coversAllElements": true,
+      "noContradictions": true,
+      "principlesJustified": true,
+      "actionClarity": true
+    },
+    "confidence": {
+      "analysis": 85,
+      "survey": 82,
+      "recommendations": 88
+    }
+  },
+  "metadata": {
+    "timestamp": "2024-01-01T12:00:00Z",
+    "version": "1.0",
+    "locale": "${locale === 'ua' ? 'ua' : locale === 'en' ? 'en' : 'ru'}",
+    "analysisType": "screenshot"
+  }
 }
 
 **Отвечай ТОЛЬКО в формате JSON на ${locale === 'ua' ? 'украинском' : locale === 'en' ? 'английском' : 'русском'} языке.**`
