@@ -488,7 +488,9 @@ const StructuredBusinessAnalytics: React.FC<{
                   <p className="text-gray-700 mb-2">{opportunity.reasoning}</p>
                   <div className="text-sm text-gray-600 space-y-1">
                     <p><strong>Потенциальный рост:</strong> {opportunity.potential_gain_percent}</p>
-                    <p><strong>Impact/Effort:</strong> {opportunity.impact_effort_matrix.impact}/{opportunity.impact_effort_matrix.effort}</p>
+                    {opportunity.impact_effort_matrix && (
+                      <p><strong>Impact/Effort:</strong> {opportunity.impact_effort_matrix.impact}/{opportunity.impact_effort_matrix.effort}</p>
+                    )}
                     <p><strong>Шаги реализации:</strong> {opportunity.implementation_steps}</p>
                   </div>
                 </div>
