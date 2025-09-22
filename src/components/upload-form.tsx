@@ -18,7 +18,7 @@ export function UploadForm({ onSubmit, isLoading }: UploadFormProps) {
   const [url, setUrl] = useState('')
   const [file, setFile] = useState<File | null>(null)
   const [context, setContext] = useState('')
-  const [activeTab, setActiveTab] = useState<'url' | 'upload'>('url')
+  const [activeTab, setActiveTab] = useState<'url' | 'upload'>('upload')
   const [provider, setProvider] = useState<'openai' | 'openrouter'>('openai')
   const [openrouterModel, setOpenrouterModel] = useState<'sonoma'>('sonoma')
 
@@ -81,17 +81,6 @@ export function UploadForm({ onSubmit, isLoading }: UploadFormProps) {
           <div className="flex mb-8 p-1 bg-slate-100 rounded-2xl">
             <button
               className={`flex-1 py-4 px-6 text-center rounded-xl font-semibold transition-all duration-300 ${
-                activeTab === 'url' 
-                  ? 'bg-white shadow-soft text-blue-600 transform scale-105' 
-                  : 'text-slate-600 hover:text-slate-800'
-              }`}
-              onClick={() => setActiveTab('url')}
-            >
-              <LinkIcon className="w-5 h-5 inline mr-3" />
-              {t('uploadForm.websiteUrl')}
-            </button>
-            <button
-              className={`flex-1 py-4 px-6 text-center rounded-xl font-semibold transition-all duration-300 ${
                 activeTab === 'upload' 
                   ? 'bg-white shadow-soft text-blue-600 transform scale-105' 
                   : 'text-slate-600 hover:text-slate-800'
@@ -100,6 +89,17 @@ export function UploadForm({ onSubmit, isLoading }: UploadFormProps) {
             >
               <Upload className="w-5 h-5 inline mr-3" />
               {t('uploadForm.screenshot')}
+            </button>
+            <button
+              className={`flex-1 py-4 px-6 text-center rounded-xl font-semibold transition-all duration-300 ${
+                activeTab === 'url' 
+                  ? 'bg-white shadow-soft text-blue-600 transform scale-105' 
+                  : 'text-slate-600 hover:text-slate-800'
+              }`}
+              onClick={() => setActiveTab('url')}
+            >
+              <LinkIcon className="w-5 h-5 inline mr-3" />
+              {t('uploadForm.websiteUrl')}
             </button>
           </div>
 
