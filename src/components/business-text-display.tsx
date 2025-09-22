@@ -37,11 +37,14 @@ export const BusinessTextDisplay: React.FC<BusinessTextDisplayProps> = ({
     )
   }
 
-  // Проверяем наличие данных в новом формате (data_classification, kpi_summary, etc.) или старом формате
-  const hasNewFormat = data && (data.data_classification || data.kpi_summary || data.hypotheses || data.pain_points)
-  const hasOldFormat = data && (data.result || data.executive_summary || data.business_metrics || data.industry_analysis)
+  // Извлекаем данные из result если они там находятся
+  const actualData = data?.result || data
   
-  if (!data || (!hasNewFormat && !hasOldFormat)) {
+  // Проверяем наличие данных в новом формате (data_classification, kpi_summary, etc.) или старом формате
+  const hasNewFormat = actualData && (actualData.data_classification || actualData.kpi_summary || actualData.hypotheses || actualData.pain_points)
+  const hasOldFormat = actualData && (actualData.result || actualData.executive_summary || actualData.business_metrics || actualData.industry_analysis)
+  
+  if (!actualData || (!hasNewFormat && !hasOldFormat)) {
     return (
       <Card>
         <CardContent className="p-8 text-center">
@@ -66,10 +69,10 @@ export const BusinessTextDisplay: React.FC<BusinessTextDisplayProps> = ({
   }
 
   // Проверяем формат данных
-  const isNewFormat = data && (data.data_classification || data.kpi_summary || data.hypotheses || data.pain_points);
-  const isStructuredData = data && data.executive_summary && !data.result;
-  const isOldStructuredData = data && data.business_metrics && !data.result && !data.executive_summary;
-  const isCurrentFormat = data && (data.industry_analysis || data.business_metrics || data.business_risks) && !data.result && !data.executive_summary;
+  const isNewFormat = actualData && (actualData.data_classification || actualData.kpi_summary || actualData.hypotheses || actualData.pain_points);
+  const isStructuredData = actualData && actualData.executive_summary && !actualData.result;
+  const isOldStructuredData = actualData && actualData.business_metrics && !actualData.result && !actualData.executive_summary;
+  const isCurrentFormat = actualData && (actualData.industry_analysis || actualData.business_metrics || actualData.business_risks) && !actualData.result && !actualData.executive_summary;
   
   console.log('🔍 Format check:', { 
     isNewFormat,
@@ -86,25 +89,25 @@ export const BusinessTextDisplay: React.FC<BusinessTextDisplayProps> = ({
   // Если это новый формат (data_classification, kpi_summary, etc.), используем новый компонент
   if (isNewFormat) {
     console.log('✅ Using NewFormatBusinessAnalytics (newest format)')
-    return <NewFormatBusinessAnalytics data={data} onShare={onShare} publicUrl={publicUrl} publicUrlLoading={publicUrlLoading} />
+    return <NewFormatBusinessAnalytics data={actualData} onShare={onShare} publicUrl={publicUrl} publicUrlLoading={publicUrlLoading} />
   }
   
   // Если это структурированные данные (новый формат), используем новый компонент
   if (isStructuredData) {
     console.log('✅ Using StructuredBusinessAnalytics (new format)')
-    return <StructuredBusinessAnalytics data={data} onShare={onShare} publicUrl={publicUrl} publicUrlLoading={publicUrlLoading} />
+    return <StructuredBusinessAnalytics data={actualData} onShare={onShare} publicUrl={publicUrl} publicUrlLoading={publicUrlLoading} />
   }
   
   // Если это текущий формат (с industry_analysis, business_metrics и т.д.), используем новый компонент
   if (isCurrentFormat) {
     console.log('✅ Using StructuredBusinessAnalytics (current format)')
-    return <StructuredBusinessAnalytics data={data} onShare={onShare} publicUrl={publicUrl} publicUrlLoading={publicUrlLoading} />
+    return <StructuredBusinessAnalytics data={actualData} onShare={onShare} publicUrl={publicUrl} publicUrlLoading={publicUrlLoading} />
   }
   
   // Если это старый структурированный формат, конвертируем его
   if (isOldStructuredData) {
     console.log('✅ Using OldStructuredBusinessAnalytics (old format)')
-    return <OldStructuredBusinessAnalytics data={data} onShare={onShare} publicUrl={publicUrl} publicUrlLoading={publicUrlLoading} />
+    return <OldStructuredBusinessAnalytics data={actualData} onShare={onShare} publicUrl={publicUrl} publicUrlLoading={publicUrlLoading} />
   }
   
   console.log('❌ No structured data format detected, falling back to text parsing')
@@ -149,7 +152,9 @@ export const BusinessTextDisplay: React.FC<BusinessTextDisplayProps> = ({
     return parsedSections;
   };
 
-  const sections = parseBusinessAnalytics(data.result);
+  // Проверяем что actualData.result является строкой
+  const resultText = typeof actualData?.result === 'string' ? actualData.result : JSON.stringify(actualData?.result || actualData, null, 2);
+  const sections = parseBusinessAnalytics(resultText);
 
   return (
     <div className="space-y-6">
@@ -259,7 +264,7 @@ export const BusinessTextDisplay: React.FC<BusinessTextDisplayProps> = ({
           <CardContent>
             <div className="prose prose-slate max-w-none">
               <div className="whitespace-pre-wrap text-gray-700 leading-relaxed">
-                {data.result}
+                {actualData.result}
               </div>
             </div>
           </CardContent>
@@ -332,7 +337,7 @@ const StructuredBusinessAnalytics: React.FC<{
       </div>
 
       {/* Executive Summary */}
-      {data.executive_summary && (
+      {actualData.executive_summary && (
         <Card>
           <CardHeader className="bg-gradient-to-r from-blue-50 to-indigo-50 border-b">
             <CardTitle className="flex items-center gap-3 text-lg">
@@ -344,19 +349,19 @@ const StructuredBusinessAnalytics: React.FC<{
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <h4 className="font-semibold text-gray-900 mb-2">Основная находка</h4>
-                <p className="text-gray-700">{data.executive_summary.main_finding}</p>
+                <p className="text-gray-700">{actualData.executive_summary.main_finding}</p>
               </div>
               <div>
                 <h4 className="font-semibold text-gray-900 mb-2">Критический риск</h4>
-                <p className="text-gray-700">{data.executive_summary.critical_risk}</p>
+                <p className="text-gray-700">{actualData.executive_summary.critical_risk}</p>
               </div>
               <div>
                 <h4 className="font-semibold text-gray-900 mb-2">Топ возможность</h4>
-                <p className="text-gray-700">{data.executive_summary.top_opportunity}</p>
+                <p className="text-gray-700">{actualData.executive_summary.top_opportunity}</p>
               </div>
               <div>
                 <h4 className="font-semibold text-gray-900 mb-2">Рекомендуемый фокус</h4>
-                <p className="text-gray-700">{data.executive_summary.recommended_focus}</p>
+                <p className="text-gray-700">{actualData.executive_summary.recommended_focus}</p>
               </div>
             </div>
           </CardContent>
@@ -364,7 +369,7 @@ const StructuredBusinessAnalytics: React.FC<{
       )}
 
       {/* Business Metrics (Current Format) */}
-      {data.business_metrics && (
+      {actualData.business_metrics && (
         <Card>
           <CardHeader className="bg-gradient-to-r from-blue-50 to-indigo-50 border-b">
             <CardTitle className="flex items-center gap-3 text-lg">
@@ -374,8 +379,8 @@ const StructuredBusinessAnalytics: React.FC<{
           </CardHeader>
           <CardContent className="p-6">
             <div className="space-y-4">
-              {typeof data.business_metrics === 'object' ? (
-                Object.entries(data.business_metrics).map(([key, value]) => (
+              {typeof actualData.business_metrics === 'object' ? (
+                Object.entries(actualData.business_metrics).map(([key, value]) => (
                   <div key={key}>
                     <h4 className="font-semibold text-gray-900 mb-2 capitalize">
                       {key.replace(/_/g, ' ')}
@@ -409,7 +414,7 @@ const StructuredBusinessAnalytics: React.FC<{
                   </div>
                 ))
               ) : (
-                <p className="text-gray-700">{String(data.business_metrics)}</p>
+                <p className="text-gray-700">{String(actualData.business_metrics)}</p>
               )}
             </div>
           </CardContent>
@@ -417,7 +422,7 @@ const StructuredBusinessAnalytics: React.FC<{
       )}
 
       {/* Industry Analysis */}
-      {data.industry_analysis && (
+      {actualData.industry_analysis && (
         <Card>
           <CardHeader className="bg-gradient-to-r from-green-50 to-emerald-50 border-b">
             <CardTitle className="flex items-center gap-3 text-lg">
@@ -427,8 +432,8 @@ const StructuredBusinessAnalytics: React.FC<{
           </CardHeader>
           <CardContent className="p-6">
             <div className="space-y-4">
-              {typeof data.industry_analysis === 'object' ? (
-                Object.entries(data.industry_analysis).map(([key, value]) => (
+              {typeof actualData.industry_analysis === 'object' ? (
+                Object.entries(actualData.industry_analysis).map(([key, value]) => (
                   <div key={key}>
                     <h4 className="font-semibold text-gray-900 mb-2 capitalize">
                       {key.replace(/_/g, ' ')}
@@ -462,7 +467,7 @@ const StructuredBusinessAnalytics: React.FC<{
                   </div>
                 ))
               ) : (
-                <p className="text-gray-700">{String(data.industry_analysis)}</p>
+                <p className="text-gray-700">{String(actualData.industry_analysis)}</p>
               )}
             </div>
           </CardContent>
@@ -470,7 +475,7 @@ const StructuredBusinessAnalytics: React.FC<{
       )}
 
       {/* AARRR Funnel */}
-      {data.aarrr_funnel_analysis && (
+      {actualData.aarrr_funnel_analysis && (
         <Card>
           <CardHeader className="bg-gradient-to-r from-purple-50 to-violet-50 border-b">
             <CardTitle className="flex items-center gap-3 text-lg">
@@ -480,7 +485,7 @@ const StructuredBusinessAnalytics: React.FC<{
           </CardHeader>
           <CardContent className="p-6">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {Object.entries(data.aarrr_funnel_analysis).map(([stage, stageData]: [string, any]) => (
+              {Object.entries(actualData.aarrr_funnel_analysis).map(([stage, stageData]: [string, any]) => (
                 <div key={stage} className="bg-gray-50 p-4 rounded-lg">
                   <h4 className="font-semibold text-gray-900 mb-2 capitalize">{stage}</h4>
                   <div className="space-y-2">
@@ -501,7 +506,7 @@ const StructuredBusinessAnalytics: React.FC<{
       )}
 
       {/* Business Risks */}
-      {data.business_risks && data.business_risks.length > 0 && (
+      {actualData.business_risks && actualData.business_risks.length > 0 && (
         <Card>
           <CardHeader className="bg-gradient-to-r from-red-50 to-rose-50 border-b">
             <CardTitle className="flex items-center gap-3 text-lg">
@@ -511,7 +516,7 @@ const StructuredBusinessAnalytics: React.FC<{
           </CardHeader>
           <CardContent className="p-6">
             <div className="space-y-4">
-              {data.business_risks.map((risk: any, index: number) => (
+              {actualData.business_risks.map((risk: any, index: number) => (
                 <div key={index} className="border-l-4 border-red-200 pl-4">
                   <div className="flex items-center gap-2 mb-2">
                     <Badge className={getSeverityColor(risk.severity)}>
@@ -532,7 +537,7 @@ const StructuredBusinessAnalytics: React.FC<{
       )}
 
       {/* Missed Opportunities */}
-      {data.missed_opportunities && data.missed_opportunities.length > 0 && (
+      {actualData.missed_opportunities && actualData.missed_opportunities.length > 0 && (
         <Card>
           <CardHeader className="bg-gradient-to-r from-green-50 to-emerald-50 border-b">
             <CardTitle className="flex items-center gap-3 text-lg">
@@ -542,7 +547,7 @@ const StructuredBusinessAnalytics: React.FC<{
           </CardHeader>
           <CardContent className="p-6">
             <div className="space-y-4">
-              {data.missed_opportunities.map((opportunity: any, index: number) => (
+              {actualData.missed_opportunities.map((opportunity: any, index: number) => (
                 <div key={index} className="border-l-4 border-green-200 pl-4">
                   <div className="flex items-center gap-2 mb-2">
                     <Badge className={getSeverityColor(opportunity.priority)}>
@@ -566,7 +571,7 @@ const StructuredBusinessAnalytics: React.FC<{
       )}
 
       {/* Strategic Recommendations */}
-      {data.strategic_recommendations && data.strategic_recommendations.length > 0 && (
+      {actualData.strategic_recommendations && actualData.strategic_recommendations.length > 0 && (
         <Card>
           <CardHeader className="bg-gradient-to-r from-blue-50 to-indigo-50 border-b">
             <CardTitle className="flex items-center gap-3 text-lg">
@@ -576,7 +581,7 @@ const StructuredBusinessAnalytics: React.FC<{
           </CardHeader>
           <CardContent className="p-6">
             <div className="space-y-4">
-              {data.strategic_recommendations
+              {actualData.strategic_recommendations
                 .sort((a: any, b: any) => a.priority - b.priority)
                 .map((rec: any, index: number) => (
                 <div key={index} className="border-l-4 border-blue-200 pl-4">
@@ -665,7 +670,7 @@ const OldStructuredBusinessAnalytics: React.FC<{
       </div>
 
       {/* Industry Analysis */}
-      {data.industry_analysis && (
+      {actualData.industry_analysis && (
         <Card>
           <CardHeader className="bg-gradient-to-r from-green-50 to-emerald-50 border-b">
             <CardTitle className="flex items-center gap-3 text-lg">
@@ -677,17 +682,17 @@ const OldStructuredBusinessAnalytics: React.FC<{
             <div className="space-y-4">
               <div>
                 <h4 className="font-semibold text-gray-900 mb-2">Определенная индустрия</h4>
-                <p className="text-gray-700">{data.industry_analysis.industry}</p>
+                <p className="text-gray-700">{actualData.industry_analysis.industry}</p>
               </div>
               <div>
                 <h4 className="font-semibold text-gray-900 mb-2">Бизнес-модель</h4>
-                <p className="text-gray-700">{data.industry_analysis.business_model}</p>
+                <p className="text-gray-700">{actualData.industry_analysis.business_model}</p>
               </div>
-              {data.industry_analysis.north_star_metric && (
+              {actualData.industry_analysis.north_star_metric && (
                 <div>
                   <h4 className="font-semibold text-gray-900 mb-2">North Star Metric</h4>
                   <div className="bg-blue-50 p-3 rounded-lg">
-                    <p className="font-medium text-blue-900">{data.industry_analysis.north_star_metric}</p>
+                    <p className="font-medium text-blue-900">{actualData.industry_analysis.north_star_metric}</p>
                   </div>
                 </div>
               )}
@@ -697,7 +702,7 @@ const OldStructuredBusinessAnalytics: React.FC<{
       )}
 
       {/* Business Metrics */}
-      {data.business_metrics && (
+      {actualData.business_metrics && (
         <Card>
           <CardHeader className="bg-gradient-to-r from-purple-50 to-violet-50 border-b">
             <CardTitle className="flex items-center gap-3 text-lg">
@@ -707,7 +712,7 @@ const OldStructuredBusinessAnalytics: React.FC<{
           </CardHeader>
           <CardContent className="p-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {Object.entries(data.business_metrics).map(([metric, impact]: [string, any]) => (
+              {Object.entries(actualData.business_metrics).map(([metric, impact]: [string, any]) => (
                 <div key={metric} className="bg-gray-50 p-4 rounded-lg">
                   <h4 className="font-semibold text-gray-900 mb-2 capitalize">{metric}</h4>
                   <p className="text-gray-700">{impact}</p>
@@ -719,7 +724,7 @@ const OldStructuredBusinessAnalytics: React.FC<{
       )}
 
       {/* Business Risks */}
-      {data.business_risks && data.business_risks.length > 0 && (
+      {actualData.business_risks && actualData.business_risks.length > 0 && (
         <Card>
           <CardHeader className="bg-gradient-to-r from-red-50 to-rose-50 border-b">
             <CardTitle className="flex items-center gap-3 text-lg">
@@ -729,7 +734,7 @@ const OldStructuredBusinessAnalytics: React.FC<{
           </CardHeader>
           <CardContent className="p-6">
             <div className="space-y-4">
-              {data.business_risks.map((risk: any, index: number) => (
+              {actualData.business_risks.map((risk: any, index: number) => (
                 <div key={index} className="border-l-4 border-red-200 pl-4">
                   <div className="flex items-center gap-2 mb-2">
                     <Badge className={getSeverityColor(risk.severity || 'medium')}>
@@ -751,7 +756,7 @@ const OldStructuredBusinessAnalytics: React.FC<{
       )}
 
       {/* Next Steps */}
-      {data.next_steps && data.next_steps.length > 0 && (
+      {actualData.next_steps && actualData.next_steps.length > 0 && (
         <Card>
           <CardHeader className="bg-gradient-to-r from-blue-50 to-indigo-50 border-b">
             <CardTitle className="flex items-center gap-3 text-lg">
@@ -761,7 +766,7 @@ const OldStructuredBusinessAnalytics: React.FC<{
           </CardHeader>
           <CardContent className="p-6">
             <div className="space-y-4">
-              {data.next_steps.map((step: any, index: number) => (
+              {actualData.next_steps.map((step: any, index: number) => (
                 <div key={index} className="border-l-4 border-blue-200 pl-4">
                   <div className="flex items-center gap-2 mb-2">
                     <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200">
@@ -785,7 +790,7 @@ const OldStructuredBusinessAnalytics: React.FC<{
       )}
 
       {/* Conversion Funnel */}
-      {data.conversion_funnel && (
+      {actualData.conversion_funnel && (
         <Card>
           <CardHeader className="bg-gradient-to-r from-green-50 to-emerald-50 border-b">
             <CardTitle className="flex items-center gap-3 text-lg">
@@ -795,7 +800,7 @@ const OldStructuredBusinessAnalytics: React.FC<{
           </CardHeader>
           <CardContent className="p-6">
             <div className="space-y-4">
-              {Object.entries(data.conversion_funnel).map(([stage, stageData]: [string, any]) => (
+              {Object.entries(actualData.conversion_funnel).map(([stage, stageData]: [string, any]) => (
                 <div key={stage} className="bg-gray-50 p-4 rounded-lg">
                   <h4 className="font-semibold text-gray-900 mb-2 capitalize">{stage}</h4>
                   <p className="text-gray-700">{stageData}</p>
@@ -807,7 +812,7 @@ const OldStructuredBusinessAnalytics: React.FC<{
       )}
 
       {/* Key KPIs */}
-      {data.key_kpis && (
+      {actualData.key_kpis && (
         <Card>
           <CardHeader className="bg-gradient-to-r from-yellow-50 to-orange-50 border-b">
             <CardTitle className="flex items-center gap-3 text-lg">
@@ -817,7 +822,7 @@ const OldStructuredBusinessAnalytics: React.FC<{
           </CardHeader>
           <CardContent className="p-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {Object.entries(data.key_kpis).map(([kpi, value]: [string, any]) => (
+              {Object.entries(actualData.key_kpis).map(([kpi, value]: [string, any]) => (
                 <div key={kpi} className="bg-gray-50 p-4 rounded-lg">
                   <h4 className="font-semibold text-gray-900 mb-2">{kpi}</h4>
                   <p className="text-gray-700">{value}</p>
@@ -829,7 +834,7 @@ const OldStructuredBusinessAnalytics: React.FC<{
       )}
 
       {/* Business Risks (Current Format) */}
-      {data.business_risks && Array.isArray(data.business_risks) && (
+      {actualData.business_risks && Array.isArray(actualData.business_risks) && (
         <Card>
           <CardHeader className="bg-gradient-to-r from-red-50 to-pink-50 border-b">
             <CardTitle className="flex items-center gap-3 text-lg">
@@ -839,7 +844,7 @@ const OldStructuredBusinessAnalytics: React.FC<{
           </CardHeader>
           <CardContent className="p-6">
             <div className="space-y-4">
-              {data.business_risks.map((risk: any, index: number) => (
+              {actualData.business_risks.map((risk: any, index: number) => (
                 <div key={index} className="border-l-4 border-red-200 pl-4">
                   <div className="flex items-center gap-2 mb-2">
                     <Badge className={getSeverityColor(risk.severity || risk.priority)}>
@@ -872,7 +877,7 @@ const OldStructuredBusinessAnalytics: React.FC<{
       )}
 
       {/* Missed Opportunities (Current Format) */}
-      {data.missed_opportunities && Array.isArray(data.missed_opportunities) && (
+      {actualData.missed_opportunities && Array.isArray(actualData.missed_opportunities) && (
         <Card>
           <CardHeader className="bg-gradient-to-r from-green-50 to-emerald-50 border-b">
             <CardTitle className="flex items-center gap-3 text-lg">
@@ -882,7 +887,7 @@ const OldStructuredBusinessAnalytics: React.FC<{
           </CardHeader>
           <CardContent className="p-6">
             <div className="space-y-4">
-              {data.missed_opportunities.map((opportunity: any, index: number) => {
+              {actualData.missed_opportunities.map((opportunity: any, index: number) => {
                 console.log('🔍 Missed opportunity data:', opportunity);
                 return (
                   <div key={index} className="border-l-4 border-green-200 pl-4">
@@ -936,7 +941,7 @@ const OldStructuredBusinessAnalytics: React.FC<{
       )}
 
       {/* User Behavior Insights (Current Format) */}
-      {data.user_behavior_insights && Array.isArray(data.user_behavior_insights) && (
+      {actualData.user_behavior_insights && Array.isArray(actualData.user_behavior_insights) && (
         <Card>
           <CardHeader className="bg-gradient-to-r from-purple-50 to-indigo-50 border-b">
             <CardTitle className="flex items-center gap-3 text-lg">
@@ -946,7 +951,7 @@ const OldStructuredBusinessAnalytics: React.FC<{
           </CardHeader>
           <CardContent className="p-6">
             <div className="space-y-4">
-              {data.user_behavior_insights.map((insight: any, index: number) => (
+              {actualData.user_behavior_insights.map((insight: any, index: number) => (
                 <div key={index} className="bg-purple-50 p-4 rounded-lg">
                   <h4 className="font-semibold text-gray-900 mb-2">{insight.title || insight.insight}</h4>
                   <p className="text-gray-700">{insight.description || insight.details}</p>
@@ -963,7 +968,7 @@ const OldStructuredBusinessAnalytics: React.FC<{
       )}
 
       {/* Conversion Barriers (Current Format) */}
-      {data.conversion_barriers && Array.isArray(data.conversion_barriers) && (
+      {actualData.conversion_barriers && Array.isArray(actualData.conversion_barriers) && (
         <Card>
           <CardHeader className="bg-gradient-to-r from-orange-50 to-red-50 border-b">
             <CardTitle className="flex items-center gap-3 text-lg">
@@ -973,7 +978,7 @@ const OldStructuredBusinessAnalytics: React.FC<{
           </CardHeader>
           <CardContent className="p-6">
             <div className="space-y-4">
-              {data.conversion_barriers.map((barrier: any, index: number) => (
+              {actualData.conversion_barriers.map((barrier: any, index: number) => (
                 <div key={index} className="border-l-4 border-orange-200 pl-4">
                   <div className="flex items-center gap-2 mb-2">
                     <Badge className={getSeverityColor(barrier.severity || barrier.priority)}>
@@ -1001,7 +1006,7 @@ const OldStructuredBusinessAnalytics: React.FC<{
       )}
 
       {/* Next Steps (Current Format) */}
-      {data.next_steps && Array.isArray(data.next_steps) && (
+      {actualData.next_steps && Array.isArray(actualData.next_steps) && (
         <Card>
           <CardHeader className="bg-gradient-to-r from-blue-50 to-cyan-50 border-b">
             <CardTitle className="flex items-center gap-3 text-lg">
@@ -1011,7 +1016,7 @@ const OldStructuredBusinessAnalytics: React.FC<{
           </CardHeader>
           <CardContent className="p-6">
             <div className="space-y-4">
-              {data.next_steps.map((step: any, index: number) => (
+              {actualData.next_steps.map((step: any, index: number) => (
                 <div key={index} className="border-l-4 border-blue-200 pl-4">
                   <div className="flex items-center gap-2 mb-2">
                     <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200">
@@ -1067,7 +1072,7 @@ const NewFormatBusinessAnalytics: React.FC<{
     <div className="space-y-6">
 
       {/* Data Classification */}
-      {data.data_classification && (
+      {actualData.data_classification && (
         <Card>
           <CardHeader className="bg-gradient-to-r from-blue-50 to-cyan-50 border-b">
             <CardTitle className="flex items-center gap-3 text-lg">
@@ -1078,14 +1083,14 @@ const NewFormatBusinessAnalytics: React.FC<{
           <CardContent className="p-6">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               {/* Quantitative Data */}
-              {data.data_classification.quantitative_data && (
+              {actualData.data_classification.quantitative_data && (
                 <div>
                   <h4 className="font-semibold text-gray-900 mb-3 flex items-center gap-2">
                     <TrendingUp className="w-4 h-4 text-green-600" />
                     Количественные данные
                   </h4>
                   <div className="space-y-2">
-                    {data.data_classification.quantitative_data.map((item: any, index: number) => (
+                    {actualData.data_classification.quantitative_actualData.map((item: any, index: number) => (
                       <div key={index} className="p-3 bg-green-50 rounded-lg border border-green-200">
                         <div className="font-medium text-green-800">{item.type}</div>
                         <div className="text-sm text-green-700">{item.value}</div>
@@ -1097,14 +1102,14 @@ const NewFormatBusinessAnalytics: React.FC<{
               )}
 
               {/* Qualitative Data */}
-              {data.data_classification.qualitative_data && (
+              {actualData.data_classification.qualitative_data && (
                 <div>
                   <h4 className="font-semibold text-gray-900 mb-3 flex items-center gap-2">
                     <Users className="w-4 h-4 text-blue-600" />
                     Качественные данные
                   </h4>
                   <div className="space-y-2">
-                    {data.data_classification.qualitative_data.map((item: any, index: number) => (
+                    {actualData.data_classification.qualitative_actualData.map((item: any, index: number) => (
                       <div key={index} className="p-3 bg-blue-50 rounded-lg border border-blue-200">
                         <div className="font-medium text-blue-800">{item.type}</div>
                         <div className="text-sm text-blue-700">{item.description}</div>
@@ -1115,14 +1120,14 @@ const NewFormatBusinessAnalytics: React.FC<{
               )}
 
               {/* UX Heuristics */}
-              {data.data_classification.ux_heuristics && (
+              {actualData.data_classification.ux_heuristics && (
                 <div>
                   <h4 className="font-semibold text-gray-900 mb-3 flex items-center gap-2">
                     <AlertTriangle className="w-4 h-4 text-orange-600" />
                     UX Эвристики
                   </h4>
                   <div className="space-y-2">
-                    {data.data_classification.ux_heuristics.map((item: any, index: number) => (
+                    {actualData.data_classification.ux_heuristics.map((item: any, index: number) => (
                       <div key={index} className="p-3 bg-orange-50 rounded-lg border border-orange-200">
                         <div className="font-medium text-orange-800">{item.principle}</div>
                         <div className="text-sm text-orange-700">{item.violation}</div>
@@ -1140,7 +1145,7 @@ const NewFormatBusinessAnalytics: React.FC<{
       )}
 
       {/* KPI Summary */}
-      {data.kpi_summary && (
+      {actualData.kpi_summary && (
         <Card>
           <CardHeader className="bg-gradient-to-r from-green-50 to-emerald-50 border-b">
             <CardTitle className="flex items-center gap-3 text-lg">
@@ -1149,7 +1154,7 @@ const NewFormatBusinessAnalytics: React.FC<{
             </CardTitle>
           </CardHeader>
           <CardContent className="p-6">
-            {data.kpi_summary.current_metrics && (
+            {actualData.kpi_summary.current_metrics && (
               <div className="mb-6">
                 <h4 className="font-semibold text-gray-900 mb-4">Текущие метрики</h4>
                 <div className="overflow-x-auto">
@@ -1164,7 +1169,7 @@ const NewFormatBusinessAnalytics: React.FC<{
                       </tr>
                     </thead>
                     <tbody>
-                      {data.kpi_summary.current_metrics.map((metric: any, index: number) => (
+                      {actualData.kpi_summary.current_metrics.map((metric: any, index: number) => (
                         <tr key={index}>
                           <td className="border border-gray-200 px-4 py-2">{metric.metric}</td>
                           <td className="border border-gray-200 px-4 py-2 font-medium">{metric.current_value}</td>
@@ -1187,11 +1192,11 @@ const NewFormatBusinessAnalytics: React.FC<{
               </div>
             )}
 
-            {data.kpi_summary.key_insights && (
+            {actualData.kpi_summary.key_insights && (
               <div>
                 <h4 className="font-semibold text-gray-900 mb-4">Ключевые инсайты</h4>
                 <ul className="space-y-2">
-                  {data.kpi_summary.key_insights.map((insight: string, index: number) => (
+                  {actualData.kpi_summary.key_insights.map((insight: string, index: number) => (
                     <li key={index} className="flex items-start gap-2">
                       <Lightbulb className="w-4 h-4 text-yellow-600 mt-1 flex-shrink-0" />
                       <span className="text-gray-700">{insight}</span>
@@ -1205,7 +1210,7 @@ const NewFormatBusinessAnalytics: React.FC<{
       )}
 
       {/* Pain Points */}
-      {data.pain_points && (
+      {actualData.pain_points && (
         <Card>
           <CardHeader className="bg-gradient-to-r from-red-50 to-pink-50 border-b">
             <CardTitle className="flex items-center gap-3 text-lg">
@@ -1215,7 +1220,7 @@ const NewFormatBusinessAnalytics: React.FC<{
           </CardHeader>
           <CardContent className="p-6">
             <div className="space-y-4">
-              {data.pain_points.map((painPoint: any, index: number) => (
+              {actualData.pain_points.map((painPoint: any, index: number) => (
                 <div key={index} className="p-4 bg-red-50 rounded-lg border border-red-200">
                   <h4 className="font-semibold text-red-800 mb-3">{painPoint.pain_point}</h4>
                   
@@ -1266,7 +1271,7 @@ const NewFormatBusinessAnalytics: React.FC<{
       )}
 
       {/* Hypotheses */}
-      {data.hypotheses && (
+      {actualData.hypotheses && (
         <Card>
           <CardHeader className="bg-gradient-to-r from-purple-50 to-indigo-50 border-b">
             <CardTitle className="flex items-center gap-3 text-lg">
@@ -1276,7 +1281,7 @@ const NewFormatBusinessAnalytics: React.FC<{
           </CardHeader>
           <CardContent className="p-6">
             <div className="space-y-4">
-              {data.hypotheses.map((hypothesis: any, index: number) => (
+              {actualData.hypotheses.map((hypothesis: any, index: number) => (
                 <div key={index} className="p-4 bg-purple-50 rounded-lg border border-purple-200">
                   <div className="flex items-start justify-between mb-3">
                     <h4 className="font-semibold text-purple-800">{hypothesis.title}</h4>
@@ -1341,7 +1346,7 @@ const NewFormatBusinessAnalytics: React.FC<{
       )}
 
       {/* Top 3 Detailed */}
-      {data.top_3_detailed && (
+      {actualData.top_3_detailed && (
         <Card>
           <CardHeader className="bg-gradient-to-r from-indigo-50 to-blue-50 border-b">
             <CardTitle className="flex items-center gap-3 text-lg">
@@ -1351,7 +1356,7 @@ const NewFormatBusinessAnalytics: React.FC<{
           </CardHeader>
           <CardContent className="p-6">
             <div className="space-y-6">
-              {data.top_3_detailed.map((hypothesis: any, index: number) => (
+              {actualData.top_3_detailed.map((hypothesis: any, index: number) => (
                 <div key={index} className="p-6 bg-indigo-50 rounded-lg border border-indigo-200">
                   <div className="flex items-start justify-between mb-4">
                     <h4 className="font-semibold text-indigo-800 text-lg">Гипотеза {hypothesis.hypothesis_id}</h4>
@@ -1432,7 +1437,7 @@ const NewFormatBusinessAnalytics: React.FC<{
       )}
 
       {/* Final Summary Table */}
-      {data.final_summary_table && (
+      {actualData.final_summary_table && (
         <Card>
           <CardHeader className="bg-gradient-to-r from-emerald-50 to-teal-50 border-b">
             <CardTitle className="flex items-center gap-3 text-lg">
@@ -1443,19 +1448,19 @@ const NewFormatBusinessAnalytics: React.FC<{
           <CardContent className="p-6">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
               <div className="bg-white p-4 rounded-lg border text-center">
-                <div className="text-2xl font-bold text-emerald-600">{data.final_summary_table.total_hypotheses}</div>
+                <div className="text-2xl font-bold text-emerald-600">{actualData.final_summary_table.total_hypotheses}</div>
                 <div className="text-sm text-gray-600">Всего гипотез</div>
               </div>
               <div className="bg-white p-4 rounded-lg border text-center">
-                <div className="text-2xl font-bold text-red-600">{data.final_summary_table.high_priority}</div>
+                <div className="text-2xl font-bold text-red-600">{actualData.final_summary_table.high_priority}</div>
                 <div className="text-sm text-gray-600">Высокий приоритет</div>
               </div>
               <div className="bg-white p-4 rounded-lg border text-center">
-                <div className="text-2xl font-bold text-yellow-600">{data.final_summary_table.medium_priority}</div>
+                <div className="text-2xl font-bold text-yellow-600">{actualData.final_summary_table.medium_priority}</div>
                 <div className="text-sm text-gray-600">Средний приоритет</div>
               </div>
               <div className="bg-white p-4 rounded-lg border text-center">
-                <div className="text-2xl font-bold text-green-600">{data.final_summary_table.low_priority}</div>
+                <div className="text-2xl font-bold text-green-600">{actualData.final_summary_table.low_priority}</div>
                 <div className="text-sm text-gray-600">Низкий приоритет</div>
               </div>
             </div>
@@ -1463,19 +1468,19 @@ const NewFormatBusinessAnalytics: React.FC<{
             <div className="space-y-4">
               <div className="bg-emerald-50 p-4 rounded-lg border border-emerald-200">
                 <h4 className="font-semibold text-emerald-800 mb-2">Ожидаемый общий эффект:</h4>
-                <p className="text-emerald-700">{data.final_summary_table.estimated_total_impact}</p>
+                <p className="text-emerald-700">{actualData.final_summary_table.estimated_total_impact}</p>
               </div>
               
               <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
                 <h4 className="font-semibold text-blue-800 mb-2">Рекомендуемый фокус:</h4>
-                <p className="text-blue-700">{data.final_summary_table.recommended_focus}</p>
+                <p className="text-blue-700">{actualData.final_summary_table.recommended_focus}</p>
               </div>
               
-              {data.final_summary_table.next_steps && (
+              {actualData.final_summary_table.next_steps && (
                 <div>
                   <h4 className="font-semibold text-gray-900 mb-3">Следующие шаги:</h4>
                   <ul className="space-y-2">
-                    {data.final_summary_table.next_steps.map((step: string, index: number) => (
+                    {actualData.final_summary_table.next_steps.map((step: string, index: number) => (
                       <li key={index} className="flex items-start gap-2">
                         <CheckCircle className="w-4 h-4 text-green-600 mt-1 flex-shrink-0" />
                         <span className="text-gray-700">{step}</span>
@@ -1490,7 +1495,7 @@ const NewFormatBusinessAnalytics: React.FC<{
       )}
 
       {/* Self Check */}
-      {data.self_check && (
+      {actualData.self_check && (
         <Card>
           <CardHeader className="bg-gradient-to-r from-gray-50 to-slate-50 border-b">
             <CardTitle className="flex items-center gap-3 text-lg">
@@ -1500,17 +1505,17 @@ const NewFormatBusinessAnalytics: React.FC<{
           </CardHeader>
           <CardContent className="p-6">
             <div className="flex items-center gap-2 mb-4">
-              <CheckCircle className={`w-5 h-5 ${data.self_check.checklist_completed ? "text-green-600" : "text-red-600"}`} />
+              <CheckCircle className={`w-5 h-5 ${actualData.self_check.checklist_completed ? "text-green-600" : "text-red-600"}`} />
               <span className="font-semibold">
-                {data.self_check.checklist_completed ? "Чек-лист пройден" : "Чек-лист не пройден"}
+                {actualData.self_check.checklist_completed ? "Чек-лист пройден" : "Чек-лист не пройден"}
               </span>
             </div>
             
-            {data.self_check.validation_notes && (
+            {actualData.self_check.validation_notes && (
               <div>
                 <h4 className="font-semibold text-gray-900 mb-3">Заметки валидации:</h4>
                 <ul className="space-y-2">
-                  {data.self_check.validation_notes.map((note: string, index: number) => (
+                  {actualData.self_check.validation_notes.map((note: string, index: number) => (
                     <li key={index} className="flex items-start gap-2">
                       <CheckCircle className="w-4 h-4 text-green-600 mt-1 flex-shrink-0" />
                       <span className="text-gray-700">{note}</span>
