@@ -24,7 +24,7 @@ export async function GET(
 
     console.log('🔍 Получение публичного аудита:', auditId, 'с токеном:', token)
 
-    // Получаем аудит по ID
+    // Получаем аудит по ID (сначала без JOIN)
     const { data: audit, error: auditError } = await supabaseClient
       .from('audits')
       .select(`
@@ -40,11 +40,7 @@ export async function GET(
         public_token,
         created_at,
         updated_at,
-        projects!inner(
-          id,
-          name,
-          description
-        )
+        project_id
       `)
       .eq('id', auditId)
       .single()
@@ -93,12 +89,26 @@ export async function GET(
       return NextResponse.json({ error: 'Доступ запрещен' }, { status: 403 })
     }
 
+    // Получаем проект отдельно
+    let project = null
+    if (audit.project_id) {
+      const { data: projectData, error: projectError } = await supabaseClient
+        .from('projects')
+        .select('id, name, description')
+        .eq('id', audit.project_id)
+        .single()
+      
+      if (!projectError) {
+        project = projectData
+      }
+    }
+
     console.log('✅ Публичный аудит получен:', audit.name)
     console.log('🔍 Формат запроса:', format)
 
     // Если запрашивается HTML формат
     if (format === 'html') {
-      const html = generateSimpleHTML(audit)
+      const html = generateSimpleHTML(audit, project)
       return new NextResponse(html, {
         headers: {
           'Content-Type': 'text/html; charset=utf-8',
@@ -119,7 +129,7 @@ export async function GET(
         confidence: audit.confidence,
         created_at: audit.created_at,
         updated_at: audit.updated_at,
-        project: audit.projects,
+        project: project,
         // Добавляем данные для всех разделов
         ab_test_data: audit.result_data?.ab_tests || null,
         hypotheses_data: audit.result_data?.hypotheses || null,
@@ -137,7 +147,7 @@ export async function GET(
   }
 }
 
-function generateSimpleHTML(audit: any): string {
+function generateSimpleHTML(audit: any, project: any): string {
   const resultData = audit.result_data || {}
   const inputData = audit.input_data || {}
   
@@ -166,7 +176,7 @@ function generateSimpleHTML(audit: any): string {
     <div class="container">
         <div class="header">
             <h1 class="title">${audit.name}</h1>
-            <p class="subtitle">Проект: ${audit.projects.name} • ${new Date(audit.created_at).toLocaleDateString('ru-RU')}</p>
+            <p class="subtitle">Проект: ${project?.name || 'Неизвестный проект'} • ${new Date(audit.created_at).toLocaleDateString('ru-RU')}</p>
         </div>
 
         <div class="section">
