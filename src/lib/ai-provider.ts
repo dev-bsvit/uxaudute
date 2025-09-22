@@ -214,6 +214,7 @@ export const executeAIRequest = async (
       console.log(`✅ Успешно использован провайдер: ${providerName}`)
       console.log(`📊 Token usage:`, completion.usage)
       console.log(`📏 Response length: ${content.length} characters`)
+      console.log(`🏁 Finish reason:`, completion.choices[0]?.finish_reason)
       
       return {
         success: true,
