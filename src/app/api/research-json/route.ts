@@ -22,8 +22,8 @@ export async function POST(request: NextRequest) {
     }
 
     // Загружаем JSON-структурированный промпт
-    console.log('Загружаем промпт для локали:', locale)
-    const jsonPrompt = await loadJSONPromptV2(locale)
+    console.log('Загружаем промпт')
+    const jsonPrompt = await loadJSONPromptV2()
     console.log('Промпт загружен, длина:', jsonPrompt.length)
     const finalPrompt = combineWithContext(jsonPrompt, context)
     console.log('Финальный промпт готов, длина:', finalPrompt.length)
