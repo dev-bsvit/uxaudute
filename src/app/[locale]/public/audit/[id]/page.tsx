@@ -44,6 +44,7 @@ export default function PublicAuditPage() {
   const [audit, setAudit] = useState<PublicAudit | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [activeTab, setActiveTab] = useState<string>('audit')
 
   useEffect(() => {
     if (auditId && token) {
@@ -53,6 +54,14 @@ export default function PublicAuditPage() {
       setLoading(false)
     }
   }, [auditId, token])
+
+  // Обработка URL параметров для выбора активной вкладки
+  useEffect(() => {
+    const tab = searchParams.get('tab')
+    if (tab && ['audit', 'ab-test', 'hypotheses', 'analytics'].includes(tab)) {
+      setActiveTab(tab)
+    }
+  }, [searchParams])
 
   const loadPublicAudit = async () => {
     try {
@@ -169,7 +178,7 @@ export default function PublicAuditPage() {
 
       {/* Контент с вкладками */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <Tabs defaultValue="audit" className="w-full">
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
           <TabsList className="grid w-full grid-cols-4">
             <TabsTrigger value="audit" className="flex items-center gap-2">
               <BarChart3 className="w-4 h-4" />

@@ -56,7 +56,9 @@ export async function POST(
     const { error: updateError } = await supabaseClient
       .from('audits')
       .update({ 
-        input_data: updatedInputData
+        input_data: updatedInputData,
+        public_enabled: true,
+        public_token: publicToken
       })
       .eq('id', auditId)
 

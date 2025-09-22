@@ -36,6 +36,8 @@ export async function GET(
         result_data,
         annotations,
         confidence,
+        public_enabled,
+        public_token,
         created_at,
         updated_at,
         projects!inner(
@@ -52,24 +54,27 @@ export async function GET(
       return NextResponse.json({ error: 'Аудит не найден' }, { status: 404 })
     }
 
-    // Проверяем публичный доступ через input_data
+    // Проверяем публичный доступ через отдельные поля
     console.log('🔍 Проверяем публичный доступ:', {
       auditId,
       token,
-      input_data: audit.input_data,
-      public_enabled: audit.input_data?.public_enabled,
-      public_token: audit.input_data?.public_token,
-      tokens_match: audit.input_data?.public_token === token
+      public_enabled: audit.public_enabled,
+      public_token: audit.public_token,
+      tokens_match: audit.public_token === token
     })
 
-    if (!audit.input_data?.public_enabled || audit.input_data?.public_token !== token) {
+    // Проверяем что публичный доступ включен и токены совпадают
+    const isPublicEnabled = audit.public_enabled === true
+    const isTokenValid = audit.public_token === token
+
+    if (!isPublicEnabled || !isTokenValid) {
       console.error('❌ Публичный доступ отключен или неверный токен')
       console.error('🔍 Debug info:', {
-        input_data_public_enabled: audit.input_data?.public_enabled,
-        input_data_public_token: audit.input_data?.public_token,
+        public_enabled: audit.public_enabled,
+        public_token: audit.public_token,
         provided_token: token,
-        has_input_data: !!audit.input_data,
-        tokens_match: audit.input_data?.public_token === token
+        isPublicEnabled,
+        isTokenValid
       })
       return NextResponse.json({ error: 'Доступ запрещен' }, { status: 403 })
     }
