@@ -99,13 +99,25 @@ export async function POST(request: NextRequest) {
         }
       )
     } else if (screenshot) {
-      // Анализ скриншота
-      console.log('Запускаем анализ скриншота')
+      // Анализ скриншота через GPT-4o Vision
+      console.log('Запускаем анализ скриншота через GPT-4o Vision')
       analysisResult = await executeAIRequest(
-        [{ role: 'user', content: finalPrompt }],
+        [{ 
+          role: 'user', 
+          content: [
+            { type: "text", text: finalPrompt },
+            { 
+              type: "image_url", 
+              image_url: { 
+                url: screenshot, 
+                detail: "high" 
+              } 
+            }
+          ]
+        }],
         {
-          provider: provider,
-          openrouterModel: openrouterModel,
+          provider: 'openai', // Принудительно используем OpenAI для Vision
+          openrouterModel: 'gpt4',
           max_tokens: 6000
         }
       )
