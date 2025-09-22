@@ -39,19 +39,15 @@ ${context}
 /**
  * Загружает JSON-структурированный промпт v2
  */
-export async function loadJSONPromptV2(locale: string = 'ru'): Promise<string> {
+export async function loadJSONPromptV2(): Promise<string> {
   try {
-    let fileName = 'json-structured-prompt-v2.md'
-    if (locale === 'ua') fileName = 'json-structured-prompt-ua.md'
-    else if (locale === 'en') fileName = 'json-structured-prompt-en.md'
-    
-    const promptPath = join(process.cwd(), 'prompts', fileName)
+    const promptPath = join(process.cwd(), 'prompts', 'json-structured-prompt-v2.md')
     const prompt = readFileSync(promptPath, 'utf-8')
     return prompt
   } catch (error) {
     console.error('Ошибка загрузки JSON промпта v2:', error)
     // Возвращаем fallback промпт
-    return getJSONFallbackPrompt(locale)
+    return getJSONFallbackPrompt()
   }
 }
 
@@ -73,7 +69,7 @@ export async function loadSonomaStructuredPrompt(): Promise<string> {
 /**
  * Fallback промпт для JSON v2
  */
-function getJSONFallbackPrompt(locale: string = 'ru'): string {
+function getJSONFallbackPrompt(): string {
   return `# JSON-структурированный промпт для UX-анализа
 
 Вы — опытный UX-дизайнер-исследователь. Проанализируйте интерфейс и верните результат в формате JSON.
