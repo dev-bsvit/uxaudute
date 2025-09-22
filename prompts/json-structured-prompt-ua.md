@@ -173,7 +173,6 @@ JSON
     "model": "gpt-4o"
   }
 }
-```
 
 ## Правила для JSON відповіді:
 
@@ -290,8 +289,6 @@ JSON
    - `recommendations` - впевненість в рекомендаціях
 
 ## Приклад повної JSON структури:
-
-```json
 {
   "uxSurvey": {
     "questions": [
