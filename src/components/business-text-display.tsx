@@ -2,7 +2,7 @@ import React from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { RefreshCw, TrendingUp, DollarSign, Target, BarChart3, Users, Zap, Share2, AlertTriangle, CheckCircle, Clock } from 'lucide-react'
+import { RefreshCw, TrendingUp, DollarSign, Target, BarChart3, Users, Zap, Share2, AlertTriangle, CheckCircle, Clock, Lightbulb, AlertCircle } from 'lucide-react'
 
 interface BusinessTextDisplayProps {
   data: { result: string } | any | null
@@ -64,12 +64,28 @@ export const BusinessTextDisplay: React.FC<BusinessTextDisplayProps> = ({
   // Проверяем формат данных
   const isStructuredData = data && data.executive_summary && !data.result;
   const isOldStructuredData = data && data.business_metrics && !data.result && !data.executive_summary;
+  const isCurrentFormat = data && (data.industry_analysis || data.business_metrics || data.business_risks) && !data.result && !data.executive_summary;
   
-  console.log('🔍 Format check:', { isStructuredData, isOldStructuredData, hasBusinessMetrics: !!data?.business_metrics, hasExecutiveSummary: !!data?.executive_summary })
+  console.log('🔍 Format check:', { 
+    isStructuredData, 
+    isOldStructuredData, 
+    isCurrentFormat,
+    hasBusinessMetrics: !!data?.business_metrics, 
+    hasExecutiveSummary: !!data?.executive_summary,
+    hasIndustryAnalysis: !!data?.industry_analysis,
+    hasBusinessRisks: !!data?.business_risks,
+    dataKeys: data ? Object.keys(data) : 'null'
+  })
   
   // Если это структурированные данные (новый формат), используем новый компонент
   if (isStructuredData) {
     console.log('✅ Using StructuredBusinessAnalytics (new format)')
+    return <StructuredBusinessAnalytics data={data} onShare={onShare} publicUrl={publicUrl} publicUrlLoading={publicUrlLoading} />
+  }
+  
+  // Если это текущий формат (с industry_analysis, business_metrics и т.д.), используем новый компонент
+  if (isCurrentFormat) {
+    console.log('✅ Using StructuredBusinessAnalytics (current format)')
     return <StructuredBusinessAnalytics data={data} onShare={onShare} publicUrl={publicUrl} publicUrlLoading={publicUrlLoading} />
   }
   
@@ -330,6 +346,34 @@ const StructuredBusinessAnalytics: React.FC<{
                 <h4 className="font-semibold text-gray-900 mb-2">Рекомендуемый фокус</h4>
                 <p className="text-gray-700">{data.executive_summary.recommended_focus}</p>
               </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Business Metrics (Current Format) */}
+      {data.business_metrics && (
+        <Card>
+          <CardHeader className="bg-gradient-to-r from-blue-50 to-indigo-50 border-b">
+            <CardTitle className="flex items-center gap-3 text-lg">
+              <TrendingUp className="w-5 h-5 text-blue-600" />
+              Бизнес метрики
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="p-6">
+            <div className="space-y-4">
+              {typeof data.business_metrics === 'object' ? (
+                Object.entries(data.business_metrics).map(([key, value]) => (
+                  <div key={key}>
+                    <h4 className="font-semibold text-gray-900 mb-2 capitalize">
+                      {key.replace(/_/g, ' ')}
+                    </h4>
+                    <p className="text-gray-700">{String(value)}</p>
+                  </div>
+                ))
+              ) : (
+                <p className="text-gray-700">{String(data.business_metrics)}</p>
+              )}
             </div>
           </CardContent>
         </Card>
@@ -718,6 +762,180 @@ const OldStructuredBusinessAnalytics: React.FC<{
                 <div key={kpi} className="bg-gray-50 p-4 rounded-lg">
                   <h4 className="font-semibold text-gray-900 mb-2">{kpi}</h4>
                   <p className="text-gray-700">{value}</p>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Business Risks (Current Format) */}
+      {data.business_risks && Array.isArray(data.business_risks) && (
+        <Card>
+          <CardHeader className="bg-gradient-to-r from-red-50 to-pink-50 border-b">
+            <CardTitle className="flex items-center gap-3 text-lg">
+              <AlertTriangle className="w-5 h-5 text-red-600" />
+              Бизнес риски
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="p-6">
+            <div className="space-y-4">
+              {data.business_risks.map((risk: any, index: number) => (
+                <div key={index} className="border-l-4 border-red-200 pl-4">
+                  <div className="flex items-center gap-2 mb-2">
+                    <Badge className={getSeverityColor(risk.severity || risk.priority)}>
+                      {risk.severity || risk.priority || 'medium'}
+                    </Badge>
+                    <span className="font-semibold text-gray-900">{risk.risk || risk.title}</span>
+                  </div>
+                  <p className="text-gray-700 mb-2">{risk.reasoning || risk.description}</p>
+                  {risk.potential_loss_percent && (
+                    <p className="text-sm text-red-600 font-medium">
+                      Потенциальные потери: {risk.potential_loss_percent}
+                    </p>
+                  )}
+                  {risk.mitigation && (
+                    <p className="text-sm text-gray-600 mt-2">
+                      <strong>Снижение риска:</strong> {risk.mitigation}
+                    </p>
+                  )}
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Missed Opportunities (Current Format) */}
+      {data.missed_opportunities && Array.isArray(data.missed_opportunities) && (
+        <Card>
+          <CardHeader className="bg-gradient-to-r from-green-50 to-emerald-50 border-b">
+            <CardTitle className="flex items-center gap-3 text-lg">
+              <Lightbulb className="w-5 h-5 text-green-600" />
+              Упущенные возможности
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="p-6">
+            <div className="space-y-4">
+              {data.missed_opportunities.map((opportunity: any, index: number) => (
+                <div key={index} className="border-l-4 border-green-200 pl-4">
+                  <div className="flex items-center gap-2 mb-2">
+                    <Badge className={getPriorityColor(opportunity.priority)}>
+                      {opportunity.priority || 'medium'}
+                    </Badge>
+                    <span className="font-semibold text-gray-900">{opportunity.opportunity || opportunity.title}</span>
+                  </div>
+                  <p className="text-gray-700 mb-2">{opportunity.reasoning || opportunity.description}</p>
+                  {opportunity.potential_gain_percent && (
+                    <p className="text-sm text-green-600 font-medium">
+                      Потенциальный прирост: {opportunity.potential_gain_percent}
+                    </p>
+                  )}
+                  {opportunity.implementation_steps && (
+                    <div className="mt-2">
+                      <p className="text-sm font-medium text-gray-900 mb-1">Шаги реализации:</p>
+                      <p className="text-sm text-gray-600">{opportunity.implementation_steps}</p>
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* User Behavior Insights (Current Format) */}
+      {data.user_behavior_insights && Array.isArray(data.user_behavior_insights) && (
+        <Card>
+          <CardHeader className="bg-gradient-to-r from-purple-50 to-indigo-50 border-b">
+            <CardTitle className="flex items-center gap-3 text-lg">
+              <Users className="w-5 h-5 text-purple-600" />
+              Инсайты поведения пользователей
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="p-6">
+            <div className="space-y-4">
+              {data.user_behavior_insights.map((insight: any, index: number) => (
+                <div key={index} className="bg-purple-50 p-4 rounded-lg">
+                  <h4 className="font-semibold text-gray-900 mb-2">{insight.title || insight.insight}</h4>
+                  <p className="text-gray-700">{insight.description || insight.details}</p>
+                  {insight.impact && (
+                    <p className="text-sm text-purple-600 font-medium mt-2">
+                      Влияние: {insight.impact}
+                    </p>
+                  )}
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Conversion Barriers (Current Format) */}
+      {data.conversion_barriers && Array.isArray(data.conversion_barriers) && (
+        <Card>
+          <CardHeader className="bg-gradient-to-r from-orange-50 to-red-50 border-b">
+            <CardTitle className="flex items-center gap-3 text-lg">
+              <AlertCircle className="w-5 h-5 text-orange-600" />
+              Барьеры конверсии
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="p-6">
+            <div className="space-y-4">
+              {data.conversion_barriers.map((barrier: any, index: number) => (
+                <div key={index} className="border-l-4 border-orange-200 pl-4">
+                  <div className="flex items-center gap-2 mb-2">
+                    <Badge className={getSeverityColor(barrier.severity || barrier.priority)}>
+                      {barrier.severity || barrier.priority || 'medium'}
+                    </Badge>
+                    <span className="font-semibold text-gray-900">{barrier.barrier || barrier.title}</span>
+                  </div>
+                  <p className="text-gray-700 mb-2">{barrier.description || barrier.details}</p>
+                  {barrier.impact_percent && (
+                    <p className="text-sm text-orange-600 font-medium">
+                      Влияние на конверсию: {barrier.impact_percent}
+                    </p>
+                  )}
+                  {barrier.solution && (
+                    <div className="mt-2">
+                      <p className="text-sm font-medium text-gray-900 mb-1">Решение:</p>
+                      <p className="text-sm text-gray-600">{barrier.solution}</p>
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Next Steps (Current Format) */}
+      {data.next_steps && Array.isArray(data.next_steps) && (
+        <Card>
+          <CardHeader className="bg-gradient-to-r from-blue-50 to-cyan-50 border-b">
+            <CardTitle className="flex items-center gap-3 text-lg">
+              <CheckCircle className="w-5 h-5 text-blue-600" />
+              Следующие шаги
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="p-6">
+            <div className="space-y-4">
+              {data.next_steps.map((step: any, index: number) => (
+                <div key={index} className="border-l-4 border-blue-200 pl-4">
+                  <div className="flex items-center gap-2 mb-2">
+                    <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200">
+                      #{index + 1}
+                    </Badge>
+                    <span className="font-semibold text-gray-900">{step.title || step.action || step.step}</span>
+                  </div>
+                  <p className="text-gray-700">{step.description || step.details || step.description}</p>
+                  {step.priority && (
+                    <div className="mt-2">
+                      <Badge className={getSeverityColor(step.priority)}>
+                        {step.priority}
+                      </Badge>
+                    </div>
+                  )}
                 </div>
               ))}
             </div>
