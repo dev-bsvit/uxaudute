@@ -835,17 +835,23 @@ const OldStructuredBusinessAnalytics: React.FC<{
                     </Badge>
                     <span className="font-semibold text-gray-900">{risk.risk || risk.title}</span>
                   </div>
-                  <p className="text-gray-700 mb-2">{risk.reasoning || risk.description}</p>
-                  {risk.potential_loss_percent && (
-                    <p className="text-sm text-red-600 font-medium">
-                      Потенциальные потери: {risk.potential_loss_percent}
+                  <p className="text-gray-700 mb-2">{risk.reasoning || risk.description || risk.business_consequences}</p>
+                  
+                  {/* Потенциальные потери */}
+                  <div className="mt-2">
+                    <p className="text-sm font-medium text-gray-900 mb-1">Потенциальные потери:</p>
+                    <p className="text-sm text-gray-600">
+                      {risk.potential_loss_percent || risk.affected_users || risk.business_consequences || 'Не указано'}
                     </p>
-                  )}
-                  {risk.mitigation && (
-                    <p className="text-sm text-gray-600 mt-2">
-                      <strong>Снижение риска:</strong> {risk.mitigation}
+                  </div>
+                  
+                  {/* Митигация */}
+                  <div className="mt-2">
+                    <p className="text-sm font-medium text-gray-900 mb-1">Митигация:</p>
+                    <p className="text-sm text-gray-600">
+                      {risk.mitigation || 'Не указано'}
                     </p>
-                  )}
+                  </div>
                 </div>
               ))}
             </div>
@@ -880,7 +886,7 @@ const OldStructuredBusinessAnalytics: React.FC<{
                     <div className="mt-2">
                       <p className="text-sm font-medium text-gray-900 mb-1">Потенциальный рост:</p>
                       <p className="text-sm text-gray-600">
-                        {opportunity.potential_gain_percent || opportunity.potential_growth || opportunity.growth_potential || 'Не указано'}
+                        {opportunity.potential_gain_percent || opportunity.potential_growth || opportunity.growth_potential || opportunity.potential_impact || 'Не указано'}
                       </p>
                     </div>
                     
@@ -888,7 +894,7 @@ const OldStructuredBusinessAnalytics: React.FC<{
                     <div className="mt-2">
                       <p className="text-sm font-medium text-gray-900 mb-1">Шаги реализации:</p>
                       <p className="text-sm text-gray-600">
-                        {opportunity.implementation_steps || opportunity.steps || opportunity.next_steps || 'Не указано'}
+                        {opportunity.implementation_steps || opportunity.steps || opportunity.next_steps || opportunity.implementation || 'Не указано'}
                       </p>
                     </div>
                     
