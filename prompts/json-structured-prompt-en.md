@@ -151,6 +151,25 @@ Analyze the interface and return the result in JSON format with the following se
 7. **Explanations** - briefly explain why the question is needed
 8. **Critical issues** - highlight questions with low scores
 
+## Additional rules for UX survey:
+
+1. **Minimum 5 questions** - mandatory minimum for complete analysis
+2. **Maximum 10 questions** - don't overload the user
+3. **Diverse categories** - use different question types:
+   - `clarity` - goal and message clarity
+   - `usability` - ease of use
+   - `accessibility` - accessibility
+   - `conversion` - conversion and motivation
+   - `navigation` - navigation and search
+   - `content` - content and visual hierarchy
+   - `trust` - trust and security
+   - `value` - value proposition
+4. **Contextual questions** - adapt to screen type:
+   - **Form**: questions about validation, errors, completion
+   - **E-commerce**: questions about purchase, cart, payment
+   - **SaaS**: questions about registration, subscription, functionality
+   - **Landing**: questions about conversion, trust, CTA
+
 ## Rules for audience analysis:
 
 1. **UI signals** - derive insights on pains/fears from visual elements:
@@ -172,10 +191,12 @@ Analyze the interface and return the result in JSON format with the following se
    - What specifically bothers users
    - Why it's critical
    - How it affects their life/work
-5. **Fears** - 2 to 10 short sentences:
+5. **Fears** - 5 to 10 short sentences (mandatory minimum 5):
    - Specific user concerns
    - Usage barriers
    - Risks they see
+   - Security and privacy fears
+   - Concerns about process complexity
 
 ## Rules for behavior analysis:
 
@@ -234,6 +255,13 @@ Analyze the interface and return the result in JSON format with the following se
 - Emotional motives
 - Practical benefits
 
-**IMPORTANT: Generate 3-5 real problems based on interface analysis. Don't invent problems that aren't visible in the screenshot. Each problem should be justified by specific interface elements.**
+**IMPORTANT: Generate MINIMUM 3 real problems based on interface analysis. Don't invent problems that aren't visible in the screenshot. Each problem should be justified by specific interface elements.**
+
+**CRITICAL:**
+- **Minimum 5 questions** in uxSurvey
+- **Minimum 5 fears** in audience.fears  
+- **Minimum 3 problems** in problemsAndSolutions
+- Use different question categories (clarity, usability, accessibility, conversion, trust)
+- Each problem should have different priority (high, medium, low)
 
 **Answer ONLY in JSON format in English.**
