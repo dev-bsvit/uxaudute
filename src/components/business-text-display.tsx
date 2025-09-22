@@ -273,14 +273,6 @@ const StructuredBusinessAnalytics: React.FC<{
     }
   };
 
-  const getPriorityColor = (priority: string) => {
-    switch (priority) {
-      case 'high': return 'bg-red-100 text-red-800 border-red-200';
-      case 'medium': return 'bg-yellow-100 text-yellow-800 border-yellow-200';
-      case 'low': return 'bg-green-100 text-green-800 border-green-200';
-      default: return 'bg-gray-100 text-gray-800 border-gray-200';
-    }
-  };
 
   return (
     <div className="space-y-6">
@@ -488,7 +480,7 @@ const StructuredBusinessAnalytics: React.FC<{
               {data.missed_opportunities.map((opportunity: any, index: number) => (
                 <div key={index} className="border-l-4 border-green-200 pl-4">
                   <div className="flex items-center gap-2 mb-2">
-                    <Badge className={getPriorityColor(opportunity.priority)}>
+                    <Badge className={getSeverityColor(opportunity.priority)}>
                       {opportunity.priority}
                     </Badge>
                     <span className="font-semibold text-gray-900">{opportunity.opportunity}</span>
@@ -820,7 +812,7 @@ const OldStructuredBusinessAnalytics: React.FC<{
               {data.missed_opportunities.map((opportunity: any, index: number) => (
                 <div key={index} className="border-l-4 border-green-200 pl-4">
                   <div className="flex items-center gap-2 mb-2">
-                    <Badge className={getPriorityColor(opportunity.priority)}>
+                    <Badge className={getSeverityColor(opportunity.priority)}>
                       {opportunity.priority || 'medium'}
                     </Badge>
                     <span className="font-semibold text-gray-900">{opportunity.opportunity || opportunity.title}</span>
