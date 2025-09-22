@@ -339,17 +339,23 @@ export default function AuditPage() {
           console.log('🔍 Business analytics data found:', auditData.result_data.business_analytics)
           console.log('🔍 Business analytics keys:', Object.keys(auditData.result_data.business_analytics))
           console.log('🔍 Business analytics type:', typeof auditData.result_data.business_analytics)
-          console.log('🔍 Business analytics has result:', !!auditData.result_data.business_analytics.result)
-          console.log('🔍 Business analytics has executive_summary:', !!auditData.result_data.business_analytics.executive_summary)
-          console.log('🔍 Business analytics has business_metrics:', !!auditData.result_data.business_analytics.business_metrics)
           
-          // Проверяем старый формат (с result) или новый формат (прямые данные)
-          const businessData = auditData.result_data.business_analytics.result 
-            ? auditData.result_data.business_analytics 
-            : auditData.result_data.business_analytics
-          console.log('📊 Setting business analytics data:', businessData)
-          console.log('📊 Business data keys:', Object.keys(businessData))
-          setBusinessAnalyticsData(businessData)
+          // Проверяем новый формат (data_classification, kpi_summary, etc.)
+          const hasNewFormat = auditData.result_data.business_analytics.data_classification || 
+                              auditData.result_data.business_analytics.kpi_summary ||
+                              auditData.result_data.business_analytics.hypotheses
+          
+          if (hasNewFormat) {
+            console.log('✅ New format detected - using business_analytics directly')
+            setBusinessAnalyticsData(auditData.result_data.business_analytics)
+          } else {
+            // Старый формат (с result) или другие варианты
+            const businessData = auditData.result_data.business_analytics.result 
+              ? auditData.result_data.business_analytics 
+              : auditData.result_data.business_analytics
+            console.log('📊 Setting business analytics data (old format):', businessData)
+            setBusinessAnalyticsData(businessData)
+          }
         } else {
           console.log('❌ No business analytics data found')
         }

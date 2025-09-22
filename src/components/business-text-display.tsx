@@ -37,7 +37,11 @@ export const BusinessTextDisplay: React.FC<BusinessTextDisplayProps> = ({
     )
   }
 
-  if (!data || (!data.result && !data.executive_summary && !data.business_metrics && !data.industry_analysis)) {
+  // Проверяем наличие данных в новом формате (data_classification, kpi_summary, etc.) или старом формате
+  const hasNewFormat = data && (data.data_classification || data.kpi_summary || data.hypotheses || data.pain_points)
+  const hasOldFormat = data && (data.result || data.executive_summary || data.business_metrics || data.industry_analysis)
+  
+  if (!data || (!hasNewFormat && !hasOldFormat)) {
     return (
       <Card>
         <CardContent className="p-8 text-center">
@@ -62,11 +66,13 @@ export const BusinessTextDisplay: React.FC<BusinessTextDisplayProps> = ({
   }
 
   // Проверяем формат данных
+  const isNewFormat = data && (data.data_classification || data.kpi_summary || data.hypotheses || data.pain_points);
   const isStructuredData = data && data.executive_summary && !data.result;
   const isOldStructuredData = data && data.business_metrics && !data.result && !data.executive_summary;
   const isCurrentFormat = data && (data.industry_analysis || data.business_metrics || data.business_risks) && !data.result && !data.executive_summary;
   
   console.log('🔍 Format check:', { 
+    isNewFormat,
     isStructuredData, 
     isOldStructuredData, 
     isCurrentFormat,
@@ -76,6 +82,12 @@ export const BusinessTextDisplay: React.FC<BusinessTextDisplayProps> = ({
     hasBusinessRisks: !!data?.business_risks,
     dataKeys: data ? Object.keys(data) : 'null'
   })
+  
+  // Если это новый формат (data_classification, kpi_summary, etc.), используем новый компонент
+  if (isNewFormat) {
+    console.log('✅ Using NewFormatBusinessAnalytics (newest format)')
+    return <NewFormatBusinessAnalytics data={data} onShare={onShare} publicUrl={publicUrl} publicUrlLoading={publicUrlLoading} />
+  }
   
   // Если это структурированные данные (новый формат), используем новый компонент
   if (isStructuredData) {
@@ -1018,6 +1030,502 @@ const OldStructuredBusinessAnalytics: React.FC<{
                 </div>
               ))}
             </div>
+          </CardContent>
+        </Card>
+      )}
+    </div>
+  );
+};
+
+
+// Компонент для отображения нового формата бизнес-аналитики (data_classification, kpi_summary, etc.)
+const NewFormatBusinessAnalytics: React.FC<{
+  data: any;
+  onShare?: () => void;
+  publicUrl?: string | null;
+  publicUrlLoading?: boolean;
+}> = ({ data, onShare, publicUrl, publicUrlLoading }) => {
+  const getSeverityColor = (severity: string) => {
+    switch (severity) {
+      case "high": return "bg-red-100 text-red-800 border-red-200";
+      case "medium": return "bg-yellow-100 text-yellow-800 border-yellow-200";
+      case "low": return "bg-green-100 text-green-800 border-green-200";
+      default: return "bg-gray-100 text-gray-800 border-gray-200";
+    }
+  };
+
+  const getPriorityColor = (priority: string) => {
+    switch (priority) {
+      case "high": return "bg-red-100 text-red-800 border-red-200";
+      case "medium": return "bg-yellow-100 text-yellow-800 border-yellow-200";
+      case "low": return "bg-green-100 text-green-800 border-green-200";
+      default: return "bg-gray-100 text-gray-800 border-gray-200";
+    }
+  };
+
+  return (
+    <div className="space-y-6">
+      {/* Temporary block for debugging - FULL DATA */}
+      <div className="p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+        <h3 className="text-lg font-semibold text-yellow-800 mb-2">🔍 ПОЛНЫЕ ДАННЫЕ (для отладки):</h3>
+        <pre className="text-xs text-gray-700 bg-white p-3 rounded border overflow-auto max-h-96">
+          {JSON.stringify(data, null, 2)}
+        </pre>
+      </div>
+
+      {/* Data Classification */}
+      {data.data_classification && (
+        <Card>
+          <CardHeader className="bg-gradient-to-r from-blue-50 to-cyan-50 border-b">
+            <CardTitle className="flex items-center gap-3 text-lg">
+              <BarChart3 className="w-5 h-5 text-blue-600" />
+              Классификация данных
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="p-6">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {/* Quantitative Data */}
+              {data.data_classification.quantitative_data && (
+                <div>
+                  <h4 className="font-semibold text-gray-900 mb-3 flex items-center gap-2">
+                    <TrendingUp className="w-4 h-4 text-green-600" />
+                    Количественные данные
+                  </h4>
+                  <div className="space-y-2">
+                    {data.data_classification.quantitative_data.map((item: any, index: number) => (
+                      <div key={index} className="p-3 bg-green-50 rounded-lg border border-green-200">
+                        <div className="font-medium text-green-800">{item.type}</div>
+                        <div className="text-sm text-green-700">{item.value}</div>
+                        <div className="text-xs text-green-600">{item.description}</div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Qualitative Data */}
+              {data.data_classification.qualitative_data && (
+                <div>
+                  <h4 className="font-semibold text-gray-900 mb-3 flex items-center gap-2">
+                    <Users className="w-4 h-4 text-blue-600" />
+                    Качественные данные
+                  </h4>
+                  <div className="space-y-2">
+                    {data.data_classification.qualitative_data.map((item: any, index: number) => (
+                      <div key={index} className="p-3 bg-blue-50 rounded-lg border border-blue-200">
+                        <div className="font-medium text-blue-800">{item.type}</div>
+                        <div className="text-sm text-blue-700">{item.description}</div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* UX Heuristics */}
+              {data.data_classification.ux_heuristics && (
+                <div>
+                  <h4 className="font-semibold text-gray-900 mb-3 flex items-center gap-2">
+                    <AlertTriangle className="w-4 h-4 text-orange-600" />
+                    UX Эвристики
+                  </h4>
+                  <div className="space-y-2">
+                    {data.data_classification.ux_heuristics.map((item: any, index: number) => (
+                      <div key={index} className="p-3 bg-orange-50 rounded-lg border border-orange-200">
+                        <div className="font-medium text-orange-800">{item.principle}</div>
+                        <div className="text-sm text-orange-700">{item.violation}</div>
+                        <Badge className={getSeverityColor(item.severity)}>
+                          {item.severity}
+                        </Badge>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* KPI Summary */}
+      {data.kpi_summary && (
+        <Card>
+          <CardHeader className="bg-gradient-to-r from-green-50 to-emerald-50 border-b">
+            <CardTitle className="flex items-center gap-3 text-lg">
+              <Target className="w-5 h-5 text-green-600" />
+              Сводка KPI
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="p-6">
+            {data.kpi_summary.current_metrics && (
+              <div className="mb-6">
+                <h4 className="font-semibold text-gray-900 mb-4">Текущие метрики</h4>
+                <div className="overflow-x-auto">
+                  <table className="w-full border-collapse">
+                    <thead>
+                      <tr className="bg-gray-50">
+                        <th className="border border-gray-200 px-4 py-2 text-left font-semibold">Метрика</th>
+                        <th className="border border-gray-200 px-4 py-2 text-left font-semibold">Текущее значение</th>
+                        <th className="border border-gray-200 px-4 py-2 text-left font-semibold">Бенчмарк</th>
+                        <th className="border border-gray-200 px-4 py-2 text-left font-semibold">Тренд</th>
+                        <th className="border border-gray-200 px-4 py-2 text-left font-semibold">Влияние</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {data.kpi_summary.current_metrics.map((metric: any, index: number) => (
+                        <tr key={index}>
+                          <td className="border border-gray-200 px-4 py-2">{metric.metric}</td>
+                          <td className="border border-gray-200 px-4 py-2 font-medium">{metric.current_value}</td>
+                          <td className="border border-gray-200 px-4 py-2">{metric.benchmark}</td>
+                          <td className="border border-gray-200 px-4 py-2">
+                            <Badge className={metric.trend === "declining" ? "bg-red-100 text-red-800" : "bg-green-100 text-green-800"}>
+                              {metric.trend}
+                            </Badge>
+                          </td>
+                          <td className="border border-gray-200 px-4 py-2">
+                            <Badge className={getSeverityColor(metric.impact_on_business)}>
+                              {metric.impact_on_business}
+                            </Badge>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            )}
+
+            {data.kpi_summary.key_insights && (
+              <div>
+                <h4 className="font-semibold text-gray-900 mb-4">Ключевые инсайты</h4>
+                <ul className="space-y-2">
+                  {data.kpi_summary.key_insights.map((insight: string, index: number) => (
+                    <li key={index} className="flex items-start gap-2">
+                      <Lightbulb className="w-4 h-4 text-yellow-600 mt-1 flex-shrink-0" />
+                      <span className="text-gray-700">{insight}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Pain Points */}
+      {data.pain_points && (
+        <Card>
+          <CardHeader className="bg-gradient-to-r from-red-50 to-pink-50 border-b">
+            <CardTitle className="flex items-center gap-3 text-lg">
+              <AlertCircle className="w-5 h-5 text-red-600" />
+              Pain Points
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="p-6">
+            <div className="space-y-4">
+              {data.pain_points.map((painPoint: any, index: number) => (
+                <div key={index} className="p-4 bg-red-50 rounded-lg border border-red-200">
+                  <h4 className="font-semibold text-red-800 mb-3">{painPoint.pain_point}</h4>
+                  
+                  {painPoint.quantitative_impact && (
+                    <div className="mb-3">
+                      <h5 className="font-medium text-gray-900 mb-2">Количественное влияние:</h5>
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-2 text-sm">
+                        {Object.entries(painPoint.quantitative_impact).map(([key, value]) => (
+                          <div key={key} className="bg-white p-2 rounded border">
+                            <span className="font-medium">{key}:</span> {String(value)}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {painPoint.qualitative_description && (
+                    <div className="mb-3">
+                      <h5 className="font-medium text-gray-900 mb-2">Качественное описание:</h5>
+                      <p className="text-gray-700">{painPoint.qualitative_description}</p>
+                    </div>
+                  )}
+
+                  {painPoint.ux_heuristics_violated && (
+                    <div className="mb-3">
+                      <h5 className="font-medium text-gray-900 mb-2">Нарушенные UX принципы:</h5>
+                      <div className="flex flex-wrap gap-2">
+                        {painPoint.ux_heuristics_violated.map((heuristic: string, idx: number) => (
+                          <Badge key={idx} variant="outline" className="bg-orange-50 text-orange-700 border-orange-200">
+                            {heuristic}
+                          </Badge>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {painPoint.business_impact && (
+                    <div>
+                      <h5 className="font-medium text-gray-900 mb-2">Влияние на бизнес:</h5>
+                      <p className="text-gray-700">{painPoint.business_impact}</p>
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Hypotheses */}
+      {data.hypotheses && (
+        <Card>
+          <CardHeader className="bg-gradient-to-r from-purple-50 to-indigo-50 border-b">
+            <CardTitle className="flex items-center gap-3 text-lg">
+              <Lightbulb className="w-5 h-5 text-purple-600" />
+              Гипотезы
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="p-6">
+            <div className="space-y-4">
+              {data.hypotheses.map((hypothesis: any, index: number) => (
+                <div key={index} className="p-4 bg-purple-50 rounded-lg border border-purple-200">
+                  <div className="flex items-start justify-between mb-3">
+                    <h4 className="font-semibold text-purple-800">{hypothesis.title}</h4>
+                    <div className="flex gap-2">
+                      <Badge className="bg-blue-100 text-blue-800">
+                        ICE: {hypothesis.ice_score}
+                      </Badge>
+                      <Badge className={getPriorityColor(hypothesis.impact > 7 ? "high" : hypothesis.impact > 4 ? "medium" : "low")}>
+                        Impact: {hypothesis.impact}
+                      </Badge>
+                    </div>
+                  </div>
+                  
+                  <div className="space-y-3">
+                    <div>
+                      <h5 className="font-medium text-gray-900 mb-1">Проблема:</h5>
+                      <p className="text-gray-700">{hypothesis.problem}</p>
+                    </div>
+                    
+                    <div>
+                      <h5 className="font-medium text-gray-900 mb-1">Решение:</h5>
+                      <p className="text-gray-700">{hypothesis.solution}</p>
+                    </div>
+                    
+                    <div className="grid grid-cols-3 gap-4 text-sm">
+                      <div className="bg-white p-2 rounded border">
+                        <span className="font-medium">Impact:</span> {hypothesis.impact}/10
+                      </div>
+                      <div className="bg-white p-2 rounded border">
+                        <span className="font-medium">Confidence:</span> {hypothesis.confidence}/10
+                      </div>
+                      <div className="bg-white p-2 rounded border">
+                        <span className="font-medium">Effort:</span> {hypothesis.effort}/10
+                      </div>
+                    </div>
+                    
+                    {hypothesis.expected_improvement && (
+                      <div>
+                        <h5 className="font-medium text-gray-900 mb-1">Ожидаемое улучшение:</h5>
+                        <p className="text-gray-700">{hypothesis.expected_improvement}</p>
+                      </div>
+                    )}
+                    
+                    {hypothesis.metrics_to_track && (
+                      <div>
+                        <h5 className="font-medium text-gray-900 mb-1">Метрики для отслеживания:</h5>
+                        <div className="flex flex-wrap gap-2">
+                          {hypothesis.metrics_to_track.map((metric: string, idx: number) => (
+                            <Badge key={idx} variant="outline" className="bg-gray-50 text-gray-700">
+                              {metric}
+                            </Badge>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Top 3 Detailed */}
+      {data.top_3_detailed && (
+        <Card>
+          <CardHeader className="bg-gradient-to-r from-indigo-50 to-blue-50 border-b">
+            <CardTitle className="flex items-center gap-3 text-lg">
+              <Zap className="w-5 h-5 text-indigo-600" />
+              Топ-3 детализированные гипотезы
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="p-6">
+            <div className="space-y-6">
+              {data.top_3_detailed.map((hypothesis: any, index: number) => (
+                <div key={index} className="p-6 bg-indigo-50 rounded-lg border border-indigo-200">
+                  <div className="flex items-start justify-between mb-4">
+                    <h4 className="font-semibold text-indigo-800 text-lg">Гипотеза {hypothesis.hypothesis_id}</h4>
+                    <Badge className="bg-indigo-100 text-indigo-800">
+                      #{index + 1} в приоритете
+                    </Badge>
+                  </div>
+                  
+                  <div className="space-y-4">
+                    <div>
+                      <h5 className="font-medium text-gray-900 mb-2">User Story:</h5>
+                      <p className="text-gray-700 italic">"{hypothesis.user_story}"</p>
+                    </div>
+                    
+                    {hypothesis.ux_patterns && (
+                      <div>
+                        <h5 className="font-medium text-gray-900 mb-2">UX Паттерны:</h5>
+                        <div className="space-y-3">
+                          {hypothesis.ux_patterns.map((pattern: any, idx: number) => (
+                            <div key={idx} className="bg-white p-3 rounded border">
+                              <div className="font-medium text-gray-900">{pattern.pattern}</div>
+                              <div className="text-sm text-gray-600 mb-2">{pattern.description}</div>
+                              {pattern.examples && (
+                                <div className="text-sm text-blue-600">
+                                  Примеры: {pattern.examples.join(", ")}
+                                </div>
+                              )}
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                    
+                    {hypothesis.test_plan && (
+                      <div>
+                        <h5 className="font-medium text-gray-900 mb-2">План тестирования:</h5>
+                        <div className="bg-white p-4 rounded border">
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                            <div>
+                              <span className="font-medium">Метод:</span> {hypothesis.test_plan.method}
+                            </div>
+                            <div>
+                              <span className="font-medium">Длительность:</span> {hypothesis.test_plan.duration}
+                            </div>
+                            <div>
+                              <span className="font-medium">Размер выборки:</span> {hypothesis.test_plan.sample_size}
+                            </div>
+                            <div>
+                              <span className="font-medium">Критерии успеха:</span> {hypothesis.test_plan.success_criteria}
+                            </div>
+                          </div>
+                          
+                          {hypothesis.test_plan.delta_metrics && (
+                            <div>
+                              <h6 className="font-medium text-gray-900 mb-2">Δ-метрики:</h6>
+                              <div className="space-y-2">
+                                {hypothesis.test_plan.delta_metrics.map((metric: any, idx: number) => (
+                                  <div key={idx} className="flex justify-between items-center bg-gray-50 p-2 rounded">
+                                    <span className="font-medium">{metric.metric}</span>
+                                    <div className="flex gap-4 text-sm">
+                                      <span>Ожидаемое изменение: {metric.expected_change}</span>
+                                      <span>Значимость: {metric.statistical_significance}</span>
+                                    </div>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Final Summary Table */}
+      {data.final_summary_table && (
+        <Card>
+          <CardHeader className="bg-gradient-to-r from-emerald-50 to-teal-50 border-b">
+            <CardTitle className="flex items-center gap-3 text-lg">
+              <CheckCircle className="w-5 h-5 text-emerald-600" />
+              Итоговая сводка
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="p-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+              <div className="bg-white p-4 rounded-lg border text-center">
+                <div className="text-2xl font-bold text-emerald-600">{data.final_summary_table.total_hypotheses}</div>
+                <div className="text-sm text-gray-600">Всего гипотез</div>
+              </div>
+              <div className="bg-white p-4 rounded-lg border text-center">
+                <div className="text-2xl font-bold text-red-600">{data.final_summary_table.high_priority}</div>
+                <div className="text-sm text-gray-600">Высокий приоритет</div>
+              </div>
+              <div className="bg-white p-4 rounded-lg border text-center">
+                <div className="text-2xl font-bold text-yellow-600">{data.final_summary_table.medium_priority}</div>
+                <div className="text-sm text-gray-600">Средний приоритет</div>
+              </div>
+              <div className="bg-white p-4 rounded-lg border text-center">
+                <div className="text-2xl font-bold text-green-600">{data.final_summary_table.low_priority}</div>
+                <div className="text-sm text-gray-600">Низкий приоритет</div>
+              </div>
+            </div>
+            
+            <div className="space-y-4">
+              <div className="bg-emerald-50 p-4 rounded-lg border border-emerald-200">
+                <h4 className="font-semibold text-emerald-800 mb-2">Ожидаемый общий эффект:</h4>
+                <p className="text-emerald-700">{data.final_summary_table.estimated_total_impact}</p>
+              </div>
+              
+              <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
+                <h4 className="font-semibold text-blue-800 mb-2">Рекомендуемый фокус:</h4>
+                <p className="text-blue-700">{data.final_summary_table.recommended_focus}</p>
+              </div>
+              
+              {data.final_summary_table.next_steps && (
+                <div>
+                  <h4 className="font-semibold text-gray-900 mb-3">Следующие шаги:</h4>
+                  <ul className="space-y-2">
+                    {data.final_summary_table.next_steps.map((step: string, index: number) => (
+                      <li key={index} className="flex items-start gap-2">
+                        <CheckCircle className="w-4 h-4 text-green-600 mt-1 flex-shrink-0" />
+                        <span className="text-gray-700">{step}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Self Check */}
+      {data.self_check && (
+        <Card>
+          <CardHeader className="bg-gradient-to-r from-gray-50 to-slate-50 border-b">
+            <CardTitle className="flex items-center gap-3 text-lg">
+              <CheckCircle className="w-5 h-5 text-gray-600" />
+              Самопроверка
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="p-6">
+            <div className="flex items-center gap-2 mb-4">
+              <CheckCircle className={`w-5 h-5 ${data.self_check.checklist_completed ? "text-green-600" : "text-red-600"}`} />
+              <span className="font-semibold">
+                {data.self_check.checklist_completed ? "Чек-лист пройден" : "Чек-лист не пройден"}
+              </span>
+            </div>
+            
+            {data.self_check.validation_notes && (
+              <div>
+                <h4 className="font-semibold text-gray-900 mb-3">Заметки валидации:</h4>
+                <ul className="space-y-2">
+                  {data.self_check.validation_notes.map((note: string, index: number) => (
+                    <li key={index} className="flex items-start gap-2">
+                      <CheckCircle className="w-4 h-4 text-green-600 mt-1 flex-shrink-0" />
+                      <span className="text-gray-700">{note}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
           </CardContent>
         </Card>
       )}
