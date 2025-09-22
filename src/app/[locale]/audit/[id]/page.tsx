@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { useParams } from 'next/navigation'
+import { useParams, useSearchParams } from 'next/navigation'
 import { AnalysisResultDisplay } from '@/components/analysis-result-display'
 import { ABTestDisplay } from '@/components/ab-test-display'
 import { HypothesesDisplay } from '@/components/hypotheses-display'
@@ -35,6 +35,7 @@ interface Audit {
 
 export default function AuditPage() {
   const params = useParams()
+  const searchParams = useSearchParams()
   const auditId = params.id as string
   
   const [user, setUser] = useState<User | null>(null)
@@ -49,6 +50,15 @@ export default function AuditPage() {
   const [businessAnalyticsLoading, setBusinessAnalyticsLoading] = useState(false)
   const [publicUrl, setPublicUrl] = useState<string | null>(null)
   const [publicUrlLoading, setPublicUrlLoading] = useState(false)
+  const [activeTab, setActiveTab] = useState<string>('ux-analysis')
+
+  // Обработка URL параметров для выбора активной вкладки
+  useEffect(() => {
+    const tab = searchParams.get('tab')
+    if (tab && ['ux-analysis', 'ab-test', 'hypotheses', 'analytics'].includes(tab)) {
+      setActiveTab(tab)
+    }
+  }, [searchParams])
 
   // Функция для создания публичной ссылки
   const createPublicLink = async () => {
@@ -69,8 +79,9 @@ export default function AuditPage() {
       }
 
       const data = await response.json()
-      setPublicUrl(data.publicUrl)
-      console.log('✅ Публичная ссылка создана:', data.publicUrl)
+      const urlWithTab = `${data.publicUrl}?tab=${activeTab}`
+      setPublicUrl(urlWithTab)
+      console.log('✅ Публичная ссылка создана:', urlWithTab)
     } catch (error) {
       console.error('❌ Ошибка создания публичной ссылки:', error)
       alert('Ошибка создания публичной ссылки')
@@ -466,7 +477,7 @@ export default function AuditPage() {
 
         {/* Результаты анализа */}
         {audit.result_data ? (
-          <Tabs defaultValue="ux-analysis" className="w-full">
+          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
             <TabsList className="grid w-full grid-cols-4 mb-6 bg-gray-100 h-16 relative z-10 p-1">
               <TabsTrigger 
                 value="ux-analysis" 
