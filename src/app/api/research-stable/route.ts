@@ -60,7 +60,7 @@ export async function POST(request: NextRequest) {
         { role: "user", content: analysisPrompt }
       ], {
         temperature: 0.7,
-        max_tokens: 3000,
+        max_tokens: 4000,
         provider: provider as 'openai' | 'openrouter',
         openrouterModel: openrouterModel as 'claude' | 'sonoma' | 'gpt4' | 'default'
       })
@@ -106,7 +106,7 @@ export async function POST(request: NextRequest) {
         { role: "user", content: analysisPrompt }
       ], {
         temperature: 0.7,
-        max_tokens: 3000,
+        max_tokens: 4000,
         provider: provider as 'openai' | 'openrouter',
         openrouterModel: openrouterModel as 'claude' | 'sonoma' | 'gpt4' | 'default'
       })

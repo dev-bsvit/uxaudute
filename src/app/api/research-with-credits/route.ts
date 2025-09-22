@@ -93,7 +93,8 @@ export async function POST(request: NextRequest) {
         [{ role: 'user', content: finalPrompt }],
         {
           provider: provider,
-          openrouterModel: openrouterModel
+          openrouterModel: openrouterModel,
+          max_tokens: 4000
         }
       )
     } else if (screenshot) {
@@ -103,7 +104,8 @@ export async function POST(request: NextRequest) {
         [{ role: 'user', content: finalPrompt }],
         {
           provider: provider,
-          openrouterModel: openrouterModel
+          openrouterModel: openrouterModel,
+          max_tokens: 4000
         }
       )
     }
