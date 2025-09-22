@@ -41,19 +41,22 @@ export default function PublicAuditPage() {
   const auditId = params.id as string
   const token = searchParams.get('token')
   
+  // Извлекаем токен из URL, убирая параметр tab если он есть
+  const cleanToken = token?.split('?')[0] || token
+  
   const [audit, setAudit] = useState<PublicAudit | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [activeTab, setActiveTab] = useState<string>('audit')
 
   useEffect(() => {
-    if (auditId && token) {
+    if (auditId && cleanToken) {
       loadPublicAudit()
     } else {
       setError('Неверная ссылка')
       setLoading(false)
     }
-  }, [auditId, token])
+  }, [auditId, cleanToken])
 
   // Обработка URL параметров для выбора активной вкладки
   useEffect(() => {
@@ -66,9 +69,9 @@ export default function PublicAuditPage() {
   const loadPublicAudit = async () => {
     try {
       setLoading(true)
-      console.log('🔍 Загружаем публичный аудит:', auditId, 'с токеном:', token)
+      console.log('🔍 Загружаем публичный аудит:', auditId, 'с токеном:', cleanToken)
       
-      const response = await fetch(`/api/public/audit/${auditId}?token=${token}`)
+      const response = await fetch(`/api/public/audit/${auditId}?token=${cleanToken}`)
       const data = await response.json()
 
       console.log('🔍 Ответ API:', { status: response.status, data })

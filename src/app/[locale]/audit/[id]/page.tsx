@@ -79,7 +79,9 @@ export default function AuditPage() {
       }
 
       const data = await response.json()
-      const urlWithTab = `${data.publicUrl}?tab=${activeTab}`
+      // Добавляем параметр tab к существующему URL (учитываем что там уже может быть токен)
+      const separator = data.publicUrl.includes('?') ? '&' : '?'
+      const urlWithTab = `${data.publicUrl}${separator}tab=${activeTab}`
       setPublicUrl(urlWithTab)
       console.log('✅ Публичная ссылка создана:', urlWithTab)
     } catch (error) {
