@@ -21,6 +21,9 @@ export const BusinessTextDisplay: React.FC<BusinessTextDisplayProps> = ({
   publicUrl,
   publicUrlLoading = false
 }) => {
+  console.log('🎯 BusinessTextDisplay received data:', data)
+  console.log('🎯 BusinessTextDisplay data type:', typeof data)
+  console.log('🎯 BusinessTextDisplay data keys:', data ? Object.keys(data) : 'null')
   if (isLoading) {
     return (
       <Card>
