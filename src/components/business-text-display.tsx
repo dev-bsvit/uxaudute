@@ -894,7 +894,8 @@ const OldStructuredBusinessAnalytics: React.FC<{
                       </details>
                     )}
                 </div>
-              ))}
+                );
+              })}
             </div>
           </CardContent>
         </Card>
