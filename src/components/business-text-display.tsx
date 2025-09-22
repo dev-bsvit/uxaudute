@@ -888,6 +888,10 @@ const OldStructuredBusinessAnalytics: React.FC<{
                       <p className="text-sm text-gray-600">
                         {opportunity.potential_gain_percent || opportunity.potential_growth || opportunity.growth_potential || opportunity.potential_impact || 'Не указано'}
                       </p>
+                      {/* Отладка */}
+                      <p className="text-xs text-gray-400 mt-1">
+                        Debug: potential_impact = "{opportunity.potential_impact}"
+                      </p>
                     </div>
                     
                     {/* Шаги реализации */}
@@ -895,6 +899,10 @@ const OldStructuredBusinessAnalytics: React.FC<{
                       <p className="text-sm font-medium text-gray-900 mb-1">Шаги реализации:</p>
                       <p className="text-sm text-gray-600">
                         {opportunity.implementation_steps || opportunity.steps || opportunity.next_steps || opportunity.implementation || 'Не указано'}
+                      </p>
+                      {/* Отладка */}
+                      <p className="text-xs text-gray-400 mt-1">
+                        Debug: implementation = "{opportunity.implementation}"
                       </p>
                     </div>
                     
