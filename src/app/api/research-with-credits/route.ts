@@ -94,7 +94,7 @@ export async function POST(request: NextRequest) {
         {
           provider: provider,
           openrouterModel: openrouterModel,
-          max_tokens: 4000
+          max_tokens: 6000
         }
       )
     } else if (screenshot) {
@@ -105,7 +105,7 @@ export async function POST(request: NextRequest) {
         {
           provider: provider,
           openrouterModel: openrouterModel,
-          max_tokens: 4000
+          max_tokens: 6000
         }
       )
     }
