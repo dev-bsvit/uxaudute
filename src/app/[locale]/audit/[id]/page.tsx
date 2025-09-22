@@ -257,15 +257,15 @@ export default function AuditPage() {
       }
 
       const data = await response.json()
-      // Бизнес аналитика возвращает текст, а не JSON объект
-      setBusinessAnalyticsData({ result: data.result } as any)
+      // Бизнес аналитика возвращает структурированные данные
+      setBusinessAnalyticsData(data.data)
       
       // Обновляем данные аудита
       setAudit(prev => prev ? {
         ...prev,
         result_data: {
           ...prev.result_data,
-          business_analytics: { result: data.result }
+          business_analytics: data.data
         }
       } : null)
     } catch (error) {
@@ -336,7 +336,11 @@ export default function AuditPage() {
         
         // Загружаем бизнес аналитику если она есть
         if (auditData.result_data.business_analytics) {
-          setBusinessAnalyticsData(auditData.result_data.business_analytics)
+          // Проверяем старый формат (с result) или новый формат (прямые данные)
+          const businessData = auditData.result_data.business_analytics.result 
+            ? auditData.result_data.business_analytics 
+            : auditData.result_data.business_analytics
+          setBusinessAnalyticsData(businessData)
         }
       } else {
         console.log('⚠️ Результат не найден в audits, аудит может быть в процессе')
