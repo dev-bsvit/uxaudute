@@ -276,6 +276,14 @@ const StructuredBusinessAnalytics: React.FC<{
 
   return (
     <div className="space-y-6">
+      {/* Временный блок для отладки - ПОЛНЫЕ ДАННЫЕ */}
+      <div className="p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+        <h3 className="text-lg font-semibold text-yellow-800 mb-2">🔍 ПОЛНЫЕ ДАННЫЕ (для отладки):</h3>
+        <pre className="text-xs text-gray-700 bg-white p-3 rounded border overflow-auto max-h-96">
+          {JSON.stringify(data, null, 2)}
+        </pre>
+      </div>
+      
       {/* Заголовок */}
       <div className="text-center">
         <h2 className="text-3xl font-bold text-gray-900 mb-2 flex items-center justify-center gap-3">
