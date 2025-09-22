@@ -21,7 +21,7 @@ export async function POST(request: NextRequest) {
       .from('audits')
       .update({
         result_data: {},
-        status: 'pending',
+        status: 'in_progress',
         updated_at: new Date().toISOString()
       })
       .in('id', auditIds)
