@@ -47,9 +47,11 @@ export async function loadJSONPromptV2(locale: string = 'ru'): Promise<string> {
     
     const promptPath = join(process.cwd(), 'prompts', fileName)
     const prompt = readFileSync(promptPath, 'utf-8')
+    console.log(`✅ Загружен промпт для локали ${locale}: ${fileName}, размер: ${prompt.length} байт`)
     return prompt
   } catch (error) {
-    console.error('Ошибка загрузки JSON промпта v2:', error)
+    console.error(`❌ Ошибка загрузки JSON промпта v2 для локали ${locale}:`, error)
+    console.log(`🔄 Используем fallback промпт для локали: ${locale}`)
     // Возвращаем fallback промпт
     return getJSONFallbackPrompt(locale)
   }
@@ -105,13 +107,53 @@ function getJSONFallbackPrompt(locale: string = 'ru'): string {
         "category": "clarity",
         "principle": "Принцип UX",
         "explanation": "Объяснение релевантности"
+      },
+      {
+        "id": 2,
+        "question": "Второй вопрос",
+        "options": ["A) Да", "B) Нет", "C) Не знаю"],
+        "scores": [70, 20, 10],
+        "confidence": 80,
+        "category": "usability",
+        "principle": "Простота",
+        "explanation": "Объяснение"
+      },
+      {
+        "id": 3,
+        "question": "Третий вопрос",
+        "options": ["A) Легко", "B) Сложно", "C) Очень сложно"],
+        "scores": [50, 35, 15],
+        "confidence": 75,
+        "category": "accessibility",
+        "principle": "Доступность",
+        "explanation": "Объяснение"
+      },
+      {
+        "id": 4,
+        "question": "Четвертый вопрос",
+        "options": ["A) Быстро", "B) Медленно", "C) Очень медленно"],
+        "scores": [65, 25, 10],
+        "confidence": 85,
+        "category": "conversion",
+        "principle": "Эффективность",
+        "explanation": "Объяснение"
+      },
+      {
+        "id": 5,
+        "question": "Пятый вопрос",
+        "options": ["A) Доверяю", "B) Не доверяю", "C) Сомневаюсь"],
+        "scores": [60, 25, 15],
+        "confidence": 80,
+        "category": "trust",
+        "principle": "Доверие",
+        "explanation": "Объяснение"
       }
     ]
   },
   "audience": {
     "targetAudience": "Целевая аудитория - детальный портрет в 1-2 абзаца",
     "mainPain": "Основная боль пользователей в 1 абзаце",
-    "fears": ["Страх 1", "Страх 2", "Страх 3"]
+    "fears": ["Страх 1", "Страх 2", "Страх 3", "Страх 4", "Страх 5"]
   },
   "behavior": {
     "userScenarios": {
@@ -128,11 +170,25 @@ function getJSONFallbackPrompt(locale: string = 'ru'): string {
   },
   "problemsAndSolutions": [
     {
-      "element": "Название элемента",
-      "problem": "Описание проблемы",
+      "element": "Элемент 1",
+      "problem": "Проблема 1",
       "principle": "Нарушенный принцип UX",
       "recommendation": "Конкретная рекомендация",
-      "priority": "high/medium/low"
+      "priority": "high"
+    },
+    {
+      "element": "Элемент 2",
+      "problem": "Проблема 2",
+      "principle": "Нарушенный принцип UX",
+      "recommendation": "Конкретная рекомендация",
+      "priority": "medium"
+    },
+    {
+      "element": "Элемент 3",
+      "problem": "Проблема 3",
+      "principle": "Нарушенный принцип UX",
+      "recommendation": "Конкретная рекомендация",
+      "priority": "low"
     }
   ],
   "selfCheck": {
