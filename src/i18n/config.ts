@@ -2,11 +2,11 @@ import { notFound } from 'next/navigation'
 import { getRequestConfig } from 'next-intl/server'
 
 // Поддерживаемые локали
-export const locales = ['ru', 'ua', 'en'] as const
+export const locales = ['en', 'ru', 'ua'] as const
 export type Locale = (typeof locales)[number]
 
 // Локаль по умолчанию
-export const defaultLocale: Locale = 'ru'
+export const defaultLocale: Locale = 'en'
 
 // Проверка валидности локали
 export function isValidLocale(locale: string): locale is Locale {
