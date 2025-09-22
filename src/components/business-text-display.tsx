@@ -360,7 +360,32 @@ const StructuredBusinessAnalytics: React.FC<{
                     <h4 className="font-semibold text-gray-900 mb-2 capitalize">
                       {key.replace(/_/g, ' ')}
                     </h4>
-                    <p className="text-gray-700">{String(value)}</p>
+                    {typeof value === 'object' && value !== null ? (
+                      <div className="space-y-2">
+                        {Array.isArray(value) ? (
+                          <ul className="list-disc list-inside space-y-1">
+                            {value.map((item, index) => (
+                              <li key={index} className="text-gray-700">
+                                {typeof item === 'object' ? JSON.stringify(item, null, 2) : String(item)}
+                              </li>
+                            ))}
+                          </ul>
+                        ) : (
+                          <div className="space-y-2">
+                            {Object.entries(value).map(([subKey, subValue]) => (
+                              <div key={subKey}>
+                                <span className="font-medium text-gray-800">{subKey}:</span>
+                                <span className="ml-2 text-gray-700">
+                                  {typeof subValue === 'object' ? JSON.stringify(subValue, null, 2) : String(subValue)}
+                                </span>
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    ) : (
+                      <p className="text-gray-700">{String(value)}</p>
+                    )}
                   </div>
                 ))
               ) : (
@@ -382,22 +407,42 @@ const StructuredBusinessAnalytics: React.FC<{
           </CardHeader>
           <CardContent className="p-6">
             <div className="space-y-4">
-              <div>
-                <h4 className="font-semibold text-gray-900 mb-2">Определенная индустрия</h4>
-                <p className="text-gray-700">{data.industry_analysis.identified_industry}</p>
-              </div>
-              <div>
-                <h4 className="font-semibold text-gray-900 mb-2">Бизнес-модель</h4>
-                <p className="text-gray-700">{data.industry_analysis.identified_business_model}</p>
-              </div>
-              {data.industry_analysis.north_star_metric && (
-                <div>
-                  <h4 className="font-semibold text-gray-900 mb-2">North Star Metric</h4>
-                  <div className="bg-blue-50 p-3 rounded-lg">
-                    <p className="font-medium text-blue-900">{data.industry_analysis.north_star_metric.metric}</p>
-                    <p className="text-blue-700 text-sm mt-1">{data.industry_analysis.north_star_metric.justification}</p>
+              {typeof data.industry_analysis === 'object' ? (
+                Object.entries(data.industry_analysis).map(([key, value]) => (
+                  <div key={key}>
+                    <h4 className="font-semibold text-gray-900 mb-2 capitalize">
+                      {key.replace(/_/g, ' ')}
+                    </h4>
+                    {typeof value === 'object' && value !== null ? (
+                      <div className="space-y-2">
+                        {Array.isArray(value) ? (
+                          <ul className="list-disc list-inside space-y-1">
+                            {value.map((item, index) => (
+                              <li key={index} className="text-gray-700">
+                                {typeof item === 'object' ? JSON.stringify(item, null, 2) : String(item)}
+                              </li>
+                            ))}
+                          </ul>
+                        ) : (
+                          <div className="space-y-2">
+                            {Object.entries(value).map(([subKey, subValue]) => (
+                              <div key={subKey}>
+                                <span className="font-medium text-gray-800">{subKey}:</span>
+                                <span className="ml-2 text-gray-700">
+                                  {typeof subValue === 'object' ? JSON.stringify(subValue, null, 2) : String(subValue)}
+                                </span>
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    ) : (
+                      <p className="text-gray-700">{String(value)}</p>
+                    )}
                   </div>
-                </div>
+                ))
+              ) : (
+                <p className="text-gray-700">{String(data.industry_analysis)}</p>
               )}
             </div>
           </CardContent>
