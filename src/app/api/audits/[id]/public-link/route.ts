@@ -46,6 +46,18 @@ export async function POST(
       public_enabled: true
     }
 
+    // Проверяем размер данных
+    const dataSize = JSON.stringify(updatedInputData).length
+    console.log('📊 Размер input_data:', dataSize, 'байт')
+    
+    if (dataSize > 1000000) { // 1MB лимит
+      console.error('❌ input_data слишком большой:', dataSize, 'байт')
+      return NextResponse.json({ 
+        error: 'Данные аудита слишком большие для публичного доступа',
+        details: `Размер: ${dataSize} байт (лимит: 1MB)`
+      }, { status: 413 })
+    }
+
     console.log('🔍 Debug info:', {
       auditId,
       currentInputData,
@@ -53,35 +65,32 @@ export async function POST(
       publicToken
     })
 
-    // Сначала пробуем обновить с отдельными полями
-    let updateError = null
-    try {
-      const { error } = await supabaseClient
-        .from('audits')
-        .update({ 
-          input_data: updatedInputData,
-          public_enabled: true,
-          public_token: publicToken
-        })
-        .eq('id', auditId)
-      
-      updateError = error
-    } catch (err) {
-      // Если поля не существуют, обновляем только input_data
-      console.log('⚠️ Поля public_enabled/public_token не существуют, используем только input_data')
-      const { error } = await supabaseClient
-        .from('audits')
-        .update({ 
-          input_data: updatedInputData
-        })
-        .eq('id', auditId)
-      
-      updateError = error
-    }
+    // Обновляем только input_data (совместимо с любой схемой БД)
+    console.log('🔧 Обновляем input_data с публичным токеном')
+    const { error: updateError } = await supabaseClient
+      .from('audits')
+      .update({ 
+        input_data: updatedInputData
+      })
+      .eq('id', auditId)
 
     if (updateError) {
       console.error('❌ Ошибка создания публичной ссылки:', updateError)
-      return NextResponse.json({ error: updateError.message }, { status: 500 })
+      console.error('🔍 Детали ошибки:', {
+        auditId,
+        publicToken,
+        currentInputData,
+        updatedInputData,
+        errorCode: updateError.code,
+        errorMessage: updateError.message,
+        errorDetails: updateError.details,
+        errorHint: updateError.hint
+      })
+      return NextResponse.json({ 
+        error: 'Ошибка обновления аудита',
+        details: updateError.message,
+        code: updateError.code
+      }, { status: 500 })
     }
 
     // Дополнительная проверка - получаем обновленный аудит
