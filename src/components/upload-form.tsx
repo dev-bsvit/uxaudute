@@ -172,15 +172,13 @@ export function UploadForm({ onSubmit, isLoading }: UploadFormProps) {
               </p>
             </div>
 
-            {/* Выбор AI провайдера */}
-            <div className="space-y-3">
+            {/* Выбор AI провайдера - временно скрыт */}
+            {/* <div className="space-y-3">
               <Label className="text-lg font-semibold text-slate-800">
                 {t('uploadForm.aiProvider')}
               </Label>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {/* OpenAI */}
-                <div 
-                  className={`p-4 border-2 rounded-xl cursor-pointer transition-all duration-200 ${
+                <div className={`p-4 border-2 rounded-xl cursor-pointer transition-all duration-200 ${
                     provider === 'openai' 
                       ? 'border-blue-500 bg-blue-50 shadow-md' 
                       : 'border-slate-200 hover:border-slate-300'
@@ -197,10 +195,7 @@ export function UploadForm({ onSubmit, isLoading }: UploadFormProps) {
                     </div>
                   </div>
                 </div>
-
-                {/* OpenRouter */}
-                <div 
-                  className={`p-4 border-2 rounded-xl cursor-pointer transition-all duration-200 ${
+                <div className={`p-4 border-2 rounded-xl cursor-pointer transition-all duration-200 ${
                     provider === 'openrouter' 
                       ? 'border-purple-500 bg-purple-50 shadow-md' 
                       : 'border-slate-200 hover:border-slate-300'
@@ -218,8 +213,6 @@ export function UploadForm({ onSubmit, isLoading }: UploadFormProps) {
                   </div>
                 </div>
               </div>
-
-              {/* Sonoma Sky Alpha - единственная модель OpenRouter */}
               {provider === 'openrouter' && (
                 <div className="mt-3 p-3 bg-purple-50 border border-purple-200 rounded-lg">
                   <div className="flex items-center space-x-3">
@@ -231,14 +224,13 @@ export function UploadForm({ onSubmit, isLoading }: UploadFormProps) {
                   </div>
                 </div>
               )}
-
               <p className="text-sm text-slate-500">
                 {provider === 'openai' 
                   ? t('uploadForm.openaiHint')
                   : t('uploadForm.openrouterHint')
                 }
               </p>
-            </div>
+            </div> */}
 
             <Button
               type="submit"
