@@ -58,6 +58,10 @@ export function UploadForm({ onSubmit, isLoading }: UploadFormProps) {
     }
   }
 
+  const handleImageSelect = (selectedFile: File) => {
+    setFile(selectedFile)
+  }
+
   const isValid = (activeTab === 'url' && url) || (activeTab === 'upload' && file)
 
   return (
@@ -132,7 +136,7 @@ export function UploadForm({ onSubmit, isLoading }: UploadFormProps) {
                   Загрузить скриншот
                 </label>
                 <ImageUpload
-                  onImageSelect={handleFileChange}
+                  onImageSelect={handleImageSelect}
                   maxSize={10 * 1024 * 1024} // 10MB
                   acceptedTypes={['image/jpeg', 'image/png', 'image/gif', 'image/webp']}
                   className="w-full"
