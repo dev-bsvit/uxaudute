@@ -123,20 +123,21 @@ export const executeAIRequest = async (
       const isSonoma = config.model.includes('sonoma-sky-alpha')
       console.log(`🎯 Это Sonoma Sky Alpha: ${isSonoma}`)
       
-      const requestParams = {
+      const requestParams: any = {
         model: config.model,
         messages: messages as any,
         temperature: isSonoma ? 0.8 : temperature,
         max_tokens: isSonoma ? Math.max(max_tokens, 200) : max_tokens,
-        stream,
-        response_format: { type: "json_object" } // Включаем JSON формат для всех моделей
+        stream
       }
       
       // Специальная обработка для изображений (только OpenAI GPT-4o)
       if (provider === 'openai' && config.model.includes('gpt-4o')) {
         console.log('🖼️ Обнаружены изображения в сообщениях, используем GPT-4o Vision')
-        // Убираем response_format для Vision API, так как он может конфликтовать
-        delete requestParams.response_format
+        // Не добавляем response_format для Vision API, так как он может конфликтовать
+      } else {
+        // Включаем JSON формат для всех остальных моделей
+        requestParams.response_format = { type: "json_object" }
       }
       
       console.log(`📋 Параметры запроса:`, JSON.stringify(requestParams, null, 2))
