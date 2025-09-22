@@ -20,7 +20,7 @@ export async function POST(request: NextRequest) {
     const { data, error } = await supabase
       .from('audits')
       .update({
-        result_data: null,
+        result_data: {},
         status: 'pending',
         updated_at: new Date().toISOString()
       })
@@ -29,7 +29,7 @@ export async function POST(request: NextRequest) {
     if (error) {
       console.error('Ошибка очистки результатов:', error)
       return NextResponse.json(
-        { error: 'Ошибка очистки результатов' },
+        { error: 'Ошибка очистки результатов', details: error.message },
         { status: 500 }
       )
     }
