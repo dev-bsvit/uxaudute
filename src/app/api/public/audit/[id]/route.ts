@@ -32,6 +32,7 @@ export async function GET(
     console.log('🔍 Получение публичного аудита:', auditId, 'с токеном:', token)
 
     // Получаем аудит по ID (сначала без JOIN)
+    console.log('🔧 Выполняем запрос к базе данных...')
     const { data: audit, error: auditError } = await supabaseClient
       .from('audits')
       .select(`
@@ -52,7 +53,14 @@ export async function GET(
       .eq('id', auditId)
       .single()
 
-    console.log('🔍 Результат запроса аудита:', { audit, auditError })
+    console.log('🔍 Результат запроса аудита:', { 
+      hasAudit: !!audit, 
+      hasError: !!auditError,
+      errorMessage: auditError?.message,
+      errorCode: auditError?.code,
+      auditId: audit?.id,
+      auditName: audit?.name
+    })
 
     if (auditError) {
       console.error('❌ Ошибка получения аудита:', auditError)
