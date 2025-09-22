@@ -12,6 +12,7 @@ export async function POST(request: NextRequest) {
     console.log('=== OpenAI API вызван ===')
     const { url, screenshot, context, auditId, locale = 'ru' } = await request.json()
     console.log('Параметры запроса:', { url: !!url, screenshot: !!screenshot, context: !!context, auditId, locale })
+    console.log('🌍 RESEARCH-JSON API вызван для локали:', locale)
 
     if (!url && !screenshot) {
       console.log('Ошибка: нет URL или скриншота')

@@ -28,6 +28,7 @@ export async function POST(request: NextRequest) {
       auditId,
       locale
     })
+    console.log('🌍 RESEARCH-WITH-CREDITS API вызван для локали:', locale)
 
     if (!url && !screenshot) {
       console.log('Ошибка: нет URL или скриншота')

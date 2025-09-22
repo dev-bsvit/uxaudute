@@ -26,6 +26,7 @@ export async function POST(request: NextRequest) {
       openrouterModel,
       auditId
     })
+    console.log('🌍 RESEARCH-STABLE API вызван для локали:', locale)
 
     if (!url && !screenshot) {
       console.log('Ошибка: нет URL или скриншота')
