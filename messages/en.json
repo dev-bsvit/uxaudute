@@ -125,6 +125,18 @@
     "signInDescription": "Sign in to view your credits balance and purchase additional credits"
   },
   "analysis": {
+    "title": "Analysis Results",
+    "screenDescription": "Screen Description",
+    "uxSurvey": "UX Survey",
+    "audience": "Audience",
+    "behavior": "Behavior",
+    "problemsAndSolutions": "Problems and Solutions",
+    "selfCheck": "Self-Check",
+    "metadata": "Metadata",
+    "confidence": "Analysis Confidence",
+    "recommendations": "Recommendations",
+    "issues": "Issues",
+    "solutions": "Solutions",
     "screenType": "Screen Type",
     "userGoal": "User Goal",
     "keyElements": "Key Elements",
@@ -148,8 +160,7 @@
     "checklist": "Checklist",
     "confidenceByBlocks": "Confidence by Blocks",
     "analysis": "Analysis",
-    "survey": "Survey",
-    "recommendations": "Recommendations"
+    "survey": "Survey"
   },
   "annotations": {
     "analyzedInterface": "Analyzed Interface",
