@@ -54,6 +54,46 @@ JSON з усіма розділами: uxSurvey, screenDescription, audience, be
         "category": "clarity",
         "principle": "Принцип UX",
         "explanation": "Пояснення релевантності"
+      },
+      {
+        "id": 2,
+        "question": "Друге питання",
+        "options": ["A) Так", "B) Ні", "C) Не знаю"],
+        "scores": [70, 20, 10],
+        "confidence": 80,
+        "category": "usability",
+        "principle": "Простота",
+        "explanation": "Пояснення"
+      },
+      {
+        "id": 3,
+        "question": "Третє питання",
+        "options": ["A) Легко", "B) Складно", "C) Дуже складно"],
+        "scores": [50, 35, 15],
+        "confidence": 75,
+        "category": "accessibility",
+        "principle": "Доступність",
+        "explanation": "Пояснення"
+      },
+      {
+        "id": 4,
+        "question": "Четверте питання",
+        "options": ["A) Швидко", "B) Повільно", "C) Дуже повільно"],
+        "scores": [65, 25, 10],
+        "confidence": 85,
+        "category": "conversion",
+        "principle": "Ефективність",
+        "explanation": "Пояснення"
+      },
+      {
+        "id": 5,
+        "question": "П'яте питання",
+        "options": ["A) Довіряю", "B) Не довіряю", "C) Сумніваюся"],
+        "scores": [60, 25, 15],
+        "confidence": 80,
+        "category": "trust",
+        "principle": "Довіра",
+        "explanation": "Пояснення"
       }
     ]
   },
@@ -67,7 +107,13 @@ JSON з усіма розділами: uxSurvey, screenDescription, audience, be
   "audience": {
     "targetAudience": "Цільова аудиторія - детальний портрет в 1-2 абзаци",
     "mainPain": "Основна біль користувачів в 1 абзаці",
-    "fears": ["Страх 1", "Страх 2", "Страх 3"]
+    "fears": [
+      "Страх безпеки даних",
+      "Страх помилки при введенні",
+      "Страх втрати грошей",
+      "Страх складності процесу",
+      "Страх ненадійності сервісу"
+    ]
   },
   "behavior": {
     "userScenarios": {
@@ -84,11 +130,25 @@ JSON з усіма розділами: uxSurvey, screenDescription, audience, be
   },
   "problemsAndSolutions": [
     {
-      "element": "Назва елемента",
-      "problem": "Опис проблеми",
+      "element": "Назва елемента 1",
+      "problem": "Опис проблеми 1",
       "principle": "Порушений принцип UX",
-      "recommendation": "Конкретна рекомендація",
-      "priority": "high/medium/low"
+      "recommendation": "Конкретна рекомендація 1",
+      "priority": "high"
+    },
+    {
+      "element": "Назва елемента 2",
+      "problem": "Опис проблеми 2",
+      "principle": "Порушений принцип UX",
+      "recommendation": "Конкретна рекомендація 2",
+      "priority": "medium"
+    },
+    {
+      "element": "Назва елемента 3",
+      "problem": "Опис проблеми 3",
+      "principle": "Порушений принцип UX",
+      "recommendation": "Конкретна рекомендація 3",
+      "priority": "low"
     }
   ],
   "selfCheck": {
@@ -257,11 +317,12 @@ JSON з усіма розділами: uxSurvey, screenDescription, audience, be
 
 **ВАЖЛИВО: Генеруйте МІНІМУМ 3 реальних проблеми на основі аналізу інтерфейсу. Не вигадуйте проблеми, які не видимі на скріншоті. Кожна проблема має бути обґрунтована конкретними елементами інтерфейсу.**
 
-**КРИТИЧНО:**
-- **Мінімум 5 питань** в uxSurvey
-- **Мінімум 5 страхів** в audience.fears  
-- **Мінімум 3 проблеми** в problemsAndSolutions
-- Використовуйте різні категорії питань (clarity, usability, accessibility, conversion, trust)
-- Кожна проблема має різний приоритет (high, medium, low)
+**КРИТИЧНО - ОБОВ'ЯЗКОВІ ВИМОГИ:**
+- **ОБОВ'ЯЗКОВО: uxSurvey.questions має містити РІВНО 5 питань - НЕ МЕНШЕ!**
+- **ОБОВ'ЯЗКОВО: audience.fears має містити РІВНО 5 страхів - НЕ МЕНШЕ!**
+- **ОБОВ'ЯЗКОВО: problemsAndSolutions має містити РІВНО 3 проблеми - НЕ МЕНШЕ!**
+- **ОБОВ'ЯЗКОВО:** Використовуйте різні категорії питань: clarity, usability, accessibility, conversion, trust
+- **ОБОВ'ЯЗКОВО:** Кожна проблема має різний приоритет: high, medium, low
+- **ОБОВ'ЯЗКОВО:** Якщо не генеруєте мінімальну кількість - це ПОМИЛКА!
 
 **Відповідайте ТІЛЬКИ у форматі JSON українською мовою.**

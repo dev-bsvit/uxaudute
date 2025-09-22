@@ -257,11 +257,12 @@ Analyze the interface and return the result in JSON format with the following se
 
 **IMPORTANT: Generate MINIMUM 3 real problems based on interface analysis. Don't invent problems that aren't visible in the screenshot. Each problem should be justified by specific interface elements.**
 
-**CRITICAL:**
-- **Minimum 5 questions** in uxSurvey
-- **Minimum 5 fears** in audience.fears  
-- **Minimum 3 problems** in problemsAndSolutions
-- Use different question categories (clarity, usability, accessibility, conversion, trust)
-- Each problem should have different priority (high, medium, low)
+**CRITICAL - MANDATORY REQUIREMENTS:**
+- **MANDATORY: uxSurvey.questions MUST contain EXACTLY 5 questions - NO LESS!**
+- **MANDATORY: audience.fears MUST contain EXACTLY 5 fears - NO LESS!**
+- **MANDATORY: problemsAndSolutions MUST contain EXACTLY 3 problems - NO LESS!**
+- **MANDATORY:** Use different question categories: clarity, usability, accessibility, conversion, trust
+- **MANDATORY:** Each problem must have different priority: high, medium, low
+- **MANDATORY:** If you don't generate minimum quantity - it's an ERROR!
 
 **Answer ONLY in JSON format in English.**
