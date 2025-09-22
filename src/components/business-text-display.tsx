@@ -37,7 +37,7 @@ export const BusinessTextDisplay: React.FC<BusinessTextDisplayProps> = ({
     )
   }
 
-  if (!data || (!data.result && !data.executive_summary)) {
+  if (!data || (!data.result && !data.executive_summary && !data.business_metrics && !data.industry_analysis)) {
     return (
       <Card>
         <CardContent className="p-8 text-center">
