@@ -132,6 +132,13 @@ export const executeAIRequest = async (
         response_format: { type: "json_object" } // Включаем JSON формат для всех моделей
       }
       
+      // Специальная обработка для изображений (только OpenAI GPT-4o)
+      if (provider === 'openai' && config.model.includes('gpt-4o')) {
+        console.log('🖼️ Обнаружены изображения в сообщениях, используем GPT-4o Vision')
+        // Убираем response_format для Vision API, так как он может конфликтовать
+        delete requestParams.response_format
+      }
+      
       console.log(`📋 Параметры запроса:`, JSON.stringify(requestParams, null, 2))
       
       const completion = await config.client.chat.completions.create(requestParams)
