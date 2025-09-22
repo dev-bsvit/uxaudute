@@ -48,50 +48,51 @@ export async function POST(request: NextRequest) {
 
     console.log('✅ Кредиты проверены успешно:', creditsCheck)
 
-    const prompt = `Ты Senior бизнес-аналитик с экспертизой в UX и продуктовой аналитике. Проанализируй UX проблемы с точки зрения бизнеса.
+    // Загружаем новый промпт для бизнес аналитики
+    const fs = require('fs')
+    const path = require('path')
+    const promptPath = path.join(process.cwd(), 'prompts', 'business-analytics-prompt.md')
+    const businessAnalyticsPrompt = fs.readFileSync(promptPath, 'utf-8')
 
-Данные UX анализа:
-${context}
+    // Формируем промт с данными аудита
+    const prompt = `${businessAnalyticsPrompt}
 
-Создай бизнес-аналитику со следующей структурой:
+**Данные для анализа:**
+- Результат UX анализа: ${context}
 
-## Бизнес-анализ UX проблем
-
-### Влияние на бизнес-метрики
-- Конверсия: влияние на conversion rate
-- Retention: влияние на удержание пользователей
-- Revenue: влияние на доходы
-- CAC/LTV: влияние на стоимость привлечения и жизненную ценность
-
-### ROI анализ улучшений
-- Стоимость реализации (высокая/средняя/низкая)
-- Ожидаемый эффект (%)
-- Срок окупаемости
-- Risk/Reward соотношение
-
-### Приоритизация по RICE
-Для каждой проблемы:
-- Reach (охват): сколько пользователей затронуто
-- Impact (влияние): насколько критично
-- Confidence (уверенность): процент уверенности в успехе
-- Effort (усилия): сложность реализации
-- RICE Score: итоговый балл
-
-### Рекомендации для продуктового роста
-- Quick wins (быстрые победы)
-- Strategic improvements (стратегические улучшения)
-- Эксперименты для валидации
-
-Используй количественные оценки там, где возможно. Отвечай на русском языке.`
+Сгенерируй бизнес аналитику на основе этих данных.`
 
     const completion = await openai.chat.completions.create({
       model: "gpt-4o",
-      messages: [{ role: "user", content: prompt }],
+      messages: [
+        {
+          role: "system",
+          content: "Ты - Главный бизнес-аналитик и стратег с 15-летним опытом в цифровых продуктах. Отвечай ТОЛЬКО в формате JSON на русском языке."
+        },
+        {
+          role: "user",
+          content: prompt
+        }
+      ],
       temperature: 0.7,
-      max_tokens: 2000,
+      max_tokens: 6000,
+      response_format: { type: "json_object" }
     })
 
-    const result = completion.choices[0]?.message?.content || 'Не удалось создать бизнес-анализ'
+    const responseText = completion.choices[0]?.message?.content || 'Не удалось создать бизнес-анализ'
+
+    // Парсим JSON ответ
+    let businessAnalyticsData
+    try {
+      businessAnalyticsData = JSON.parse(responseText)
+    } catch (parseError) {
+      console.error('JSON parse error:', parseError)
+      console.error('Response text:', responseText)
+      return NextResponse.json({ 
+        error: 'Failed to parse business analytics response',
+        details: responseText 
+      }, { status: 500 })
+    }
 
     // Сохраняем результат бизнес аналитики в базу данных
     if (auditId) {
@@ -114,7 +115,7 @@ ${context}
             .update({
               result_data: {
                 ...currentAudit?.result_data,
-                business_analytics: { result }
+                business_analytics: businessAnalyticsData
               }
             })
             .eq('id', auditId)
@@ -150,7 +151,7 @@ ${context}
 
     console.log('Возвращаем успешный ответ...')
     return NextResponse.json({ 
-      result,
+      data: businessAnalyticsData,
       credits_info: {
         deducted: auditId ? true : false,
         is_test_account: creditsCheck.isTestAccount,
