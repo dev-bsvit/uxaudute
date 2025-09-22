@@ -90,6 +90,36 @@ export const BusinessAnalyticsDisplay: React.FC<BusinessAnalyticsDisplayProps> =
         </div>
       </div>
 
+      {/* Executive Summary */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center">
+            <BarChart3 className="w-5 h-5 mr-2" />
+            Executive Summary
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-4">
+            <div>
+              <h4 className="font-semibold text-slate-900 mb-2">Главный вывод</h4>
+              <p className="text-slate-700">{data.executive_summary.main_finding}</p>
+            </div>
+            <div>
+              <h4 className="font-semibold text-slate-900 mb-2">Критический риск</h4>
+              <p className="text-slate-700 text-red-600">{data.executive_summary.critical_risk}</p>
+            </div>
+            <div>
+              <h4 className="font-semibold text-slate-900 mb-2">Главная возможность</h4>
+              <p className="text-slate-700 text-green-600">{data.executive_summary.top_opportunity}</p>
+            </div>
+            <div>
+              <h4 className="font-semibold text-slate-900 mb-2">Рекомендуемый фокус</h4>
+              <p className="text-slate-700">{data.executive_summary.recommended_focus}</p>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
       {/* Анализ индустрии */}
       <Card>
         <CardHeader>
@@ -105,100 +135,60 @@ export const BusinessAnalyticsDisplay: React.FC<BusinessAnalyticsDisplayProps> =
               <p className="text-slate-700">{data.industry_analysis.identified_industry}</p>
             </div>
             <div>
-              <h4 className="font-semibold text-slate-900 mb-2">Соответствие отраслевым стандартам</h4>
-              <p className="text-slate-700">{data.industry_analysis.industry_standards}</p>
+              <h4 className="font-semibold text-slate-900 mb-2">Бизнес-модель</h4>
+              <p className="text-slate-700">{data.industry_analysis.identified_business_model}</p>
             </div>
             <div>
-              <h4 className="font-semibold text-slate-900 mb-2">Контекст рынка</h4>
-              <p className="text-slate-700">{data.industry_analysis.market_context}</p>
+              <h4 className="font-semibold text-slate-900 mb-2">North Star Metric</h4>
+              <p className="text-slate-700 font-medium">{data.industry_analysis.north_star_metric.metric}</p>
+              <p className="text-slate-600 text-sm mt-1">{data.industry_analysis.north_star_metric.justification}</p>
             </div>
           </div>
         </CardContent>
       </Card>
 
-      {/* Конверсионная воронка */}
+      {/* AARRR Воронка */}
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center">
             <TrendingUp className="w-5 h-5 mr-2" />
-            Конверсионная воронка
+            AARRR Воронка
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="grid md:grid-cols-5 gap-4">
-            {Object.entries(data.business_metrics?.conversion_funnel || {}).map(([stage, description], index) => (
-              <div key={stage} className="text-center">
-                <div className="w-12 h-12 bg-blue-100 text-blue-800 rounded-full flex items-center justify-center text-lg font-bold mx-auto mb-2">
-                  {index + 1}
+          <div className="space-y-6">
+            {Object.entries(data.aarrr_funnel_analysis).map(([stage, data], index) => (
+              <div key={stage} className="border-l-4 border-blue-200 pl-4 py-2">
+                <div className="flex items-center mb-2">
+                  <div className="w-8 h-8 bg-blue-100 text-blue-800 rounded-full flex items-center justify-center text-sm font-bold mr-3">
+                    {index + 1}
+                  </div>
+                  <h4 className="font-semibold text-slate-900 capitalize">{stage}</h4>
                 </div>
-                <h4 className="font-semibold text-slate-900 mb-2 capitalize">{stage}</h4>
-                <p className="text-sm text-slate-600">{description}</p>
+                <div className="space-y-2">
+                  <div>
+                    <span className="text-slate-600 font-medium">Проблемы:</span>
+                    <p className="text-slate-700">{data.issues}</p>
+                  </div>
+                  <div>
+                    <span className="text-slate-600 font-medium">Влияние на метрики:</span>
+                    <div className="flex flex-wrap gap-1 mt-1">
+                      {data.metrics_impact.map((metric, idx) => (
+                        <Badge key={idx} variant="outline" className="text-xs">{metric}</Badge>
+                      ))}
+                    </div>
+                  </div>
+                  <div>
+                    <span className="text-slate-600 font-medium">Рекомендации:</span>
+                    <p className="text-slate-700">{data.recommendations}</p>
+                  </div>
+                </div>
               </div>
             ))}
           </div>
         </CardContent>
       </Card>
 
-      {/* Ключевые KPI */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center">
-            <Target className="w-5 h-5 mr-2" />
-            Ключевые KPI
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="grid md:grid-cols-2 gap-4">
-            {data.business_metrics.key_kpis.map((kpi, index) => (
-              <div key={index} className="bg-slate-50 p-4 rounded-lg">
-                <div className="flex items-center justify-between mb-2">
-                  <h4 className="font-semibold text-slate-900">{kpi.metric}</h4>
-                  <Badge className="bg-green-100 text-green-800">
-                    {kpi.potential_improvement}
-                  </Badge>
-                </div>
-                <div className="grid grid-cols-2 gap-2 text-sm">
-                  <div>
-                    <span className="text-slate-600">Текущее:</span>
-                    <p className="font-medium">{kpi.current_value}</p>
-                  </div>
-                  <div>
-                    <span className="text-slate-600">Бенчмарк:</span>
-                    <p className="font-medium">{kpi.benchmark}</p>
-                  </div>
-                </div>
-                <p className="text-sm text-slate-700 mt-2">{kpi.impact}</p>
-              </div>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Влияние на выручку */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center">
-            <DollarSign className="w-5 h-5 mr-2" />
-            Влияние на выручку
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="grid md:grid-cols-3 gap-4">
-            <div className="text-center">
-              <h4 className="text-sm text-slate-600 mb-1">Текущие показатели</h4>
-              <p className="text-2xl font-bold text-slate-900">{data.business_metrics.revenue_impact.current_monthly_revenue}</p>
-            </div>
-            <div className="text-center">
-              <h4 className="text-sm text-slate-600 mb-1">Потенциальный рост</h4>
-              <p className="text-2xl font-bold text-green-600">{data.business_metrics.revenue_impact.potential_increase}</p>
-            </div>
-            <div className="text-center">
-              <h4 className="text-sm text-slate-600 mb-1">Стоимость проблем</h4>
-              <p className="text-2xl font-bold text-red-600">{data.business_metrics.revenue_impact.cost_of_issues}</p>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
 
       {/* Бизнес-риски */}
       {data.business_risks && data.business_risks.length > 0 && (
@@ -219,19 +209,19 @@ export const BusinessAnalyticsDisplay: React.FC<BusinessAnalyticsDisplayProps> =
                       <Badge className={getImpactColor(risk.severity)}>
                         {risk.severity}
                       </Badge>
-                      <Badge variant="outline">
-                        {risk.affected_users}
+                      <Badge variant="outline" className="bg-red-100 text-red-800">
+                        {risk.potential_loss_percent}
                       </Badge>
                     </div>
                   </div>
-                  <div className="grid md:grid-cols-2 gap-4 text-sm">
+                  <div className="space-y-2 text-sm">
                     <div>
-                      <span className="text-slate-600">Бизнес-последствия:</span>
-                      <p className="font-medium text-red-600">{risk.business_consequences}</p>
+                      <span className="text-slate-600 font-medium">Цепочка рассуждений:</span>
+                      <p className="text-slate-700">{risk.reasoning}</p>
                     </div>
                     <div>
-                      <span className="text-slate-600">Рекомендации по снижению:</span>
-                      <p className="font-medium">{risk.mitigation}</p>
+                      <span className="text-slate-600 font-medium">Рекомендации по снижению:</span>
+                      <p className="text-slate-700">{risk.mitigation}</p>
                     </div>
                   </div>
                 </div>
@@ -260,19 +250,25 @@ export const BusinessAnalyticsDisplay: React.FC<BusinessAnalyticsDisplayProps> =
                       <Badge className={getPriorityColor(opportunity.priority)}>
                         {opportunity.priority}
                       </Badge>
-                      <Badge className={getImpactColor(opportunity.effort_required)}>
-                        {opportunity.effort_required}
+                      <Badge className={getImpactColor(opportunity.impact_effort_matrix.impact)}>
+                        Impact: {opportunity.impact_effort_matrix.impact}
+                      </Badge>
+                      <Badge className={getImpactColor(opportunity.impact_effort_matrix.effort)}>
+                        Effort: {opportunity.impact_effort_matrix.effort}
+                      </Badge>
+                      <Badge variant="outline" className="bg-green-100 text-green-800">
+                        {opportunity.potential_gain_percent}
                       </Badge>
                     </div>
                   </div>
-                  <div className="grid md:grid-cols-2 gap-4 text-sm">
+                  <div className="space-y-2 text-sm">
                     <div>
-                      <span className="text-slate-600">Потенциальное влияние:</span>
-                      <p className="font-medium text-green-600">{opportunity.potential_impact}</p>
+                      <span className="text-slate-600 font-medium">Обоснование:</span>
+                      <p className="text-slate-700">{opportunity.reasoning}</p>
                     </div>
                     <div>
-                      <span className="text-slate-600">Как реализовать:</span>
-                      <p className="font-medium">{opportunity.implementation}</p>
+                      <span className="text-slate-600 font-medium">Шаги реализации:</span>
+                      <p className="text-slate-700">{opportunity.implementation_steps}</p>
                     </div>
                   </div>
                 </div>
@@ -282,90 +278,54 @@ export const BusinessAnalyticsDisplay: React.FC<BusinessAnalyticsDisplayProps> =
         </Card>
       )}
 
-      {/* Барьеры конверсии */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Барьеры конверсии</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-4">
-            {data.conversion_barriers.map((barrier, index) => (
-              <div key={index} className="border-l-4 border-red-200 pl-4 py-2">
-                <div className="flex items-center justify-between mb-2">
-                  <h4 className="font-semibold text-slate-900">{barrier.barrier}</h4>
-                  <div className="flex gap-2">
-                    <Badge className={getImpactColor(barrier.impact_level)}>
-                      {barrier.impact_level}
-                    </Badge>
-                    <Badge variant="outline">
-                      {barrier.affected_users}
-                    </Badge>
-                  </div>
-                </div>
-                <div className="grid md:grid-cols-2 gap-4 text-sm">
-                  <div>
-                    <span className="text-slate-600">Бизнес-стоимость:</span>
-                    <p className="font-medium text-red-600">{barrier.business_cost}</p>
-                  </div>
-                  <div>
-                    <span className="text-slate-600">Решение:</span>
-                    <p className="font-medium">{barrier.solution}</p>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
-
-
-      {/* Инсайты поведения пользователей */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center">
-            <Users className="w-5 h-5 mr-2" />
-            Инсайты поведения пользователей
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-4">
-            {data.user_behavior_insights.map((insight, index) => (
-              <div key={index} className="border-l-4 border-blue-200 pl-4 py-2">
-                <h4 className="font-semibold text-slate-900 mb-2">{insight.pattern}</h4>
-                <p className="text-slate-700 mb-2">{insight.description}</p>
-                <div className="grid md:grid-cols-2 gap-4 text-sm">
-                  <div>
-                    <span className="text-slate-600">Бизнес-влияние:</span>
-                    <p className="font-medium">{insight.business_impact}</p>
-                  </div>
-                  <div>
-                    <span className="text-slate-600">Рекомендация:</span>
-                    <p className="font-medium">{insight.recommendation}</p>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Следующие шаги */}
-      {data.next_steps && data.next_steps.length > 0 && (
+      {/* Стратегические рекомендации */}
+      {data.strategic_recommendations && data.strategic_recommendations.length > 0 && (
         <Card>
           <CardHeader>
-            <CardTitle>Следующие шаги</CardTitle>
+            <CardTitle className="flex items-center">
+              <Target className="w-5 h-5 mr-2" />
+              Стратегические рекомендации
+            </CardTitle>
           </CardHeader>
           <CardContent>
-            <ul className="space-y-2">
-              {data.next_steps.map((step, index) => (
-                <li key={index} className="flex items-start">
-                  <span className="w-6 h-6 bg-blue-100 text-blue-800 rounded-full flex items-center justify-center text-sm font-medium mr-3 mt-0.5">
-                    {index + 1}
-                  </span>
-                  <span className="text-slate-700">{step}</span>
-                </li>
+            <div className="space-y-4">
+              {data.strategic_recommendations
+                .sort((a, b) => a.priority - b.priority)
+                .map((recommendation, index) => (
+                <div key={index} className="border-l-4 border-blue-200 pl-4 py-2">
+                  <div className="flex items-center justify-between mb-2">
+                    <h4 className="font-semibold text-slate-900">{recommendation.title}</h4>
+                    <div className="flex gap-2">
+                      <Badge className="bg-blue-100 text-blue-800">
+                        Приоритет: {recommendation.priority}
+                      </Badge>
+                    </div>
+                  </div>
+                  <div className="space-y-2 text-sm">
+                    <div>
+                      <span className="text-slate-600 font-medium">Проблема:</span>
+                      <p className="text-slate-700">{recommendation.problem_statement}</p>
+                    </div>
+                    <div>
+                      <span className="text-slate-600 font-medium">Предлагаемое решение:</span>
+                      <p className="text-slate-700">{recommendation.proposed_solution}</p>
+                    </div>
+                    <div>
+                      <span className="text-slate-600 font-medium">Ожидаемый результат:</span>
+                      <p className="text-slate-700 text-green-600">{recommendation.expected_outcome}</p>
+                    </div>
+                    <div>
+                      <span className="text-slate-600 font-medium">Метрики для отслеживания:</span>
+                      <div className="flex flex-wrap gap-1 mt-1">
+                        {recommendation.metrics_to_track.map((metric, idx) => (
+                          <Badge key={idx} variant="outline" className="text-xs">{metric}</Badge>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                </div>
               ))}
-            </ul>
+            </div>
           </CardContent>
         </Card>
       )}

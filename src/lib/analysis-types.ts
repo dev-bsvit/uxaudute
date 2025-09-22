@@ -339,42 +339,83 @@ export interface OptimizationOpportunity {
 }
 
 export interface BusinessAnalyticsResponse {
+  executive_summary: {
+    main_finding: string
+    critical_risk: string
+    top_opportunity: string
+    recommended_focus: string
+  }
   industry_analysis: {
     identified_industry: string
-    industry_standards: string
-    market_context: string
+    identified_business_model: string
+    north_star_metric: {
+      metric: string
+      justification: string
+    }
   }
-  business_metrics: {
-    conversion_funnel: ConversionFunnel
-    key_kpis: KPI[]
-    revenue_impact: RevenueImpact
+  aarrr_funnel_analysis: {
+    acquisition: {
+      issues: string
+      metrics_impact: string[]
+      recommendations: string
+    }
+    activation: {
+      issues: string
+      metrics_impact: string[]
+      recommendations: string
+    }
+    retention: {
+      issues: string
+      metrics_impact: string[]
+      recommendations: string
+    }
+    revenue: {
+      issues: string
+      metrics_impact: string[]
+      recommendations: string
+    }
+    referral: {
+      issues: string
+      metrics_impact: string[]
+      recommendations: string
+    }
   }
   business_risks: BusinessRisk[]
   missed_opportunities: MissedOpportunity[]
-  user_behavior_insights: UserBehaviorInsight[]
-  conversion_barriers: ConversionBarrier[]
-  next_steps: string[]
+  strategic_recommendations: StrategicRecommendation[]
   metadata: {
     timestamp: string
-    version: string
-    model: string
+    model_used: string
   }
 }
 
 export interface BusinessRisk {
   risk: string
   severity: 'high' | 'medium' | 'low'
-  affected_users: string
-  business_consequences: string
+  reasoning: string
+  potential_loss_percent: string
   mitigation: string
 }
 
 export interface MissedOpportunity {
   opportunity: string
-  potential_impact: string
-  effort_required: 'high' | 'medium' | 'low'
   priority: 'high' | 'medium' | 'low'
-  implementation: string
+  impact_effort_matrix: {
+    impact: 'high' | 'medium' | 'low'
+    effort: 'high' | 'medium' | 'low'
+  }
+  reasoning: string
+  potential_gain_percent: string
+  implementation_steps: string
+}
+
+export interface StrategicRecommendation {
+  title: string
+  priority: number
+  problem_statement: string
+  proposed_solution: string
+  expected_outcome: string
+  metrics_to_track: string[]
 }
 
 // Union тип для всех возможных ответов

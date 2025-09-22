@@ -68,7 +68,7 @@ export async function POST(request: NextRequest) {
       messages: [
         {
           role: "system",
-          content: "Ты - Senior Product Analyst. Генерируй бизнес аналитику в JSON формате."
+          content: "Ты - Главный бизнес-аналитик и стратег с 15-летним опытом в цифровых продуктах. Отвечай ТОЛЬКО в формате JSON на русском языке."
         },
         {
           role: "user",
@@ -76,7 +76,8 @@ export async function POST(request: NextRequest) {
         }
       ],
       temperature: 0.7,
-      max_tokens: 4000
+      max_tokens: 6000,
+      response_format: { type: "json_object" }
     })
 
     const responseText = completion.choices[0]?.message?.content
@@ -87,15 +88,7 @@ export async function POST(request: NextRequest) {
     // Парсим JSON ответ
     let businessAnalyticsData: BusinessAnalyticsResponse
     try {
-      // Ищем JSON в ответе (может быть обернут в markdown)
-      const jsonMatch = responseText.match(/```json\n([\s\S]*?)\n```/) || 
-                       responseText.match(/\{[\s\S]*\}/)
-      
-      if (jsonMatch) {
-        businessAnalyticsData = JSON.parse(jsonMatch[1] || jsonMatch[0])
-      } else {
-        throw new Error('No JSON found in response')
-      }
+      businessAnalyticsData = JSON.parse(responseText)
     } catch (parseError) {
       console.error('JSON parse error:', parseError)
       console.error('Response text:', responseText)
