@@ -49,8 +49,19 @@ export async function GET(
       .eq('id', auditId)
       .single()
 
-    if (auditError || !audit) {
-      console.error('❌ Аудит не найден:', auditError)
+    console.log('🔍 Результат запроса аудита:', { audit, auditError })
+
+    if (auditError) {
+      console.error('❌ Ошибка получения аудита:', auditError)
+      return NextResponse.json({ 
+        error: 'Ошибка получения аудита',
+        details: auditError.message,
+        code: auditError.code
+      }, { status: 500 })
+    }
+
+    if (!audit) {
+      console.error('❌ Аудит не найден в базе данных')
       return NextResponse.json({ error: 'Аудит не найден' }, { status: 404 })
     }
 
