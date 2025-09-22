@@ -53,14 +53,31 @@ export async function POST(
       publicToken
     })
 
-    const { error: updateError } = await supabaseClient
-      .from('audits')
-      .update({ 
-        input_data: updatedInputData,
-        public_enabled: true,
-        public_token: publicToken
-      })
-      .eq('id', auditId)
+    // Сначала пробуем обновить с отдельными полями
+    let updateError = null
+    try {
+      const { error } = await supabaseClient
+        .from('audits')
+        .update({ 
+          input_data: updatedInputData,
+          public_enabled: true,
+          public_token: publicToken
+        })
+        .eq('id', auditId)
+      
+      updateError = error
+    } catch (err) {
+      // Если поля не существуют, обновляем только input_data
+      console.log('⚠️ Поля public_enabled/public_token не существуют, используем только input_data')
+      const { error } = await supabaseClient
+        .from('audits')
+        .update({ 
+          input_data: updatedInputData
+        })
+        .eq('id', auditId)
+      
+      updateError = error
+    }
 
     if (updateError) {
       console.error('❌ Ошибка создания публичной ссылки:', updateError)
