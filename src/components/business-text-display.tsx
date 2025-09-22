@@ -60,10 +60,16 @@ export const BusinessTextDisplay: React.FC<BusinessTextDisplayProps> = ({
 
   // Проверяем формат данных
   const isStructuredData = data && data.executive_summary && !data.result;
+  const isOldStructuredData = data && data.business_metrics && !data.result && !data.executive_summary;
   
-  // Если это структурированные данные, используем новый компонент
+  // Если это структурированные данные (новый формат), используем новый компонент
   if (isStructuredData) {
     return <StructuredBusinessAnalytics data={data} onShare={onShare} publicUrl={publicUrl} publicUrlLoading={publicUrlLoading} />
+  }
+  
+  // Если это старый структурированный формат, конвертируем его
+  if (isOldStructuredData) {
+    return <OldStructuredBusinessAnalytics data={data} onShare={onShare} publicUrl={publicUrl} publicUrlLoading={publicUrlLoading} />
   }
 
   // Парсим текст для структурированного отображения
@@ -483,6 +489,226 @@ const StructuredBusinessAnalytics: React.FC<{
                       </div>
                     </div>
                   </div>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      )}
+    </div>
+  );
+};
+
+// Компонент для отображения старого формата структурированных данных бизнес-аналитики
+const OldStructuredBusinessAnalytics: React.FC<{
+  data: any;
+  onShare?: () => void;
+  publicUrl?: string | null;
+  publicUrlLoading?: boolean;
+}> = ({ data, onShare, publicUrl, publicUrlLoading }) => {
+  const getSeverityColor = (severity: string) => {
+    switch (severity) {
+      case 'high': return 'bg-red-100 text-red-800 border-red-200';
+      case 'medium': return 'bg-yellow-100 text-yellow-800 border-yellow-200';
+      case 'low': return 'bg-green-100 text-green-800 border-green-200';
+      default: return 'bg-gray-100 text-gray-800 border-gray-200';
+    }
+  };
+
+  return (
+    <div className="space-y-6">
+      {/* Заголовок */}
+      <div className="text-center">
+        <h2 className="text-3xl font-bold text-gray-900 mb-2 flex items-center justify-center gap-3">
+          <BarChart3 className="w-8 h-8 text-blue-600" />
+          Бизнес аналитика
+        </h2>
+        <p className="text-gray-600 mb-4">Анализ влияния UX проблем на бизнес-метрики</p>
+        
+        {/* Кнопки действий */}
+        {onShare && (
+          <div className="flex justify-center gap-2">
+            {!publicUrl ? (
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={onShare}
+                disabled={publicUrlLoading}
+              >
+                <Share2 className="w-4 h-4 mr-2" />
+                {publicUrlLoading ? 'Создание...' : 'Поделиться'}
+              </Button>
+            ) : (
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={() => navigator.clipboard.writeText(publicUrl)}
+              >
+                <Share2 className="w-4 h-4 mr-2" />
+                Копировать ссылку
+              </Button>
+            )}
+          </div>
+        )}
+      </div>
+
+      {/* Industry Analysis */}
+      {data.industry_analysis && (
+        <Card>
+          <CardHeader className="bg-gradient-to-r from-green-50 to-emerald-50 border-b">
+            <CardTitle className="flex items-center gap-3 text-lg">
+              <Target className="w-5 h-5 text-green-600" />
+              Industry Analysis
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="p-6">
+            <div className="space-y-4">
+              <div>
+                <h4 className="font-semibold text-gray-900 mb-2">Определенная индустрия</h4>
+                <p className="text-gray-700">{data.industry_analysis.industry}</p>
+              </div>
+              <div>
+                <h4 className="font-semibold text-gray-900 mb-2">Бизнес-модель</h4>
+                <p className="text-gray-700">{data.industry_analysis.business_model}</p>
+              </div>
+              {data.industry_analysis.north_star_metric && (
+                <div>
+                  <h4 className="font-semibold text-gray-900 mb-2">North Star Metric</h4>
+                  <div className="bg-blue-50 p-3 rounded-lg">
+                    <p className="font-medium text-blue-900">{data.industry_analysis.north_star_metric}</p>
+                  </div>
+                </div>
+              )}
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Business Metrics */}
+      {data.business_metrics && (
+        <Card>
+          <CardHeader className="bg-gradient-to-r from-purple-50 to-violet-50 border-b">
+            <CardTitle className="flex items-center gap-3 text-lg">
+              <TrendingUp className="w-5 h-5 text-purple-600" />
+              Business Metrics Impact
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="p-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {Object.entries(data.business_metrics).map(([metric, impact]: [string, any]) => (
+                <div key={metric} className="bg-gray-50 p-4 rounded-lg">
+                  <h4 className="font-semibold text-gray-900 mb-2 capitalize">{metric}</h4>
+                  <p className="text-gray-700">{impact}</p>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Business Risks */}
+      {data.business_risks && data.business_risks.length > 0 && (
+        <Card>
+          <CardHeader className="bg-gradient-to-r from-red-50 to-rose-50 border-b">
+            <CardTitle className="flex items-center gap-3 text-lg">
+              <AlertTriangle className="w-5 h-5 text-red-600" />
+              Business Risks
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="p-6">
+            <div className="space-y-4">
+              {data.business_risks.map((risk: any, index: number) => (
+                <div key={index} className="border-l-4 border-red-200 pl-4">
+                  <div className="flex items-center gap-2 mb-2">
+                    <Badge className={getSeverityColor(risk.severity || 'medium')}>
+                      {risk.severity || 'medium'}
+                    </Badge>
+                    <span className="font-semibold text-gray-900">{risk.risk}</span>
+                  </div>
+                  <p className="text-gray-700 mb-2">{risk.description}</p>
+                  {risk.mitigation && (
+                    <div className="text-sm text-gray-600">
+                      <p><strong>Митигация:</strong> {risk.mitigation}</p>
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Next Steps */}
+      {data.next_steps && data.next_steps.length > 0 && (
+        <Card>
+          <CardHeader className="bg-gradient-to-r from-blue-50 to-indigo-50 border-b">
+            <CardTitle className="flex items-center gap-3 text-lg">
+              <Target className="w-5 h-5 text-blue-600" />
+              Next Steps
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="p-6">
+            <div className="space-y-4">
+              {data.next_steps.map((step: any, index: number) => (
+                <div key={index} className="border-l-4 border-blue-200 pl-4">
+                  <div className="flex items-center gap-2 mb-2">
+                    <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200">
+                      #{index + 1}
+                    </Badge>
+                    <span className="font-semibold text-gray-900">{step.title || step.action}</span>
+                  </div>
+                  <p className="text-gray-700">{step.description || step.details}</p>
+                  {step.priority && (
+                    <div className="mt-2">
+                      <Badge className={getSeverityColor(step.priority)}>
+                        {step.priority}
+                      </Badge>
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Conversion Funnel */}
+      {data.conversion_funnel && (
+        <Card>
+          <CardHeader className="bg-gradient-to-r from-green-50 to-emerald-50 border-b">
+            <CardTitle className="flex items-center gap-3 text-lg">
+              <TrendingUp className="w-5 h-5 text-green-600" />
+              Conversion Funnel
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="p-6">
+            <div className="space-y-4">
+              {Object.entries(data.conversion_funnel).map(([stage, stageData]: [string, any]) => (
+                <div key={stage} className="bg-gray-50 p-4 rounded-lg">
+                  <h4 className="font-semibold text-gray-900 mb-2 capitalize">{stage}</h4>
+                  <p className="text-gray-700">{stageData}</p>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Key KPIs */}
+      {data.key_kpis && (
+        <Card>
+          <CardHeader className="bg-gradient-to-r from-yellow-50 to-orange-50 border-b">
+            <CardTitle className="flex items-center gap-3 text-lg">
+              <BarChart3 className="w-5 h-5 text-yellow-600" />
+              Key KPIs
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="p-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {Object.entries(data.key_kpis).map(([kpi, value]: [string, any]) => (
+                <div key={kpi} className="bg-gray-50 p-4 rounded-lg">
+                  <h4 className="font-semibold text-gray-900 mb-2">{kpi}</h4>
+                  <p className="text-gray-700">{value}</p>
                 </div>
               ))}
             </div>

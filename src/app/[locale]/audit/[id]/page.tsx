@@ -337,11 +337,13 @@ export default function AuditPage() {
         // Загружаем бизнес аналитику если она есть
         if (auditData.result_data.business_analytics) {
           console.log('🔍 Business analytics data found:', auditData.result_data.business_analytics)
+          console.log('🔍 Business analytics keys:', Object.keys(auditData.result_data.business_analytics))
           // Проверяем старый формат (с result) или новый формат (прямые данные)
           const businessData = auditData.result_data.business_analytics.result 
             ? auditData.result_data.business_analytics 
             : auditData.result_data.business_analytics
           console.log('📊 Setting business analytics data:', businessData)
+          console.log('📊 Business data keys:', Object.keys(businessData))
           setBusinessAnalyticsData(businessData)
         }
       } else {
