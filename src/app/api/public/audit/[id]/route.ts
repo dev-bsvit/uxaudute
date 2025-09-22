@@ -8,19 +8,26 @@ export async function GET(
   { params }: { params: { id: string } }
 ) {
   try {
+    console.log('🚀 Начало обработки публичного аудита')
+    
     const auditId = params.id
     const { searchParams } = new URL(request.url)
     const token = searchParams.get('token')
     const format = searchParams.get('format')
 
+    console.log('🔍 Параметры запроса:', { auditId, token, format })
+
     if (!token) {
+      console.log('❌ Токен не предоставлен')
       return NextResponse.json({ error: 'Токен доступа не предоставлен' }, { status: 400 })
     }
 
+    console.log('🔧 Создаем Supabase клиент')
     const supabaseClient = createClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
       process.env.SUPABASE_SERVICE_ROLE_KEY!
     )
+    console.log('✅ Supabase клиент создан')
 
     console.log('🔍 Получение публичного аудита:', auditId, 'с токеном:', token)
 
@@ -139,10 +146,18 @@ export async function GET(
     })
 
   } catch (error) {
-    console.error('❌ Ошибка получения публичного аудита:', error)
+    console.error('❌ КРИТИЧЕСКАЯ ОШИБКА получения публичного аудита:', error)
+    console.error('🔍 Детали ошибки:', {
+      name: error instanceof Error ? error.name : 'Unknown',
+      message: error instanceof Error ? error.message : 'Unknown error',
+      stack: error instanceof Error ? error.stack : 'No stack',
+      auditId: params?.id,
+      url: request.url
+    })
     return NextResponse.json({
       error: 'Internal server error',
-      details: error instanceof Error ? error.message : 'Unknown error'
+      details: error instanceof Error ? error.message : 'Unknown error',
+      stack: error instanceof Error ? error.stack : undefined
     }, { status: 500 })
   }
 }
