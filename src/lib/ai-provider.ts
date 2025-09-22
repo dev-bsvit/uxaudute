@@ -91,7 +91,7 @@ export const executeAIRequest = async (
 ): Promise<AIResponse> => {
   const { 
     temperature = 0.7, 
-    max_tokens = 8000, 
+    max_tokens = 16000, 
     stream = false,
     provider,
     openrouterModel = 'default'

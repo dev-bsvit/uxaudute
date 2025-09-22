@@ -82,3 +82,4 @@ export async function getPaymentIntentStatus(paymentIntentId: string) {
     }
   }
 }
+

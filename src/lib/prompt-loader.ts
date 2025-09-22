@@ -41,7 +41,7 @@ ${context}
  */
 export async function loadJSONPromptV2(locale: string = 'ru'): Promise<string> {
   try {
-    let fileName = 'json-structured-prompt-v2.md'
+    let fileName = 'json-structured-prompt-v2-short.md'
     if (locale === 'ua') fileName = 'json-structured-prompt-ua.md'
     else if (locale === 'en') fileName = 'json-structured-prompt-en.md'
     
