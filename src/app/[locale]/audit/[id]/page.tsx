@@ -45,7 +45,7 @@ export default function AuditPage() {
   const [abTestLoading, setAbTestLoading] = useState(false)
   const [hypothesesData, setHypothesesData] = useState<HypothesisResponse | null>(null)
   const [hypothesesLoading, setHypothesesLoading] = useState(false)
-  const [businessAnalyticsData, setBusinessAnalyticsData] = useState<{ result: string } | null>(null)
+  const [businessAnalyticsData, setBusinessAnalyticsData] = useState<any>(null)
   const [businessAnalyticsLoading, setBusinessAnalyticsLoading] = useState(false)
   const [publicUrl, setPublicUrl] = useState<string | null>(null)
   const [publicUrlLoading, setPublicUrlLoading] = useState(false)
@@ -336,10 +336,12 @@ export default function AuditPage() {
         
         // Загружаем бизнес аналитику если она есть
         if (auditData.result_data.business_analytics) {
+          console.log('🔍 Business analytics data found:', auditData.result_data.business_analytics)
           // Проверяем старый формат (с result) или новый формат (прямые данные)
           const businessData = auditData.result_data.business_analytics.result 
             ? auditData.result_data.business_analytics 
             : auditData.result_data.business_analytics
+          console.log('📊 Setting business analytics data:', businessData)
           setBusinessAnalyticsData(businessData)
         }
       } else {
