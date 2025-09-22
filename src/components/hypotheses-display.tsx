@@ -4,6 +4,7 @@ import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { HypothesisResponse, Hypothesis } from '@/lib/analysis-types'
 import { Download, RefreshCw, Lightbulb, Target, CheckCircle, Share2 } from 'lucide-react'
+import { useTranslations } from 'next-intl'
 
 interface HypothesesDisplayProps {
   data: HypothesisResponse | null
@@ -22,13 +23,14 @@ export const HypothesesDisplay: React.FC<HypothesesDisplayProps> = ({
   publicUrl,
   publicUrlLoading = false
 }) => {
+  const t = useTranslations('hypotheses')
   if (isLoading) {
     return (
       <Card>
         <CardContent className="p-8">
           <div className="flex items-center justify-center">
             <RefreshCw className="w-6 h-6 animate-spin mr-2" />
-            <span>Генерируем гипотезы...</span>
+            <span>{t('generating')}</span>
           </div>
         </CardContent>
       </Card>
@@ -39,14 +41,14 @@ export const HypothesesDisplay: React.FC<HypothesesDisplayProps> = ({
     return (
       <Card>
         <CardContent className="p-8 text-center">
-          <h3 className="text-lg font-semibold mb-4">Гипотезы не сгенерированы</h3>
+          <h3 className="text-lg font-semibold mb-4">{t('notGenerated')}</h3>
           <p className="text-slate-600 mb-6">
-            Нажмите кнопку ниже, чтобы сгенерировать гипотезы на основе результатов UX анализа
+            {t('notGeneratedDescription')}
           </p>
           {onGenerate && (
             <Button onClick={onGenerate} className="w-full">
               <Lightbulb className="w-4 h-4 mr-2" />
-              Получить гипотезы
+              {t('getHypotheses')}
             </Button>
           )}
         </CardContent>
@@ -83,9 +85,9 @@ export const HypothesesDisplay: React.FC<HypothesesDisplayProps> = ({
       {/* Заголовок и действия */}
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-bold text-slate-900">Гипотезы для улучшения UX</h2>
+          <h2 className="text-2xl font-bold text-slate-900">{t('title')}</h2>
           <p className="text-slate-600">
-            Сгенерировано {data.hypotheses.length} гипотез с ICE-оценкой
+            {t('generated', { count: data.hypotheses.length })}
           </p>
         </div>
         <div className="flex gap-2">
@@ -98,7 +100,7 @@ export const HypothesesDisplay: React.FC<HypothesesDisplayProps> = ({
                 disabled={publicUrlLoading}
               >
                 <Share2 className="w-4 h-4 mr-2" />
-                {publicUrlLoading ? 'Создание...' : 'Поделиться'}
+                {publicUrlLoading ? t('creating') : t('share')}
               </Button>
             ) : (
               <Button 
@@ -107,18 +109,18 @@ export const HypothesesDisplay: React.FC<HypothesesDisplayProps> = ({
                 onClick={() => navigator.clipboard.writeText(publicUrl)}
               >
                 <Share2 className="w-4 h-4 mr-2" />
-                Копировать ссылку
+                {t('copyLink')}
               </Button>
             )
           )}
           <Button variant="outline" size="sm">
             <Download className="w-4 h-4 mr-2" />
-            Экспорт
+            {t('export')}
           </Button>
           {onGenerate && (
             <Button onClick={onGenerate} size="sm">
               <RefreshCw className="w-4 h-4 mr-2" />
-              Обновить
+              {t('update')}
             </Button>
           )}
         </div>
@@ -228,24 +230,24 @@ export const HypothesesDisplay: React.FC<HypothesesDisplayProps> = ({
                 <div className="flex-1">
                   <CardTitle className="text-lg mb-2 flex items-center">
                     <Lightbulb className="w-5 h-5 mr-2 text-yellow-500" />
-                    Гипотеза #{index + 1}: {hypothesis.title}
+                    {t('hypothesis', { number: index + 1 })}: {hypothesis.title}
                   </CardTitle>
                   <div className="flex gap-2 mb-3 flex-wrap">
                     <Badge className={getPriorityColor(hypothesis.priority)}>
-                      Приоритет: {hypothesis.priority}
+                      {t('priority')}: {hypothesis.priority}
                     </Badge>
                     <Badge className={getEffortColor(hypothesis.effort_days <= 3 ? 'low' : hypothesis.effort_days <= 7 ? 'medium' : 'high')}>
-                      Усилия: {hypothesis.effort_days} дней
+                      {t('effort')}: {hypothesis.effort_days} {t('days')}
                     </Badge>
                     <Badge className={getConfidenceColor(hypothesis.confidence_score * 10)}>
-                      Уверенность: {Math.round(hypothesis.confidence_score * 10)}/10
+                      {t('confidence')}: {Math.round(hypothesis.confidence_score * 10)}/10
                     </Badge>
                     <Badge className="bg-blue-100 text-blue-800">
-                      ICE: {hypothesis.ice_score.ice_total.toFixed(2)}
+                      {t('ice')}: {hypothesis.ice_score.ice_total.toFixed(2)}
                     </Badge>
                     {hypothesis.is_top_3 && (
                       <Badge className="bg-green-100 text-green-800">
-                        Топ-3
+                        {t('top3')}
                       </Badge>
                     )}
                   </div>
@@ -259,12 +261,12 @@ export const HypothesesDisplay: React.FC<HypothesesDisplayProps> = ({
                 <div>
                   <h4 className="font-semibold text-slate-900 mb-2 flex items-center">
                     <Target className="w-4 h-4 mr-2" />
-                    Описание
+                    {t('description')}
                   </h4>
                   <p className="text-slate-700">{hypothesis.description}</p>
                 </div>
                 <div>
-                  <h4 className="font-semibold text-slate-900 mb-2">Проблема</h4>
+                  <h4 className="font-semibold text-slate-900 mb-2">{t('problem')}</h4>
                   <p className="text-slate-700">{hypothesis.problem}</p>
                 </div>
               </div>
@@ -272,23 +274,23 @@ export const HypothesesDisplay: React.FC<HypothesesDisplayProps> = ({
               {/* Решение и ожидаемый эффект */}
               <div className="grid md:grid-cols-2 gap-4">
                 <div>
-                  <h4 className="font-semibold text-slate-900 mb-2">Предлагаемое решение</h4>
+                  <h4 className="font-semibold text-slate-900 mb-2">{t('proposedSolution')}</h4>
                   <p className="text-slate-700">{hypothesis.solution}</p>
                 </div>
                 <div>
-                  <h4 className="font-semibold text-slate-900 mb-2">ICE Оценка</h4>
+                  <h4 className="font-semibold text-slate-900 mb-2">{t('iceScore')}</h4>
                   <div className="grid grid-cols-3 gap-2 text-sm">
                     <div className="text-center">
                       <div className="font-bold text-blue-600">{hypothesis.ice_score.impact}</div>
-                      <div className="text-slate-600">Impact</div>
+                      <div className="text-slate-600">{t('impact')}</div>
                     </div>
                     <div className="text-center">
                       <div className="font-bold text-green-600">{hypothesis.ice_score.confidence}</div>
-                      <div className="text-slate-600">Confidence</div>
+                      <div className="text-slate-600">{t('confidence')}</div>
                     </div>
                     <div className="text-center">
                       <div className="font-bold text-orange-600">{hypothesis.ice_score.effort}</div>
-                      <div className="text-slate-600">Effort</div>
+                      <div className="text-slate-600">{t('effort')}</div>
                     </div>
                   </div>
                 </div>
