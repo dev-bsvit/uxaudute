@@ -856,26 +856,43 @@ const OldStructuredBusinessAnalytics: React.FC<{
           </CardHeader>
           <CardContent className="p-6">
             <div className="space-y-4">
-              {data.missed_opportunities.map((opportunity: any, index: number) => (
-                <div key={index} className="border-l-4 border-green-200 pl-4">
-                  <div className="flex items-center gap-2 mb-2">
-                    <Badge className={getSeverityColor(opportunity.priority)}>
-                      {opportunity.priority || 'medium'}
-                    </Badge>
-                    <span className="font-semibold text-gray-900">{opportunity.opportunity || opportunity.title}</span>
-                  </div>
-                  <p className="text-gray-700 mb-2">{opportunity.reasoning || opportunity.description}</p>
-                  {opportunity.potential_gain_percent && (
-                    <p className="text-sm text-green-600 font-medium">
-                      Потенциальный прирост: {opportunity.potential_gain_percent}
-                    </p>
-                  )}
-                  {opportunity.implementation_steps && (
+              {data.missed_opportunities.map((opportunity: any, index: number) => {
+                console.log('🔍 Missed opportunity data:', opportunity);
+                return (
+                  <div key={index} className="border-l-4 border-green-200 pl-4">
+                    <div className="flex items-center gap-2 mb-2">
+                      <Badge className={getSeverityColor(opportunity.priority)}>
+                        {opportunity.priority || 'medium'}
+                      </Badge>
+                      <span className="font-semibold text-gray-900">{opportunity.opportunity || opportunity.title}</span>
+                    </div>
+                    <p className="text-gray-700 mb-2">{opportunity.reasoning || opportunity.description}</p>
+                    
+                    {/* Потенциальный рост */}
+                    <div className="mt-2">
+                      <p className="text-sm font-medium text-gray-900 mb-1">Потенциальный рост:</p>
+                      <p className="text-sm text-gray-600">
+                        {opportunity.potential_gain_percent || opportunity.potential_growth || opportunity.growth_potential || 'Не указано'}
+                      </p>
+                    </div>
+                    
+                    {/* Шаги реализации */}
                     <div className="mt-2">
                       <p className="text-sm font-medium text-gray-900 mb-1">Шаги реализации:</p>
-                      <p className="text-sm text-gray-600">{opportunity.implementation_steps}</p>
+                      <p className="text-sm text-gray-600">
+                        {opportunity.implementation_steps || opportunity.steps || opportunity.next_steps || 'Не указано'}
+                      </p>
                     </div>
-                  )}
+                    
+                    {/* Дополнительные поля для отладки */}
+                    {process.env.NODE_ENV === 'development' && (
+                      <details className="mt-2 text-xs text-gray-500">
+                        <summary>Debug info</summary>
+                        <pre className="mt-1 p-2 bg-gray-100 rounded text-xs overflow-auto">
+                          {JSON.stringify(opportunity, null, 2)}
+                        </pre>
+                      </details>
+                    )}
                 </div>
               ))}
             </div>
