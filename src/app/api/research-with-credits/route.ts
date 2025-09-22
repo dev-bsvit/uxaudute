@@ -77,8 +77,8 @@ export async function POST(request: NextRequest) {
       jsonPrompt = await loadSonomaStructuredPrompt()
       console.log('Используем специальный промпт для Sonoma Sky Alpha')
     } else {
-      jsonPrompt = await loadJSONPromptV2()
-      console.log('Используем стандартный промпт v2')
+      jsonPrompt = await loadJSONPromptV2(locale)
+      console.log('Используем стандартный промпт v2 для локали:', locale)
     }
     
     const finalPrompt = combineWithContext(jsonPrompt, context)
