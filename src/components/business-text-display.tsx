@@ -65,15 +65,21 @@ export const BusinessTextDisplay: React.FC<BusinessTextDisplayProps> = ({
   const isStructuredData = data && data.executive_summary && !data.result;
   const isOldStructuredData = data && data.business_metrics && !data.result && !data.executive_summary;
   
+  console.log('🔍 Format check:', { isStructuredData, isOldStructuredData, hasBusinessMetrics: !!data?.business_metrics, hasExecutiveSummary: !!data?.executive_summary })
+  
   // Если это структурированные данные (новый формат), используем новый компонент
   if (isStructuredData) {
+    console.log('✅ Using StructuredBusinessAnalytics (new format)')
     return <StructuredBusinessAnalytics data={data} onShare={onShare} publicUrl={publicUrl} publicUrlLoading={publicUrlLoading} />
   }
   
   // Если это старый структурированный формат, конвертируем его
   if (isOldStructuredData) {
+    console.log('✅ Using OldStructuredBusinessAnalytics (old format)')
     return <OldStructuredBusinessAnalytics data={data} onShare={onShare} publicUrl={publicUrl} publicUrlLoading={publicUrlLoading} />
   }
+  
+  console.log('❌ No structured data format detected, falling back to text parsing')
 
   // Парсим текст для структурированного отображения
   const parseBusinessAnalytics = (text: string) => {
