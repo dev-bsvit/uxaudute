@@ -95,7 +95,7 @@ export async function POST(request: NextRequest) {
         {
           provider: provider,
           openrouterModel: openrouterModel,
-          max_tokens: 6000
+          max_tokens: 8000
         }
       )
     } else if (screenshot) {
@@ -118,7 +118,7 @@ export async function POST(request: NextRequest) {
         {
           provider: 'openai', // Принудительно используем OpenAI для Vision
           openrouterModel: 'gpt4',
-          max_tokens: 6000
+          max_tokens: 8000
         }
       )
     }
