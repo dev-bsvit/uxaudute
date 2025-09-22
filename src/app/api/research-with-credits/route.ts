@@ -132,6 +132,11 @@ export async function POST(request: NextRequest) {
     }
 
     console.log('Анализ завершен, результат:', Object.keys(analysisResult || {}))
+    
+    // Логируем использование токенов
+    if (analysisResult && typeof analysisResult === 'object' && 'usage' in analysisResult) {
+      console.log('📊 Token usage:', (analysisResult as any).usage)
+    }
 
     // Парсим результат если он в формате {content: "JSON_STRING"}
     let parsedResult = analysisResult

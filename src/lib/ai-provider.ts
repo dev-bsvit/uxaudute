@@ -212,6 +212,8 @@ export const executeAIRequest = async (
       const content = completion.choices[0]?.message?.content || 'Нет ответа'
       
       console.log(`✅ Успешно использован провайдер: ${providerName}`)
+      console.log(`📊 Token usage:`, completion.usage)
+      console.log(`📏 Response length: ${content.length} characters`)
       
       return {
         success: true,
