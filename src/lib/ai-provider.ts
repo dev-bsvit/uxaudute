@@ -200,14 +200,24 @@ export const executeAIRequest = async (
       // Специальные параметры для Sonoma Sky Alpha
       const isSonoma = config.model.includes('sonoma-sky-alpha')
       
-      const completion = await config.client.chat.completions.create({
+      const requestParams: any = {
         model: config.model,
         messages: messages as any,
         temperature: isSonoma ? 0.8 : temperature,
         max_tokens: isSonoma ? Math.max(max_tokens, 200) : max_tokens,
-        stream,
-        response_format: { type: "json_object" } // Включаем JSON формат для всех моделей
-      })
+        stream
+      }
+      
+      // Специальная обработка для изображений (только OpenAI GPT-4o)
+      if (provider === 'openai' && config.model.includes('gpt-4o')) {
+        console.log('🖼️ Обнаружены изображения в сообщениях, используем GPT-4o Vision')
+        // Не добавляем response_format для Vision API, так как он может конфликтовать
+      } else {
+        // Включаем JSON формат для всех остальных моделей
+        requestParams.response_format = { type: "json_object" }
+      }
+      
+      const completion = await config.client.chat.completions.create(requestParams)
 
       const content = completion.choices[0]?.message?.content || 'Нет ответа'
       
