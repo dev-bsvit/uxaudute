@@ -91,6 +91,7 @@ export async function POST(request: NextRequest) {
       // Анализ URL
       console.log('Запускаем анализ URL:', url)
       console.log('🔍 Промпт для анализа URL (первые 500 символов):', finalPrompt.substring(0, 500))
+      console.log('🔍 URL для анализа:', url)
       analysisResult = await executeAIRequest(
         [{ role: 'user', content: finalPrompt }],
         {
