@@ -412,6 +412,7 @@ Static screenshot of the screen (required) + if possible, task context and targe
 - **CRITICAL:** Each problem must contain ALL fields: element, problem, principle, consequence, recommendation, expectedEffect, priority
 - **CRITICAL:** The "consequence" field describes what happens if the problem is not fixed
 - **CRITICAL:** The "expectedEffect" field describes the expected outcome after implementing the recommendation
+- **CRITICAL:** NEVER omit consequence or expectedEffect fields - they are MANDATORY
 - **IMPORTANT:** Use different question categories: clarity, usability, accessibility, conversion, trust
 - **IMPORTANT:** Each problem has different priority: high, medium, low
 
@@ -514,3 +515,5 @@ Static screenshot of the screen (required) + if possible, task context and targe
 ```
 
 **Answer ONLY in JSON format in English.**
+
+**FINAL REMINDER: Every problem in problemsAndSolutions MUST include consequence and expectedEffect fields. Do not omit these fields under any circumstances.**
