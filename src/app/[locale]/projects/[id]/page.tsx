@@ -153,23 +153,9 @@ export default function ProjectDetailPage() {
         console.log('Screenshot uploaded:', screenshotUrl)
       }
 
-      // ТЕСТИРУЕМ КАЖДЫЙ КОМПОНЕНТ КОНТЕКСТА ОТДЕЛЬНО
-      const projectContext = project?.context || ''
-      const projectTargetAudience = project?.target_audience || ''
-      const auditContext = context || ''
-      
-      console.log('🔍 ОТДЕЛЬНЫЕ КОМПОНЕНТЫ КОНТЕКСТА:')
-      console.log('🔍 projectContext:', projectContext)
-      console.log('🔍 projectTargetAudience:', projectTargetAudience)
-      console.log('🔍 auditContext:', auditContext)
-      
-      // ВРЕМЕННО: используем только контекст проекта (без целевой аудитории)
-      let combinedContext = ''
-      if (projectContext) {
-        combinedContext = `Контекст проекта: ${projectContext}`
-      }
-      
-      console.log('🔍 ТЕСТ: используем только контекст проекта:', combinedContext)
+      // ПОЛНОСТЬЮ ОТКЛЮЧАЕМ КОНТЕКСТ ДЛЯ ТЕСТИРОВАНИЯ
+      const combinedContext = ''
+      console.log('🔍 ПОЛНОСТЬЮ ОТКЛЮЧЕН КОНТЕКСТ - тестируем анализ без контекста')
 
       // Создаем новый аудит с URL скриншота
       const audit = await createAudit(
