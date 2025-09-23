@@ -163,10 +163,10 @@ Static screenshot of the screen (required) + if possible, task context and targe
       "totalQuestions": 7,
       "averageConfidence": 82,
       "criticalIssues": 2,
-      "recommendations": [
-        "Улучшить визуальную иерархию главного элемента",
-        "Повысить доступность интерфейса"
-      ]
+    "recommendations": [
+      "Improve visual hierarchy of main element",
+      "Increase interface accessibility"
+    ]
     }
   },
   "audience": {
@@ -277,7 +277,7 @@ Static screenshot of the screen (required) + if possible, task context and targe
     },
     "varietyCheck": {
       "passed": true,
-      "description": "Рекомендации разнообразны и не повторяют одни и те же принципы",
+      "description": "Recommendations are diverse and don't repeat the same principles",
       "principleVariety": ["Visibility", "Error Prevention", "Recognition", "Message Clarity", "Help Users"],
       "issueTypes": ["visual", "functional", "content", "navigation"]
     },
@@ -290,7 +290,7 @@ Static screenshot of the screen (required) + if possible, task context and targe
       "min": 70,
       "max": 90,
       "average": 82,
-      "explanation": "Confidence варьируется в зависимости от источника данных и сложности анализа"
+      "explanation": "Confidence varies depending on data source and analysis complexity"
     }
   },
   "metadata": {
@@ -313,43 +313,47 @@ Static screenshot of the screen (required) + if possible, task context and targe
 8. **Audience** - mandatory block with target audience analysis, pains and fears
 9. **Behavior** - mandatory block with user scenario analysis, patterns and friction points
 
-## Правила для UX-опроса:
+## UX Survey Rules:
 
-1. **Минимум 5 вопросов** - базовый набор
-2. **Максимум 10 вопросов** - не перегружайте
-3. **Контекстные вопросы** - адаптируйте под тип экрана:
-   - **Лендинг**: "Насколько экран вызывает доверие?", "Понятно ли value proposition?"
-   - **Форма**: "Чувствуете ли вы безопасность при вводе данных?", "Ясно ли, какие поля обязательны?"
-   - **E-commerce**: "Понятно ли, сколько стоит товар и какие шаги дальше?", "Есть ли сомнения в качестве?"
-   - **SaaS**: "Ясно ли, какую ценность даст следующий шаг?", "Понятно ли, как начать работу?"
-4. **Категории вопросов**:
-   - `clarity` - ясность цели и сообщения
-   - `usability` - удобство использования
-   - `accessibility` - доступность
-   - `conversion` - конверсия и мотивация
-   - `navigation` - навигация и поиск
-   - `content` - контент и визуальная иерархия
-   - `trust` - доверие и безопасность
-   - `value` - ценностное предложение
+1. **Minimum 5 questions** - basic set
+2. **Maximum 10 questions** - don't overload
+3. **Contextual questions** - adapt to screen type:
+   - **Landing**: "How much does the screen inspire trust?", "Is the value proposition clear?"
+   - **Form**: "Do you feel secure when entering data?", "Is it clear which fields are required?"
+   - **E-commerce**: "Is it clear how much the product costs and what steps are next?", "Are there quality concerns?"
+   - **SaaS**: "Is it clear what value the next step will provide?", "Is it clear how to get started?"
+4. **Question categories**:
+   - `clarity` - goal and message clarity
+   - `usability` - ease of use
+   - `accessibility` - accessibility
+   - `conversion` - conversion and motivation
+   - `navigation` - navigation and search
+   - `content` - content and visual hierarchy
+   - `trust` - trust and security
+   - `value` - value proposition
 
-4. **Динамические вопросы** - добавляйте вопросы на основе контекста:
-   - Для e-commerce: вопросы о покупке, корзине, оплате
-   - Для SaaS: вопросы о регистрации, подписке, функционале
-   - Для лендингов: вопросы о конверсии, доверии, CTA
+5. **Dynamic questions** - add questions based on context:
+   - For e-commerce: questions about purchase, cart, payment
+   - For SaaS: questions about registration, subscription, functionality
+   - For landing pages: questions about conversion, trust, CTA
 
-## Правила для анализа аудитории:
+6. **UX Principles** - each question should test a specific principle
+7. **Explanations** - briefly explain why the question is needed
+8. **Critical problems** - highlight questions with low scores
 
-1. **UI-сигналы** - выводите инсайты по болям/страхам из визуальных элементов:
-   - Тон копирайта (формальный/неформальный)
-   - Наличие гарантий, сертификатов, отзывов
-   - Позиционирование бренда (премиум/масс-маркет)
-   - Цветовая схема (доверие/энергия/спокойствие)
-2. **Примеры анализа**:
-   - Лендинг без цен → страх "скрытые платежи"
-   - Много текста → страх "сложность продукта"
-   - Отсутствие контактов → страх "ненадежность"
-   - Яркие цвета → восприятие "несерьезности"
-   - Для форм: вопросы о валидации, ошибках, завершении
+## Audience Analysis Rules:
+
+1. **UI Signals** - derive insights about pains/fears from visual elements:
+   - Copy tone (formal/informal)
+   - Presence of guarantees, certificates, reviews
+   - Brand positioning (premium/mass-market)
+   - Color scheme (trust/energy/calm)
+2. **Analysis examples**:
+   - Landing without prices → fear "hidden payments"
+   - Lots of text → fear "product complexity"
+   - No contacts → fear "unreliability"
+   - Bright colors → perception "unseriousness"
+   - For forms: questions about validation, errors, completion
 
 5. **Принципы UX** - каждый вопрос должен тестировать конкретный принцип
 6. **Объяснения** - кратко объясните, зачем нужен вопрос
