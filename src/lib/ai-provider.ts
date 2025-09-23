@@ -136,9 +136,8 @@ export const executeAIRequest = async (
         console.log('🖼️ Обнаружены изображения в сообщениях, используем GPT-4o Vision')
         // Не добавляем response_format для Vision API, так как он может конфликтовать
       } else {
-        // Временно отключаем JSON формат для отладки
-        // requestParams.response_format = { type: "json_object" }
-        console.log('🔧 JSON формат временно отключен для отладки')
+        // Включаем JSON формат для всех остальных моделей
+        requestParams.response_format = { type: "json_object" }
       }
       
       console.log(`📋 Параметры запроса:`, JSON.stringify(requestParams, null, 2))
@@ -214,9 +213,8 @@ export const executeAIRequest = async (
         console.log('🖼️ Обнаружены изображения в сообщениях, используем GPT-4o Vision')
         // Не добавляем response_format для Vision API, так как он может конфликтовать
       } else {
-        // Временно отключаем JSON формат для отладки
-        // requestParams.response_format = { type: "json_object" }
-        console.log('🔧 JSON формат временно отключен для отладки')
+        // Включаем JSON формат для всех остальных моделей
+        requestParams.response_format = { type: "json_object" }
       }
       
       const completion = await config.client.chat.completions.create(requestParams)
