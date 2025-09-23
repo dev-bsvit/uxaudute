@@ -85,6 +85,12 @@ export async function POST(request: NextRequest) {
     console.log('🔍 КОНТЕКСТ ДЛЯ АНАЛИЗА:', context)
     console.log('🔍 ДЛИНА КОНТЕКСТА:', context?.length || 0)
 
+    // Сначала пробуем с контекстом
+    let finalPrompt = combineWithContext(jsonPrompt, context)
+    console.log('Финальный промпт готов, длина:', finalPrompt.length)
+    console.log('🔍 ПЕРВЫЕ 1000 символов промпта:', finalPrompt.substring(0, 1000))
+    console.log('🔍 ПОСЛЕДНИЕ 1000 символов промпта:', finalPrompt.substring(Math.max(0, finalPrompt.length - 1000)))
+
     let analysisResult: AIResponse | null = null
 
     if (url) {
@@ -137,6 +143,52 @@ export async function POST(request: NextRequest) {
 
     console.log('Анализ завершен, результат:', Object.keys(analysisResult || {}))
     console.log('🔍 Полный ответ от AI:', JSON.stringify(analysisResult, null, 2))
+    
+    // Проверяем, не отказался ли GPT
+    if (analysisResult && typeof analysisResult === 'object' && 'content' in analysisResult) {
+      const content = (analysisResult as any).content
+      if (content.includes("I'm sorry, I can't assist with that") || content.includes("I cannot assist")) {
+        console.log('⚠️ GPT отказался от анализа, пробуем без контекста...')
+        
+        // Пробуем без контекста
+        const fallbackPrompt = jsonPrompt
+        console.log('🔄 Fallback промпт (без контекста), длина:', fallbackPrompt.length)
+        
+        if (url) {
+          analysisResult = await executeAIRequest(
+            [{ role: 'user', content: fallbackPrompt }],
+            {
+              provider: provider,
+              openrouterModel: openrouterModel,
+              max_tokens: 8000
+            }
+          )
+        } else if (screenshot) {
+          analysisResult = await executeAIRequest(
+            [{ 
+              role: 'user', 
+              content: [
+                { type: "text", text: fallbackPrompt },
+                { 
+                  type: "image_url", 
+                  image_url: { 
+                    url: screenshot, 
+                    detail: "high" 
+                  } 
+                }
+              ]
+            }],
+            {
+              provider: 'openai',
+              openrouterModel: 'gpt4',
+              max_tokens: 8000
+            }
+          )
+        }
+        
+        console.log('🔄 Fallback результат:', analysisResult ? 'успех' : 'неудача')
+      }
+    }
     
     // Логируем использование токенов
     if (analysisResult && typeof analysisResult === 'object' && 'usage' in analysisResult) {
