@@ -178,18 +178,8 @@ export default function ProjectDetailPage() {
         console.log('Screenshot uploaded:', screenshotUrl)
       }
 
-      // ТЕСТИРУЕМ БЕЗ СКРИНШОТА - ТОЛЬКО URL
-      console.log('🔍 ТЕСТ: принудительно используем URL вместо скриншота')
+      // ВОССТАНАВЛИВАЕМ НОРМАЛЬНУЮ ЛОГИКУ - БЕЗ ТЕСТОВЫХ ИЗМЕНЕНИЙ
       console.log('🔍 Оригинальные данные:', { url: data.url, screenshot: !!data.screenshot })
-      
-      // Принудительно убираем скриншот и используем только URL
-      const testData = {
-        ...data,
-        screenshot: null,
-        url: data.url || 'https://example.com' // Fallback URL если нет
-      }
-      
-      console.log('🔍 Тестовые данные:', { url: testData.url, screenshot: !!testData.screenshot })
       
       // ВОССТАНАВЛИВАЕМ ПРАВИЛЬНУЮ ЛОГИКУ КОНТЕКСТА
       const projectContext = project?.context || ''
@@ -221,15 +211,15 @@ export default function ProjectDetailPage() {
       console.log('🔍 ИТОГОВЫЙ КОНТЕКСТ ДЛЯ GPT:', combinedContext)
       console.log('🔍 Длина контекста:', combinedContext.length, 'символов')
 
-      // Создаем новый аудит с тестовыми данными (без скриншота)
+      // Создаем новый аудит с нормальными данными
       const audit = await createAudit(
         projectId,
         `Анализ ${new Date().toLocaleDateString('ru-RU')}`,
         'research',
         {
-          url: testData.url,
-          hasScreenshot: false, // Принудительно отключаем скриншот
-          screenshotUrl: null,
+          url: data.url,
+          hasScreenshot: !!data.screenshot,
+          screenshotUrl: screenshotUrl,
           timestamp: new Date().toISOString()
         },
         combinedContext
