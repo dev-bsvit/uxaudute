@@ -626,6 +626,7 @@ const OldStructuredBusinessAnalytics: React.FC<{
   publicUrl?: string | null;
   publicUrlLoading?: boolean;
 }> = ({ data, onShare, publicUrl, publicUrlLoading }) => {
+  const t = useTranslations('businessAnalytics')
   const getSeverityColor = (severity: string) => {
     switch (severity) {
       case 'high': return 'bg-red-100 text-red-800 border-red-200';
