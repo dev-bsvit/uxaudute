@@ -594,11 +594,11 @@ const StructuredBusinessAnalytics: React.FC<{
                     <span className="font-semibold text-gray-900">{rec.title}</span>
                   </div>
                   <div className="space-y-2">
-                    <p className="text-gray-700"><strong>Проблема:</strong> {rec.problem_statement}</p>
-                    <p className="text-gray-700"><strong>Решение:</strong> {rec.proposed_solution}</p>
-                    <p className="text-gray-700"><strong>Ожидаемый результат:</strong> {rec.expected_outcome}</p>
+                    <p className="text-gray-700"><strong>{t('problem')}:</strong> {rec.problem_statement}</p>
+                    <p className="text-gray-700"><strong>{t('solution')}:</strong> {rec.proposed_solution}</p>
+                    <p className="text-gray-700"><strong>{t('expectedResult')}:</strong> {rec.expected_outcome}</p>
                     <div>
-                      <p className="text-sm font-medium text-gray-700 mb-1">Метрики для отслеживания:</p>
+                      <p className="text-sm font-medium text-gray-700 mb-1">{t('metricsForTracking')}:</p>
                       <div className="flex flex-wrap gap-1">
                         {rec.metrics_to_track.map((metric: string, idx: number) => (
                           <Badge key={idx} variant="outline" className="text-xs">
@@ -991,12 +991,12 @@ const OldStructuredBusinessAnalytics: React.FC<{
                   <p className="text-gray-700 mb-2">{barrier.description || barrier.details}</p>
                   {barrier.impact_percent && (
                     <p className="text-sm text-orange-600 font-medium">
-                      Влияние на конверсию: {barrier.impact_percent}
+{t('impactOnConversion')}: {barrier.impact_percent}
                     </p>
                   )}
                   {barrier.solution && (
                     <div className="mt-2">
-                      <p className="text-sm font-medium text-gray-900 mb-1">Решение:</p>
+                      <p className="text-sm font-medium text-gray-900 mb-1">{t('solution')}:</p>
                       <p className="text-sm text-gray-600">{barrier.solution}</p>
                     </div>
                   )}
@@ -1228,7 +1228,7 @@ const NewFormatBusinessAnalytics: React.FC<{
                   
                   {painPoint.quantitative_impact && (
                     <div className="mb-3">
-                      <h5 className="font-medium text-gray-900 mb-2">Количественное влияние:</h5>
+                      <h5 className="font-medium text-gray-900 mb-2">{t('quantitativeImpact')}:</h5>
                       <div className="grid grid-cols-1 md:grid-cols-3 gap-2 text-sm">
                         {Object.entries(painPoint.quantitative_impact).map(([key, value]) => (
                           <div key={key} className="bg-white p-2 rounded border">
@@ -1241,14 +1241,14 @@ const NewFormatBusinessAnalytics: React.FC<{
 
                   {painPoint.qualitative_description && (
                     <div className="mb-3">
-                      <h5 className="font-medium text-gray-900 mb-2">Качественное описание:</h5>
+                      <h5 className="font-medium text-gray-900 mb-2">{t('qualitativeDescription')}:</h5>
                       <p className="text-gray-700">{painPoint.qualitative_description}</p>
                     </div>
                   )}
 
                   {painPoint.ux_heuristics_violated && (
                     <div className="mb-3">
-                      <h5 className="font-medium text-gray-900 mb-2">Нарушенные UX принципы:</h5>
+                      <h5 className="font-medium text-gray-900 mb-2">{t('violatedUxPrinciples')}:</h5>
                       <div className="flex flex-wrap gap-2">
                         {painPoint.ux_heuristics_violated.map((heuristic: string, idx: number) => (
                           <Badge key={idx} variant="outline" className="bg-orange-50 text-orange-700 border-orange-200">
@@ -1313,12 +1313,12 @@ const NewFormatBusinessAnalytics: React.FC<{
                   
                   <div className="space-y-3">
                     <div>
-                      <h5 className="font-medium text-gray-900 mb-1">Проблема:</h5>
+                      <h5 className="font-medium text-gray-900 mb-1">{t('problem')}:</h5>
                       <p className="text-gray-700">{hypothesis.problem}</p>
                     </div>
                     
                     <div>
-                      <h5 className="font-medium text-gray-900 mb-1">Решение:</h5>
+                      <h5 className="font-medium text-gray-900 mb-1">{t('solution')}:</h5>
                       <p className="text-gray-700">{hypothesis.solution}</p>
                     </div>
                     
@@ -1336,14 +1336,14 @@ const NewFormatBusinessAnalytics: React.FC<{
                     
                     {hypothesis.expected_improvement && (
                       <div>
-                        <h5 className="font-medium text-gray-900 mb-1">Ожидаемое улучшение:</h5>
+                        <h5 className="font-medium text-gray-900 mb-1">{t('expectedImprovement')}:</h5>
                         <p className="text-gray-700">{hypothesis.expected_improvement}</p>
                       </div>
                     )}
                     
                     {hypothesis.metrics_to_track && (
                       <div>
-                        <h5 className="font-medium text-gray-900 mb-1">Метрики для отслеживания:</h5>
+                        <h5 className="font-medium text-gray-900 mb-1">{t('metricsForTracking')}:</h5>
                         <div className="flex flex-wrap gap-2">
                           {hypothesis.metrics_to_track.map((metric: string, idx: number) => (
                             <Badge key={idx} variant="outline" className="bg-gray-50 text-gray-700">
