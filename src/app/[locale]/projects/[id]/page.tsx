@@ -153,29 +153,23 @@ export default function ProjectDetailPage() {
         console.log('Screenshot uploaded:', screenshotUrl)
       }
 
-      // Объединяем контекст проекта, целевую аудиторию и контекст аудита
+      // ТЕСТИРУЕМ КАЖДЫЙ КОМПОНЕНТ КОНТЕКСТА ОТДЕЛЬНО
       const projectContext = project?.context || ''
       const projectTargetAudience = project?.target_audience || ''
       const auditContext = context || ''
       
-      // Формируем структурированный контекст БЕЗ разделителей
+      console.log('🔍 ОТДЕЛЬНЫЕ КОМПОНЕНТЫ КОНТЕКСТА:')
+      console.log('🔍 projectContext:', projectContext)
+      console.log('🔍 projectTargetAudience:', projectTargetAudience)
+      console.log('🔍 auditContext:', auditContext)
+      
+      // ВРЕМЕННО: используем только контекст проекта (без целевой аудитории)
       let combinedContext = ''
       if (projectContext) {
-        combinedContext += `Контекст проекта: ${projectContext}`
-      }
-      if (projectTargetAudience) {
-        if (combinedContext) combinedContext += '\n\n'
-        combinedContext += `Целевая аудитория: ${projectTargetAudience}`
-      }
-      if (auditContext) {
-        if (combinedContext) combinedContext += '\n\n'
-        combinedContext += `Дополнительный контекст: ${auditContext}`
+        combinedContext = `Контекст проекта: ${projectContext}`
       }
       
-      // Убираем лишние переносы строк
-      combinedContext = combinedContext.trim()
-      
-      console.log('🔍 Сформированный контекст для анализа:', combinedContext)
+      console.log('🔍 ТЕСТ: используем только контекст проекта:', combinedContext)
 
       // Создаем новый аудит с URL скриншота
       const audit = await createAudit(
