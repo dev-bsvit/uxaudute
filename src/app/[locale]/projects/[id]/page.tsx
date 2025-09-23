@@ -181,22 +181,33 @@ export default function ProjectDetailPage() {
       // ВОССТАНАВЛИВАЕМ НОРМАЛЬНУЮ ЛОГИКУ - БЕЗ ТЕСТОВЫХ ИЗМЕНЕНИЙ
       console.log('🔍 Оригинальные данные:', { url: data.url, screenshot: !!data.screenshot })
       
-      // ПОЛНОСТЬЮ УБИРАЕМ КОНТЕКСТ ДЛЯ ТЕСТИРОВАНИЯ
-      console.log('🔍 ТЕСТ: ПОЛНОСТЬЮ УБИРАЕМ КОНТЕКСТ ДЛЯ ПРОВЕРКИ')
+      // ТЕСТИРУЕМ ЧАСТИ КОНТЕКСТА ПО ОТДЕЛЬНОСТИ
+      console.log('🔍 ТЕСТ: ПРОВЕРЯЕМ ЧАСТИ КОНТЕКСТА ПО ОТДЕЛЬНОСТИ')
       
       const projectContext = project?.context || ''
       const projectTargetAudience = project?.target_audience || ''
       const auditContext = context || ''
       
-      console.log('🔍 КОМПОНЕНТЫ КОНТЕКСТА (отключены):')
+      console.log('🔍 КОМПОНЕНТЫ КОНТЕКСТА:')
       console.log('🔍 projectContext:', projectContext)
       console.log('🔍 projectTargetAudience:', projectTargetAudience)
       console.log('🔍 auditContext:', auditContext)
       
-      // ПРИНУДИТЕЛЬНО УБИРАЕМ КОНТЕКСТ
-      const combinedContext = ''
+      // ТЕСТИРУЕМ ТОЛЬКО ЦЕЛЕВУЮ АУДИТОРИЮ (без контекста проекта)
+      let combinedContext = ''
+      if (projectTargetAudience) {
+        const cleanAudience = projectTargetAudience.trim()
+        if (cleanAudience) {
+          // Если это просто числа, добавляем контекст
+          if (/^\d+\s*-\s*\d+$/.test(cleanAudience)) {
+            combinedContext = `Целевая аудитория: Возраст ${cleanAudience} лет`
+          } else {
+            combinedContext = `Целевая аудитория: ${cleanAudience}`
+          }
+        }
+      }
       
-      console.log('🔍 ИТОГОВЫЙ КОНТЕКСТ ДЛЯ GPT (ОТКЛЮЧЕН):', combinedContext)
+      console.log('🔍 ИТОГОВЫЙ КОНТЕКСТ ДЛЯ GPT (ТОЛЬКО АУДИТОРИЯ):', combinedContext)
       console.log('🔍 Длина контекста:', combinedContext.length, 'символов')
 
       // Создаем новый аудит с нормальными данными
