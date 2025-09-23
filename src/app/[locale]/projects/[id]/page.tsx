@@ -135,11 +135,24 @@ export default function ProjectDetailPage() {
   }
 
   const handleContextSubmit = async (context: string, uploadData?: { url?: string; screenshot?: string; provider?: string; openrouterModel?: string }) => {
-    if (!user || !project) return
+    console.log('🚀 handleContextSubmit ВЫЗВАНА!')
+    console.log('🚀 context:', context)
+    console.log('🚀 uploadData:', uploadData)
+    console.log('🚀 user:', !!user)
+    console.log('🚀 project:', !!project)
+    
+    if (!user || !project) {
+      console.log('❌ Ранний выход: нет user или project')
+      return
+    }
 
     const data = uploadData || pendingUploadData
-    if (!data) return
+    if (!data) {
+      console.log('❌ Ранний выход: нет данных')
+      return
+    }
 
+    console.log('✅ Продолжаем выполнение handleContextSubmit')
     setIsAnalyzing(true)
     setShowContextForm(false)
 
@@ -153,6 +166,19 @@ export default function ProjectDetailPage() {
         console.log('Screenshot uploaded:', screenshotUrl)
       }
 
+      // ТЕСТИРУЕМ БЕЗ СКРИНШОТА - ТОЛЬКО URL
+      console.log('🔍 ТЕСТ: принудительно используем URL вместо скриншота')
+      console.log('🔍 Оригинальные данные:', { url: data.url, screenshot: !!data.screenshot })
+      
+      // Принудительно убираем скриншот и используем только URL
+      const testData = {
+        ...data,
+        screenshot: null,
+        url: data.url || 'https://example.com' // Fallback URL если нет
+      }
+      
+      console.log('🔍 Тестовые данные:', { url: testData.url, screenshot: !!testData.screenshot })
+      
       // ВОССТАНАВЛИВАЕМ ПРАВИЛЬНУЮ ЛОГИКУ КОНТЕКСТА
       const projectContext = project?.context || ''
       const projectTargetAudience = project?.target_audience || ''
@@ -183,15 +209,15 @@ export default function ProjectDetailPage() {
       console.log('🔍 ИТОГОВЫЙ КОНТЕКСТ ДЛЯ GPT:', combinedContext)
       console.log('🔍 Длина контекста:', combinedContext.length, 'символов')
 
-      // Создаем новый аудит с URL скриншота
+      // Создаем новый аудит с тестовыми данными (без скриншота)
       const audit = await createAudit(
         projectId,
         `Анализ ${new Date().toLocaleDateString('ru-RU')}`,
         'research',
         {
-          url: data.url,
-          hasScreenshot: !!data.screenshot,
-          screenshotUrl: screenshotUrl,
+          url: testData.url,
+          hasScreenshot: false, // Принудительно отключаем скриншот
+          screenshotUrl: null,
           timestamp: new Date().toISOString()
         },
         combinedContext
