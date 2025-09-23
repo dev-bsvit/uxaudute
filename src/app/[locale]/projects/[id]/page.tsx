@@ -181,22 +181,57 @@ export default function ProjectDetailPage() {
       // ВОССТАНАВЛИВАЕМ НОРМАЛЬНУЮ ЛОГИКУ - БЕЗ ТЕСТОВЫХ ИЗМЕНЕНИЙ
       console.log('🔍 Оригинальные данные:', { url: data.url, screenshot: !!data.screenshot })
       
-      // ТЕСТИРУЕМ БЕЗ КОНТЕКСТА - ПОЛНОСТЬЮ ОТКЛЮЧАЕМ
-      console.log('🔍 ТЕСТ: ПОЛНОСТЬЮ ОТКЛЮЧАЕМ КОНТЕКСТ ДЛЯ ДИАГНОСТИКИ')
+      // ВОССТАНАВЛИВАЕМ КОНТЕКСТ С ИСПРАВЛЕНИЯМИ
+      console.log('🔍 ВОССТАНАВЛИВАЕМ КОНТЕКСТ С ИСПРАВЛЕНИЯМИ')
       
       const projectContext = project?.context || ''
       const projectTargetAudience = project?.target_audience || ''
       const auditContext = context || ''
       
-      console.log('🔍 КОМПОНЕНТЫ КОНТЕКСТА (отключены):')
+      console.log('🔍 КОМПОНЕНТЫ КОНТЕКСТА:')
       console.log('🔍 projectContext:', projectContext)
       console.log('🔍 projectTargetAudience:', projectTargetAudience)
       console.log('🔍 auditContext:', auditContext)
       
-      // ПРИНУДИТЕЛЬНО УБИРАЕМ КОНТЕКСТ
-      const combinedContext = ''
+      // Формируем структурированный контекст с исправлениями
+      let combinedContext = ''
+      if (projectContext) {
+        // Исправляем опечатки и улучшаем формат
+        const cleanContext = projectContext
+          .replace(/для для/g, 'для') // Убираем двойное "для"
+          .replace(/^\s*$/, '') // Убираем пустые строки
+          .trim()
+        
+        if (cleanContext) {
+          combinedContext += `Контекст проекта: ${cleanContext}`
+        }
+      }
+      if (projectTargetAudience) {
+        // Улучшаем формат целевой аудитории
+        const cleanAudience = projectTargetAudience
+          .replace(/^\s*$/, '') // Убираем пустые строки
+          .trim()
+        
+        if (cleanAudience) {
+          // Если это просто числа, добавляем контекст
+          if (/^\d+\s*-\s*\d+$/.test(cleanAudience)) {
+            combinedContext += `\n\nЦелевая аудитория: Возраст ${cleanAudience} лет`
+          } else {
+            combinedContext += `\n\nЦелевая аудитория: ${cleanAudience}`
+          }
+        }
+      }
+      if (auditContext) {
+        const cleanAuditContext = auditContext.trim()
+        if (cleanAuditContext) {
+          combinedContext += `\n\nДополнительный контекст: ${cleanAuditContext}`
+        }
+      }
       
-      console.log('🔍 ИТОГОВЫЙ КОНТЕКСТ ДЛЯ GPT (ОТКЛЮЧЕН):', combinedContext)
+      // Убираем лишние переносы строк
+      combinedContext = combinedContext.trim()
+      
+      console.log('🔍 ИТОГОВЫЙ КОНТЕКСТ ДЛЯ GPT (ИСПРАВЛЕННЫЙ):', combinedContext)
       console.log('🔍 Длина контекста:', combinedContext.length, 'символов')
 
       // Создаем новый аудит с нормальными данными
