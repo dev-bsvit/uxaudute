@@ -409,6 +409,7 @@ Static screenshot of the screen (required) + if possible, task context and targe
 - **MANDATORY: uxSurvey.questions must contain EXACTLY 5 questions - NO LESS!**
 - **MANDATORY: audience.fears must contain EXACTLY 5 fears - NO LESS!**
 - **MANDATORY: problemsAndSolutions must contain EXACTLY 3 problems - NO LESS!**
+- **MANDATORY:** Each problem must contain ALL fields: element, problem, principle, consequence, recommendation, expectedEffect, priority
 - **MANDATORY:** Use different question categories: clarity, usability, accessibility, conversion, trust
 - **MANDATORY:** Each problem has different priority: high, medium, low
 - **MANDATORY:** If you don't generate minimum quantity - this is an ERROR!

@@ -409,6 +409,7 @@
 - **ОБОВ'ЯЗКОВО: uxSurvey.questions має містити РІВНО 5 питань - НЕ МЕНШЕ!**
 - **ОБОВ'ЯЗКОВО: audience.fears має містити РІВНО 5 страхів - НЕ МЕНШЕ!**
 - **ОБОВ'ЯЗКОВО: problemsAndSolutions має містити РІВНО 3 проблеми - НЕ МЕНШЕ!**
+- **ОБОВ'ЯЗКОВО:** Кожна проблема має містити ВСІ поля: element, problem, principle, consequence, recommendation, expectedEffect, priority
 - **ОБОВ'ЯЗКОВО:** Використовуйте різні категорії питань: clarity, usability, accessibility, conversion, trust
 - **ОБОВ'ЯЗКОВО:** Кожна проблема має різний приоритет: high, medium, low
 - **ОБОВ'ЯЗКОВО:** Якщо не генеруєте мінімальну кількість - це ПОМИЛКА!
