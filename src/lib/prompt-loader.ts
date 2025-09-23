@@ -58,8 +58,31 @@ export async function loadJSONPromptV2(locale: string = 'ru'): Promise<string> {
     else if (locale === 'en') fileName = 'json-structured-prompt-en.md'
     
     console.log(`📁 Ищем файл: ${fileName}`)
-    const promptPath = join(process.cwd(), 'prompts', fileName)
-    console.log(`📂 Полный путь: ${promptPath}`)
+    
+    // Попробуем разные пути
+    const possiblePaths = [
+      join(process.cwd(), 'prompts', fileName),
+      join(process.cwd(), 'src', 'prompts', fileName),
+      join(process.cwd(), fileName),
+      join(__dirname, '..', '..', 'prompts', fileName)
+    ]
+    
+    let promptPath = null
+    const fs = require('fs')
+    
+    for (const path of possiblePaths) {
+      console.log(`🔍 Проверяем путь: ${path}`)
+      if (fs.existsSync(path)) {
+        promptPath = path
+        console.log(`✅ Файл найден: ${path}`)
+        break
+      }
+    }
+    
+    if (!promptPath) {
+      console.error(`❌ Файл не найден ни в одном из путей:`, possiblePaths)
+      throw new Error(`Файл не найден: ${fileName}`)
+    }
     
     const prompt = readFileSync(promptPath, 'utf-8')
     console.log(`✅ Загружен промпт для локали ${locale}: ${fileName}, размер: ${prompt.length} байт`)
