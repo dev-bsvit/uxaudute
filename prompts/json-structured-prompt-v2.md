@@ -411,7 +411,9 @@
 - **ВАЖНО: uxSurvey.questions должен содержать РОВНО 5 вопросов**
 - **ВАЖНО: audience.fears должен содержать РОВНО 5 страхов**
 - **ВАЖНО: problemsAndSolutions должен содержать РОВНО 3 проблемы**
-- **ВАЖНО:** Каждая проблема должна содержать ВСЕ поля: element, problem, principle, consequence, recommendation, expectedEffect, priority
+- **КРИТИЧНО:** Каждая проблема должна содержать ВСЕ поля: element, problem, principle, consequence, recommendation, expectedEffect, priority
+- **КРИТИЧНО:** Поле "consequence" описывает, что произойдет, если проблему не решить
+- **КРИТИЧНО:** Поле "expectedEffect" описывает ожидаемый результат после внедрения рекомендации
 - **ВАЖНО:** Используйте разные категории вопросов: clarity, usability, accessibility, conversion, trust
 - **ВАЖНО:** Каждая проблема должна иметь разный приоритет: high, medium, low
 

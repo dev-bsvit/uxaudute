@@ -409,7 +409,9 @@
 - **ВАЖЛИВО: uxSurvey.questions має містити РІВНО 5 питань**
 - **ВАЖЛИВО: audience.fears має містити РІВНО 5 страхів**
 - **ВАЖЛИВО: problemsAndSolutions має містити РІВНО 3 проблеми**
-- **ВАЖЛИВО:** Кожна проблема має містити ВСІ поля: element, problem, principle, consequence, recommendation, expectedEffect, priority
+- **КРИТИЧНО:** Кожна проблема має містити ВСІ поля: element, problem, principle, consequence, recommendation, expectedEffect, priority
+- **КРИТИЧНО:** Поле "consequence" описує, що станеться, якщо проблему не вирішити
+- **КРИТИЧНО:** Поле "expectedEffect" описує очікуваний результат після впровадження рекомендації
 - **ВАЖЛИВО:** Використовуйте різні категорії питань: clarity, usability, accessibility, conversion, trust
 - **ВАЖЛИВО:** Кожна проблема має різний приоритет: high, medium, low
 

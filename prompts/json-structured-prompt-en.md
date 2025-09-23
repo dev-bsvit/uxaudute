@@ -409,7 +409,9 @@ Static screenshot of the screen (required) + if possible, task context and targe
 - **IMPORTANT: uxSurvey.questions must contain EXACTLY 5 questions**
 - **IMPORTANT: audience.fears must contain EXACTLY 5 fears**
 - **IMPORTANT: problemsAndSolutions must contain EXACTLY 3 problems**
-- **IMPORTANT:** Each problem must contain ALL fields: element, problem, principle, consequence, recommendation, expectedEffect, priority
+- **CRITICAL:** Each problem must contain ALL fields: element, problem, principle, consequence, recommendation, expectedEffect, priority
+- **CRITICAL:** The "consequence" field describes what happens if the problem is not fixed
+- **CRITICAL:** The "expectedEffect" field describes the expected outcome after implementing the recommendation
 - **IMPORTANT:** Use different question categories: clarity, usability, accessibility, conversion, trust
 - **IMPORTANT:** Each problem has different priority: high, medium, low
 
