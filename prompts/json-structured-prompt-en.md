@@ -43,49 +43,49 @@ Static screenshot of the screen (required) + if possible, task context and targe
   },
   "uxSurvey": {
     "dynamicQuestionsAdded": true,
-    "screenType": "лендинг",
+    "screenType": "landing page",
     "questions": [
       {
         "id": 1,
-        "question": "Какова основная цель этой страницы?",
+        "question": "What is the main purpose of this page?",
         "options": [
-          "A) Зарегистрироваться/войти в систему",
-          "B) Получить информацию о продукте",
-          "C) Совершить покупку/заказ"
+          "A) Register/login to the system",
+          "B) Get product information",
+          "C) Make a purchase/order"
         ],
         "scores": [70, 20, 10],
         "confidence": 85,
         "category": "clarity",
-        "principle": "Принцип ясности цели (Goal Clarity)",
-        "explanation": "Пользователь должен понимать, зачем он на этой странице"
+        "principle": "Goal Clarity Principle",
+        "explanation": "User should understand why they are on this page"
       },
       {
         "id": 2,
-        "question": "Насколько экран вызывает доверие?",
+        "question": "How much does this screen inspire trust?",
         "options": [
-          "A) Высокое доверие",
-          "B) Среднее доверие",
-          "C) Низкое доверие"
+          "A) High trust",
+          "B) Medium trust",
+          "C) Low trust"
         ],
         "scores": [60, 30, 10],
         "confidence": 80,
         "category": "trust",
-        "principle": "Принцип доверия (Trust Building)",
-        "explanation": "Контекстный вопрос для лендинга - доверие критично для конверсии"
+        "principle": "Trust Building Principle",
+        "explanation": "Contextual question for landing page - trust is critical for conversion"
       },
       {
-        "id": 2,
-        "question": "Насколько ясно, что нужно сделать далее?",
+        "id": 3,
+        "question": "How clear is it what to do next?",
         "options": [
-          "A) Совершенно ясно",
-          "B) Частично ясно", 
-          "C) Не ясно"
+          "A) Completely clear",
+          "B) Partially clear",
+          "C) Not clear"
         ],
         "scores": [60, 30, 10],
         "confidence": 80,
         "category": "usability",
-        "principle": "Принцип видимости следующего шага (Next Step Visibility)",
-        "explanation": "Пользователь должен понимать, как продолжить взаимодействие"
+        "principle": "Next Step Visibility Principle",
+        "explanation": "User should understand how to continue interaction"
       },
       {
         "id": 3,
