@@ -125,11 +125,23 @@ export default function ProjectDetailPage() {
   }
 
   const handleCreateAudit = async (data: { url?: string; screenshot?: string; context?: string }) => {
-    if (!user || !project) return
+    console.log('🚀 handleCreateAudit ВЫЗВАНА!')
+    console.log('🚀 Данные:', data)
+    console.log('🚀 context:', data.context)
+    console.log('🚀 url:', data.url)
+    console.log('🚀 screenshot:', !!data.screenshot)
+    console.log('🚀 user:', !!user)
+    console.log('🚀 project:', !!project)
+    
+    if (!user || !project) {
+      console.log('❌ Ранний выход из handleCreateAudit: нет user или project')
+      return
+    }
 
     setUploadedScreenshot(data.screenshot || null)
     setAnalysisUrl(data.url || null)
 
+    console.log('✅ Вызываем handleContextSubmit из handleCreateAudit')
     // Сразу запускаем анализ с контекстом
     await handleContextSubmit(data.context || '', data)
   }
