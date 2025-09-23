@@ -28,10 +28,21 @@ export function combineWithContext(mainPrompt: string, context?: string): string
     return mainPrompt
   }
 
+  // Очищаем контекст от потенциально проблемных фраз
+  let cleanContext = context
+    .replace(/для для/g, 'для') // Исправляем дублирование
+    .replace(/мед фак/g, 'медицинский факт') // Исправляем сокращения
+    .replace(/богатых/g, 'состоятельных') // Мягче формулировка
+    .replace(/пенсионеров/g, 'пользователей старшего возраста') // Мягче формулировка
+    .trim()
+
+  console.log('🔍 ОРИГИНАЛЬНЫЙ КОНТЕКСТ:', context)
+  console.log('🔍 ОЧИЩЕННЫЙ КОНТЕКСТ:', cleanContext)
+
   return `${mainPrompt}
 
 ## Дополнительный контекст
-${context}
+${cleanContext}
 
 Учти этот контекст при анализе и адаптируй вопросы под специфику бизнеса и аудитории.`
 }

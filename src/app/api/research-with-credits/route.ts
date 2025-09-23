@@ -82,8 +82,8 @@ export async function POST(request: NextRequest) {
       console.log('Используем стандартный промпт v2 для локали:', locale)
     }
     
-    const finalPrompt = combineWithContext(jsonPrompt, context)
-    console.log('Финальный промпт готов, длина:', finalPrompt.length)
+    console.log('🔍 КОНТЕКСТ ДЛЯ АНАЛИЗА:', context)
+    console.log('🔍 ДЛИНА КОНТЕКСТА:', context?.length || 0)
 
     let analysisResult: AIResponse | null = null
 
