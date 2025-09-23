@@ -1258,9 +1258,23 @@ const NewFormatBusinessAnalytics: React.FC<{
                   )}
 
                   {painPoint.business_impact && (
-                    <div>
+                    <div className="mb-3">
                       <h5 className="font-medium text-gray-900 mb-2">Влияние на бизнес:</h5>
                       <p className="text-gray-700">{painPoint.business_impact}</p>
+                    </div>
+                  )}
+
+                  {painPoint.consequence && (
+                    <div className="mb-3">
+                      <h5 className="font-medium text-gray-900 mb-2">Последствие:</h5>
+                      <p className="text-gray-700">{painPoint.consequence}</p>
+                    </div>
+                  )}
+
+                  {painPoint.expected_effect && (
+                    <div>
+                      <h5 className="font-medium text-gray-900 mb-2">Ожидаемый эффект:</h5>
+                      <p className="text-gray-700">{painPoint.expected_effect}</p>
                     </div>
                   )}
                 </div>
