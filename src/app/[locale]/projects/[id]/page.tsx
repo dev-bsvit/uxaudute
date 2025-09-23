@@ -153,32 +153,29 @@ export default function ProjectDetailPage() {
         console.log('Screenshot uploaded:', screenshotUrl)
       }
 
-      // ВРЕМЕННО: отключаем контекст для тестирования
-      const combinedContext = ''
-      console.log('🔍 ВРЕМЕННО: контекст отключен для тестирования')
+      // Объединяем контекст проекта, целевую аудиторию и контекст аудита
+      const projectContext = project?.context || ''
+      const projectTargetAudience = project?.target_audience || ''
+      const auditContext = context || ''
       
-      // Оригинальный код (закомментирован):
-      // // Объединяем контекст проекта, целевую аудиторию и контекст аудита
-      // const projectContext = project?.context || ''
-      // const projectTargetAudience = project?.target_audience || ''
-      // const auditContext = context || ''
-      // 
-      // // Формируем структурированный контекст
-      // let combinedContext = ''
-      // if (projectContext) {
-      //   combinedContext += `Контекст проекта: ${projectContext}\n\n`
-      // }
-      // if (projectTargetAudience) {
-      //   combinedContext += `Целевая аудитория: ${projectTargetAudience}\n\n`
-      // }
-      // if (auditContext) {
-      //   combinedContext += `Дополнительный контекст: ${auditContext}`
-      // }
-      // 
-      // // Убираем лишние переносы строк
-      // combinedContext = combinedContext.trim()
-      // 
-      // console.log('🔍 Сформированный контекст для анализа:', combinedContext)
+      // Формируем структурированный контекст БЕЗ разделителей
+      let combinedContext = ''
+      if (projectContext) {
+        combinedContext += `Контекст проекта: ${projectContext}`
+      }
+      if (projectTargetAudience) {
+        if (combinedContext) combinedContext += '\n\n'
+        combinedContext += `Целевая аудитория: ${projectTargetAudience}`
+      }
+      if (auditContext) {
+        if (combinedContext) combinedContext += '\n\n'
+        combinedContext += `Дополнительный контекст: ${auditContext}`
+      }
+      
+      // Убираем лишние переносы строк
+      combinedContext = combinedContext.trim()
+      
+      console.log('🔍 Сформированный контекст для анализа:', combinedContext)
 
       // Создаем новый аудит с URL скриншота
       const audit = await createAudit(
