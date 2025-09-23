@@ -90,6 +90,7 @@ export async function POST(request: NextRequest) {
     if (url) {
       // Анализ URL
       console.log('Запускаем анализ URL:', url)
+      console.log('🔍 Промпт для анализа URL (первые 500 символов):', finalPrompt.substring(0, 500))
       analysisResult = await executeAIRequest(
         [{ role: 'user', content: finalPrompt }],
         {
@@ -101,6 +102,8 @@ export async function POST(request: NextRequest) {
     } else if (screenshot) {
       // Анализ скриншота через GPT-4o Vision
       console.log('Запускаем анализ скриншота через GPT-4o Vision')
+      console.log('🔍 Промпт для анализа скриншота (первые 500 символов):', finalPrompt.substring(0, 500))
+      console.log('🔍 Скриншот (первые 100 символов):', screenshot.substring(0, 100))
       analysisResult = await executeAIRequest(
         [{ 
           role: 'user', 
@@ -132,6 +135,7 @@ export async function POST(request: NextRequest) {
     }
 
     console.log('Анализ завершен, результат:', Object.keys(analysisResult || {}))
+    console.log('🔍 Полный ответ от AI:', JSON.stringify(analysisResult, null, 2))
     
     // Логируем использование токенов
     if (analysisResult && typeof analysisResult === 'object' && 'usage' in analysisResult) {
