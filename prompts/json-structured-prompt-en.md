@@ -116,46 +116,46 @@ Static screenshot of the screen (required) + if possible, task context and targe
         "explanation": "Interface should minimize cognitive load"
       },
       {
-        "id": 5,
-        "question": "Что произойдёт, если ничего не сделать?",
+        "id": 6,
+        "question": "What will happen if you do nothing?",
         "options": [
-          "A) Ничего критичного",
-          "B) Пропущу важный шаг",
-          "C) Потеряю данные/деньги"
+          "A) Nothing critical",
+          "B) Miss important step",
+          "C) Lose data/money"
         ],
         "scores": [10, 30, 60],
         "confidence": 85,
         "category": "conversion",
-        "principle": "Принцип мотивации к действию (Action Motivation)",
-        "explanation": "Пользователь должен понимать ценность выполнения действия"
+        "principle": "Action Motivation Principle",
+        "explanation": "User should understand the value of performing the action"
       },
       {
-        "id": 6,
-        "question": "Насколько легко найти нужную информацию?",
+        "id": 7,
+        "question": "How easy is it to find the needed information?",
         "options": [
-          "A) Очень легко",
-          "B) Затруднительно",
-          "C) Невозможно"
+          "A) Very easy",
+          "B) Difficult",
+          "C) Impossible"
         ],
         "scores": [50, 35, 15],
         "confidence": 75,
         "category": "navigation",
-        "principle": "Принцип информационной архитектуры (Information Architecture)",
-        "explanation": "Информация должна быть логично организована и легко находима"
+        "principle": "Information Architecture Principle",
+        "explanation": "Information should be logically organized and easily findable"
       },
       {
-        "id": 7,
-        "question": "Доступны ли все элементы для пользователей с ограниченными возможностями?",
+        "id": 8,
+        "question": "Are all elements accessible to users with disabilities?",
         "options": [
-          "A) Полностью доступны",
-          "B) Частично доступны",
-          "C) Недоступны"
+          "A) Fully accessible",
+          "B) Partially accessible",
+          "C) Not accessible"
         ],
         "scores": [30, 50, 20],
         "confidence": 80,
         "category": "accessibility",
-        "principle": "WCAG 2.2 - Доступность (Accessibility)",
-        "explanation": "Интерфейс должен быть доступен для всех пользователей"
+        "principle": "WCAG 2.2 - Accessibility",
+        "explanation": "Interface should be accessible to all users"
       }
     ],
     "overallConfidence": 82,
