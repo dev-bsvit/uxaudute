@@ -35,6 +35,7 @@ import {
 } from 'lucide-react'
 import { BackArrow } from '@/components/icons/back-arrow'
 import { type ActionType } from '@/lib/utils'
+import { getAuditDisplayTitle } from '@/lib/audit-utils'
 
 interface Project {
   id: string
@@ -544,7 +545,7 @@ export default function ProjectDetailPage() {
                         >
                           <div className="flex-1">
                             <div className="flex items-center gap-3 mb-2">
-                              <h3 className="font-medium text-slate-900">{audit.name}</h3>
+                              <h3 className="font-medium text-slate-900">{getAuditDisplayTitle(audit)}</h3>
                               <Badge className={getStatusColor(audit.status)}>
                                 {audit.status === 'completed' ? t('projectDetail.completed') : 
                                  audit.status === 'in_progress' ? t('projectDetail.inProgress') : 
