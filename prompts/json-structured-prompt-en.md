@@ -170,42 +170,42 @@ Static screenshot of the screen (required) + if possible, task context and targe
     }
   },
   "audience": {
-    "targetAudience": "Целевая аудитория - описать целевой портрет пользователя в 1-2 абзаца с детальным описанием демографии, потребностей, поведения и контекста использования продукта",
-    "mainPain": "Основная боль - описать главную проблему, которую решает продукт для пользователей в 1 абзаце с пояснениями и контекстом",
+    "targetAudience": "Target audience - describe target user portrait in 1-2 paragraphs with detailed description of demographics, needs, behavior and product usage context",
+    "mainPain": "Main pain - describe the main problem that the product solves for users in 1 paragraph with explanations and context",
     "fears": [
-      "Страх 1 - короткое предложение с описанием первого страха пользователей",
-      "Страх 2 - короткое предложение с описанием второго страха пользователей",
-      "Страх 3 - короткое предложение с описанием третьего страха пользователей",
-      "Страх 4 - короткое предложение с описанием четвертого страха пользователей",
-      "Страх 5 - короткое предложение с описанием пятого страха пользователей"
+      "Fear 1 - short sentence describing the first user fear",
+      "Fear 2 - short sentence describing the second user fear",
+      "Fear 3 - short sentence describing the third user fear",
+      "Fear 4 - short sentence describing the fourth user fear",
+      "Fear 5 - short sentence describing the fifth user fear"
     ]
   },
   "behavior": {
     "userScenarios": {
-      "idealPath": "Идеальный путь - описать оптимальный сценарий взаимодействия пользователя с интерфейсом",
-      "typicalError": "Типичная ошибка - описать наиболее частую ошибку пользователей и её причины",
-      "alternativeWorkaround": "Альтернативный обход - описать как пользователи обходят проблемы, если они возникают"
+      "idealPath": "Ideal path - describe optimal user interaction scenario with the interface",
+      "typicalError": "Typical error - describe the most common user error and its causes",
+      "alternativeWorkaround": "Alternative workaround - describe how users bypass problems if they occur"
     },
-    "behavioralPatterns": "Поведенческие паттерны - описать как пользователи обычно ведут себя на этом экране в 1 абзаце, включая привычки, предпочтения и типичные ошибки",
+    "behavioralPatterns": "Behavioral patterns - describe how users typically behave on this screen in 1 paragraph, including habits, preferences and typical errors",
     "frictionPoints": [
       {
-        "point": "Точка трения 1 - короткое описание первого места, где пользователи испытывают сложности",
+        "point": "Friction point 1 - short description of the first place where users experience difficulties",
         "impact": "major"
       },
       {
-        "point": "Точка трения 2 - короткое описание второго места, где пользователи испытывают сложности",
+        "point": "Friction point 2 - short description of the second place where users experience difficulties",
         "impact": "minor"
       },
       {
-        "point": "Точка трения 3 - короткое описание третьего места, где пользователи испытывают сложности",
+        "point": "Friction point 3 - short description of the third place where users experience difficulties",
         "impact": "major"
       },
       {
-        "point": "Точка трения 4 - короткое описание четвертого места, где пользователи испытывают сложности",
+        "point": "Friction point 4 - short description of the fourth place where users experience difficulties",
         "impact": "minor"
       }
     ],
-    "actionMotivation": "Мотивация к действию - описать что побуждает пользователей выполнять целевые действия в 1 абзаце, включая триггеры и стимулы"
+    "actionMotivation": "Action motivation - describe what motivates users to perform target actions in 1 paragraph, including triggers and incentives"
   },
   "problemsAndSolutions": [
     {
