@@ -184,21 +184,27 @@ function getJSONFallbackPrompt(locale: string = 'ru'): string {
       "element": "Элемент 1",
       "problem": "Проблема 1",
       "principle": "Нарушенный принцип UX",
+      "consequence": "Что произойдет, если проблему не решить",
       "recommendation": "Конкретная рекомендация",
+      "expectedEffect": "Ожидаемый результат после внедрения рекомендации",
       "priority": "high"
     },
     {
       "element": "Элемент 2",
       "problem": "Проблема 2",
       "principle": "Нарушенный принцип UX",
+      "consequence": "Что произойдет, если проблему не решить",
       "recommendation": "Конкретная рекомендация",
+      "expectedEffect": "Ожидаемый результат после внедрения рекомендации",
       "priority": "medium"
     },
     {
       "element": "Элемент 3",
       "problem": "Проблема 3",
       "principle": "Нарушенный принцип UX",
+      "consequence": "Что произойдет, если проблему не решить",
       "recommendation": "Конкретная рекомендация",
+      "expectedEffect": "Ожидаемый результат после внедрения рекомендации",
       "priority": "low"
     }
   ],
