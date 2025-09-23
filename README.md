@@ -157,4 +157,4 @@ git push origin main  # Деплой
 
 ## 📝 Лицензия
 
-MIT License - см. [LICENSE](LICENSE) файл для деталей.
+MIT License - см. [LICENSE](LICENSE) файл для деталей.# Force Vercel update Tue Sep 23 15:00:33 CEST 2025
