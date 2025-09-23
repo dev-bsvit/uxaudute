@@ -157,9 +157,23 @@ export default function ProjectDetailPage() {
       const projectContext = project?.context || ''
       const projectTargetAudience = project?.target_audience || ''
       const auditContext = context || ''
-      const combinedContext = [projectContext, projectTargetAudience, auditContext]
-        .filter(Boolean)
-        .join('\n\n---\n\n')
+      
+      // Формируем структурированный контекст
+      let combinedContext = ''
+      if (projectContext) {
+        combinedContext += `Контекст проекта: ${projectContext}\n\n`
+      }
+      if (projectTargetAudience) {
+        combinedContext += `Целевая аудитория: ${projectTargetAudience}\n\n`
+      }
+      if (auditContext) {
+        combinedContext += `Дополнительный контекст: ${auditContext}`
+      }
+      
+      // Убираем лишние переносы строк
+      combinedContext = combinedContext.trim()
+      
+      console.log('🔍 Сформированный контекст для анализа:', combinedContext)
 
       // Создаем новый аудит с URL скриншота
       const audit = await createAudit(
