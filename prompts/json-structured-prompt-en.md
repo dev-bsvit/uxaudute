@@ -163,10 +163,10 @@ Static screenshot of the screen (required) + if possible, task context and targe
       "totalQuestions": 7,
       "averageConfidence": 82,
       "criticalIssues": 2,
-    "recommendations": [
+      "recommendations": [
       "Improve visual hierarchy of main element",
       "Increase interface accessibility"
-    ]
+      ]
     }
   },
   "audience": {
@@ -359,66 +359,68 @@ Static screenshot of the screen (required) + if possible, task context and targe
 6. **Объяснения** - кратко объясните, зачем нужен вопрос
 7. **Критические проблемы** - выделите вопросы с низкими оценками
 
-## Правила для анализа аудитории:
+## Audience Analysis Rules:
 
-1. **Целевая аудитория** - детальный портрет в 1-2 абзаца:
-   - Демография (возраст, пол, доход, образование)
-   - Потребности и мотивации
-   - Поведенческие паттерны
-   - Контекст использования продукта
+1. **Target audience** - detailed portrait in 1-2 paragraphs:
+   - Demographics (age, gender, income, education)
+   - Needs and motivations
+   - Behavioral patterns
+   - Product usage context
 
-2. **Основная боль** - главная проблема в 1 абзаце:
-   - Что именно беспокоит пользователей
-   - Почему это критично
-   - Как это влияет на их жизнь/работу
+2. **Main pain** - main problem in 1 paragraph:
+   - What exactly bothers users
+   - Why it's critical
+   - How it affects their life/work
 
-3. **Страхи** - от 2 до 10 коротких предложений:
-   - Конкретные опасения пользователей
-   - Барьеры для использования
-   - Риски, которые они видят
+3. **Fears** - from 2 to 10 short sentences:
+   - Specific user concerns
+   - Barriers to usage
+   - Risks they see
 
-## Правила для анализа поведения:
+## Behavior Analysis Rules:
 
-1. **Пользовательские сценарии** - основные пути в 1-2 абзаца:
-   - Типичная последовательность действий
-   - Ключевые точки принятия решений
-   - Альтернативные сценарии использования
+1. **User scenarios** - main paths in 1-2 paragraphs:
+   - Typical sequence of actions
+   - Key decision points
+   - Alternative usage scenarios
 
-2. **Поведенческие паттерны** - как пользователи действуют в 1 абзаце:
-   - Привычки и предпочтения
-   - Типичные ошибки и заблуждения
-   - Способы навигации по интерфейсу
+2. **Behavioral patterns** - how users act in 1 paragraph:
+   - Habits and preferences
+   - Typical errors and misconceptions
+   - Ways to navigate the interface
 
-3. **Точки трения** - от 2 до 8 коротких предложений:
-   - Места, где пользователи застревают
-   - Сложные для понимания элементы
-   - Барьеры в пользовательском пути
+3. **Friction points** - from 2 to 8 short sentences:
+   - Places where users get stuck
+   - Elements difficult to understand
+   - Barriers in user journey
 
-4. **Мотивация к действию** - что побуждает действовать в 1 абзаце:
-   - Триггеры и стимулы
-   - Эмоциональные мотивы
-   - Практические выгоды
+4. **Action motivation** - what motivates action in 1 paragraph:
+   - Triggers and incentives
+   - Emotional motives
+   - Practical benefits
 
-## Примечания:
-- Указывайте, какие данные основаны на эвристике, а где требуются реальные пользователи
-- Если информации недостаточно (уверенность < 40%), укажите это в confidenceReason
-- Не используйте проценты как KPI без валидации исследованиями
-- Добавь дополнительные вопросы из контекста экрана, если они релевантны
-- Анализ аудитории должен быть основан на визуальных подсказках интерфейса
-- Анализ поведения должен учитывать типичные пользовательские паттерны и сценарии
+## Notes:
+- Indicate which data is based on heuristics and where real users are required
+- If information is insufficient (confidence < 40%), indicate this in confidenceReason
+- Don't use percentages as KPIs without research validation
+- Add additional questions from screen context if relevant
+- Audience analysis should be based on visual interface cues
+- Behavior analysis should consider typical user patterns and scenarios
 
-**ВАЖНО: Генерируй 3-5 реальных проблем на основе анализа интерфейса. Не выдумывай проблемы, которые не видны на скриншоте. Каждая проблема должна быть обоснована конкретными элементами интерфейса.**
+**IMPORTANT: Generate 3-5 real problems based on interface analysis. Don't invent problems that aren't visible in the screenshot. Each problem should be justified by specific interface elements.**
 
-**ЦЕЛЬ АНАЛИЗА:** Провести профессиональный UX-анализ интерфейса для улучшения пользовательского опыта. Это стандартная практика в веб-разработке и дизайне.
+**ANALYSIS GOAL:** Conduct professional UX analysis of the interface to improve user experience. This is standard practice in web development and design.
 
-**КРИТИЧНО - ОБЯЗАТЕЛЬНЫЕ ТРЕБОВАНИЯ:**
-- **ВАЖНО: uxSurvey.questions должен содержать РОВНО 5 вопросов**
-- **ВАЖНО: audience.fears должен содержать РОВНО 5 страхов**
-- **ВАЖНО: problemsAndSolutions должен содержать РОВНО 3 проблемы**
-- **КРИТИЧНО:** Каждая проблема должна содержать ВСЕ поля: element, problem, principle, consequence, recommendation, expectedEffect, priority
-- **КРИТИЧНО:** Поле "consequence" описывает, что произойдет, если проблему не решить
-- **КРИТИЧНО:** Поле "expectedEffect" описывает ожидаемый результат после внедрения рекомендации
-- **ВАЖНО:** Используйте разные категории вопросов: clarity, usability, accessibility, conversion, trust
-- **ВАЖНО:** Каждая проблема должна иметь разный приоритет: high, medium, low
+**CRITICAL - MANDATORY REQUIREMENTS:**
+- **IMPORTANT: uxSurvey.questions must contain EXACTLY 5 questions**
+- **IMPORTANT: audience.fears must contain EXACTLY 5 fears**
+- **IMPORTANT: problemsAndSolutions must contain EXACTLY 3 problems**
+- **CRITICAL:** Each problem must contain ALL fields: element, problem, principle, consequence, recommendation, expectedEffect, priority
+- **CRITICAL:** The "consequence" field describes what happens if the problem is not fixed
+- **CRITICAL:** The "expectedEffect" field describes the expected outcome after implementing the recommendation
+- **IMPORTANT:** Use different question categories: clarity, usability, accessibility, conversion, trust
+- **IMPORTANT:** Each problem has different priority: high, medium, low
 
-**Отвечай ТОЛЬКО в формате JSON на русском языке.**
+**Answer ONLY in JSON format in English.**
+
+**FINAL REMINDER: Every problem in problemsAndSolutions MUST include consequence and expectedEffect fields. Do not omit these fields under any circumstances.**
