@@ -26,9 +26,8 @@ Static screenshot of the screen (required) + if possible, task context and targe
 4. DO NOT add explanations or comments
 5. Start response immediately with { and end with }
 6. Ensure JSON is valid and complete
-7. Use response_format: {"type": "json_object"} for correct JSON output
-8. All strings must be in quotes, numbers without quotes
-9. Arrays in square brackets [], objects in curly braces {}**
+7. All strings must be in quotes, numbers without quotes
+8. Arrays in square brackets [], objects in curly braces {}**
 
 ```json
 {
