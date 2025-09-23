@@ -209,62 +209,62 @@ Static screenshot of the screen (required) + if possible, task context and targe
   },
   "problemsAndSolutions": [
     {
-      "element": "Кнопка 'Зарегистрироваться'",
-      "problem": "Низкая видимость CTA кнопки",
-      "principle": "Принцип видимости (Visibility of System Status)",
-      "consequence": "Пользователи могут не заметить основной призыв к действию",
+      "element": "Register button",
+      "problem": "Low visibility of CTA button",
+      "principle": "Visibility of System Status",
+      "consequence": "Users may not notice the main call-to-action",
       "businessImpact": {
         "metric": "conversion",
         "impactLevel": "high",
-        "description": "Сложная форма → высокий drop-off → меньше регистраций"
+        "description": "Complex form → high drop-off → fewer registrations"
       },
-      "recommendation": "Увеличить контрастность и размер кнопки, добавить анимацию при наведении",
-      "expectedEffect": "Увеличение конверсии на 15-20%",
+      "recommendation": "Increase button contrast and size, add hover animation",
+      "expectedEffect": "Increase conversion by 15-20%",
       "priority": "high",
       "confidence": 85,
-      "confidenceSource": "На основе визуального анализа контрастности и размера кнопки"
+      "confidenceSource": "Based on visual analysis of contrast and button size"
     },
     {
-      "element": "Форма ввода email",
-      "problem": "Отсутствие валидации в реальном времени",
-      "principle": "Предотвращение ошибок (Error Prevention)",
-      "consequence": "Пользователи могут отправить неверный email и не получить уведомление",
+      "element": "Email input form",
+      "problem": "No real-time validation",
+      "principle": "Error Prevention",
+      "consequence": "Users may submit incorrect email and not receive notification",
       "businessImpact": {
         "metric": "user_satisfaction",
         "impactLevel": "medium",
-        "description": "Ошибки ввода → фрустрация → снижение доверия к продукту"
+        "description": "Input errors → frustration → decreased trust in product"
       },
-      "recommendation": "Добавить валидацию email в реальном времени с подсказками",
-      "expectedEffect": "Снижение ошибок ввода на 40%",
+      "recommendation": "Add real-time email validation with hints",
+      "expectedEffect": "Reduce input errors by 40%",
       "priority": "medium",
-      "confidence": 90,
-      "confidenceSource": "Подтверждено исследованиями UX-паттернов форм"
+      "confidence": 80,
+      "confidenceSource": "Confirmed by UX pattern research"
     },
     {
-      "element": "Навигационное меню",
-      "problem": "Неясная структура навигации",
-      "principle": "Принцип узнаваемости (Recognition Rather Than Recall)",
-      "consequence": "Пользователи тратят время на поиск нужных разделов",
-      "recommendation": "Упростить структуру меню, добавить иконки и группировку",
-      "expectedEffect": "Снижение времени поиска на 30%",
+      "element": "Navigation menu",
+      "problem": "Unclear navigation structure",
+      "principle": "Recognition Rather Than Recall",
+      "consequence": "Users spend time searching for needed sections",
+      "recommendation": "Simplify menu structure, add icons and grouping",
+      "expectedEffect": "Reduce search time by 30%",
       "priority": "high"
     },
     {
-      "element": "Заголовок страницы",
-      "problem": "Неинформативный заголовок",
-      "principle": "Принцип ясности сообщения (Message Clarity)",
-      "consequence": "Пользователи не понимают назначение страницы",
-      "recommendation": "Переписать заголовок, сделать его более конкретным и понятным",
-      "expectedEffect": "Увеличение понимания на 25%",
+      "element": "Page header",
+      "problem": "Uninformative header",
+      "principle": "Message Clarity",
+      "consequence": "Users don't understand page purpose",
+      "recommendation": "Rewrite header, make it more specific and clear",
+      "expectedEffect": "Increase understanding by 25%",
       "priority": "medium"
     },
     {
-      "element": "Поля формы",
-      "problem": "Отсутствие подсказок и примеров",
-      "principle": "Принцип помощи пользователю (Help Users Recognize, Diagnose, and Recover from Errors)",
-      "consequence": "Пользователи не знают, какой формат данных ожидается",
-      "recommendation": "Добавить placeholder'ы с примерами и подсказки под полями",
-      "expectedEffect": "Снижение ошибок заполнения на 50%",
+      "element": "Form fields",
+      "problem": "No hints and examples",
+      "principle": "Help Users Recognize, Diagnose, and Recover from Errors",
+      "consequence": "Users don't know what data format is expected",
+      "recommendation": "Add placeholders with examples and field hints",
+      "expectedEffect": "Reduce form filling errors by 50%",
       "priority": "low"
     }
   ],

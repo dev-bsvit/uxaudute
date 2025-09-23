@@ -209,20 +209,20 @@
   },
   "problemsAndSolutions": [
     {
-      "element": "Кнопка 'Зарегистрироваться'",
-      "problem": "Низкая видимость CTA кнопки",
-      "principle": "Принцип видимости (Visibility of System Status)",
-      "consequence": "Пользователи могут не заметить основной призыв к действию",
+      "element": "Кнопка 'Зареєструватися'",
+      "problem": "Низька видимість CTA кнопки",
+      "principle": "Принцип видимості (Visibility of System Status)",
+      "consequence": "Користувачі можуть не помітити основний призив до дії",
       "businessImpact": {
         "metric": "conversion",
         "impactLevel": "high",
-        "description": "Сложная форма → высокий drop-off → меньше регистраций"
+        "description": "Складна форма → високий drop-off → менше реєстрацій"
       },
-      "recommendation": "Увеличить контрастность и размер кнопки, добавить анимацию при наведении",
-      "expectedEffect": "Увеличение конверсии на 15-20%",
+      "recommendation": "Збільшити контрастність та розмір кнопки, додати анімацію при наведенні",
+      "expectedEffect": "Збільшення конверсії на 15-20%",
       "priority": "high",
       "confidence": 85,
-      "confidenceSource": "На основе визуального анализа контрастности и размера кнопки"
+      "confidenceSource": "На основі візуального аналізу контрастності та розміру кнопки"
     },
     {
       "element": "Форма ввода email",
