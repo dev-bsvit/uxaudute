@@ -51,19 +51,23 @@ ${cleanContext}
  * Загружает JSON-структурированный промпт v2
  */
 export async function loadJSONPromptV2(locale: string = 'ru'): Promise<string> {
+  console.log(`🔍 Попытка загрузки промпта для локали: ${locale}`)
   try {
     let fileName = 'json-structured-prompt-v2.md'
     if (locale === 'ua') fileName = 'json-structured-prompt-ua.md'
     else if (locale === 'en') fileName = 'json-structured-prompt-en.md'
     
+    console.log(`📁 Ищем файл: ${fileName}`)
     const promptPath = join(process.cwd(), 'prompts', fileName)
+    console.log(`📂 Полный путь: ${promptPath}`)
+    
     const prompt = readFileSync(promptPath, 'utf-8')
     console.log(`✅ Загружен промпт для локали ${locale}: ${fileName}, размер: ${prompt.length} байт`)
+    console.log(`📄 Первые 100 символов: ${prompt.substring(0, 100)}...`)
     return prompt
   } catch (error) {
     console.error(`❌ Ошибка загрузки JSON промпта v2 для локали ${locale}:`, error)
     console.log(`🔄 Используем fallback промпт для локали: ${locale}`)
-    // Возвращаем fallback промпт
     return getJSONFallbackPrompt(locale)
   }
 }
