@@ -88,32 +88,32 @@ Static screenshot of the screen (required) + if possible, task context and targe
         "explanation": "User should understand how to continue interaction"
       },
       {
-        "id": 3,
-        "question": "Как вы интерпретируете главный визуальный элемент?",
+        "id": 4,
+        "question": "How do you interpret the main visual element?",
         "options": [
-          "A) Правильно",
-          "B) Не уверен",
-          "C) Неправильно"
+          "A) Correctly",
+          "B) Not sure",
+          "C) Incorrectly"
         ],
         "scores": [75, 15, 10],
         "confidence": 70,
         "category": "content",
-        "principle": "Принцип визуальной иерархии (Visual Hierarchy)",
-        "explanation": "Главный элемент должен четко передавать основное сообщение"
+        "principle": "Visual Hierarchy Principle",
+        "explanation": "Main element should clearly convey the core message"
       },
       {
-        "id": 4,
-        "question": "Что вызвало замешательство или трудности?",
+        "id": 5,
+        "question": "What caused confusion or difficulties?",
         "options": [
-          "A) Текст/формулировки",
-          "B) Расположение элементов",
-          "C) Визуальные сигналы"
+          "A) Text/formulations",
+          "B) Element placement",
+          "C) Visual signals"
         ],
         "scores": [20, 40, 40],
         "confidence": 90,
         "category": "usability",
-        "principle": "Принцип предотвращения ошибок (Error Prevention)",
-        "explanation": "Интерфейс должен минимизировать когнитивную нагрузку"
+        "principle": "Error Prevention Principle",
+        "explanation": "Interface should minimize cognitive load"
       },
       {
         "id": 5,
