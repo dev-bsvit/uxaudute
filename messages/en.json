@@ -157,6 +157,8 @@
     "notLoaded": "Not loaded",
     "loadingError": "Loading error",
     "problems": "Problems",
+    "consequence": "Consequence",
+    "expectedEffect": "Expected Effect",
     "checklist": "Checklist",
     "confidenceByBlocks": "Confidence by Blocks",
     "analysis": "Analysis",

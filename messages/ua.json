@@ -155,6 +155,8 @@
     "notLoaded": "Не завантажено",
     "loadingError": "Помилка завантаження",
     "problems": "проблем",
+    "consequence": "Наслідки",
+    "expectedEffect": "Очікуваний ефект",
     "checklist": "Чек-лист",
     "confidenceByBlocks": "Впевненість по блоках",
     "analysis": "Аналіз",
