@@ -244,7 +244,9 @@
     "days": "днів",
     "significanceLevel": "Рівень значущості",
     "nextSteps": "Наступні кроки",
-    "assumptions": "Припущення"
+    "assumptions": "Припущення",
+    "rating": "Рейтинг",
+    "hypotheses": "гіпотез"
   },
   "hypotheses": {
     "title": "Гіпотези для покращення UX",

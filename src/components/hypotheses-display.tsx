@@ -132,14 +132,14 @@ export const HypothesesDisplay: React.FC<HypothesesDisplayProps> = ({
           <CardHeader>
             <CardTitle className="flex items-center">
               <Target className="w-5 h-5 mr-2" />
-              Анализ KPI и болевых точек
+{t('kpiAnalysis')}
             </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="grid md:grid-cols-2 gap-6">
               {/* Текущие метрики */}
               <div>
-                <h4 className="font-semibold text-slate-900 mb-3">Текущие метрики</h4>
+                <h4 className="font-semibold text-slate-900 mb-3">{t('currentMetrics')}</h4>
                 <div className="space-y-2">
                   {data.kpi_analysis.current_metrics.map((metric, index) => (
                     <div key={index} className="bg-slate-50 p-3 rounded-lg">
@@ -157,7 +157,7 @@ export const HypothesesDisplay: React.FC<HypothesesDisplayProps> = ({
 
               {/* Болевые точки */}
               <div>
-                <h4 className="font-semibold text-slate-900 mb-3">Болевые точки</h4>
+                <h4 className="font-semibold text-slate-900 mb-3">{t('painPoints')}</h4>
                 <div className="space-y-2">
                   {data.kpi_analysis.pain_points.map((point, index) => (
                     <div key={index} className="border-l-4 border-red-200 pl-3 py-2">
@@ -184,7 +184,7 @@ export const HypothesesDisplay: React.FC<HypothesesDisplayProps> = ({
           <CardHeader>
             <CardTitle className="flex items-center">
               <CheckCircle className="w-5 h-5 mr-2" />
-              ICE Рейтинг гипотез
+              ICE {t('rating')} {t('hypotheses')}
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -322,24 +322,24 @@ export const HypothesesDisplay: React.FC<HypothesesDisplayProps> = ({
               <div>
                 <h4 className="font-semibold text-slate-900 mb-2 flex items-center">
                   <CheckCircle className="w-4 h-4 mr-2" />
-                  План валидации
+                  {t('validationPlan')}
                 </h4>
                 <div className="bg-blue-50 p-4 rounded-lg">
                   <div className="grid md:grid-cols-2 gap-4">
                     <div>
-                      <span className="text-sm font-medium text-slate-600">Метод:</span>
+                      <span className="text-sm font-medium text-slate-600">{t('method')}:</span>
                       <p className="text-slate-700">{hypothesis.validation_plan.method}</p>
                     </div>
                     <div>
-                      <span className="text-sm font-medium text-slate-600">Длительность:</span>
+                      <span className="text-sm font-medium text-slate-600">{t('duration')}:</span>
                       <p className="text-slate-700">{hypothesis.validation_plan.duration}</p>
                     </div>
                     <div>
-                      <span className="text-sm font-medium text-slate-600">Размер выборки:</span>
+                      <span className="text-sm font-medium text-slate-600">{t('sampleSize')}:</span>
                       <p className="text-slate-700">{hypothesis.validation_plan.sample_size}</p>
                     </div>
                     <div>
-                      <span className="text-sm font-medium text-slate-600">Δ-метрики:</span>
+                      <span className="text-sm font-medium text-slate-600">{t('deltaMetrics')}:</span>
                       <div className="flex flex-wrap gap-1 mt-1">
                         {hypothesis.validation_plan.delta_metrics.map((metric, idx) => (
                           <Badge key={idx} variant="outline" className="text-xs">
@@ -355,7 +355,7 @@ export const HypothesesDisplay: React.FC<HypothesesDisplayProps> = ({
               {/* Метрики */}
               {hypothesis.metrics && hypothesis.metrics.length > 0 && (
                 <div>
-                  <h4 className="font-semibold text-slate-900 mb-3">Метрики для отслеживания</h4>
+                  <h4 className="font-semibold text-slate-900 mb-3">{t('metricsToTrack')}</h4>
                   <div className="grid md:grid-cols-2 gap-2">
                     {hypothesis.metrics.map((metric, metricIndex) => (
                       <div key={metricIndex} className="flex items-center bg-slate-50 p-3 rounded-lg">
@@ -370,7 +370,7 @@ export const HypothesesDisplay: React.FC<HypothesesDisplayProps> = ({
               {/* Предположения */}
               {hypothesis.assumptions && hypothesis.assumptions.length > 0 && (
                 <div>
-                  <h4 className="font-semibold text-slate-900 mb-3">Предположения</h4>
+                  <h4 className="font-semibold text-slate-900 mb-3">{t('assumptions')}</h4>
                   <ul className="space-y-2">
                     {hypothesis.assumptions.map((assumption, assumptionIndex) => (
                       <li key={assumptionIndex} className="flex items-start">
@@ -390,7 +390,7 @@ export const HypothesesDisplay: React.FC<HypothesesDisplayProps> = ({
       {data.next_steps && data.next_steps.length > 0 && (
         <Card>
           <CardHeader>
-            <CardTitle>Следующие шаги</CardTitle>
+            <CardTitle>{t('nextSteps')}</CardTitle>
           </CardHeader>
           <CardContent>
             <ul className="space-y-2">
