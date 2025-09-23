@@ -108,6 +108,18 @@ export function AnalysisResultDisplay({
         </div>
 
 
+      {/* Временный блок отладки - ПОЛНЫЙ JSON */}
+      <Card className="bg-yellow-50 border-yellow-200">
+        <CardHeader>
+          <CardTitle className="text-yellow-800">🔍 DEBUG: Полный JSON ответ GPT</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <pre className="text-xs bg-white p-4 rounded border overflow-auto max-h-96">
+            {JSON.stringify(safeAnalysis, null, 2)}
+          </pre>
+        </CardContent>
+      </Card>
+
       {/* Описание экрана */}
       <Card>
         <CardHeader>
