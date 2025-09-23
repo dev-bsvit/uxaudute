@@ -485,21 +485,27 @@ Static screenshot of the screen (required) + if possible, task context and targe
       "problem": "Problem 1",
       "priority": "high",
       "principle": "Principle",
-      "recommendation": "Recommendation"
+      "consequence": "Consequence description",
+      "recommendation": "Recommendation",
+      "expectedEffect": "Expected effect description"
     },
     {
       "element": "Element 2", 
       "problem": "Problem 2",
       "priority": "medium",
       "principle": "Principle",
-      "recommendation": "Recommendation"
+      "consequence": "Consequence description",
+      "recommendation": "Recommendation",
+      "expectedEffect": "Expected effect description"
     },
     {
-      "element": "Element 3",
-      "problem": "Problem 3", 
+      "element": "Element 3", 
+      "problem": "Problem 3",
       "priority": "low",
       "principle": "Principle",
-      "recommendation": "Recommendation"
+      "consequence": "Consequence description",
+      "recommendation": "Recommendation",
+      "expectedEffect": "Expected effect description"
     }
   ]
 }

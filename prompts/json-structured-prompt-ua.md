@@ -485,21 +485,27 @@
       "problem": "Проблема 1",
       "priority": "high",
       "principle": "Принцип",
-      "recommendation": "Рекомендація"
+      "consequence": "Опис наслідків",
+      "recommendation": "Рекомендація",
+      "expectedEffect": "Опис очікуваного ефекту"
     },
     {
       "element": "Елемент 2", 
       "problem": "Проблема 2",
       "priority": "medium",
       "principle": "Принцип",
-      "recommendation": "Рекомендація"
+      "consequence": "Опис наслідків",
+      "recommendation": "Рекомендація",
+      "expectedEffect": "Опис очікуваного ефекту"
     },
     {
-      "element": "Елемент 3",
-      "problem": "Проблема 3", 
+      "element": "Елемент 3", 
+      "problem": "Проблема 3",
       "priority": "low",
       "principle": "Принцип",
-      "recommendation": "Рекомендація"
+      "consequence": "Опис наслідків",
+      "recommendation": "Рекомендація",
+      "expectedEffect": "Опис очікуваного ефекту"
     }
   ]
 }
