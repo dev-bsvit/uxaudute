@@ -29,6 +29,12 @@ Static screenshot of the screen (required) + if possible, task context and targe
 7. All strings must be in quotes, numbers without quotes
 8. Arrays in square brackets [], objects in curly braces {}**
 
+**🚨 CRITICAL REQUIREMENT FOR problemsAndSolutions 🚨**
+**EVERY problem MUST include BOTH fields:**
+- `"consequence": "What happens if problem is NOT fixed"`
+- `"expectedEffect": "Expected result after implementing recommendation"`
+**THESE FIELDS ARE MANDATORY - NO EXCEPTIONS!**
+
 ```json
 {
   "screenDescription": {
@@ -423,4 +429,9 @@ Static screenshot of the screen (required) + if possible, task context and targe
 
 **Answer ONLY in JSON format in English.**
 
-**FINAL REMINDER: Every problem in problemsAndSolutions MUST include consequence and expectedEffect fields. Do not omit these fields under any circumstances.**
+**🚨 FINAL CRITICAL REMINDER 🚨**
+**EVERY SINGLE PROBLEM in problemsAndSolutions MUST include:**
+1. `"consequence"` field - MANDATORY
+2. `"expectedEffect"` field - MANDATORY
+**IF YOU OMIT THESE FIELDS - YOUR RESPONSE IS INCOMPLETE AND INCORRECT!**
+**DO NOT GENERATE problemsAndSolutions WITHOUT consequence AND expectedEffect!**
