@@ -3,6 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { RefreshCw, TrendingUp, DollarSign, Target, BarChart3, Users, Zap, Share2, AlertTriangle, CheckCircle, Clock, Lightbulb, AlertCircle } from 'lucide-react'
+import { useTranslations } from 'next-intl'
 
 interface BusinessTextDisplayProps {
   data: { result: string } | any | null
@@ -21,6 +22,7 @@ export const BusinessTextDisplay: React.FC<BusinessTextDisplayProps> = ({
   publicUrl,
   publicUrlLoading = false
 }) => {
+  const t = useTranslations('businessAnalytics')
   console.log('🎯 BusinessTextDisplay received data:', data)
   console.log('🎯 BusinessTextDisplay data type:', typeof data)
   console.log('🎯 BusinessTextDisplay data keys:', data ? Object.keys(data) : 'null')
@@ -30,7 +32,7 @@ export const BusinessTextDisplay: React.FC<BusinessTextDisplayProps> = ({
         <CardContent className="p-8">
           <div className="flex items-center justify-center">
             <RefreshCw className="w-6 h-6 animate-spin mr-2" />
-            <span>Генерируем бизнес аналитику...</span>
+            <span>{t('generatingBusinessAnalytics')}</span>
           </div>
         </CardContent>
       </Card>
@@ -52,14 +54,14 @@ export const BusinessTextDisplay: React.FC<BusinessTextDisplayProps> = ({
             <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center">
               <BarChart3 className="w-8 h-8 text-blue-600" />
             </div>
-            <h3 className="text-lg font-semibold text-gray-900">Бизнес аналитика не сгенерирована</h3>
+            <h3 className="text-lg font-semibold text-gray-900">{t('businessAnalyticsNotGenerated')}</h3>
             <p className="text-gray-600 max-w-md">
-              Получите детальный анализ влияния UX проблем на бизнес-метрики и рекомендации по улучшению
+              {t('getDetailedAnalysis')}
             </p>
             {onGenerate && (
               <Button onClick={onGenerate} className="w-full max-w-xs">
                 <BarChart3 className="w-4 h-4 mr-2" />
-                Получить бизнес аналитику
+{t('getBusinessAnalytics')}
               </Button>
             )}
           </div>
@@ -374,7 +376,7 @@ const StructuredBusinessAnalytics: React.FC<{
           <CardHeader className="bg-gradient-to-r from-blue-50 to-indigo-50 border-b">
             <CardTitle className="flex items-center gap-3 text-lg">
               <TrendingUp className="w-5 h-5 text-blue-600" />
-              Бизнес метрики
+{t('businessMetrics')}
             </CardTitle>
           </CardHeader>
           <CardContent className="p-6">
@@ -1077,7 +1079,7 @@ const NewFormatBusinessAnalytics: React.FC<{
           <CardHeader className="bg-gradient-to-r from-blue-50 to-cyan-50 border-b">
             <CardTitle className="flex items-center gap-3 text-lg">
               <BarChart3 className="w-5 h-5 text-blue-600" />
-              Классификация данных
+{t('dataClassification')}
             </CardTitle>
           </CardHeader>
           <CardContent className="p-6">
@@ -1087,7 +1089,7 @@ const NewFormatBusinessAnalytics: React.FC<{
                 <div>
                   <h4 className="font-semibold text-gray-900 mb-3 flex items-center gap-2">
                     <TrendingUp className="w-4 h-4 text-green-600" />
-                    Количественные данные
+{t('quantitativeData')}
                   </h4>
                   <div className="space-y-2">
                     {data.data_classification.quantitative_data.map((item: any, index: number) => (
@@ -1106,7 +1108,7 @@ const NewFormatBusinessAnalytics: React.FC<{
                 <div>
                   <h4 className="font-semibold text-gray-900 mb-3 flex items-center gap-2">
                     <Users className="w-4 h-4 text-blue-600" />
-                    Качественные данные
+{t('qualitativeData')}
                   </h4>
                   <div className="space-y-2">
                     {data.data_classification.qualitative_data.map((item: any, index: number) => (
@@ -1124,7 +1126,7 @@ const NewFormatBusinessAnalytics: React.FC<{
                 <div>
                   <h4 className="font-semibold text-gray-900 mb-3 flex items-center gap-2">
                     <AlertTriangle className="w-4 h-4 text-orange-600" />
-                    UX Эвристики
+{t('uxHeuristics')}
                   </h4>
                   <div className="space-y-2">
                     {data.data_classification.ux_heuristics.map((item: any, index: number) => (
@@ -1150,22 +1152,22 @@ const NewFormatBusinessAnalytics: React.FC<{
           <CardHeader className="bg-gradient-to-r from-green-50 to-emerald-50 border-b">
             <CardTitle className="flex items-center gap-3 text-lg">
               <Target className="w-5 h-5 text-green-600" />
-              Сводка KPI
+{t('kpiSummary')}
             </CardTitle>
           </CardHeader>
           <CardContent className="p-6">
             {data.kpi_summary.current_metrics && (
               <div className="mb-6">
-                <h4 className="font-semibold text-gray-900 mb-4">Текущие метрики</h4>
+                <h4 className="font-semibold text-gray-900 mb-4">{t('currentMetrics')}</h4>
                 <div className="overflow-x-auto">
                   <table className="w-full border-collapse">
                     <thead>
                       <tr className="bg-gray-50">
-                        <th className="border border-gray-200 px-4 py-2 text-left font-semibold">Метрика</th>
-                        <th className="border border-gray-200 px-4 py-2 text-left font-semibold">Текущее значение</th>
-                        <th className="border border-gray-200 px-4 py-2 text-left font-semibold">Бенчмарк</th>
-                        <th className="border border-gray-200 px-4 py-2 text-left font-semibold">Тренд</th>
-                        <th className="border border-gray-200 px-4 py-2 text-left font-semibold">Влияние</th>
+                        <th className="border border-gray-200 px-4 py-2 text-left font-semibold">{t('metric')}</th>
+                        <th className="border border-gray-200 px-4 py-2 text-left font-semibold">{t('currentValue')}</th>
+                        <th className="border border-gray-200 px-4 py-2 text-left font-semibold">{t('benchmark')}</th>
+                        <th className="border border-gray-200 px-4 py-2 text-left font-semibold">{t('trend')}</th>
+                        <th className="border border-gray-200 px-4 py-2 text-left font-semibold">{t('impact')}</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -1194,7 +1196,7 @@ const NewFormatBusinessAnalytics: React.FC<{
 
             {data.kpi_summary.key_insights && (
               <div>
-                <h4 className="font-semibold text-gray-900 mb-4">Ключевые инсайты</h4>
+                <h4 className="font-semibold text-gray-900 mb-4">{t('keyInsights')}</h4>
                 <ul className="space-y-2">
                   {data.kpi_summary.key_insights.map((insight: string, index: number) => (
                     <li key={index} className="flex items-start gap-2">
@@ -1215,7 +1217,7 @@ const NewFormatBusinessAnalytics: React.FC<{
           <CardHeader className="bg-gradient-to-r from-red-50 to-pink-50 border-b">
             <CardTitle className="flex items-center gap-3 text-lg">
               <AlertCircle className="w-5 h-5 text-red-600" />
-              Pain Points
+{t('painPoints')}
             </CardTitle>
           </CardHeader>
           <CardContent className="p-6">
@@ -1259,21 +1261,21 @@ const NewFormatBusinessAnalytics: React.FC<{
 
                   {painPoint.business_impact && (
                     <div className="mb-3">
-                      <h5 className="font-medium text-gray-900 mb-2">Влияние на бизнес:</h5>
+                      <h5 className="font-medium text-gray-900 mb-2">{t('businessImpact')}:</h5>
                       <p className="text-gray-700">{painPoint.business_impact}</p>
                     </div>
                   )}
 
                   {painPoint.consequence && (
                     <div className="mb-3">
-                      <h5 className="font-medium text-gray-900 mb-2">Последствие:</h5>
+                      <h5 className="font-medium text-gray-900 mb-2">{t('consequence')}:</h5>
                       <p className="text-gray-700">{painPoint.consequence}</p>
                     </div>
                   )}
 
                   {painPoint.expected_effect && (
                     <div>
-                      <h5 className="font-medium text-gray-900 mb-2">Ожидаемый эффект:</h5>
+                      <h5 className="font-medium text-gray-900 mb-2">{t('expectedEffect')}:</h5>
                       <p className="text-gray-700">{painPoint.expected_effect}</p>
                     </div>
                   )}
@@ -1290,7 +1292,7 @@ const NewFormatBusinessAnalytics: React.FC<{
           <CardHeader className="bg-gradient-to-r from-purple-50 to-indigo-50 border-b">
             <CardTitle className="flex items-center gap-3 text-lg">
               <Lightbulb className="w-5 h-5 text-purple-600" />
-              Гипотезы
+{t('hypotheses')}
             </CardTitle>
           </CardHeader>
           <CardContent className="p-6">
