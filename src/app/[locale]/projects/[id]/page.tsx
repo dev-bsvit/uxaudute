@@ -181,34 +181,22 @@ export default function ProjectDetailPage() {
       // ВОССТАНАВЛИВАЕМ НОРМАЛЬНУЮ ЛОГИКУ - БЕЗ ТЕСТОВЫХ ИЗМЕНЕНИЙ
       console.log('🔍 Оригинальные данные:', { url: data.url, screenshot: !!data.screenshot })
       
-      // ВОССТАНАВЛИВАЕМ ПРАВИЛЬНУЮ ЛОГИКУ КОНТЕКСТА
+      // ТЕСТИРУЕМ БЕЗ КОНТЕКСТА - ПОЛНОСТЬЮ ОТКЛЮЧАЕМ
+      console.log('🔍 ТЕСТ: ПОЛНОСТЬЮ ОТКЛЮЧАЕМ КОНТЕКСТ ДЛЯ ДИАГНОСТИКИ')
+      
       const projectContext = project?.context || ''
       const projectTargetAudience = project?.target_audience || ''
       const auditContext = context || ''
       
-      console.log('🔍 КОМПОНЕНТЫ КОНТЕКСТА:')
+      console.log('🔍 КОМПОНЕНТЫ КОНТЕКСТА (отключены):')
       console.log('🔍 projectContext:', projectContext)
       console.log('🔍 projectTargetAudience:', projectTargetAudience)
       console.log('🔍 auditContext:', auditContext)
       
-      // Формируем структурированный контекст
-      let combinedContext = ''
-      if (projectContext) {
-        combinedContext += `Контекст проекта: ${projectContext}`
-      }
-      if (projectTargetAudience) {
-        if (combinedContext) combinedContext += '\n\n'
-        combinedContext += `Целевая аудитория: ${projectTargetAudience}`
-      }
-      if (auditContext) {
-        if (combinedContext) combinedContext += '\n\n'
-        combinedContext += `Дополнительный контекст: ${auditContext}`
-      }
+      // ПРИНУДИТЕЛЬНО УБИРАЕМ КОНТЕКСТ
+      const combinedContext = ''
       
-      // Убираем лишние переносы строк
-      combinedContext = combinedContext.trim()
-      
-      console.log('🔍 ИТОГОВЫЙ КОНТЕКСТ ДЛЯ GPT:', combinedContext)
+      console.log('🔍 ИТОГОВЫЙ КОНТЕКСТ ДЛЯ GPT (ОТКЛЮЧЕН):', combinedContext)
       console.log('🔍 Длина контекста:', combinedContext.length, 'символов')
 
       // Создаем новый аудит с нормальными данными
