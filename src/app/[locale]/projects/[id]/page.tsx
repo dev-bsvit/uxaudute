@@ -153,27 +153,32 @@ export default function ProjectDetailPage() {
         console.log('Screenshot uploaded:', screenshotUrl)
       }
 
-      // Объединяем контекст проекта, целевую аудиторию и контекст аудита
-      const projectContext = project?.context || ''
-      const projectTargetAudience = project?.target_audience || ''
-      const auditContext = context || ''
+      // ВРЕМЕННО: отключаем контекст для тестирования
+      const combinedContext = ''
+      console.log('🔍 ВРЕМЕННО: контекст отключен для тестирования')
       
-      // Формируем структурированный контекст
-      let combinedContext = ''
-      if (projectContext) {
-        combinedContext += `Контекст проекта: ${projectContext}\n\n`
-      }
-      if (projectTargetAudience) {
-        combinedContext += `Целевая аудитория: ${projectTargetAudience}\n\n`
-      }
-      if (auditContext) {
-        combinedContext += `Дополнительный контекст: ${auditContext}`
-      }
-      
-      // Убираем лишние переносы строк
-      combinedContext = combinedContext.trim()
-      
-      console.log('🔍 Сформированный контекст для анализа:', combinedContext)
+      // Оригинальный код (закомментирован):
+      // // Объединяем контекст проекта, целевую аудиторию и контекст аудита
+      // const projectContext = project?.context || ''
+      // const projectTargetAudience = project?.target_audience || ''
+      // const auditContext = context || ''
+      // 
+      // // Формируем структурированный контекст
+      // let combinedContext = ''
+      // if (projectContext) {
+      //   combinedContext += `Контекст проекта: ${projectContext}\n\n`
+      // }
+      // if (projectTargetAudience) {
+      //   combinedContext += `Целевая аудитория: ${projectTargetAudience}\n\n`
+      // }
+      // if (auditContext) {
+      //   combinedContext += `Дополнительный контекст: ${auditContext}`
+      // }
+      // 
+      // // Убираем лишние переносы строк
+      // combinedContext = combinedContext.trim()
+      // 
+      // console.log('🔍 Сформированный контекст для анализа:', combinedContext)
 
       // Создаем новый аудит с URL скриншота
       const audit = await createAudit(
