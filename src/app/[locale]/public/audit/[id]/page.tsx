@@ -11,6 +11,7 @@ import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Share2, Download, ExternalLink, BarChart3, Lightbulb, Target } from 'lucide-react'
+import { getAuditDisplayTitle } from '@/lib/audit-utils'
 import Link from 'next/link'
 
 interface PublicAudit {
@@ -149,7 +150,7 @@ export default function PublicAuditPage() {
             <div>
               <div className="flex items-center gap-3 mb-2">
                 <h1 className="text-2xl font-bold text-gray-900">
-                  {audit.name}
+                  {getAuditDisplayTitle(audit)}
                 </h1>
                 <Badge variant="secondary">
                   {audit.type}

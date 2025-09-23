@@ -15,6 +15,7 @@ import { BackArrow } from '@/components/icons/back-arrow'
 import { supabase } from '@/lib/supabase'
 import { User } from '@supabase/supabase-js'
 import { ABTestResponse, HypothesisResponse } from '@/lib/analysis-types'
+import { getAuditDisplayTitle } from '@/lib/audit-utils'
 import Link from 'next/link'
 
 interface Audit {
@@ -423,7 +424,7 @@ export default function AuditPage() {
               <BackArrow />
             </Link>
             <div>
-              <h1 className="text-3xl font-bold text-slate-900">{audit.name}</h1>
+              <h1 className="text-3xl font-bold text-slate-900">{getAuditDisplayTitle(audit)}</h1>
               <p className="text-sm text-slate-600">
                 Создан: {new Date(audit.created_at).toLocaleDateString('ru-RU')}
               </p>
