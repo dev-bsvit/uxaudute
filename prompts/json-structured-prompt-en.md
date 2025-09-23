@@ -301,17 +301,17 @@ Static screenshot of the screen (required) + if possible, task context and targe
 }
 ```
 
-## Правила для JSON ответа:
+## JSON Response Rules:
 
-1. **Только валидный JSON** - никакого дополнительного текста
-2. **Все поля обязательны** - не пропускайте поля
-3. **Числа без кавычек** - confidence, scores, id
-4. **Массивы и объекты** - правильная структура
-5. **Русский язык** - для всех текстовых полей
-6. **Реалистичные проценты** - scores должны суммироваться в 100%
-7. **Приоритеты** - только "high", "medium", "low"
-8. **Аудитория** - обязательный блок с анализом целевой аудитории, болей и страхов
-9. **Поведение** - обязательный блок с анализом пользовательских сценариев, паттернов и точек трения
+1. **Only valid JSON** - no additional text
+2. **All fields are mandatory** - don't skip fields
+3. **Numbers without quotes** - confidence, scores, id
+4. **Arrays and objects** - correct structure
+5. **English language** - for all text fields
+6. **Realistic percentages** - scores should sum to 100%
+7. **Priorities** - only "high", "medium", "low"
+8. **Audience** - mandatory block with target audience analysis, pains and fears
+9. **Behavior** - mandatory block with user scenario analysis, patterns and friction points
 
 ## Правила для UX-опроса:
 
