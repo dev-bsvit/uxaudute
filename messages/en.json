@@ -159,6 +159,7 @@
     "problems": "Problems",
     "consequence": "Consequence",
     "expectedEffect": "Expected Effect",
+    "principle": "Principle",
     "checklist": "Checklist",
     "confidenceByBlocks": "Confidence by Blocks",
     "analysis": "Analysis",
