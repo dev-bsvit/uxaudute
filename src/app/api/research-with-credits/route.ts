@@ -335,5 +335,16 @@ function combineWithContext(prompt: string, context?: string): string {
     return prompt
   }
 
-  return `${prompt}\n\n## Дополнительный контекст:\n${context}`
+  // Очищаем контекст от проблемных символов и фраз
+  const cleanContext = context
+    .replace(/[^\w\s\u0400-\u04FF\u0500-\u052F\u2DE0-\u2DFF\uA640-\uA69F\u1C80-\u1C88.,!?;:()-]/g, '') // Убираем специальные символы, оставляем только буквы, цифры, пробелы и базовую пунктуацию
+    .replace(/\s+/g, ' ') // Убираем лишние пробелы
+    .replace(/для для/g, 'для') // Убираем двойное "для"
+    .replace(/мед фак/g, 'медицинского факультета') // Расшифровываем сокращения
+    .trim()
+
+  console.log('🔍 Оригинальный контекст:', context.substring(0, 100) + '...')
+  console.log('🔍 Очищенный контекст:', cleanContext.substring(0, 100) + '...')
+
+  return `${prompt}\n\n## Дополнительный контекст:\n${cleanContext}`
 }
