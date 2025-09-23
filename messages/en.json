@@ -160,6 +160,8 @@
     "consequence": "Consequence",
     "expectedEffect": "Expected Effect",
     "principle": "Principle",
+    "problem": "Problem",
+    "recommendation": "Recommendation",
     "highPriority": "High priority",
     "mediumPriority": "Medium priority",
     "lowPriority": "Low priority",

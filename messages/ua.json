@@ -158,6 +158,8 @@
     "consequence": "Наслідки",
     "expectedEffect": "Очікуваний ефект",
     "principle": "Принцип",
+    "problem": "Проблема",
+    "recommendation": "Рекомендація",
     "highPriority": "Високий пріоритет",
     "mediumPriority": "Середній пріоритет",
     "lowPriority": "Низький пріоритет",

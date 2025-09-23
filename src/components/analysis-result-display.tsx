@@ -294,30 +294,30 @@ export function AnalysisResultDisplay({
                 <div className="flex items-start justify-between">
                   <h4 className="font-medium text-gray-900">{problem.element}</h4>
                   <Badge className={getPriorityColor(problem.priority)}>
-                    {problem.priority === 'high' ? 'Высокий' : 
-                     problem.priority === 'medium' ? 'Средний' : 'Низкий'} приоритет
+                    {problem.priority === 'high' ? t('highPriority') : 
+                     problem.priority === 'medium' ? t('mediumPriority') : t('lowPriority')}
                   </Badge>
                 </div>
                 
                 <div className="space-y-2">
                   <div>
-                    <span className="font-medium text-red-600">Проблема:</span>{' '}
+                    <span className="font-medium text-red-600">{t('problem')}:</span>{' '}
                     <span className="text-gray-700">{problem.problem}</span>
                   </div>
                   <div>
-                    <span className="font-medium text-blue-600">Принцип:</span>{' '}
+                    <span className="font-medium text-blue-600">{t('principle')}:</span>{' '}
                     <span className="text-gray-700">{problem.principle}</span>
                   </div>
                   <div>
-                    <span className="font-medium text-orange-600">Последствие:</span>{' '}
+                    <span className="font-medium text-orange-600">{t('consequence')}:</span>{' '}
                     <span className="text-gray-700">{problem.consequence}</span>
                   </div>
                   <div>
-                    <span className="font-medium text-green-600">Рекомендация:</span>{' '}
+                    <span className="font-medium text-green-600">{t('recommendation')}:</span>{' '}
                     <span className="text-gray-700">{problem.recommendation}</span>
                   </div>
                   <div>
-                    <span className="font-medium text-purple-600">Ожидаемый эффект:</span>{' '}
+                    <span className="font-medium text-purple-600">{t('expectedEffect')}:</span>{' '}
                     <span className="text-gray-700">{problem.expectedEffect}</span>
                   </div>
                 </div>
