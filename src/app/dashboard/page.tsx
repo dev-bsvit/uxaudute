@@ -18,6 +18,7 @@ import { createProject, createAudit, updateAuditResult, addAuditHistory, uploadS
 import { supabase } from '@/lib/supabase'
 import { StructuredAnalysisResponse } from '@/lib/analysis-types'
 import Link from 'next/link'
+import { useTranslation } from '@/hooks/use-translation'
 
 // Функция для проверки и создания профиля пользователя
 async function ensureUserProfileAndBalance(user: User) {
@@ -118,6 +119,7 @@ async function ensureUserProfileAndBalance(user: User) {
 export default function DashboardPage() {
   console.log('🔍 DashboardPage компонент загружен')
   
+  const { t } = useTranslation()
   const [user, setUser] = useState<User | null>(null)
   const [loading, setLoading] = useState(true)
   const [result, setResult] = useState<string | StructuredAnalysisResponse | null>(null)
@@ -221,7 +223,7 @@ export default function DashboardPage() {
     
     if (!user) {
       console.log('❌ Пользователь не авторизован')
-      alert('Пожалуйста, войдите в систему для выполнения анализа')
+      alert(t('dashboard.auth.pleaseSignIn'))
       return
     }
 
@@ -314,7 +316,10 @@ export default function DashboardPage() {
           try {
             const errorData = await response.json()
             console.log('❌ Недостаточно кредитов:', errorData)
-            alert(`Недостаточно кредитов для проведения аудита!\nТребуется: ${errorData.required || 2} кредитов\nДоступно: ${errorData.available || 0} кредитов\n\nПополните баланс кредитов для продолжения.`)
+            alert(t('dashboard.errors.notEnoughCredits', { 
+              required: errorData.required || 2, 
+              available: errorData.available || 0 
+            }))
             setIsAnalyzing(false)
             setIsLoading(false)
             return
@@ -453,10 +458,10 @@ export default function DashboardPage() {
         <div className="max-w-md mx-auto bg-white rounded-2xl shadow-lg p-8">
           <div className="text-center mb-8">
             <h2 className="text-3xl font-bold text-slate-900 mb-4">
-              Добро пожаловать в UX Audit
+              {t('dashboard.welcome.title')}
             </h2>
             <p className="text-lg text-slate-600">
-              Войдите в систему для начала профессионального анализа пользовательского опыта
+              {t('dashboard.welcome.subtitle')}
             </p>
           </div>
           <Auth onAuthChange={setUser} />
@@ -475,11 +480,11 @@ export default function DashboardPage() {
             {/* Навигация */}
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-4">
-                <h1 className="text-3xl font-bold text-slate-900">Быстрый анализ</h1>
+                <h1 className="text-3xl font-bold text-slate-900">{t('dashboard.title')}</h1>
               </div>
               
               <div className="text-sm text-slate-600">
-                Результат будет автоматически сохранен в ваши проекты
+                {t('dashboard.subtitle')}
               </div>
             </div>
 
@@ -495,11 +500,11 @@ export default function DashboardPage() {
                 </div>
                 
                 <h2 className="text-4xl font-bold text-gradient mb-6 leading-tight">
-                  UX Анализ с GPT-4
+                  {t('dashboard.hero.title')}
                 </h2>
                 
                 <p className="text-xl text-slate-600 mb-8 max-w-2xl mx-auto leading-relaxed">
-                  Профессиональный анализ пользовательского опыта на основе эвристик Нильсена, WCAG 2.2 и современных UX-методологий
+                  {t('dashboard.hero.description')}
                 </p>
               </div>
             </div>
@@ -532,11 +537,11 @@ export default function DashboardPage() {
               <div className="flex items-center gap-3">
                 <Button variant="outline" className="flex items-center gap-2">
                   <Download className="w-4 h-4" />
-                  Скачать отчет
+                  {t('dashboard.actions.downloadReport')}
                 </Button>
                 <Button variant="outline" className="flex items-center gap-2">
                   <Share2 className="w-4 h-4" />
-                  Поделиться
+                  {t('dashboard.actions.share')}
                 </Button>
               </div>
             </div>

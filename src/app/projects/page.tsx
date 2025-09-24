@@ -10,8 +10,10 @@ import { Section } from '@/components/ui/section'
 import { User } from '@supabase/supabase-js'
 import { supabase } from '@/lib/supabase'
 import { useRouter } from 'next/navigation'
+import { useTranslation } from '@/hooks/use-translation'
 
 export default function ProjectsPage() {
+  const { t } = useTranslation()
   const [user, setUser] = useState<User | null>(null)
   const [loading, setLoading] = useState(true)
   const router = useRouter()
@@ -52,10 +54,10 @@ export default function ProjectsPage() {
         <div className="max-w-md mx-auto bg-white rounded-2xl shadow-lg p-8">
           <div className="text-center mb-8">
             <h2 className="text-3xl font-bold text-slate-900 mb-4">
-              Войдите для просмотра проектов
+              {t('projects.signInTitle')}
             </h2>
             <p className="text-lg text-slate-600">
-              Создавайте и управляйте своими UX исследованиями
+              {t('projects.signInDescription')}
             </p>
           </div>
           <Auth onAuthChange={handleAuthChange} />
@@ -69,8 +71,8 @@ export default function ProjectsPage() {
       <PageContent maxWidth="7xl">
         <div className="space-y-8">
           <PageHeader 
-            title="Мои проекты"
-            description="Управляйте своими UX исследованиями. Создавайте новые проекты или продолжайте работу с существующими."
+            title={t('projects.title')}
+            description={t('projects.description')}
           />
           
           <Section>

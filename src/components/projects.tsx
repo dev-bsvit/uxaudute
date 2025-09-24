@@ -25,6 +25,8 @@ import {
 } from '@/components/ui/alert-dialog'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { useTranslation } from '@/hooks/use-translation'
+import { useFormatters } from '@/hooks/use-formatters'
 
 interface ProjectsProps {
   user: User
@@ -40,6 +42,8 @@ interface Project {
 }
 
 export function Projects({ user, onProjectSelect }: ProjectsProps) {
+  const { t } = useTranslation()
+  const { formatDate } = useFormatters()
   const [projects, setProjects] = useState<Project[]>([])
   const [loading, setLoading] = useState(true)
   const [showCreateForm, setShowCreateForm] = useState(false)
@@ -145,12 +149,8 @@ export function Projects({ user, onProjectSelect }: ProjectsProps) {
     }
   }
 
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('ru-RU', {
-      day: 'numeric',
-      month: 'short',
-      year: 'numeric'
-    })
+  const formatProjectDate = (dateString: string) => {
+    return formatDate(dateString)
   }
 
   if (loading) {
@@ -165,15 +165,15 @@ export function Projects({ user, onProjectSelect }: ProjectsProps) {
     <div className="space-y-8">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-bold text-slate-900">Управление проектами</h2>
-          <p className="text-slate-600">Создавайте и организуйте свои UX исследования</p>
+          <h2 className="text-2xl font-bold text-slate-900">{t('projects.management.title')}</h2>
+          <p className="text-slate-600">{t('projects.management.description')}</p>
         </div>
         <Button
           onClick={() => setShowCreateForm(true)}
           className="flex items-center gap-2 bg-black hover:bg-gray-800 text-white px-6 py-3 rounded-lg font-medium"
         >
           <Plus className="w-4 h-4" />
-          Новый проект
+          {t('projects.newProject')}
         </Button>
       </div>
 
