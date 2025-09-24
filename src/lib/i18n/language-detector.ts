@@ -26,9 +26,12 @@ export class LanguageDetector {
    */
   async detectLanguage(): Promise<LanguageDetectionResult> {
     try {
+      console.log('🔍 Starting language detection...')
+
       // 1. Проверяем сохраненные предпочтения пользователя (база данных)
       const userPreference = await this.getUserPreference()
       if (userPreference) {
+        console.log('✅ Found user preference in database:', userPreference)
         return {
           language: userPreference,
           source: 'user-preference',
@@ -39,6 +42,7 @@ export class LanguageDetector {
       // 2. Проверяем localStorage
       const localStorageLanguage = this.getLocalStorageLanguage()
       if (localStorageLanguage) {
+        console.log('✅ Found language in localStorage:', localStorageLanguage)
         return {
           language: localStorageLanguage,
           source: 'user-preference',
@@ -49,6 +53,7 @@ export class LanguageDetector {
       // 3. Определяем по настройкам браузера
       const browserLanguage = this.getBrowserLanguage()
       if (browserLanguage) {
+        console.log('✅ Detected browser language:', browserLanguage)
         return {
           language: browserLanguage,
           source: 'browser',
@@ -57,12 +62,14 @@ export class LanguageDetector {
       }
 
       // 4. Используем язык по умолчанию
+      console.log('⚠️ Using default language:', DEFAULT_LANGUAGE)
       return {
         language: DEFAULT_LANGUAGE,
         source: 'default',
         confidence: 0.5
       }
     } catch (error) {
+      console.error('❌ Language detection failed:', error)
       errorHandler.createError(
         ErrorType.LANGUAGE_DETECTION_FAILED,
         {},
@@ -138,16 +145,20 @@ export class LanguageDetector {
 
       // Получаем список языков браузера в порядке предпочтения
       const browserLanguages = this.getBrowserLanguages()
+      console.log('🌐 Browser languages detected:', browserLanguages)
       
       // Ищем первый поддерживаемый язык
       for (const browserLang of browserLanguages) {
         const normalizedLang = this.normalizeLanguageCode(browserLang)
+        console.log(`🔍 Checking browser language: ${browserLang} -> ${normalizedLang}`)
         
         if (isSupportedLanguage(normalizedLang)) {
+          console.log(`✅ Found supported browser language: ${normalizedLang}`)
           return normalizedLang
         }
       }
 
+      console.log('⚠️ No supported browser languages found')
       return null
     } catch (error) {
       console.warn('Failed to detect browser language:', error)

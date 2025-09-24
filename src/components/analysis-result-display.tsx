@@ -9,6 +9,8 @@ import { CanvasAnnotations } from '@/components/ui/canvas-annotations'
 import { Monitor, Link2 } from 'lucide-react'
 import { useTranslation } from '@/hooks/use-translation'
 import { useFormatters } from '@/hooks/use-formatters'
+import { AnalysisResultLanguageIndicator } from '@/components/language-indicator'
+import { analysisLanguageTracker } from '@/lib/analysis-language-tracker'
 
 interface AnalysisResultDisplayProps {
   analysis?: StructuredAnalysisResponse
@@ -17,6 +19,7 @@ interface AnalysisResultDisplayProps {
   url?: string | null
   onAnnotationUpdate?: (annotationData: string) => void
   auditId?: string // ID аудита для сохранения аннотаций
+  analysisLanguage?: string // Язык анализа для отображения индикатора
 }
 
 export function AnalysisResultDisplay({ 
@@ -25,7 +28,8 @@ export function AnalysisResultDisplay({
   screenshot,
   url,
   onAnnotationUpdate,
-  auditId
+  auditId,
+  analysisLanguage
 }: AnalysisResultDisplayProps) {
   const { t } = useTranslation()
   const { formatDateTime, getLanguageIndicator } = useFormatters()
@@ -106,9 +110,14 @@ export function AnalysisResultDisplay({
       <div className="space-y-8">
         {/* Заголовок */}
         <div className="text-center">
-          <h2 className="text-3xl font-bold text-gray-900 mb-2">
-            {t('analysis-results.title')}
-          </h2>
+          <div className="flex items-center justify-center gap-3 mb-2">
+            <h2 className="text-3xl font-bold text-gray-900">
+              {t('analysis-results.title')}
+            </h2>
+            {analysisLanguage && (
+              <AnalysisResultLanguageIndicator language={analysisLanguage} />
+            )}
+          </div>
         </div>
 
 

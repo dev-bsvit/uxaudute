@@ -33,26 +33,31 @@ export function LanguageProvider({ children }: LanguageProviderProps) {
   const initializeLanguage = async () => {
     try {
       setIsLoading(true)
+      console.log('🚀 Starting language provider initialization...')
       
       // Используем новый инициализатор для быстрой загрузки
       const result = await languageInitializer.quickInitialize()
       
+      console.log('📋 Language initialization result:', result)
       setCurrentLanguage(result.language)
       
       // Сохраняем выбранный язык в localStorage
       saveLanguageToStorage(result.language)
       
-      console.log('Language system initialized:', result)
+      console.log('✅ Language provider initialized with language:', result.language)
       
-      // Запускаем полную инициализацию в фоне
-      languageInitializer.initialize().catch(error => {
-        console.warn('Background initialization failed:', error)
+      // Запускаем полную инициализацию в фоне для предзагрузки всех ресурсов
+      languageInitializer.initialize().then(fullResult => {
+        console.log('🎯 Full language initialization completed:', fullResult)
+      }).catch(error => {
+        console.warn('⚠️ Background initialization failed:', error)
       })
       
     } catch (error) {
-      console.error('Failed to initialize language:', error)
+      console.error('❌ Failed to initialize language provider:', error)
       // В случае ошибки используем язык по умолчанию
       setCurrentLanguage(DEFAULT_LANGUAGE)
+      saveLanguageToStorage(DEFAULT_LANGUAGE)
     } finally {
       setIsLoading(false)
     }

@@ -84,7 +84,7 @@
   - Add E2E tests for complete language switching workflow
   - _Requirements: 5.1, 5.2_
 
-- [ ] 15. Update existing components to use translation system
+- [x] 15. Update existing components to use translation system
   - Replace hardcoded Russian text in all components with translation keys
   - Update form validation messages to use localized strings
   - Ensure all user-facing text supports multiple languages
@@ -96,7 +96,7 @@
   - Document prompt translation guidelines and best practices
   - _Requirements: 4.3, 4.4, 5.1_
 
-- [ ] 17. Implement analysis language tracking and indicators
+- [-] 17. Implement analysis language tracking and indicators
   - Add language metadata to analysis records in database
   - Create UI indicators showing which language was used for each analysis
   - Ensure analysis history properly displays language information

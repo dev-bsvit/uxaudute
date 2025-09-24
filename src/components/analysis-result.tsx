@@ -14,8 +14,8 @@ interface AnalysisResultProps {
 }
 
 export function AnalysisResult({ result, screenshot, url, auditId }: AnalysisResultProps) {
-  console.log('AnalysisResult получил:', { result, screenshot, url, auditId })
-  console.log('Тип результата:', typeof result)
+  console.log('AnalysisResult received:', { result, screenshot, url, auditId })
+  console.log('Result type:', typeof result)
   console.log('isStructuredResponse:', typeof result === 'object' ? isStructuredResponse(result) : false)
   
   // Проверяем, является ли результат JSON структурой
@@ -57,11 +57,14 @@ export function AnalysisResult({ result, screenshot, url, auditId }: AnalysisRes
     
     sections.forEach(section => {
       const content = section.trim()
-      if (content.includes('Описание интерфейса') || content.includes('Описание экрана')) {
+      if (content.includes('Описание интерфейса') || content.includes('Описание экрана') || 
+          content.includes('Interface Description') || content.includes('Screen Description')) {
         description = content
-      } else if (content.includes('UX-опрос') || content.includes('опрос')) {
+      } else if (content.includes('UX-опрос') || content.includes('опрос') || 
+                 content.includes('UX Survey') || content.includes('survey')) {
         survey = content
-      } else if (content.includes('Проблемы и рекомендации') || content.includes('рекомендации')) {
+      } else if (content.includes('Проблемы и рекомендации') || content.includes('рекомендации') ||
+                 content.includes('Problems and Solutions') || content.includes('recommendations')) {
         problems = content
       } else if (content.includes('Self-Check') || content.includes('Self-check') || content.includes('Confidence')) {
         selfCheck = content

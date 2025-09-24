@@ -2,6 +2,10 @@ import type { Metadata } from "next"
 import { Inter, JetBrains_Mono } from "next/font/google"
 import "./globals.css"
 import { LanguageProvider } from '@/components/language-provider'
+import { LanguageAutoInitializer } from '@/components/language-auto-initializer'
+import { LanguageDetectionDebug } from '@/components/language-detection-debug'
+import { LanguageInitializationTest } from '@/components/language-initialization-test'
+import { SmoothLanguageInitializer } from '@/components/smooth-language-initializer'
 import { DynamicHtmlLang } from '@/components/dynamic-html-lang'
 import { DynamicMetadata } from '@/components/dynamic-metadata'
 
@@ -36,9 +40,22 @@ export default function RootLayout({
     <html lang="ru">
       <body className={`${inter.variable} ${jetbrainsMono.variable} font-sans antialiased`}>
         <LanguageProvider>
-          <DynamicHtmlLang />
-          <DynamicMetadata />
-          {children}
+          <SmoothLanguageInitializer
+            showLoadingScreen={true}
+            loadingMessage="Загрузка языковых настроек..."
+            minLoadingTime={300}
+          >
+            <LanguageAutoInitializer 
+              showStatus={process.env.NODE_ENV === 'development'}
+              showDetails={false}
+              quickInit={true}
+            />
+            <DynamicHtmlLang />
+            <DynamicMetadata />
+            {children}
+            <LanguageDetectionDebug />
+            <LanguageInitializationTest />
+          </SmoothLanguageInitializer>
         </LanguageProvider>
       </body>
     </html>

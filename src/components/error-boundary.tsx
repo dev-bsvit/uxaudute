@@ -57,7 +57,8 @@ export class ErrorBoundary extends Component<Props, State> {
       // Копируем отчет в буфер обмена
       if (navigator.clipboard) {
         navigator.clipboard.writeText(report).then(() => {
-          alert('Отчет об ошибке скопирован в буфер обмена')
+          // TODO: Заменить на toast уведомление
+          alert('Error report copied to clipboard') // Временно на английском
         })
       }
     }
