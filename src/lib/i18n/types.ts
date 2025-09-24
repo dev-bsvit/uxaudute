@@ -57,3 +57,10 @@ export const SUPPORTED_LANGUAGES: Language[] = [
 
 export const DEFAULT_LANGUAGE = 'ru'
 export const FALLBACK_LANGUAGE = 'ru'
+
+/**
+ * Проверяет, поддерживается ли язык
+ */
+export function isSupportedLanguage(language: string): boolean {
+  return SUPPORTED_LANGUAGES.some(lang => lang.code === language)
+}

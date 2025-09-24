@@ -4,7 +4,7 @@ export * from './prompt-service'
 
 import { translationService } from './translation-service'
 import { promptService } from './prompt-service'
-import { SUPPORTED_LANGUAGES, DEFAULT_LANGUAGE, FALLBACK_LANGUAGE } from './types'
+import { SUPPORTED_LANGUAGES, DEFAULT_LANGUAGE, FALLBACK_LANGUAGE, isSupportedLanguage } from './types'
 
 /**
  * Инициализирует систему i18n
@@ -44,12 +44,8 @@ export function getBrowserLanguage(): string {
   return supportedCodes.includes(browserLang) ? browserLang : DEFAULT_LANGUAGE
 }
 
-/**
- * Проверяет, поддерживается ли язык
- */
-export function isSupportedLanguage(language: string): boolean {
-  return SUPPORTED_LANGUAGES.some(lang => lang.code === language)
-}
+// Экспортируем функцию из types
+export { isSupportedLanguage }
 
 /**
  * Получает информацию о языке по коду

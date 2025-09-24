@@ -41,7 +41,8 @@ class PromptService {
     }
 
     if (this.loadingPromises[language]) {
-      return this.loadingPromises[language]
+      await this.loadingPromises[language]
+      return
     }
 
     this.loadingPromises[language] = this.loadPromptsForLanguage(language)
