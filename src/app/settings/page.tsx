@@ -3,6 +3,9 @@
 import { useState, useEffect } from 'react';
 import { User } from '@supabase/supabase-js';
 import { supabase } from '@/lib/supabase';
+import { SidebarDemo } from '@/components/sidebar-demo';
+import { PageHeader } from '@/components/ui/page-header';
+import { PageContent } from '@/components/ui/page-content';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -11,6 +14,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Switch } from '@/components/ui/switch';
 import { Separator } from '@/components/ui/separator';
 import { Badge } from '@/components/ui/badge';
+import { useRouter } from 'next/navigation';
 import { 
   User as UserIcon, 
   Bell, 
@@ -27,6 +31,7 @@ export default function SettingsPage() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null);
+  const router = useRouter();
   
   // Настройки профиля
   const [profileSettings, setProfileSettings] = useState({
@@ -53,8 +58,8 @@ export default function SettingsPage() {
   });
 
   useEffect(() => {
-    const getUser = async () => {
-      const { data: { user } } = await supabase.auth.getUser();
+    // Проверяем текущего пользователя
+    supabase.auth.getUser().then(({ data: { user } }) => {
       if (user) {
         setUser(user);
         setProfileSettings({
@@ -65,9 +70,15 @@ export default function SettingsPage() {
         });
       }
       setLoading(false);
-    };
+    });
 
-    getUser();
+    // Слушаем изменения аутентификации
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      setUser(session?.user ?? null);
+      setLoading(false);
+    });
+
+    return () => subscription.unsubscribe();
   }, []);
 
   const showMessage = (type: 'success' | 'error', text: string) => {
@@ -121,60 +132,79 @@ export default function SettingsPage() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-full">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+      <div className="min-h-screen bg-gray-100 flex items-center justify-center">
+        <div className="animate-spin rounded-full h-8 w-8 border-2 border-blue-500 border-t-transparent"></div>
+      </div>
+    );
+  }
+
+  if (!user) {
+    return (
+      <div className="min-h-screen bg-gray-100 flex items-center justify-center">
+        <div className="max-w-md mx-auto bg-white rounded-2xl shadow-lg p-8">
+          <div className="text-center mb-8">
+            <h2 className="text-3xl font-bold text-slate-900 mb-4">
+              Войдите для доступа к настройкам
+            </h2>
+            <p className="text-lg text-slate-600">
+              Управляйте своим профилем и предпочтениями
+            </p>
+          </div>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="max-w-4xl mx-auto space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900">Настройки</h1>
-          <p className="text-gray-600 mt-1">Управляйте своим профилем и предпочтениями</p>
-        </div>
-        <Badge variant="outline" className="text-sm">
-          Версия 1.0
-        </Badge>
-      </div>
+    <SidebarDemo user={user}>
+      <PageContent maxWidth="4xl">
+        <div className="space-y-8">
+          <div className="flex items-center justify-between">
+            <PageHeader 
+              title="Настройки"
+              description="Управляйте своим профилем и предпочтениями приложения"
+            />
+            <Badge variant="outline" className="text-sm">
+              Версия 1.0
+            </Badge>
+          </div>
 
-      {message && (
-        <div className={`flex items-center gap-2 p-4 rounded-lg ${
-          message.type === 'success' 
-            ? 'bg-green-50 text-green-800 border border-green-200' 
-            : 'bg-red-50 text-red-800 border border-red-200'
-        }`}>
-          {message.type === 'success' ? (
-            <CheckCircle className="w-5 h-5" />
-          ) : (
-            <AlertCircle className="w-5 h-5" />
+          {message && (
+            <div className={`flex items-center gap-2 p-4 rounded-lg ${
+              message.type === 'success' 
+                ? 'bg-green-50 text-green-800 border border-green-200' 
+                : 'bg-red-50 text-red-800 border border-red-200'
+            }`}>
+              {message.type === 'success' ? (
+                <CheckCircle className="w-5 h-5" />
+              ) : (
+                <AlertCircle className="w-5 h-5" />
+              )}
+              {message.text}
+            </div>
           )}
-          {message.text}
-        </div>
-      )}
 
-      <Tabs defaultValue="profile" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-4">
-          <TabsTrigger value="profile" className="flex items-center gap-2">
-            <UserIcon className="w-4 h-4" />
-            Профиль
-          </TabsTrigger>
-          <TabsTrigger value="notifications" className="flex items-center gap-2">
-            <Bell className="w-4 h-4" />
-            Уведомления
-          </TabsTrigger>
-          <TabsTrigger value="interface" className="flex items-center gap-2">
-            <Palette className="w-4 h-4" />
-            Интерфейс
-          </TabsTrigger>
-          <TabsTrigger value="security" className="flex items-center gap-2">
-            <Shield className="w-4 h-4" />
-            Безопасность
-          </TabsTrigger>
-        </TabsList>
+          <Tabs defaultValue="profile" className="space-y-6">
+            <TabsList className="grid w-full grid-cols-4">
+              <TabsTrigger value="profile" className="flex items-center gap-2">
+                <UserIcon className="w-4 h-4" />
+                Профиль
+              </TabsTrigger>
+              <TabsTrigger value="notifications" className="flex items-center gap-2">
+                <Bell className="w-4 h-4" />
+                Уведомления
+              </TabsTrigger>
+              <TabsTrigger value="interface" className="flex items-center gap-2">
+                <Palette className="w-4 h-4" />
+                Интерфейс
+              </TabsTrigger>
+              <TabsTrigger value="security" className="flex items-center gap-2">
+                <Shield className="w-4 h-4" />
+                Безопасность
+              </TabsTrigger>
+            </TabsList>
 
-        <TabsContent value="profile" className="space-y-6">
+            <TabsContent value="profile" className="space-y-6">
           <Card>
             <CardHeader>
               <CardTitle>Информация профиля</CardTitle>
@@ -235,9 +265,9 @@ export default function SettingsPage() {
               </div>
             </CardContent>
           </Card>
-        </TabsContent>
+            </TabsContent>
 
-        <TabsContent value="notifications" className="space-y-6">
+            <TabsContent value="notifications" className="space-y-6">
           <Card>
             <CardHeader>
               <CardTitle>Настройки уведомлений</CardTitle>
@@ -310,9 +340,9 @@ export default function SettingsPage() {
               </div>
             </CardContent>
           </Card>
-        </TabsContent>
+            </TabsContent>
 
-        <TabsContent value="interface" className="space-y-6">
+            <TabsContent value="interface" className="space-y-6">
           <Card>
             <CardHeader>
               <CardTitle>Настройки интерфейса</CardTitle>
@@ -374,9 +404,9 @@ export default function SettingsPage() {
               </div>
             </CardContent>
           </Card>
-        </TabsContent>
+            </TabsContent>
 
-        <TabsContent value="security" className="space-y-6">
+            <TabsContent value="security" className="space-y-6">
           <Card>
             <CardHeader>
               <CardTitle>Безопасность аккаунта</CardTitle>
