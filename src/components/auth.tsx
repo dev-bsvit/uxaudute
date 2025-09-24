@@ -6,12 +6,14 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { signInWithEmail, signUpWithEmail, signInWithGoogle, signOut, getCurrentUser } from '@/lib/database'
 import { User } from '@supabase/supabase-js'
 import { LogIn, LogOut, UserPlus } from 'lucide-react'
+import { useTranslation } from '@/hooks/use-translation'
 
 interface AuthProps {
   onAuthChange?: (user: User | null) => void
 }
 
 export function Auth({ onAuthChange }: AuthProps) {
+  const { t } = useTranslation()
   const [user, setUser] = useState<User | null>(null)
   const [loading, setLoading] = useState(true)
   const [mode, setMode] = useState<'signin' | 'signup'>('signin')
@@ -63,7 +65,7 @@ export function Auth({ onAuthChange }: AuthProps) {
     try {
       const { user: newUser } = await signUpWithEmail(email, password, fullName)
       if (newUser) {
-        alert('Проверьте вашу почту для подтверждения регистрации!')
+        alert(t('auth.checkEmail'))
       }
       setEmail('')
       setPassword('')
@@ -116,7 +118,7 @@ export function Auth({ onAuthChange }: AuthProps) {
             </span>
           </div>
           <div>
-            <p className="font-medium text-slate-900">{user.user_metadata?.full_name || 'Пользователь'}</p>
+            <p className="font-medium text-slate-900">{user.user_metadata?.full_name || t('auth.user')}</p>
             <p className="text-sm text-slate-600">{user.email}</p>
           </div>
         </div>
@@ -127,7 +129,7 @@ export function Auth({ onAuthChange }: AuthProps) {
           className="flex items-center gap-2"
         >
           <LogOut className="w-4 h-4" />
-          Выйти
+          {t('navigation.logout')}
         </Button>
       </div>
     )
@@ -138,7 +140,7 @@ export function Auth({ onAuthChange }: AuthProps) {
       <CardHeader className="text-center">
         <CardTitle className="flex items-center justify-center gap-2">
           {mode === 'signin' ? <LogIn className="w-5 h-5" /> : <UserPlus className="w-5 h-5" />}
-          {mode === 'signin' ? 'Вход в систему' : 'Регистрация'}
+          {mode === 'signin' ? t('auth.signInTitle') : t('auth.signUpTitle')}
         </CardTitle>
       </CardHeader>
       <CardContent>
@@ -157,7 +159,7 @@ export function Auth({ onAuthChange }: AuthProps) {
               <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
               <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
             </svg>
-            {authLoading ? 'Подключение...' : `Продолжить с Google`}
+            {authLoading ? t('auth.connecting') : t('auth.continueWithGoogle')}
           </Button>
         </div>
 
@@ -166,7 +168,7 @@ export function Auth({ onAuthChange }: AuthProps) {
             <div className="w-full border-t border-slate-300"></div>
           </div>
           <div className="relative flex justify-center text-sm">
-            <span className="bg-white px-4 text-slate-500">или</span>
+            <span className="bg-white px-4 text-slate-500">{t('common.or')}</span>
           </div>
         </div>
 
@@ -174,7 +176,7 @@ export function Auth({ onAuthChange }: AuthProps) {
           {mode === 'signup' && (
             <div>
               <label htmlFor="fullName" className="block text-sm font-medium text-slate-700 mb-1">
-                Полное имя
+                {t('common.fullName')}
               </label>
               <input
                 id="fullName"
@@ -189,7 +191,7 @@ export function Auth({ onAuthChange }: AuthProps) {
           
           <div>
             <label htmlFor="email" className="block text-sm font-medium text-slate-700 mb-1">
-              Email
+              {t('common.email')}
             </label>
             <input
               id="email"
@@ -203,7 +205,7 @@ export function Auth({ onAuthChange }: AuthProps) {
 
           <div>
             <label htmlFor="password" className="block text-sm font-medium text-slate-700 mb-1">
-              Пароль
+              {t('common.password')}
             </label>
             <input
               id="password"
@@ -230,10 +232,10 @@ export function Auth({ onAuthChange }: AuthProps) {
             {authLoading ? (
               <div className="flex items-center gap-2">
                 <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent"></div>
-                {mode === 'signin' ? 'Вход...' : 'Регистрация...'}
+                {mode === 'signin' ? t('auth.signingIn') : t('auth.registering')}
               </div>
             ) : (
-              mode === 'signin' ? 'Войти' : 'Зарегистрироваться'
+              mode === 'signin' ? t('auth.signInButton') : t('auth.signUpButton')
             )}
           </Button>
 
@@ -244,8 +246,8 @@ export function Auth({ onAuthChange }: AuthProps) {
               className="text-sm text-blue-600 hover:text-blue-800"
             >
               {mode === 'signin' 
-                ? 'Нет аккаунта? Зарегистрироваться' 
-                : 'Уже есть аккаунт? Войти'
+                ? t('auth.noAccount') 
+                : t('auth.hasAccount')
               }
             </button>
           </div>

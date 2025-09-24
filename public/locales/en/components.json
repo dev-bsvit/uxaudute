@@ -1,0 +1,63 @@
+{
+  "credits": {
+    "userNotAuthorized": "User not authorized",
+    "preparingPayment": "Preparing payment...",
+    "buy": "Buy",
+    "processingPayment": "Processing payment...",
+    "pay": "Pay"
+  },
+  "analysis": {
+    "receivedData": "AnalysisResult received:",
+    "resultType": "Result type:",
+    "analyzedScreenshot": "Analyzed screenshot",
+    "uxAnalysisResult": "UX Analysis Result",
+    "interfaceAnalysisByScreenshot": "Interface analysis by screenshot",
+    "siteAnalysisByUrl": "Site analysis by URL",
+    "interfaceDescription": "Interface Description",
+    "uxSurvey": "UX Survey",
+    "survey": "survey",
+    "problemsAndRecommendations": "Problems and Recommendations",
+    "recommendations": "recommendations"
+  },
+  "abTest": {
+    "high": "High",
+    "medium": "Medium",
+    "low": "Low",
+    "creating": "Creating...",
+    "share": "Share",
+    "frontend": "Frontend",
+    "backend": "Backend",
+    "analytics": "Analytics",
+    "design": "Design"
+  },
+  "business": {
+    "impact": "impact",
+    "metrics": "metrics",
+    "roi": "roi",
+    "profitability": "profitability",
+    "rice": "rice",
+    "prioritization": "prioritization",
+    "recommendations": "recommendations",
+    "growth": "growth",
+    "creating": "Creating...",
+    "share": "Share"
+  },
+  "errorBoundary": {
+    "errorReportCopied": "Error report copied to clipboard"
+  },
+  "languageInit": {
+    "initializing": "Initializing language system...",
+    "ready": "Language system ready",
+    "waiting": "Waiting for initialization",
+    "loadingTranslations": "Loading translations and settings..."
+  },
+  "test": {
+    "sendingScreenshot": "Sending screenshot:",
+    "image": "image",
+    "noResponse": "No response",
+    "requestError": "Request error",
+    "enterTestMessage": "Enter test message",
+    "preview": "Preview",
+    "checkServerLogs": "Check server logs in browser console (F12) or Vercel Dashboard"
+  }
+}

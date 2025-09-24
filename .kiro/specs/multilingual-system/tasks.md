@@ -72,7 +72,7 @@
   - Create user-friendly error messages in multiple languages
   - _Requirements: 5.3, 5.4_
 
-- [-] 13. Create language detection and initialization logic
+- [ ] 13. Create language detection and initialization logic
   - Implement automatic language detection from browser settings
   - Add initialization logic that respects user preferences over browser settings
   - Ensure smooth app startup with proper language loading

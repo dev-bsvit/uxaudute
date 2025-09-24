@@ -1,0 +1,63 @@
+{
+  "credits": {
+    "userNotAuthorized": "Пользователь не авторизован",
+    "preparingPayment": "Подготовка платежа...",
+    "buy": "Купить",
+    "processingPayment": "Обработка платежа...",
+    "pay": "Оплатить"
+  },
+  "analysis": {
+    "receivedData": "AnalysisResult получил:",
+    "resultType": "Тип результата:",
+    "analyzedScreenshot": "Анализируемый скриншот",
+    "uxAnalysisResult": "Результат UX анализа",
+    "interfaceAnalysisByScreenshot": "Анализ интерфейса по скриншоту",
+    "siteAnalysisByUrl": "Анализ сайта по URL",
+    "interfaceDescription": "Описание интерфейса",
+    "uxSurvey": "UX-опрос",
+    "survey": "опрос",
+    "problemsAndRecommendations": "Проблемы и рекомендации",
+    "recommendations": "рекомендации"
+  },
+  "abTest": {
+    "high": "Высокий",
+    "medium": "Средний",
+    "low": "Низкий",
+    "creating": "Создание...",
+    "share": "Поделиться",
+    "frontend": "Frontend",
+    "backend": "Backend",
+    "analytics": "Аналитика",
+    "design": "Дизайн"
+  },
+  "business": {
+    "impact": "влияние",
+    "metrics": "метрики",
+    "roi": "roi",
+    "profitability": "окупаемость",
+    "rice": "rice",
+    "prioritization": "приоритизация",
+    "recommendations": "рекомендации",
+    "growth": "рост",
+    "creating": "Создание...",
+    "share": "Поделиться"
+  },
+  "errorBoundary": {
+    "errorReportCopied": "Отчет об ошибке скопирован в буфер обмена"
+  },
+  "languageInit": {
+    "initializing": "Инициализация языковой системы...",
+    "ready": "Языковая система готова",
+    "waiting": "Ожидание инициализации",
+    "loadingTranslations": "Загрузка переводов и настроек..."
+  },
+  "test": {
+    "sendingScreenshot": "Отправляем скриншот:",
+    "image": "изображение",
+    "noResponse": "Нет ответа",
+    "requestError": "Ошибка запроса",
+    "enterTestMessage": "Введите сообщение для тестирования",
+    "preview": "Предварительный просмотр",
+    "checkServerLogs": "Логи сервера смотрите в консоли браузера (F12) или в Vercel Dashboard"
+  }
+}

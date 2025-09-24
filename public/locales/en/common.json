@@ -81,5 +81,9 @@
   "model": "Model",
   "time": "Time",
   "analysis": "Analysis",
-  "date": "Date"
+  "date": "Date",
+  "or": "or",
+  "fullName": "Full Name",
+  "email": "Email",
+  "password": "Password"
 }

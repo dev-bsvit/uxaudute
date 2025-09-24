@@ -81,5 +81,9 @@
   "model": "Модель",
   "time": "Время",
   "analysis": "Анализ",
-  "date": "Дата"
+  "date": "Дата",
+  "or": "или",
+  "fullName": "Полное имя",
+  "email": "Email",
+  "password": "Пароль"
 }

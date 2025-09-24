@@ -64,15 +64,15 @@ export function LanguageInitializationStatus({
 
   const getStatusText = () => {
     if (initialization.isInitializing) {
-      return 'Инициализация языковой системы...'
+      return t('components.languageInit.initializing')
     }
     if (initialization.error) {
-      return `Ошибка инициализации: ${initialization.error}`
+      return `${t('errors.general.unknownError')}: ${initialization.error}`
     }
     if (initialization.isInitialized) {
-      return 'Языковая система готова'
+      return t('components.languageInit.ready')
     }
-    return 'Ожидание инициализации'
+    return t('components.languageInit.waiting')
   }
 
   const getStatusColor = () => {
@@ -121,7 +121,7 @@ export function LanguageInitializationStatus({
               <div className="space-y-2">
                 <Progress value={getProgress()} className="h-2" />
                 <p className="text-xs text-gray-600">
-                  Загрузка переводов и настроек...
+                  {t('components.languageInit.loadingTranslations')}
                 </p>
               </div>
             )}
