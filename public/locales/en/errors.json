@@ -1,0 +1,31 @@
+{
+  "translation": {
+    "keyNotFound": "Translation key not found: {key}",
+    "fileNotFound": "Translation file not found: {file}",
+    "loadingFailed": "Failed to load translations for language: {language}",
+    "fallbackUsed": "Using fallback language due to translation error"
+  },
+  "prompt": {
+    "notFound": "Prompt not found for language: {language}",
+    "loadingFailed": "Failed to load prompt: {promptType}",
+    "fallbackUsed": "Using fallback prompt due to loading error",
+    "invalidFormat": "Invalid prompt format for: {promptType}"
+  },
+  "language": {
+    "unsupported": "Unsupported language: {language}",
+    "switchFailed": "Failed to switch language to: {language}",
+    "detectionFailed": "Failed to detect browser language",
+    "saveFailed": "Failed to save language preference"
+  },
+  "network": {
+    "connectionFailed": "Network connection failed",
+    "timeout": "Request timeout",
+    "serverError": "Server error occurred",
+    "retryLater": "Please try again later"
+  },
+  "general": {
+    "unknownError": "An unknown error occurred",
+    "tryAgain": "Please try again",
+    "contactSupport": "If the problem persists, please contact support"
+  }
+}

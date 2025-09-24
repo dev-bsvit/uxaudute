@@ -1,4 +1,5 @@
 import { PromptType, FALLBACK_LANGUAGE } from './types'
+import { errorHandler, ErrorType } from './error-handler'
 
 class PromptService {
   private prompts: Record<string, Record<PromptType, string>> = {}
@@ -8,28 +9,41 @@ class PromptService {
    * Загружает промпт для указанного типа и языка
    */
   async loadPrompt(promptType: PromptType, language: string): Promise<string> {
-    // Убеждаемся, что промпты для языка загружены
-    await this.ensurePromptsLoaded(language)
+    try {
+      // Убеждаемся, что промпты для языка загружены
+      await this.ensurePromptsLoaded(language)
 
-    // Пытаемся получить промпт на запрашиваемом языке
-    const prompt = this.prompts[language]?.[promptType]
-    if (prompt) {
-      return prompt
-    }
-
-    // Fallback на основной язык
-    if (language !== FALLBACK_LANGUAGE) {
-      await this.ensurePromptsLoaded(FALLBACK_LANGUAGE)
-      const fallbackPrompt = this.prompts[FALLBACK_LANGUAGE]?.[promptType]
-      if (fallbackPrompt) {
-        console.warn(`Prompt ${promptType} not found for ${language}, using fallback`)
-        return fallbackPrompt
+      // Пытаемся получить промпт на запрашиваемом языке
+      const prompt = this.prompts[language]?.[promptType]
+      if (prompt) {
+        return prompt
       }
-    }
 
-    // Возвращаем базовый промпт
-    console.error(`Prompt ${promptType} not found for any language`)
-    return this.getBasicPrompt(promptType)
+      // Fallback на основной язык
+      if (language !== FALLBACK_LANGUAGE) {
+        console.warn(`Prompt ${promptType} not found for ${language}, trying fallback`)
+        await this.ensurePromptsLoaded(FALLBACK_LANGUAGE)
+        const fallbackPrompt = this.prompts[FALLBACK_LANGUAGE]?.[promptType]
+        if (fallbackPrompt) {
+          errorHandler.createError(
+            ErrorType.PROMPT_NOT_FOUND,
+            { promptType, language }
+          )
+          return fallbackPrompt
+        }
+      }
+
+      throw new Error(`Prompt ${promptType} not found for any language`)
+    } catch (error) {
+      // Последний fallback - базовый промпт
+      console.warn(`Using basic prompt for ${promptType} due to error:`, error)
+      errorHandler.createError(
+        ErrorType.PROMPT_LOADING_FAILED,
+        { promptType, language },
+        error as Error
+      )
+      return this.getBasicPrompt(promptType)
+    }
   }
 
   /**
@@ -58,12 +72,20 @@ class PromptService {
     const prompts: Record<PromptType, string> = {} as Record<PromptType, string>
 
     for (const promptType of promptTypes) {
-      try {
-        const prompt = await this.fetchPromptFile(promptType, language)
-        prompts[promptType] = prompt
-      } catch (error) {
-        console.warn(`Failed to load prompt ${promptType} for ${language}:`, error)
-      }
+      const prompt = await errorHandler.handleErrorWithFallback(
+        async () => {
+          return await this.fetchPromptFile(promptType, language)
+        },
+        () => {
+          // Fallback: используем базовый промпт
+          console.warn(`Using basic prompt for ${promptType} in ${language}`)
+          return this.getBasicPrompt(promptType)
+        },
+        ErrorType.PROMPT_LOADING_FAILED,
+        { promptType, language }
+      )
+      
+      prompts[promptType] = prompt
     }
 
     this.prompts[language] = prompts

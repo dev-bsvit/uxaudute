@@ -1,4 +1,5 @@
 import { TranslationMap, FALLBACK_LANGUAGE } from './types'
+import { errorHandler, ErrorType } from './error-handler'
 
 class TranslationService {
   private translations: Record<string, TranslationMap> = {}
@@ -36,24 +37,51 @@ class TranslationService {
    * Загружает все файлы переводов для языка
    */
   private async fetchTranslations(language: string): Promise<TranslationMap> {
-    const translationFiles = ['common', 'navigation', 'analysis', 'settings']
-    const translations: TranslationMap = {}
+    return await errorHandler.handleErrorWithFallback(
+      async () => {
+        const translationFiles = [
+          'common', 
+          'navigation', 
+          'analysis', 
+          'settings',
+          'errors',
+          'analysis-results',
+          'dashboard',
+          'projects'
+        ]
+        const translations: TranslationMap = {}
 
-    for (const file of translationFiles) {
-      try {
-        const response = await fetch(`/locales/${language}/${file}.json`)
-        if (response.ok) {
-          const fileTranslations = await response.json()
-          translations[file] = fileTranslations
-        } else {
-          console.warn(`Translation file not found: /locales/${language}/${file}.json`)
+        for (const file of translationFiles) {
+          try {
+            const response = await fetch(`/locales/${language}/${file}.json`)
+            if (response.ok) {
+              const fileTranslations = await response.json()
+              translations[file] = fileTranslations
+            } else {
+              errorHandler.createError(
+                ErrorType.TRANSLATION_FILE_NOT_FOUND,
+                { file: `/locales/${language}/${file}.json` }
+              )
+            }
+          } catch (error) {
+            errorHandler.createError(
+              ErrorType.TRANSLATION_FILE_NOT_FOUND,
+              { file: `/locales/${language}/${file}.json` },
+              error as Error
+            )
+          }
         }
-      } catch (error) {
-        console.error(`Error loading translation file ${file} for ${language}:`, error)
-      }
-    }
 
-    return translations
+        return translations
+      },
+      () => {
+        // Fallback: возвращаем пустой объект
+        console.warn(`Using empty translations as fallback for language: ${language}`)
+        return {}
+      },
+      ErrorType.TRANSLATION_LOADING_FAILED,
+      { language }
+    )
   }
 
   /**
@@ -74,9 +102,16 @@ class TranslationService {
     if (language !== FALLBACK_LANGUAGE) {
       const fallbackTranslation = this.getNestedTranslation(key, FALLBACK_LANGUAGE)
       if (fallbackTranslation) {
+        console.warn(`Using fallback translation for key: ${key}`)
         return this.interpolateParams(fallbackTranslation, params)
       }
     }
+
+    // Логируем отсутствующий ключ
+    errorHandler.createError(
+      ErrorType.TRANSLATION_KEY_NOT_FOUND,
+      { key, language }
+    )
 
     // Возвращаем ключ для отладки
     return `[${key}]`
