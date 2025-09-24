@@ -3,6 +3,7 @@ import { Inter, JetBrains_Mono } from "next/font/google"
 import "./globals.css"
 import { LanguageProvider } from '@/components/language-provider'
 import { DynamicHtmlLang } from '@/components/dynamic-html-lang'
+import { DynamicMetadata } from '@/components/dynamic-metadata'
 
 const inter = Inter({
   variable: "--font-geist-sans",
@@ -36,6 +37,7 @@ export default function RootLayout({
       <body className={`${inter.variable} ${jetbrainsMono.variable} font-sans antialiased`}>
         <LanguageProvider>
           <DynamicHtmlLang />
+          <DynamicMetadata />
           {children}
         </LanguageProvider>
       </body>

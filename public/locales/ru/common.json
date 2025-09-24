@@ -63,5 +63,8 @@
   "bug": "Ошибка",
   "feature": "Функция",
   "improvement": "Улучшение",
-  "suggestion": "Предложение"
+  "suggestion": "Предложение",
+  "user": "Пользователь",
+  "appTitle": "UX Audit",
+  "appDescription": "Профессиональный анализ пользовательского опыта"
 }

@@ -7,6 +7,7 @@ import { ImageUpload } from '@/components/ui/image-upload'
 import { AnalysisModal } from '@/components/analysis-modal'
 import Link from 'next/link'
 import { ArrowRight, Upload, Link as LinkIcon } from 'lucide-react'
+import { useTranslation } from '@/hooks/use-translation'
 
 export function HeroSection() {
   const [url, setUrl] = useState('')
@@ -15,6 +16,7 @@ export function HeroSection() {
   const [isLoading, setIsLoading] = useState(false)
   const [isAnalyzing, setIsAnalyzing] = useState(false)
   const [analysisData, setAnalysisData] = useState<{url?: string; screenshot?: string} | null>(null)
+  const { t } = useTranslation()
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -100,7 +102,7 @@ export function HeroSection() {
                         type="url"
                         value={url}
                         onChange={(e) => setUrl(e.target.value)}
-                        placeholder="https://example.com"
+                        placeholder={t('analysis.hero.placeholder')}
                         className="w-full px-4 py-3 text-sm border-2 border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 flex items-center justify-center"
                         style={{ minHeight: '190px', borderRadius: '16px' }}
                         required
@@ -137,7 +139,7 @@ export function HeroSection() {
                       }}
                       onClick={() => setActiveTab('upload')}
                     >
-                      Скриншот
+{t('analysis.hero.screenshot')}
                     </button>
                     <button
                       type="button"
@@ -153,7 +155,7 @@ export function HeroSection() {
                       }}
                       onClick={() => setActiveTab('url')}
                     >
-                      URL сайта
+{t('analysis.hero.urlSite')}
                     </button>
                   </div>
 
@@ -166,7 +168,7 @@ export function HeroSection() {
                       className="text-lg font-bold bg-black hover:bg-gray-800"
                     >
                       <div className="animate-spin rounded-full h-5 w-5 border-2 border-white border-t-transparent mr-3"></div>
-                      Анализируем...
+{t('analysis.hero.analyzing')}
                     </Button>
                   ) : (
                     <RainbowButton
@@ -174,7 +176,7 @@ export function HeroSection() {
                       disabled={!isValid}
                       className="text-lg font-bold"
                     >
-                      Get the test for free
+{t('analysis.hero.getTestFree')}
                     </RainbowButton>
                   )}
                 </div>

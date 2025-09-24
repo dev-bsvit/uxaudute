@@ -2,6 +2,7 @@
 
 import { useEffect } from 'react'
 import { useLanguage } from '@/hooks/use-language'
+import { getLanguageInfo } from '@/lib/i18n'
 
 /**
  * Компонент для динамического обновления атрибута lang в HTML элементе
@@ -15,7 +16,6 @@ export function DynamicHtmlLang() {
       document.documentElement.lang = currentLanguage
       
       // Также обновляем dir атрибут для RTL языков (если понадобится в будущем)
-      const { getLanguageInfo } = require('@/lib/i18n')
       const languageInfo = getLanguageInfo(currentLanguage)
       
       if (languageInfo?.isRTL) {

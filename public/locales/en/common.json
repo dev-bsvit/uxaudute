@@ -63,5 +63,8 @@
   "bug": "Bug",
   "feature": "Feature",
   "improvement": "Improvement",
-  "suggestion": "Suggestion"
+  "suggestion": "Suggestion",
+  "user": "User",
+  "appTitle": "UX Audit",
+  "appDescription": "Professional user experience analysis"
 }

@@ -54,7 +54,7 @@
   - Implement synchronization between localStorage and database for authenticated users
   - _Requirements: 2.3, 2.4, 6.3_
 
-- [ ] 10. Update main layout and root layout for language support
+- [x] 10. Update main layout and root layout for language support
   - Modify root layout.tsx to support dynamic lang attribute
   - Update main Layout component to use translations for navigation items
   - Ensure proper font loading for both Latin and Cyrillic characters

@@ -94,5 +94,14 @@
     "description": "Start analyzing your interfaces right now. Sign in and create your first project.",
     "startFree": "Start Free",
     "manageCredits": "💰 Manage Credits"
+  },
+  "hero": {
+    "title": "Intelligent Research shapes the next digital products",
+    "subtitle": "Professional user experience analysis",
+    "screenshot": "Screenshot",
+    "urlSite": "Website URL",
+    "placeholder": "https://example.com",
+    "analyzing": "Analyzing...",
+    "getTestFree": "Get the test for free"
   }
 }
