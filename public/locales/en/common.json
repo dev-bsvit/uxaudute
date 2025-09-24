@@ -66,5 +66,20 @@
   "suggestion": "Suggestion",
   "user": "User",
   "appTitle": "UX Audit",
-  "appDescription": "Professional user experience analysis"
+  "appDescription": "Professional user experience analysis",
+  "noDataToDisplay": "No data to display",
+  "notLoaded": "Not loaded",
+  "loadingError": "Loading error",
+  "unknown": "Unknown",
+  "confidence": "Confidence",
+  "priority": "Priority",
+  "high": "High",
+  "medium": "Medium",
+  "low": "Low",
+  "problems": "problems",
+  "version": "Version",
+  "model": "Model",
+  "time": "Time",
+  "analysis": "Analysis",
+  "date": "Date"
 }

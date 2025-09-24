@@ -1,0 +1,26 @@
+{
+  "title": "Quick Analysis",
+  "subtitle": "Result will be automatically saved to your projects",
+  "welcome": {
+    "title": "Welcome to UX Audit",
+    "subtitle": "Sign in to start professional user experience analysis"
+  },
+  "hero": {
+    "title": "UX Analysis with GPT-4",
+    "description": "Professional user experience analysis based on Nielsen's heuristics, WCAG 2.2 and modern UX methodologies"
+  },
+  "auth": {
+    "pleaseSignIn": "Please sign in to perform analysis"
+  },
+  "actions": {
+    "downloadReport": "Download Report",
+    "share": "Share",
+    "newAnalysis": "New Analysis"
+  },
+  "errors": {
+    "notEnoughCredits": "Not enough credits to perform audit!\nRequired: {required} credits\nAvailable: {available} credits\n\nPlease top up your credit balance to continue.",
+    "analysisError": "Analysis error: {error}",
+    "actionError": "Action execution error: {error}",
+    "unknownError": "Unknown error"
+  }
+}

@@ -1,0 +1,61 @@
+{
+  "title": "UX Analysis Results",
+  "screenDescription": {
+    "title": "Screen Description",
+    "screenType": "Screen Type",
+    "userGoal": "User Goal",
+    "keyElements": "Key Elements",
+    "confidenceReason": "Confidence Reasoning"
+  },
+  "uxSurvey": {
+    "title": "UX Survey",
+    "userScenarios": "User Scenarios"
+  },
+  "audience": {
+    "title": "Audience",
+    "targetAudience": "Target Audience",
+    "mainPain": "Main Pain Point",
+    "fears": "User Fears"
+  },
+  "behavior": {
+    "title": "Behavior",
+    "userScenarios": "User Scenarios",
+    "idealPath": "Ideal Path:",
+    "typicalError": "Typical Error:",
+    "alternativeWorkaround": "Alternative Workaround:",
+    "behavioralPatterns": "Behavioral Patterns",
+    "frictionPoints": "Friction Points",
+    "actionMotivation": "Action Motivation",
+    "majorImpact": "High impact",
+    "minorImpact": "Low impact"
+  },
+  "problemsAndSolutions": {
+    "title": "Problems and Solutions",
+    "element": "Element",
+    "problem": "Problem:",
+    "principle": "Principle:",
+    "consequence": "Consequence:",
+    "recommendation": "Recommendation:",
+    "expectedEffect": "Expected Effect:",
+    "noProblemsFound": "No problems and solutions found"
+  },
+  "selfCheck": {
+    "title": "Analysis Quality Check",
+    "checklist": "Checklist",
+    "confidenceByBlocks": "Confidence by Blocks",
+    "coversAllElements": "All key elements covered",
+    "noContradictions": "No contradictory recommendations",
+    "principlesJustified": "Each recommendation justified by principle",
+    "actionClarity": "Target action clarity verified",
+    "survey": "Survey",
+    "recommendations": "Recommendations"
+  },
+  "metadata": {
+    "title": "Analysis Information"
+  },
+  "interface": {
+    "analyzedInterface": "Analyzed Interface",
+    "analyzedUrl": "Analyzed URL",
+    "annotationEditor": "Annotation editor opens automatically. Add comments and highlights to the screenshot"
+  }
+}

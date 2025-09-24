@@ -1,0 +1,55 @@
+{
+  "title": "My Projects",
+  "description": "Manage your UX research. Create new projects or continue working with existing ones.",
+  "signInTitle": "Sign in to view projects",
+  "signInDescription": "Create and manage your UX research",
+  "management": {
+    "title": "Project Management",
+    "description": "Create and organize your UX research"
+  },
+  "newProject": "New Project",
+  "createProject": {
+    "title": "Create New Project",
+    "description": "Fill in information about your new UX project",
+    "nameLabel": "Project Name",
+    "namePlaceholder": "For example: Online store redesign",
+    "descriptionLabel": "Description (optional)",
+    "descriptionPlaceholder": "Brief description of project goals",
+    "contextLabel": "Project Context (optional)",
+    "contextPlaceholder": "For example: Mobile app for food ordering. Main audience - young people 18-35 years old. Key goals: fast order processing, convenient menu navigation, transparent payment system...",
+    "contextNote": "This context will be applied to all audits in the project",
+    "createButton": "Create Project",
+    "cancel": "Cancel"
+  },
+  "empty": {
+    "title": "You don't have any projects yet",
+    "description": "Create your first project to start UX research and interface analysis",
+    "createFirst": "Create First Project"
+  },
+  "project": {
+    "audits": "audits",
+    "rename": "Rename",
+    "delete": "Delete"
+  },
+  "edit": {
+    "title": "Edit Project",
+    "nameLabel": "Project Name",
+    "namePlaceholder": "Enter project name",
+    "descriptionLabel": "Description (optional)",
+    "descriptionPlaceholder": "Brief description of project goals",
+    "save": "Save",
+    "cancel": "Cancel"
+  },
+  "delete": {
+    "title": "Delete project?",
+    "description": "Are you sure you want to delete project \"{name}\"? This action cannot be undone. All audits in this project will also be deleted.",
+    "cancel": "Cancel",
+    "confirm": "Delete"
+  },
+  "errors": {
+    "createError": "Project creation error: {error}",
+    "updateError": "Project update error",
+    "deleteError": "Project deletion error",
+    "loadError": "Projects loading error"
+  }
+}

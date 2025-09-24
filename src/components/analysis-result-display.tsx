@@ -7,6 +7,8 @@ import { Badge } from '@/components/ui/badge'
 import { SurveyDisplay } from '@/components/ui/survey-display'
 import { CanvasAnnotations } from '@/components/ui/canvas-annotations'
 import { Monitor, Link2 } from 'lucide-react'
+import { useTranslation } from '@/hooks/use-translation'
+import { useFormatters } from '@/hooks/use-formatters'
 
 interface AnalysisResultDisplayProps {
   analysis?: StructuredAnalysisResponse
@@ -25,33 +27,36 @@ export function AnalysisResultDisplay({
   onAnnotationUpdate,
   auditId
 }: AnalysisResultDisplayProps) {
+  const { t } = useTranslation()
+  const { formatDateTime, getLanguageIndicator } = useFormatters()
+  
   // Защита от ошибок - проверяем структуру данных
   if (!analysis) {
     return (
       <div className="text-center py-8">
-        <p className="text-gray-500">Нет данных для отображения</p>
+        <p className="text-gray-500">{t('common.noDataToDisplay')}</p>
       </div>
     )
   }
 
   // Проверяем, что у нас есть минимально необходимая структура
   const safeAnalysis: StructuredAnalysisResponse = {
-    screenDescription: analysis.screenDescription || { screenType: "Неизвестно", confidence: 0 },
+    screenDescription: analysis.screenDescription || { screenType: t('common.unknown'), confidence: 0 },
     uxSurvey: analysis.uxSurvey || { questions: [], overallConfidence: 0 },
     audience: analysis.audience || { 
-      targetAudience: "Не загружено", 
-      mainPain: "Ошибка загрузки",
+      targetAudience: t('common.notLoaded'), 
+      mainPain: t('common.loadingError'),
       fears: []
     },
     behavior: analysis.behavior || { 
       userScenarios: {
-        idealPath: "Не загружено",
-        typicalError: "Не загружено", 
-        alternativeWorkaround: "Не загружено"
+        idealPath: t('common.notLoaded'),
+        typicalError: t('common.notLoaded'), 
+        alternativeWorkaround: t('common.notLoaded')
       }, 
-      behavioralPatterns: "Ошибка загрузки",
+      behavioralPatterns: t('common.loadingError'),
       frictionPoints: [],
-      actionMotivation: "Не загружено"
+      actionMotivation: t('common.notLoaded')
     },
     problemsAndSolutions: analysis.problemsAndSolutions || [],
     selfCheck: analysis.selfCheck || { 
@@ -60,7 +65,7 @@ export function AnalysisResultDisplay({
       confidence: { analysis: 0 } 
     },
     annotations: analysis.annotations || '',
-    metadata: analysis.metadata || { version: '1.0', model: 'Unknown', timestamp: new Date().toISOString() }
+    metadata: analysis.metadata || { version: '1.0', model: t('common.unknown'), timestamp: new Date().toISOString() }
   }
 
   const [annotationData, setAnnotationData] = useState<string>(safeAnalysis?.annotations || '')
@@ -86,6 +91,15 @@ export function AnalysisResultDisplay({
     }
   }
 
+  const getPriorityText = (priority: string) => {
+    switch (priority) {
+      case 'high': return t('common.high')
+      case 'medium': return t('common.medium')
+      case 'low': return t('common.low')
+      default: return priority
+    }
+  }
+
   return (
     <div className="w-full max-w-none grid grid-cols-1 lg:grid-cols-2 gap-8 min-h-screen">
       {/* Левая колонка - Результаты анализа */}
@@ -93,7 +107,7 @@ export function AnalysisResultDisplay({
         {/* Заголовок */}
         <div className="text-center">
           <h2 className="text-3xl font-bold text-gray-900 mb-2">
-            Результаты UX анализа
+            {t('analysis-results.title')}
           </h2>
         </div>
 
@@ -102,26 +116,26 @@ export function AnalysisResultDisplay({
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            📱 Описание экрана
+            📱 {t('analysis-results.screenDescription.title')}
             <Badge variant="outline" className={getConfidenceColor(safeAnalysis.screenDescription.confidence)}>
-              Уверенность: {safeAnalysis.screenDescription.confidence}%
+              {t('common.confidence')}: {safeAnalysis.screenDescription.confidence}%
             </Badge>
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <h4 className="font-medium text-gray-900 mb-2">Тип экрана</h4>
+              <h4 className="font-medium text-gray-900 mb-2">{t('analysis-results.screenDescription.screenType')}</h4>
               <p className="text-gray-600">{safeAnalysis.screenDescription.screenType}</p>
             </div>
             <div>
-              <h4 className="font-medium text-gray-900 mb-2">Цель пользователя</h4>
+              <h4 className="font-medium text-gray-900 mb-2">{t('analysis-results.screenDescription.userGoal')}</h4>
               <p className="text-gray-600">{safeAnalysis.screenDescription.userGoal}</p>
             </div>
           </div>
           
           <div>
-            <h4 className="font-medium text-gray-900 mb-2">Ключевые элементы</h4>
+            <h4 className="font-medium text-gray-900 mb-2">{t('analysis-results.screenDescription.keyElements')}</h4>
             <div className="flex flex-wrap gap-2">
               {safeAnalysis.screenDescription.keyElements.map((element: string, index: number) => (
                 <Badge key={index} variant="secondary">
@@ -132,7 +146,7 @@ export function AnalysisResultDisplay({
           </div>
           
           <div>
-            <h4 className="font-medium text-gray-900 mb-2">Обоснование уверенности</h4>
+            <h4 className="font-medium text-gray-900 mb-2">{t('analysis-results.screenDescription.confidenceReason')}</h4>
             <p className="text-gray-600">{safeAnalysis.screenDescription.confidenceReason}</p>
           </div>
         </CardContent>
@@ -146,13 +160,13 @@ export function AnalysisResultDisplay({
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              👥 Аудитория
+              👥 {t('analysis-results.audience.title')}
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-6">
             {/* Целевая аудитория */}
             <div>
-              <h4 className="font-medium text-gray-900 mb-3">Целевая аудитория</h4>
+              <h4 className="font-medium text-gray-900 mb-3">{t('analysis-results.audience.targetAudience')}</h4>
               <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
                 <p className="text-gray-700 leading-relaxed whitespace-pre-line">
                   {safeAnalysis.audience.targetAudience}
@@ -162,7 +176,7 @@ export function AnalysisResultDisplay({
 
             {/* Основная боль */}
             <div>
-              <h4 className="font-medium text-gray-900 mb-3">Основная боль</h4>
+              <h4 className="font-medium text-gray-900 mb-3">{t('analysis-results.audience.mainPain')}</h4>
               <div className="bg-red-50 border border-red-200 rounded-lg p-4">
                 <p className="text-gray-700 leading-relaxed whitespace-pre-line">
                   {safeAnalysis.audience.mainPain}
@@ -172,7 +186,7 @@ export function AnalysisResultDisplay({
 
             {/* Страхи */}
             <div>
-              <h4 className="font-medium text-gray-900 mb-3">Страхи пользователей</h4>
+              <h4 className="font-medium text-gray-900 mb-3">{t('analysis-results.audience.fears')}</h4>
               <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
                 <ol className="space-y-2">
                   {safeAnalysis.audience.fears.map((fear: string, index: number) => (
