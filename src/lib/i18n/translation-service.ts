@@ -15,7 +15,7 @@ class TranslationService {
 
     // Если уже идет загрузка, ждем ее завершения
     if (this.loadingPromises[language]) {
-      return this.loadingPromises[language]
+      return await this.loadingPromises[language]
     }
 
     // Начинаем загрузку
