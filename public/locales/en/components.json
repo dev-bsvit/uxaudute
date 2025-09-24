@@ -4,7 +4,8 @@
     "preparingPayment": "Preparing payment...",
     "buy": "Buy",
     "processingPayment": "Processing payment...",
-    "pay": "Pay"
+    "pay": "Pay",
+    "balance": "Balance"
   },
   "analysis": {
     "receivedData": "AnalysisResult received:",
@@ -50,6 +51,14 @@
     "ready": "Language system ready",
     "waiting": "Waiting for initialization",
     "loadingTranslations": "Loading translations and settings..."
+  },
+  "sidebar": {
+    "home": "Home",
+    "quickAnalysis": "Quick Analysis",
+    "myProjects": "My Projects",
+    "credits": "Credits",
+    "settings": "Settings",
+    "user": "User"
   },
   "test": {
     "sendingScreenshot": "Sending screenshot:",

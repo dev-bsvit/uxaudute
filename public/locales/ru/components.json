@@ -4,7 +4,8 @@
     "preparingPayment": "Подготовка платежа...",
     "buy": "Купить",
     "processingPayment": "Обработка платежа...",
-    "pay": "Оплатить"
+    "pay": "Оплатить",
+    "balance": "Баланс"
   },
   "analysis": {
     "receivedData": "AnalysisResult получил:",
@@ -50,6 +51,14 @@
     "ready": "Языковая система готова",
     "waiting": "Ожидание инициализации",
     "loadingTranslations": "Загрузка переводов и настроек..."
+  },
+  "sidebar": {
+    "home": "Главная",
+    "quickAnalysis": "Быстрый анализ",
+    "myProjects": "Мои проекты",
+    "credits": "Кредиты",
+    "settings": "Настройки",
+    "user": "Пользователь"
   },
   "test": {
     "sendingScreenshot": "Отправляем скриншот:",

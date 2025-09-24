@@ -18,7 +18,7 @@ import Link from "next/link";
 import { User } from "@supabase/supabase-js";
 import { signOut } from "@/lib/database";
 import { supabase } from "@/lib/supabase";
-import { useTranslation } from "@/hooks/use-translation";
+import { useTranslation } from "@/hooks/use-translation-safe";
 
 interface SidebarDemoProps {
   children: React.ReactNode;
@@ -26,40 +26,40 @@ interface SidebarDemoProps {
 }
 
 export function SidebarDemo({ children, user }: SidebarDemoProps) {
-  const { t } = useTranslation();
+  const { tWithFallback } = useTranslation();
   const [creditsBalance, setCreditsBalance] = useState<number | null>(null);
 
   const links = [
     {
-      label: t("components.sidebar.home"),
+      label: tWithFallback("components.sidebar.home", "Главная"),
       href: "/",
       icon: (
         <IconHome className="h-5 w-5 shrink-0 text-white" />
       ),
     },
     {
-      label: t("components.sidebar.quickAnalysis"),
+      label: tWithFallback("components.sidebar.quickAnalysis", "Быстрый анализ"),
       href: "/dashboard",
       icon: (
         <IconChartBar className="h-5 w-5 shrink-0 text-white" />
       ),
     },
     {
-      label: t("components.sidebar.myProjects"),
+      label: tWithFallback("components.sidebar.myProjects", "Мои проекты"),
       href: "/projects",
       icon: (
         <IconFolder className="h-5 w-5 shrink-0 text-white" />
       ),
     },
     {
-      label: t("components.sidebar.credits"),
+      label: tWithFallback("components.sidebar.credits", "Кредиты"),
       href: "/credits",
       icon: (
         <IconCreditCard className="h-5 w-5 shrink-0 text-white" />
       ),
     },
     {
-      label: t("components.sidebar.settings"),
+      label: tWithFallback("components.sidebar.settings", "Настройки"),
       href: "/settings",
       icon: (
         <IconSettings className="h-5 w-5 shrink-0 text-white" />
@@ -134,7 +134,7 @@ export function SidebarDemo({ children, user }: SidebarDemoProps) {
               {/* Баланс кредитов */}
               <div className="mt-4 p-3 bg-white/10 rounded-lg">
                 <div className="flex items-center justify-between">
-                  <span className="text-sm text-white/80">{t("components.credits.balance")}</span>
+                  <span className="text-sm text-white/80">{tWithFallback("components.credits.balance", "Баланс")}</span>
                   <span className="text-lg font-bold text-white">
                     {creditsBalance !== null ? creditsBalance : '...'}
                   </span>
@@ -146,14 +146,14 @@ export function SidebarDemo({ children, user }: SidebarDemoProps) {
                 className="flex items-center gap-3 px-3 py-2 text-sm font-medium text-white hover:bg-white/20 rounded-lg transition-colors"
               >
                 <IconLogout className="h-5 w-5 shrink-0" />
-                {t("navigation.logout")}
+                {tWithFallback("navigation.logout", "Выйти")}
               </button>
             </div>
           </div>
           <div>
             <SidebarLink
               link={{
-                label: user?.user_metadata?.full_name || user?.email?.split('@')[0] || t("components.sidebar.user"),
+                label: user?.user_metadata?.full_name || user?.email?.split('@')[0] || tWithFallback("components.sidebar.user", "Пользователь"),
                 href: "#",
                 icon: (
                   <div className="h-7 w-7 shrink-0 rounded-full bg-gradient-to-r from-blue-500 to-purple-600 flex items-center justify-center">

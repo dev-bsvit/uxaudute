@@ -47,7 +47,8 @@ class TranslationService {
           'errors',
           'analysis-results',
           'dashboard',
-          'projects'
+          'projects',
+          'components'
         ]
         const translations: TranslationMap = {}
 
