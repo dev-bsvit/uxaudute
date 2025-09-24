@@ -45,7 +45,13 @@ export function AnalysisResultDisplay({
 
   // Проверяем, что у нас есть минимально необходимая структура
   const safeAnalysis: StructuredAnalysisResponse = {
-    screenDescription: analysis.screenDescription || { screenType: t('common.unknown'), confidence: 0 },
+    screenDescription: analysis.screenDescription || { 
+      screenType: t('common.unknown'), 
+      confidence: 0,
+      userGoal: t('common.notLoaded'),
+      keyElements: [],
+      confidenceReason: t('common.notLoaded')
+    },
     uxSurvey: analysis.uxSurvey || { questions: [], overallConfidence: 0 },
     audience: analysis.audience || { 
       targetAudience: t('common.notLoaded'), 
@@ -146,7 +152,7 @@ export function AnalysisResultDisplay({
           <div>
             <h4 className="font-medium text-gray-900 mb-2">{t('analysis-results.screenDescription.keyElements')}</h4>
             <div className="flex flex-wrap gap-2">
-              {safeAnalysis.screenDescription.keyElements.map((element: string, index: number) => (
+              {(safeAnalysis.screenDescription.keyElements || []).map((element: string, index: number) => (
                 <Badge key={index} variant="secondary">
                   {element}
                 </Badge>
@@ -198,7 +204,7 @@ export function AnalysisResultDisplay({
               <h4 className="font-medium text-gray-900 mb-3">{t('analysis-results.audience.fears')}</h4>
               <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
                 <ol className="space-y-2">
-                  {safeAnalysis.audience.fears.map((fear: string, index: number) => (
+                  {(safeAnalysis.audience?.fears || []).map((fear: string, index: number) => (
                     <li key={index} className="flex items-start gap-2">
                       <span className="flex-shrink-0 w-6 h-6 bg-yellow-200 text-yellow-800 rounded-full flex items-center justify-center text-sm font-medium">
                         {index + 1}
@@ -256,7 +262,7 @@ export function AnalysisResultDisplay({
               <h4 className="font-medium text-gray-900 mb-3">{t('analysis-results.behavior.frictionPoints')}</h4>
               <div className="bg-orange-50 border border-orange-200 rounded-lg p-4">
                 <ol className="space-y-2">
-                  {safeAnalysis.behavior.frictionPoints.map((frictionPoint: any, index: number) => (
+                  {(safeAnalysis.behavior?.frictionPoints || []).map((frictionPoint: any, index: number) => (
                     <li key={index} className="flex items-start gap-2">
                       <span className="flex-shrink-0 w-6 h-6 bg-orange-200 text-orange-800 rounded-full flex items-center justify-center text-sm font-medium">
                         {index + 1}
@@ -296,13 +302,13 @@ export function AnalysisResultDisplay({
           <CardTitle className="flex items-center gap-2">
             🔧 {t('analysis-results.problemsAndSolutions.title')}
             <Badge variant="outline">
-              {Array.isArray(safeAnalysis.problemsAndSolutions) ? safeAnalysis.problemsAndSolutions.length : 0} {t('common.problems')}
+              {(safeAnalysis.problemsAndSolutions || []).length} {t('common.problems')}
             </Badge>
           </CardTitle>
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
-            {Array.isArray(safeAnalysis.problemsAndSolutions) ? safeAnalysis.problemsAndSolutions.map((problem: any, index: number) => (
+            {(safeAnalysis.problemsAndSolutions || []).map((problem: any, index: number) => (
               <div key={index} className="border rounded-lg p-4 space-y-3">
                 <div className="flex items-start justify-between">
                   <h4 className="font-medium text-gray-900">{problem.element}</h4>
@@ -355,7 +361,7 @@ export function AnalysisResultDisplay({
             <div>
               <h4 className="font-medium text-gray-900 mb-3">{t('analysis-results.selfCheck.checklist')}</h4>
               <div className="space-y-2">
-                {Object.entries(safeAnalysis.selfCheck.checklist).map(([key, value]: [string, any]) => (
+                {Object.entries(safeAnalysis.selfCheck?.checklist || {}).map(([key, value]: [string, any]) => (
                   <div key={key} className="flex items-center gap-2">
                     <span className={value ? 'text-green-500' : 'text-red-500'}>
                       {value ? '✅' : '❌'}
@@ -374,7 +380,7 @@ export function AnalysisResultDisplay({
             <div>
               <h4 className="font-medium text-gray-900 mb-3">{t('analysis-results.selfCheck.confidenceByBlocks')}</h4>
               <div className="space-y-2">
-                {Object.entries(safeAnalysis.selfCheck.confidence).map(([key, value]: [string, any]) => (
+                {Object.entries(safeAnalysis.selfCheck?.confidence || {}).map(([key, value]: [string, any]) => (
                   <div key={key} className="flex items-center justify-between">
                     <span className="text-sm text-gray-700">
                       {key === 'analysis' && t('common.analysis')}
