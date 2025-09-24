@@ -9,10 +9,12 @@ import Link from 'next/link'
 import { ArrowRight, Zap, Shield, BarChart3, Users } from 'lucide-react'
 import { createClient } from '@supabase/supabase-js'
 import { ensureUserHasInitialBalance } from '@/lib/database'
+import { useTranslation } from '@/hooks/use-translation'
 
 export default function HomePage() {
   // Версия 1.1 - обновленная структура
   const [mounted, setMounted] = useState(false)
+  const { t } = useTranslation()
   
   useEffect(() => {
     setMounted(true)
@@ -69,23 +71,23 @@ export default function HomePage() {
   const features = [
     {
       icon: <Zap className="w-8 h-8 text-blue-600" />,
-      title: "GPT-4 Анализ",
-      description: "Мощный ИИ анализирует ваши интерфейсы на основе эвристик Нильсена и WCAG 2.2"
+      title: t('analysis.features.gpt4Analysis.title'),
+      description: t('analysis.features.gpt4Analysis.description')
     },
     {
       icon: <Shield className="w-8 h-8 text-green-600" />,
-      title: "Методологии UX",
-      description: "Основано на проверенных принципах: Fitts' Law, Hick-Hyman, ISO 9241"
+      title: t('analysis.features.uxMethodologies.title'),
+      description: t('analysis.features.uxMethodologies.description')
     },
     {
       icon: <BarChart3 className="w-8 h-8 text-purple-600" />,
-      title: "Детальные отчеты",
-      description: "Структурированные рекомендации с процентными оценками и планами улучшения"
+      title: t('analysis.features.detailedReports.title'),
+      description: t('analysis.features.detailedReports.description')
     },
     {
       icon: <Users className="w-8 h-8 text-orange-600" />,
-      title: "Управление проектами",
-      description: "Организуйте свои исследования, сохраняйте историю и отслеживайте прогресс"
+      title: t('analysis.features.projectManagement.title'),
+      description: t('analysis.features.projectManagement.description')
     }
   ]
 
@@ -125,21 +127,21 @@ export default function HomePage() {
           <div className="py-20 text-center">
             <div className="max-w-3xl mx-auto px-6">
               <h2 className="text-3xl font-bold text-slate-900 mb-6">
-                Готовы улучшить пользовательский опыт?
+                {t('analysis.cta.title')}
               </h2>
               <p className="text-lg text-slate-600 mb-8">
-                Начните анализ своих интерфейсов прямо сейчас. Войдите в систему и создайте свой первый проект.
+                {t('analysis.cta.description')}
               </p>
               <div className="space-x-4">
                 <Link href="/dashboard">
                   <Button size="lg" className="px-8 py-4 text-lg">
-                    Начать бесплатно
+                    {t('analysis.cta.startFree')}
                     <ArrowRight className="w-5 h-5 ml-2" />
                   </Button>
                 </Link>
                 <Link href="/credits">
                   <Button variant="outline" size="lg" className="px-8 py-4 text-lg">
-                    💰 Управление кредитами
+                    {t('analysis.cta.manageCredits')}
                   </Button>
                 </Link>
               </div>

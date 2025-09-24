@@ -7,6 +7,7 @@ export interface Database {
           email: string
           full_name: string | null
           avatar_url: string | null
+          preferred_language: string | null
           created_at: string
           updated_at: string
         }
@@ -15,6 +16,7 @@ export interface Database {
           email: string
           full_name?: string | null
           avatar_url?: string | null
+          preferred_language?: string | null
           created_at?: string
           updated_at?: string
         }
@@ -23,6 +25,7 @@ export interface Database {
           email?: string
           full_name?: string | null
           avatar_url?: string | null
+          preferred_language?: string | null
           created_at?: string
           updated_at?: string
         }

@@ -19,15 +19,19 @@ import {
   Bell, 
   Shield, 
   Palette, 
+  Globe,
   Save,
   AlertCircle,
   CheckCircle
 } from 'lucide-react';
+import { LanguageSelectorDetailed } from '@/components/language-selector';
+import { useTranslation } from '@/hooks/use-translation';
 
 export default function SettingsPage() {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const { t } = useTranslation();
   const [message, setMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null);
   
   // Настройки профиля
@@ -95,9 +99,9 @@ export default function SettingsPage() {
       });
 
       if (error) throw error;
-      showMessage('success', 'Профиль успешно обновлен');
+      showMessage('success', t('settings.profileSaved'));
     } catch (error) {
-      showMessage('error', 'Ошибка при сохранении профиля');
+      showMessage('error', t('settings.profileError'));
     } finally {
       setSaving(false);
     }
@@ -107,9 +111,9 @@ export default function SettingsPage() {
     setSaving(true);
     try {
       // Здесь можно добавить сохранение настроек уведомлений в базу данных
-      showMessage('success', 'Настройки уведомлений сохранены');
+      showMessage('success', t('settings.notificationsSaved'));
     } catch (error) {
-      showMessage('error', 'Ошибка при сохранении настроек');
+      showMessage('error', t('settings.notificationsError'));
     } finally {
       setSaving(false);
     }
@@ -119,9 +123,9 @@ export default function SettingsPage() {
     setSaving(true);
     try {
       // Здесь можно добавить сохранение настроек интерфейса
-      showMessage('success', 'Настройки интерфейса сохранены');
+      showMessage('success', t('settings.interfaceSaved'));
     } catch (error) {
-      showMessage('error', 'Ошибка при сохранении настроек');
+      showMessage('error', t('settings.interfaceError'));
     } finally {
       setSaving(false);
     }
@@ -158,11 +162,11 @@ export default function SettingsPage() {
         <div className="space-y-8">
           <div className="flex items-center justify-between">
             <PageHeader 
-              title="Настройки"
-              description="Управляйте своим профилем и предпочтениями приложения"
+              title={t('settings.title')}
+              description={t('settings.subtitle')}
             />
             <Badge variant="outline" className="text-sm">
-              Версия 1.0
+              {t('settings.version', { version: '1.0' })}
             </Badge>
           </div>
 
@@ -185,15 +189,15 @@ export default function SettingsPage() {
             <TabsList className="grid w-full grid-cols-4">
               <TabsTrigger value="profile" className="flex items-center gap-2">
                 <UserIcon className="w-4 h-4" />
-                Профиль
+                {t('settings.profile')}
               </TabsTrigger>
               <TabsTrigger value="notifications" className="flex items-center gap-2">
                 <Bell className="w-4 h-4" />
-                Уведомления
+                {t('settings.notifications')}
               </TabsTrigger>
               <TabsTrigger value="interface" className="flex items-center gap-2">
                 <Palette className="w-4 h-4" />
-                Интерфейс
+                {t('settings.interface')}
               </TabsTrigger>
               <TabsTrigger value="security" className="flex items-center gap-2">
                 <Shield className="w-4 h-4" />
@@ -342,33 +346,26 @@ export default function SettingsPage() {
             <TabsContent value="interface" className="space-y-6">
           <Card>
             <CardHeader>
-              <CardTitle>Настройки интерфейса</CardTitle>
+              <CardTitle>{t('settings.interfaceSettings')}</CardTitle>
               <CardDescription>
-                Персонализируйте внешний вид и поведение приложения
+                {t('settings.interfaceDescription')}
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
               <div className="flex items-center justify-between">
                 <div className="space-y-0.5">
-                  <Label>Язык интерфейса</Label>
-                  <p className="text-sm text-gray-500">Выберите предпочитаемый язык</p>
+                  <Label>{t('settings.language')}</Label>
+                  <p className="text-sm text-gray-500">{t('settings.languageDescription')}</p>
                 </div>
-                <select 
-                  className="px-3 py-2 border border-gray-300 rounded-md"
-                  value={interfaceSettings.language}
-                  onChange={(e) => setInterfaceSettings(prev => ({ ...prev, language: e.target.value }))}
-                >
-                  <option value="ru">Русский</option>
-                  <option value="en">English</option>
-                </select>
+                <LanguageSelectorDetailed />
               </div>
 
               <Separator />
 
               <div className="flex items-center justify-between">
                 <div className="space-y-0.5">
-                  <Label>Компактный режим</Label>
-                  <p className="text-sm text-gray-500">Уменьшить отступы и размеры элементов</p>
+                  <Label>{t('settings.compactMode')}</Label>
+                  <p className="text-sm text-gray-500">{t('settings.compactModeDescription')}</p>
                 </div>
                 <Switch
                   checked={interfaceSettings.compactMode}
@@ -380,8 +377,8 @@ export default function SettingsPage() {
 
               <div className="flex items-center justify-between">
                 <div className="space-y-0.5">
-                  <Label>Показывать подсказки</Label>
-                  <p className="text-sm text-gray-500">Отображать всплывающие подсказки</p>
+                  <Label>{t('settings.showTips')}</Label>
+                  <p className="text-sm text-gray-500">{t('settings.showTipsDescription')}</p>
                 </div>
                 <Switch
                   checked={interfaceSettings.showTips}
@@ -396,7 +393,7 @@ export default function SettingsPage() {
               <div className="flex justify-end">
                 <Button onClick={handleSaveInterface} disabled={saving}>
                   <Save className="w-4 h-4 mr-2" />
-                  {saving ? 'Сохранение...' : 'Сохранить настройки'}
+                  {saving ? t('settings.saving') : t('settings.saveInterface')}
                 </Button>
               </div>
             </CardContent>

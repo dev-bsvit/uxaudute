@@ -8,6 +8,8 @@ import { User, LogOut, Settings, ChevronDown } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 import { signOut } from '@/lib/database'
 import { User as SupabaseUser } from '@supabase/supabase-js'
+import { LanguageSelector } from '@/components/language-selector'
+import { useTranslation } from '@/hooks/use-translation'
 
 interface LayoutProps {
   children: ReactNode
@@ -19,11 +21,12 @@ export function Layout({ children, title = 'UX Audit', transparentHeader = false
   const pathname = usePathname()
   const [user, setUser] = useState<SupabaseUser | null>(null)
   const [showUserMenu, setShowUserMenu] = useState(false)
+  const { t } = useTranslation()
   
   // Навигация с Dashboard для быстрого анализа
   const navigation = [
-    { name: 'Быстрый анализ', href: '/dashboard', current: pathname === '/dashboard' },
-    { name: 'Мои проекты', href: '/projects', current: pathname.startsWith('/projects') },
+    { name: t('navigation.quickAnalysis'), href: '/dashboard', current: pathname === '/dashboard' },
+    { name: t('navigation.myProjects'), href: '/projects', current: pathname.startsWith('/projects') },
   ]
 
   useEffect(() => {
@@ -104,6 +107,14 @@ export function Layout({ children, title = 'UX Audit', transparentHeader = false
             </div>
             
             <div className="flex items-center space-x-4">
+              {/* Селектор языка */}
+              <LanguageSelector 
+                variant="header" 
+                showFlags={true} 
+                showNativeNames={false}
+                className="hidden sm:block"
+              />
+              
               {title !== 'UX Audit' && (
                 <div className="text-sm text-gray-600 hidden sm:block">
                   {title}
@@ -142,7 +153,7 @@ export function Layout({ children, title = 'UX Audit', transparentHeader = false
                         onClick={() => setShowUserMenu(false)}
                       >
                         <span>🎯</span>
-                        Быстрый анализ
+                        {t('navigation.quickAnalysis')}
                       </Link>
                       
                       <Link
@@ -151,7 +162,16 @@ export function Layout({ children, title = 'UX Audit', transparentHeader = false
                         onClick={() => setShowUserMenu(false)}
                       >
                         <Settings className="w-4 h-4" />
-                        Мои проекты
+                        {t('navigation.myProjects')}
+                      </Link>
+                      
+                      <Link
+                        href="/settings"
+                        className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
+                        onClick={() => setShowUserMenu(false)}
+                      >
+                        <Settings className="w-4 h-4" />
+                        {t('navigation.settings')}
                       </Link>
                       
                       <button
@@ -159,7 +179,7 @@ export function Layout({ children, title = 'UX Audit', transparentHeader = false
                         className="flex items-center gap-2 w-full px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors"
                       >
                         <LogOut className="w-4 h-4" />
-                        Выйти
+                        {t('navigation.logout')}
                       </button>
                     </div>
                   )}
@@ -167,7 +187,7 @@ export function Layout({ children, title = 'UX Audit', transparentHeader = false
               ) : (
                 <Link href="/dashboard">
                   <Button size="sm" className="bg-blue-600 hover:bg-blue-700 text-white">
-                    Войти
+                    {t('navigation.login')}
                   </Button>
                 </Link>
               )}
