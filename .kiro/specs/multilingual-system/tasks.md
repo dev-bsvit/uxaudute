@@ -66,13 +66,13 @@
   - Ensure analysis history shows language indicators for each analysis
   - _Requirements: 3.3, 7.3_
 
-- [-] 12. Add comprehensive error handling and fallbacks
+- [x] 12. Add comprehensive error handling and fallbacks
   - Implement robust error handling for missing translations
   - Add fallback mechanisms for failed prompt loading
   - Create user-friendly error messages in multiple languages
   - _Requirements: 5.3, 5.4_
 
-- [ ] 13. Create language detection and initialization logic
+- [-] 13. Create language detection and initialization logic
   - Implement automatic language detection from browser settings
   - Add initialization logic that respects user preferences over browser settings
   - Ensure smooth app startup with proper language loading

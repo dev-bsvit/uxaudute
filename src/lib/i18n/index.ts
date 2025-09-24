@@ -1,6 +1,9 @@
 export * from './types'
 export * from './translation-service'
 export * from './prompt-service'
+export * from './language-detector'
+export * from './language-initializer'
+export * from './error-handler'
 
 import { translationService } from './translation-service'
 import { promptService } from './prompt-service'

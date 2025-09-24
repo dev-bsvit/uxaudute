@@ -7,10 +7,9 @@ import {
   SUPPORTED_LANGUAGES, 
   DEFAULT_LANGUAGE,
   translationService,
-  getBrowserLanguage,
-  isSupportedLanguage,
-  initializeI18n
+  isSupportedLanguage
 } from '@/lib/i18n'
+import { languageInitializer } from '@/lib/i18n/language-initializer'
 
 const LanguageContext = createContext<LanguageContextType | undefined>(undefined)
 
@@ -35,20 +34,20 @@ export function LanguageProvider({ children }: LanguageProviderProps) {
     try {
       setIsLoading(true)
       
-      // Определяем предпочтительный язык пользователя
-      const { userSettingsService } = await import('@/lib/i18n/user-settings')
-      const preferredLanguage = await userSettingsService.determinePreferredLanguage()
+      // Используем новый инициализатор для быстрой загрузки
+      const result = await languageInitializer.quickInitialize()
       
-      // Инициализируем i18n систему
-      await initializeI18n(preferredLanguage)
-      
-      setCurrentLanguage(preferredLanguage)
+      setCurrentLanguage(result.language)
       
       // Сохраняем выбранный язык в localStorage
-      saveLanguageToStorage(preferredLanguage)
+      saveLanguageToStorage(result.language)
       
-      // Синхронизируем настройки между localStorage и базой данных
-      await userSettingsService.syncLanguageSettings()
+      console.log('Language system initialized:', result)
+      
+      // Запускаем полную инициализацию в фоне
+      languageInitializer.initialize().catch(error => {
+        console.warn('Background initialization failed:', error)
+      })
       
     } catch (error) {
       console.error('Failed to initialize language:', error)
@@ -104,19 +103,7 @@ export function LanguageProvider({ children }: LanguageProviderProps) {
     return translationService.getTranslation(key, currentLanguage, params)
   }
 
-  /**
-   * Получает язык из localStorage
-   */
-  const getLanguageFromStorage = (): string | null => {
-    if (typeof window === 'undefined') return null
-    
-    try {
-      return localStorage.getItem('preferred_language')
-    } catch (error) {
-      console.error('Failed to get language from localStorage:', error)
-      return null
-    }
-  }
+
 
   /**
    * Сохраняет язык в localStorage
