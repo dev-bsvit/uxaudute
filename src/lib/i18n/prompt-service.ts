@@ -40,8 +40,9 @@ class PromptService {
       return
     }
 
-    if (this.loadingPromises[language]) {
-      await this.loadingPromises[language]
+    const existingPromise = this.loadingPromises[language]
+    if (existingPromise) {
+      await existingPromise
       return
     }
 
