@@ -53,15 +53,24 @@ export default function AuditPage() {
         return
       }
 
-      // Пытаемся распарсить JSON результат
-      let analysisResult: string | StructuredAnalysisResponse | undefined = audit.result_data?.analysis_result as string | StructuredAnalysisResponse | undefined
-      if (typeof analysisResult === 'string') {
-        try {
-          const parsed = JSON.parse(analysisResult)
-          analysisResult = parsed as StructuredAnalysisResponse
-        } catch {
-          // Оставляем как строку, если не удалось распарсить
-        }
+      console.log('Аудит загружен:', audit)
+      console.log('✅ Результат найден в audits:', audit.result_data)
+      console.log('Отображаем результат аудита:', audit.result_data)
+      console.log('Ключи result_data:', Object.keys(audit.result_data || {}))
+      console.log('analysis_result:', audit.result_data?.analysis_result)
+      console.log('Весь result_data:', JSON.stringify(audit.result_data))
+
+      // Обрабатываем результат - он может быть в разных форматах
+      let analysisResult: string | StructuredAnalysisResponse | undefined
+      
+      if (audit.result_data?.analysis_result) {
+        analysisResult = audit.result_data.analysis_result as string | StructuredAnalysisResponse
+      } else if (audit.result_data?.content) {
+        // Результат может быть в поле content
+        analysisResult = audit.result_data.content as string
+      } else if (audit.result_data) {
+        // Весь result_data может быть результатом
+        analysisResult = audit.result_data as any
       }
 
       setAuditData({

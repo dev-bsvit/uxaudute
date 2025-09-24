@@ -5,6 +5,7 @@ import { Badge } from '@/components/ui/badge'
 import { Eye, CheckCircle, AlertCircle, TrendingUp, Monitor, Link2, BarChart3, Target, Lightbulb, Users } from 'lucide-react'
 import { AnalysisResultDisplay } from './analysis-result-display'
 import { StructuredAnalysisResponse, isStructuredResponse } from '@/lib/analysis-types'
+import { safeParseJSON, validateAnalysisResponse } from '@/lib/json-parser'
 
 interface AnalysisResultProps {
   result: string | StructuredAnalysisResponse
@@ -16,18 +17,34 @@ interface AnalysisResultProps {
 export function AnalysisResult({ result, screenshot, url, auditId }: AnalysisResultProps) {
   console.log('AnalysisResult received:', { result, screenshot, url, auditId })
   console.log('Result type:', typeof result)
-  console.log('isStructuredResponse:', typeof result === 'object' ? isStructuredResponse(result) : false)
   
-  // Проверяем, является ли результат JSON структурой
-  const isJsonResult = typeof result === 'object' && isStructuredResponse(result)
+  // Пытаемся получить структурированный результат
+  let structuredResult: StructuredAnalysisResponse | null = null
+  
+  if (typeof result === 'object' && isStructuredResponse(result)) {
+    // Уже структурированный объект
+    structuredResult = result as StructuredAnalysisResponse
+    console.log('✅ Using existing structured result')
+  } else if (typeof result === 'string') {
+    // Пытаемся распарсить JSON строку
+    console.log('🔄 Attempting to parse JSON string...')
+    structuredResult = safeParseJSON(result)
+  } else if (typeof result === 'object' && result && 'content' in result) {
+    // Результат содержит поле content с JSON
+    console.log('🔄 Extracting content from result object...')
+    const content = (result as any).content
+    if (typeof content === 'string') {
+      structuredResult = safeParseJSON(content)
+    }
+  }
 
-  // Если это JSON результат, используем новый компонент
-  if (isJsonResult) {
+  // Если удалось получить структурированный результат, используем новый компонент
+  if (structuredResult && validateAnalysisResponse(structuredResult)) {
+    console.log('✅ Using AnalysisResultDisplay with structured data')
     return (
       <div className="w-full">
-        {/* JSON отображение с поддержкой скриншота */}
         <AnalysisResultDisplay 
-          analysis={result as StructuredAnalysisResponse}
+          analysis={structuredResult}
           screenshot={screenshot}
           url={url}
           auditId={auditId}
@@ -35,6 +52,10 @@ export function AnalysisResult({ result, screenshot, url, auditId }: AnalysisRes
       </div>
     )
   }
+
+  console.log('⚠️ Falling back to legacy text display')
+  
+  // Fallback на старый текстовый формат
 
   // Для текстовых результатов используем старый формат
   const parseAnalysis = (text: string | StructuredAnalysisResponse) => {
