@@ -53,10 +53,13 @@ export function LanguageSelector({
     setIsOpen(false)
 
     try {
+      console.log('🔄 Switching language to:', languageCode)
       const result = await switchLanguage(languageCode)
       if (!result.success) {
         console.error('Failed to switch language:', result.error)
         // Можно показать уведомление об ошибке
+      } else {
+        console.log('✅ Language switched successfully to:', languageCode)
       }
     } catch (error) {
       console.error('Error switching language:', error)

@@ -23,25 +23,41 @@ export function SmoothLanguageInitializer({
   const { isLoading, currentLanguage } = useLanguage()
   const [showLoading, setShowLoading] = useState(true)
   const [minTimeElapsed, setMinTimeElapsed] = useState(false)
+  const [hasInitialized, setHasInitialized] = useState(false)
 
-  // Устанавливаем минимальное время показа загрузки
+  // Проверяем, была ли уже инициализация (для предотвращения повторных экранов загрузки)
   useEffect(() => {
-    const timer = setTimeout(() => {
+    const wasInitialized = sessionStorage.getItem('language_initialized')
+    if (wasInitialized) {
+      setHasInitialized(true)
+      setShowLoading(false)
       setMinTimeElapsed(true)
-    }, minLoadingTime)
+    }
+  }, [])
 
-    return () => clearTimeout(timer)
-  }, [minLoadingTime])
+  // Устанавливаем минимальное время показа загрузки только при первой инициализации
+  useEffect(() => {
+    if (!hasInitialized) {
+      const timer = setTimeout(() => {
+        setMinTimeElapsed(true)
+      }, minLoadingTime)
+
+      return () => clearTimeout(timer)
+    }
+  }, [minLoadingTime, hasInitialized])
 
   // Скрываем загрузку когда язык загружен и прошло минимальное время
   useEffect(() => {
-    if (!isLoading && minTimeElapsed) {
+    if (!isLoading && minTimeElapsed && !hasInitialized) {
       setShowLoading(false)
+      setHasInitialized(true)
+      // Сохраняем флаг инициализации в sessionStorage
+      sessionStorage.setItem('language_initialized', 'true')
     }
-  }, [isLoading, minTimeElapsed])
+  }, [isLoading, minTimeElapsed, hasInitialized])
 
-  // Показываем экран загрузки
-  if (showLoading && showLoadingScreen) {
+  // Показываем экран загрузки только при первой инициализации
+  if (showLoading && showLoadingScreen && !hasInitialized) {
     return (
       <div className="min-h-screen bg-white flex items-center justify-center">
         <div className="flex flex-col items-center gap-4">

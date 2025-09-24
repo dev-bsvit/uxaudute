@@ -35,7 +35,39 @@ export function LanguageProvider({ children }: LanguageProviderProps) {
       setIsLoading(true)
       console.log('🚀 Starting language provider initialization...')
       
-      // Используем новый инициализатор для быстрой загрузки
+      // Сначала проверяем сохраненный язык в localStorage
+      const savedLanguage = getSavedLanguage()
+      if (savedLanguage && isSupportedLanguage(savedLanguage)) {
+        console.log('📱 Found saved language in localStorage:', savedLanguage)
+        setCurrentLanguage(savedLanguage)
+        
+        // Быстро загружаем переводы для сохраненного языка
+        try {
+          await translationService.loadTranslations(savedLanguage)
+          console.log('✅ Translations loaded for saved language:', savedLanguage)
+        } catch (error) {
+          console.warn('⚠️ Failed to load translations for saved language:', error)
+        }
+        
+        setIsLoading(false)
+        
+        // Запускаем полную инициализацию в фоне
+        languageInitializer.initialize().then(fullResult => {
+          console.log('🎯 Background initialization completed:', fullResult)
+          // Если определенный язык отличается от сохраненного, обновляем
+          if (fullResult.language !== savedLanguage) {
+            console.log('🔄 Updating language from background detection:', fullResult.language)
+            setCurrentLanguage(fullResult.language)
+            saveLanguageToStorage(fullResult.language)
+          }
+        }).catch(error => {
+          console.warn('⚠️ Background initialization failed:', error)
+        })
+        
+        return
+      }
+      
+      // Если нет сохраненного языка, используем инициализатор
       const result = await languageInitializer.quickInitialize()
       
       console.log('📋 Language initialization result:', result)
@@ -111,6 +143,20 @@ export function LanguageProvider({ children }: LanguageProviderProps) {
 
 
   /**
+   * Получает сохраненный язык из localStorage
+   */
+  const getSavedLanguage = (): string | null => {
+    if (typeof window === 'undefined') return null
+    
+    try {
+      return localStorage.getItem('preferred_language')
+    } catch (error) {
+      console.error('Failed to get language from localStorage:', error)
+      return null
+    }
+  }
+
+  /**
    * Сохраняет язык в localStorage
    */
   const saveLanguageToStorage = (language: string): void => {
@@ -118,6 +164,7 @@ export function LanguageProvider({ children }: LanguageProviderProps) {
     
     try {
       localStorage.setItem('preferred_language', language)
+      console.log('💾 Language saved to localStorage:', language)
     } catch (error) {
       console.error('Failed to save language to localStorage:', error)
     }

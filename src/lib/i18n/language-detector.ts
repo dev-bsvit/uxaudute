@@ -124,11 +124,14 @@ export class LanguageDetector {
       if (typeof window === 'undefined') return null
 
       const language = localStorage.getItem('preferred_language')
+      console.log('🔍 Checking localStorage for language:', language)
       
       if (language && isSupportedLanguage(language)) {
+        console.log('✅ Found valid language in localStorage:', language)
         return language
       }
 
+      console.log('⚠️ No valid language found in localStorage')
       return null
     } catch (error) {
       console.warn('Failed to get language from localStorage:', error)
