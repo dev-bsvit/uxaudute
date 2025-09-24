@@ -14,13 +14,11 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Switch } from '@/components/ui/switch';
 import { Separator } from '@/components/ui/separator';
 import { Badge } from '@/components/ui/badge';
-import { useRouter } from 'next/navigation';
 import { 
   User as UserIcon, 
   Bell, 
   Shield, 
   Palette, 
-  Globe, 
   Save,
   AlertCircle,
   CheckCircle
@@ -31,7 +29,6 @@ export default function SettingsPage() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null);
-  const router = useRouter();
   
   // Настройки профиля
   const [profileSettings, setProfileSettings] = useState({
@@ -73,7 +70,7 @@ export default function SettingsPage() {
     });
 
     // Слушаем изменения аутентификации
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       setUser(session?.user ?? null);
       setLoading(false);
     });
@@ -464,8 +461,10 @@ export default function SettingsPage() {
               </div>
             </CardContent>
           </Card>
-        </TabsContent>
-      </Tabs>
-    </div>
+            </TabsContent>
+          </Tabs>
+        </div>
+      </PageContent>
+    </SidebarDemo>
   );
 }
