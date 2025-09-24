@@ -10,6 +10,7 @@ import {
   isSupportedLanguage
 } from '@/lib/i18n'
 import { languageInitializer } from '@/lib/i18n/language-initializer'
+import { TranslationPreloader } from './translation-preloader'
 
 const LanguageContext = createContext<LanguageContextType | undefined>(undefined)
 
@@ -137,6 +138,10 @@ export function LanguageProvider({ children }: LanguageProviderProps) {
    * Функция перевода
    */
   const t = (key: string, params?: Record<string, string>): string => {
+    // Если переводы еще загружаются, возвращаем пустую строку вместо ключа
+    if (isLoading) {
+      return ''
+    }
     return translationService.getTranslation(key, currentLanguage, params)
   }
 
@@ -204,7 +209,9 @@ export function LanguageProvider({ children }: LanguageProviderProps) {
 
   return (
     <LanguageContext.Provider value={contextValue}>
-      {children}
+      <TranslationPreloader language={currentLanguage}>
+        {children}
+      </TranslationPreloader>
     </LanguageContext.Provider>
   )
 }

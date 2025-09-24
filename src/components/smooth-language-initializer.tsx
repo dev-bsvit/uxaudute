@@ -56,8 +56,8 @@ export function SmoothLanguageInitializer({
     }
   }, [isLoading, minTimeElapsed, hasInitialized])
 
-  // Показываем экран загрузки только при первой инициализации
-  if (showLoading && showLoadingScreen && !hasInitialized) {
+  // Показываем экран загрузки при первой инициализации или если переводы еще загружаются
+  if ((showLoading && showLoadingScreen && !hasInitialized) || isLoading) {
     return (
       <div className="min-h-screen bg-white flex items-center justify-center">
         <div className="flex flex-col items-center gap-4">

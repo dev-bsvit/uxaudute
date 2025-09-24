@@ -113,8 +113,11 @@ class TranslationService {
       { key, language }
     )
 
-    // Возвращаем ключ для отладки
-    return `[${key}]`
+    // В продакшене возвращаем пустую строку, в разработке - ключ для отладки
+    if (process.env.NODE_ENV === 'development') {
+      return `[${key}]`
+    }
+    return ''
   }
 
   /**
