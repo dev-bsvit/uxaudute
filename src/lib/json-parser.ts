@@ -114,12 +114,20 @@ function createFallbackFromPartialJSON(jsonString: string): StructuredAnalysisRe
   const fallback: StructuredAnalysisResponse = {
     screenDescription: {
       screenType: 'Неизвестно',
+      userGoal: 'Данные недоступны',
+      keyElements: [],
       confidence: 0,
-      keyElements: []
+      confidenceReason: 'Данные не были получены'
     },
     uxSurvey: {
       questions: [],
-      overallConfidence: 0
+      overallConfidence: 0,
+      summary: {
+        totalQuestions: 0,
+        averageConfidence: 0,
+        criticalIssues: 0,
+        recommendations: []
+      }
     },
     audience: {
       targetAudience: 'Данные недоступны',
@@ -138,9 +146,22 @@ function createFallbackFromPartialJSON(jsonString: string): StructuredAnalysisRe
     },
     problemsAndSolutions: [],
     selfCheck: {
-      checklist: {},
-      confidence: {},
-      overallConfidence: 0
+      checklist: {
+        coversAllElements: false,
+        noContradictions: false,
+        principlesJustified: false,
+        actionClarity: false
+      },
+      confidence: {
+        analysis: 0,
+        survey: 0,
+        recommendations: 0
+      }
+    },
+    metadata: {
+      timestamp: new Date().toISOString(),
+      version: '1.0',
+      model: 'fallback'
     }
   }
 
@@ -167,7 +188,7 @@ function extractPartialData(jsonString: string): Partial<StructuredAnalysisRespo
   
   try {
     // Ищем screenDescription
-    const screenDescMatch = jsonString.match(/"screenDescription":\s*({[^}]*})/s)
+    const screenDescMatch = jsonString.match(/"screenDescription":\s*({[^}]*})/)
     if (screenDescMatch) {
       try {
         result.screenDescription = JSON.parse(screenDescMatch[1])
@@ -177,7 +198,7 @@ function extractPartialData(jsonString: string): Partial<StructuredAnalysisRespo
     }
     
     // Ищем uxSurvey
-    const surveyMatch = jsonString.match(/"uxSurvey":\s*({.*?"overallConfidence":\s*\d+[^}]*})/s)
+    const surveyMatch = jsonString.match(/"uxSurvey":\s*({.*?"overallConfidence":\s*\d+[^}]*})/)
     if (surveyMatch) {
       try {
         result.uxSurvey = JSON.parse(surveyMatch[1])
@@ -187,7 +208,7 @@ function extractPartialData(jsonString: string): Partial<StructuredAnalysisRespo
     }
     
     // Ищем audience
-    const audienceMatch = jsonString.match(/"audience":\s*({[^}]*})/s)
+    const audienceMatch = jsonString.match(/"audience":\s*({[^}]*})/)
     if (audienceMatch) {
       try {
         result.audience = JSON.parse(audienceMatch[1])
@@ -197,7 +218,7 @@ function extractPartialData(jsonString: string): Partial<StructuredAnalysisRespo
     }
     
     // Ищем problemsAndSolutions
-    const problemsMatch = jsonString.match(/"problemsAndSolutions":\s*(\[[^\]]*\])/s)
+    const problemsMatch = jsonString.match(/"problemsAndSolutions":\s*(\[[^\]]*\])/)
     if (problemsMatch) {
       try {
         result.problemsAndSolutions = JSON.parse(problemsMatch[1])

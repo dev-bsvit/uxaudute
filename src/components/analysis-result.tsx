@@ -288,7 +288,7 @@ export function AnalysisResult({ result, screenshot, url, auditId }: AnalysisRes
           <CardContent className="p-6">
             <div 
               className="prose prose-slate max-w-none text-slate-700 leading-relaxed"
-              dangerouslySetInnerHTML={{ __html: formatText(result) }}
+              dangerouslySetInnerHTML={{ __html: formatText(typeof result === 'string' ? result : JSON.stringify(result, null, 2)) }}
             />
           </CardContent>
         </Card>
