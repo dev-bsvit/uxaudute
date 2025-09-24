@@ -11,10 +11,18 @@ export class UserSettingsService {
     }
 
     try {
+      // Получаем информацию о пользователе для email
+      const { data: { user } } = await supabase.auth.getUser()
+      
+      if (!user || user.id !== userId) {
+        throw new Error('User not authenticated or ID mismatch')
+      }
+
       const { error } = await supabase
         .from('profiles')
         .upsert({
           id: userId,
+          email: user.email,
           preferred_language: language,
           updated_at: new Date().toISOString()
         })
