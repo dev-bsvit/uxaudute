@@ -2,7 +2,7 @@ import { PromptType, FALLBACK_LANGUAGE } from './types'
 
 class PromptService {
   private prompts: Record<string, Record<PromptType, string>> = {}
-  private loadingPromises: Record<string, Promise<void>> = {}
+  private loadingPromises: Record<string, Promise<void> | undefined> = {}
 
   /**
    * Загружает промпт для указанного типа и языка

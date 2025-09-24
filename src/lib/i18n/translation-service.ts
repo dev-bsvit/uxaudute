@@ -2,7 +2,7 @@ import { TranslationMap, FALLBACK_LANGUAGE } from './types'
 
 class TranslationService {
   private translations: Record<string, TranslationMap> = {}
-  private loadingPromises: Record<string, Promise<TranslationMap>> = {}
+  private loadingPromises: Record<string, Promise<TranslationMap> | undefined> = {}
 
   /**
    * Загружает переводы для указанного языка
@@ -14,8 +14,9 @@ class TranslationService {
     }
 
     // Если уже идет загрузка, ждем ее завершения
-    if (this.loadingPromises[language]) {
-      return await this.loadingPromises[language]
+    const existingPromise = this.loadingPromises[language]
+    if (existingPromise) {
+      return await existingPromise
     }
 
     // Начинаем загрузку
