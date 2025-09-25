@@ -16,6 +16,7 @@ import { supabase } from '@/lib/supabase'
 import { User } from '@supabase/supabase-js'
 import { ABTestResponse, HypothesisResponse } from '@/lib/analysis-types'
 import { safeParseJSON } from '@/lib/json-parser'
+import { safeAdaptAnalysisData } from '@/lib/analysis-data-adapter'
 import Link from 'next/link'
 
 interface Audit {
@@ -503,6 +504,17 @@ export default function AuditPage() {
                     console.log('Используем оригинальные данные без парсинга')
                     result = audit.result_data
                   }
+                }
+                
+                // Адаптируем данные к новому формату
+                console.log('🔄 Attempting to adapt data format...')
+                const adaptedResult = safeAdaptAnalysisData(result)
+                
+                if (adaptedResult) {
+                  console.log('✅ Data successfully adapted:', Object.keys(adaptedResult))
+                  result = adaptedResult
+                } else {
+                  console.log('⚠️ Could not adapt data, using original format')
                 }
                 
                 console.log('Результат для AnalysisResultDisplay:', result)
