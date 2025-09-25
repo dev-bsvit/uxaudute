@@ -6,6 +6,7 @@ import { Eye, CheckCircle, AlertCircle, TrendingUp, Monitor, Link2, BarChart3, T
 import { AnalysisResultDisplay } from './analysis-result-display'
 import { StructuredAnalysisResponse, isStructuredResponse } from '@/lib/analysis-types'
 import { safeParseJSON, validateAnalysisResponse } from '@/lib/json-parser'
+import { DebugAnalysisData } from './debug-analysis-data'
 
 interface AnalysisResultProps {
   result: string | StructuredAnalysisResponse
@@ -17,9 +18,17 @@ interface AnalysisResultProps {
 export function AnalysisResult({ result, screenshot, url, auditId }: AnalysisResultProps) {
   console.log('AnalysisResult received:', { result, screenshot, url, auditId })
   console.log('Result type:', typeof result)
-  
-  // Пытаемся получить структурированный результат
-  let structuredResult: StructuredAnalysisResponse | null = null
+
+  return (
+    <div className="w-full">
+      <DebugAnalysisData result={result} title="Analysis Result Debug" />
+      {renderAnalysisContent()}
+    </div>
+  )
+
+  function renderAnalysisContent() {
+    // Пытаемся получить структурированный результат
+    let structuredResult: StructuredAnalysisResponse | null = null
   
   if (typeof result === 'object' && isStructuredResponse(result)) {
     // Уже структурированный объект
@@ -294,5 +303,6 @@ export function AnalysisResult({ result, screenshot, url, auditId }: AnalysisRes
         </Card>
       )}
     </div>
-  )
+    )
+  }
 }
