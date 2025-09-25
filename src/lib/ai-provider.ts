@@ -127,7 +127,7 @@ export const executeAIRequest = async (
         model: config.model,
         messages: messages as any,
         temperature: isSonoma ? 0.8 : temperature,
-        max_tokens: isSonoma ? Math.max(max_tokens, 200) : max_tokens,
+        max_tokens: isSonoma ? Math.max(max_tokens, 4000) : Math.max(max_tokens, 3000),
         stream
         // Убираем response_format чтобы AI следовал нашему промпту
         // response_format: { type: "json_object" }
@@ -197,7 +197,7 @@ export const executeAIRequest = async (
         model: config.model,
         messages: messages as any,
         temperature: isSonoma ? 0.8 : temperature,
-        max_tokens: isSonoma ? Math.max(max_tokens, 200) : max_tokens,
+        max_tokens: isSonoma ? Math.max(max_tokens, 4000) : Math.max(max_tokens, 3000),
         stream
         // Убираем response_format чтобы AI следовал нашему промпту
         // response_format: { type: "json_object" }
