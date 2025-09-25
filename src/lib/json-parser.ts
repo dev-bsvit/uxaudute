@@ -46,9 +46,21 @@ function recoverTruncatedJSON(jsonString: string): string | null {
   try {
     let recovered = jsonString.trim()
     
-    // Удаляем незакрытые кавычки в конце
-    if (recovered.endsWith('"')) {
+    // Если JSON заканчивается на запятую, удаляем её
+    if (recovered.endsWith(',')) {
       recovered = recovered.slice(0, -1)
+    }
+    
+    // Если JSON заканчивается на незакрытую кавычку, удаляем её
+    if (recovered.endsWith('"') && !recovered.endsWith('""')) {
+      // Проверяем, что это действительно незакрытая кавычка
+      const lastQuoteIndex = recovered.lastIndexOf('"')
+      if (lastQuoteIndex > 0) {
+        const beforeQuote = recovered[lastQuoteIndex - 1]
+        if (beforeQuote !== '\\' && beforeQuote !== '"') {
+          recovered = recovered.slice(0, -1)
+        }
+      }
     }
     
     // Подсчитываем открытые скобки и кавычки
@@ -187,43 +199,20 @@ function extractPartialData(jsonString: string): Partial<StructuredAnalysisRespo
   const result: Partial<StructuredAnalysisResponse> = {}
   
   try {
-    // Ищем screenDescription
-    const screenDescMatch = jsonString.match(/"screenDescription":\s*({[^}]*})/)
-    if (screenDescMatch) {
-      try {
-        result.screenDescription = JSON.parse(screenDescMatch[1])
-      } catch (e) {
-        console.warn('Failed to parse screenDescription')
-      }
-    }
+    // Пытаемся найти и извлечь основные блоки данных
+    const sections = [
+      'screenDescription',
+      'uxSurvey', 
+      'audience',
+      'behavior',
+      'problemsAndSolutions',
+      'selfCheck'
+    ]
     
-    // Ищем uxSurvey
-    const surveyMatch = jsonString.match(/"uxSurvey":\s*({.*?"overallConfidence":\s*\d+[^}]*})/)
-    if (surveyMatch) {
-      try {
-        result.uxSurvey = JSON.parse(surveyMatch[1])
-      } catch (e) {
-        console.warn('Failed to parse uxSurvey')
-      }
-    }
-    
-    // Ищем audience
-    const audienceMatch = jsonString.match(/"audience":\s*({[^}]*})/)
-    if (audienceMatch) {
-      try {
-        result.audience = JSON.parse(audienceMatch[1])
-      } catch (e) {
-        console.warn('Failed to parse audience')
-      }
-    }
-    
-    // Ищем problemsAndSolutions
-    const problemsMatch = jsonString.match(/"problemsAndSolutions":\s*(\[[^\]]*\])/)
-    if (problemsMatch) {
-      try {
-        result.problemsAndSolutions = JSON.parse(problemsMatch[1])
-      } catch (e) {
-        console.warn('Failed to parse problemsAndSolutions')
+    for (const section of sections) {
+      const extracted = extractJSONSection(jsonString, section)
+      if (extracted) {
+        result[section as keyof StructuredAnalysisResponse] = extracted
       }
     }
     
@@ -232,6 +221,81 @@ function extractPartialData(jsonString: string): Partial<StructuredAnalysisRespo
   }
   
   return result
+}
+
+/**
+ * Извлекает конкретную секцию из JSON строки
+ */
+function extractJSONSection(jsonString: string, sectionName: string): any {
+  try {
+    // Ищем начало секции
+    const sectionStart = jsonString.indexOf(`"${sectionName}":`)
+    if (sectionStart === -1) return null
+    
+    // Находим начало значения
+    const valueStart = jsonString.indexOf(':', sectionStart) + 1
+    let pos = valueStart
+    
+    // Пропускаем пробелы
+    while (pos < jsonString.length && /\s/.test(jsonString[pos])) {
+      pos++
+    }
+    
+    if (pos >= jsonString.length) return null
+    
+    const startChar = jsonString[pos]
+    let endPos = pos
+    let depth = 0
+    let inString = false
+    let escapeNext = false
+    
+    // Определяем тип значения и находим его конец
+    if (startChar === '{' || startChar === '[') {
+      const openChar = startChar
+      const closeChar = startChar === '{' ? '}' : ']'
+      
+      for (let i = pos; i < jsonString.length; i++) {
+        const char = jsonString[i]
+        
+        if (escapeNext) {
+          escapeNext = false
+          continue
+        }
+        
+        if (char === '\\') {
+          escapeNext = true
+          continue
+        }
+        
+        if (char === '"' && !escapeNext) {
+          inString = !inString
+          continue
+        }
+        
+        if (!inString) {
+          if (char === openChar) {
+            depth++
+          } else if (char === closeChar) {
+            depth--
+            if (depth === 0) {
+              endPos = i + 1
+              break
+            }
+          }
+        }
+      }
+      
+      if (depth === 0) {
+        const sectionJSON = jsonString.substring(pos, endPos)
+        return JSON.parse(sectionJSON)
+      }
+    }
+    
+    return null
+  } catch (error) {
+    console.warn(`Failed to extract section ${sectionName}:`, error)
+    return null
+  }
 }
 
 /**
