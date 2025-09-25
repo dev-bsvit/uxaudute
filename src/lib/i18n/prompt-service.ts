@@ -113,12 +113,20 @@ class PromptService {
     
     if (!response.ok) {
       console.error(`❌ Failed to load prompt: ${url} - ${response.status}: ${response.statusText}`)
+      console.error(`❌ This will trigger fallback to basic prompt!`)
       throw new Error(`HTTP ${response.status}: ${response.statusText}`)
     }
 
     const content = await response.text()
     console.log(`✅ Prompt loaded successfully: ${url} (${content.length} chars)`)
     console.log(`📄 Prompt preview: ${content.substring(0, 200)}...`)
+    
+    // Проверяем, что промпт содержит нашу структуру
+    if (promptType === PromptType.JSON_STRUCTURED && content.includes('screenDescription')) {
+      console.log(`✅ Detailed JSON prompt loaded with screenDescription structure`)
+    } else if (promptType === PromptType.JSON_STRUCTURED) {
+      console.warn(`⚠️ JSON prompt loaded but doesn't contain screenDescription - might be wrong file`)
+    }
     
     return content
   }
@@ -162,9 +170,9 @@ Respond in the selected language.`,
 1. Respond ONLY in JSON format
 2. Do NOT add any text before or after JSON
 3. Do NOT wrap JSON in markdown blocks
-4. Do NOT add explanations or comments
-5. Start response with { and end with }
-6. Ensure JSON is valid and complete**
+4. Start response with { and end with }
+5. Use this structure: {"screenDescription": {"screenType": "...", "userGoal": "...", "keyElements": [], "confidence": 85, "confidenceReason": "..."}, "uxSurvey": {"questions": [], "overallConfidence": 85}, "audience": {"targetAudience": "...", "mainPain": "...", "fears": []}, "behavior": {"userScenarios": {"idealPath": "...", "typicalError": "...", "alternativeWorkaround": "..."}, "behavioralPatterns": "...", "frictionPoints": [], "actionMotivation": "..."}, "problemsAndSolutions": [], "selfCheck": {"checklist": {}, "confidence": {}}, "metadata": {}}
+6. ALL TEXT IN JSON MUST BE IN RUSSIAN LANGUAGE**
 
 Respond in the selected language.`,
 
