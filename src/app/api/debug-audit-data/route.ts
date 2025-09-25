@@ -31,7 +31,7 @@ export async function GET(request: NextRequest) {
       status: audit.status,
       hasResultData: !!audit.result_data,
       resultDataType: typeof audit.result_data,
-      resultDataKeys: audit.result_data ? Object.keys(audit.result_data) : [],
+      resultDataKeys: audit.result_data ? Object.keys(audit.result_data) : [] as string[],
       
       // Если result_data это объект с content
       hasContent: audit.result_data && typeof audit.result_data === 'object' && 'content' in audit.result_data,
@@ -41,8 +41,8 @@ export async function GET(request: NextRequest) {
       
       // Пробуем парсить content как JSON
       contentParseable: false,
-      parsedContentKeys: [],
-      parseError: null,
+      parsedContentKeys: [] as string[],
+      parseError: null as string | null,
       
       // Сырые данные для отладки
       rawResultData: audit.result_data
