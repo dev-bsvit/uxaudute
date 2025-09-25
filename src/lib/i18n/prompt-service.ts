@@ -136,7 +136,7 @@ class PromptService {
    */
   private getPromptFileName(promptType: PromptType): string {
     const fileNames: Record<PromptType, string> = {
-      [PromptType.MAIN]: 'main-prompt.md',
+      [PromptType.MAIN]: 'json-structured-prompt.md', // Используем JSON промпт как основной
       [PromptType.JSON_STRUCTURED]: 'json-structured-prompt.md',
       [PromptType.SONOMA_STRUCTURED]: 'sonoma-structured-prompt.md',
       [PromptType.AB_TEST]: 'ab-test-prompt.md',
