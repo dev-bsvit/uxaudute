@@ -292,6 +292,8 @@ function findLastCompleteField(jsonString: string): string | null {
  * Создает fallback объект из частичного JSON
  */
 function createFallbackFromPartialJSON(jsonString: string): StructuredAnalysisResponse {
+  console.log('🔄 Creating fallback from partial JSON, length:', jsonString.length)
+  
   const fallback: StructuredAnalysisResponse = {
     screenDescription: {
       screenType: 'Неизвестно',
@@ -349,12 +351,18 @@ function createFallbackFromPartialJSON(jsonString: string): StructuredAnalysisRe
   try {
     // Пытаемся извлечь хотя бы частичные данные
     const partialData = extractPartialData(jsonString)
+    console.log('🔄 Extracted partial data keys:', Object.keys(partialData))
     
     // Объединяем с fallback данными
-    return {
+    const result = {
       ...fallback,
       ...partialData
     }
+    
+    console.log('🔄 Final result keys:', Object.keys(result))
+    console.log('🔄 Problems and solutions count:', result.problemsAndSolutions?.length || 0)
+    
+    return result
   } catch (error) {
     console.warn('Error creating fallback object:', error)
     return fallback
@@ -368,6 +376,8 @@ function extractPartialData(jsonString: string): Partial<StructuredAnalysisRespo
   const result: Partial<StructuredAnalysisResponse> = {}
   
   try {
+    console.log('🔍 Extracting partial data from JSON...')
+    
     // Пытаемся найти и извлечь основные блоки данных
     const sections = [
       'screenDescription',
@@ -379,9 +389,23 @@ function extractPartialData(jsonString: string): Partial<StructuredAnalysisRespo
     ]
     
     for (const section of sections) {
+      console.log(`🔍 Extracting section: ${section}`)
       const extracted = extractJSONSection(jsonString, section)
       if (extracted) {
         result[section as keyof StructuredAnalysisResponse] = extracted
+        console.log(`✅ Successfully extracted ${section}:`, typeof extracted === 'object' ? Object.keys(extracted) : extracted)
+      } else {
+        console.log(`❌ Failed to extract ${section}`)
+      }
+    }
+    
+    // Специальная обработка для problemsAndSolutions - пытаемся извлечь хотя бы частичные данные
+    if (!result.problemsAndSolutions || (Array.isArray(result.problemsAndSolutions) && result.problemsAndSolutions.length === 0)) {
+      console.log('🔍 Attempting to extract partial problemsAndSolutions...')
+      const partialProblems = extractPartialProblemsAndSolutions(jsonString)
+      if (partialProblems && partialProblems.length > 0) {
+        result.problemsAndSolutions = partialProblems
+        console.log(`✅ Extracted ${partialProblems.length} partial problems`)
       }
     }
     
@@ -390,6 +414,131 @@ function extractPartialData(jsonString: string): Partial<StructuredAnalysisRespo
   }
   
   return result
+}
+
+/**
+ * Специальная функция для извлечения частичных данных problemsAndSolutions
+ */
+function extractPartialProblemsAndSolutions(jsonString: string): any[] {
+  try {
+    const problems: any[] = []
+    
+    // Ищем начало массива problemsAndSolutions
+    const problemsStart = jsonString.indexOf('"problemsAndSolutions": [')
+    if (problemsStart === -1) {
+      console.log('❌ problemsAndSolutions section not found')
+      return []
+    }
+    
+    // Находим начало массива
+    const arrayStart = jsonString.indexOf('[', problemsStart)
+    if (arrayStart === -1) return []
+    
+    // Ищем все объекты в массиве, даже неполные
+    let pos = arrayStart + 1
+    let braceCount = 0
+    let inString = false
+    let escapeNext = false
+    let currentObject = ''
+    let objectStart = -1
+    
+    while (pos < jsonString.length) {
+      const char = jsonString[pos]
+      
+      if (escapeNext) {
+        escapeNext = false
+        pos++
+        continue
+      }
+      
+      if (char === '\\') {
+        escapeNext = true
+        pos++
+        continue
+      }
+      
+      if (char === '"' && !escapeNext) {
+        inString = !inString
+      }
+      
+      if (!inString) {
+        if (char === '{') {
+          if (braceCount === 0) {
+            objectStart = pos
+          }
+          braceCount++
+        } else if (char === '}') {
+          braceCount--
+          if (braceCount === 0 && objectStart !== -1) {
+            // Нашли полный объект
+            currentObject = jsonString.substring(objectStart, pos + 1)
+            try {
+              const parsed = JSON.parse(currentObject)
+              problems.push(parsed)
+              console.log('✅ Extracted complete problem object')
+            } catch (e) {
+              console.log('❌ Failed to parse complete object')
+            }
+            objectStart = -1
+          }
+        } else if (char === ']') {
+          // Конец массива
+          break
+        }
+      }
+      
+      pos++
+    }
+    
+    // Если есть незавершенный объект, пытаемся его восстановить
+    if (objectStart !== -1 && braceCount > 0) {
+      currentObject = jsonString.substring(objectStart)
+      console.log('🔧 Attempting to recover incomplete object:', currentObject.substring(0, 100) + '...')
+      
+      // Пытаемся восстановить объект
+      const recovered = recoverIncompleteObject(currentObject)
+      if (recovered) {
+        try {
+          const parsed = JSON.parse(recovered)
+          problems.push(parsed)
+          console.log('✅ Recovered incomplete problem object')
+        } catch (e) {
+          console.log('❌ Failed to parse recovered object')
+        }
+      }
+    }
+    
+    return problems
+  } catch (error) {
+    console.warn('Error extracting partial problems:', error)
+    return []
+  }
+}
+
+/**
+ * Восстанавливает неполный объект
+ */
+function recoverIncompleteObject(objectString: string): string | null {
+  try {
+    let recovered = objectString.trim()
+    
+    // Если объект не заканчивается на }, пытаемся его закрыть
+    if (!recovered.endsWith('}')) {
+      // Ищем последнее полное поле
+      const lastCompleteField = recovered.lastIndexOf('",')
+      if (lastCompleteField > 0) {
+        recovered = recovered.substring(0, lastCompleteField + 1)
+      }
+      
+      // Закрываем объект
+      recovered += '}'
+    }
+    
+    return recovered
+  } catch (error) {
+    console.warn('Error recovering incomplete object:', error)
+    return null
+  }
 }
 
 /**
