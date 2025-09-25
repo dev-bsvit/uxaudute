@@ -6,6 +6,8 @@ export class UserSettingsService {
    * Сохраняет языковые предпочтения пользователя в базу данных
    */
   async saveLanguagePreference(userId: string, language: string): Promise<void> {
+    console.log('💾 UserSettingsService: Saving language preference:', { userId, language })
+    
     if (!isSupportedLanguage(language)) {
       throw new Error(`Unsupported language: ${language}`)
     }
@@ -18,6 +20,7 @@ export class UserSettingsService {
         throw new Error('User not authenticated or ID mismatch')
       }
 
+      console.log('💾 Executing upsert to profiles table...')
       const { error } = await supabase
         .from('profiles')
         .upsert({
@@ -28,12 +31,13 @@ export class UserSettingsService {
         })
 
       if (error) {
+        console.error('💾 Database upsert error:', error)
         throw new Error(`Failed to save language preference: ${error.message}`)
       }
 
-      console.log(`Language preference saved for user ${userId}: ${language}`)
+      console.log(`✅ Language preference saved for user ${userId}: ${language}`)
     } catch (error) {
-      console.error('Error saving language preference:', error)
+      console.error('❌ Error saving language preference:', error)
       throw error
     }
   }

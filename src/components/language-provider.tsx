@@ -180,6 +180,7 @@ export function LanguageProvider({ children }: LanguageProviderProps) {
    */
   const saveLanguageToDatabase = async (language: string): Promise<void> => {
     try {
+      console.log('🔄 Attempting to save language to database:', language)
       const { userSettingsService } = await import('@/lib/i18n/user-settings')
       
       // Проверяем, авторизован ли пользователь
@@ -187,15 +188,17 @@ export function LanguageProvider({ children }: LanguageProviderProps) {
       const { data: { user } } = await supabase.auth.getUser()
       
       if (!user) {
-        // Пользователь не авторизован, сохраняем только в localStorage
+        console.log('⚠️ User not authenticated, skipping database save')
         return
       }
 
+      console.log('👤 User authenticated, saving to database for user:', user.id)
       // Используем сервис для сохранения языковых предпочтений
       await userSettingsService.saveLanguagePreference(user.id, language)
+      console.log('✅ Language preference saved to database successfully:', language)
       
     } catch (error) {
-      console.error('Error saving language to database:', error)
+      console.error('❌ Error saving language to database:', error)
     }
   }
 
