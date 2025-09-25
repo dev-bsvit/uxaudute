@@ -25,6 +25,7 @@ import {
   updateProjectContext,
   updateProjectTargetAudience
 } from '@/lib/database'
+import { useTranslation } from '@/hooks/use-translation'
 import { 
   Plus, 
   Trash2,
@@ -59,6 +60,7 @@ export default function ProjectDetailPage() {
   const params = useParams()
   const router = useRouter()
   const projectId = params.id as string
+  const { t, currentLanguage } = useTranslation()
 
   const [user, setUser] = useState<User | null>(null)
   const [project, setProject] = useState<Project | null>(null)
@@ -194,7 +196,8 @@ export default function ProjectDetailPage() {
         body: JSON.stringify({
           ...data,
           auditId: audit.id,
-          context: combinedContext
+          context: combinedContext,
+          language: currentLanguage
         })
       })
       

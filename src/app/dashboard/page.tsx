@@ -119,7 +119,7 @@ async function ensureUserProfileAndBalance(user: User) {
 export default function DashboardPage() {
   console.log('🔍 DashboardPage компонент загружен')
   
-  const { t } = useTranslation()
+  const { t, currentLanguage } = useTranslation()
   const [user, setUser] = useState<User | null>(null)
   const [loading, setLoading] = useState(true)
   const [result, setResult] = useState<string | StructuredAnalysisResponse | null>(null)
@@ -304,7 +304,8 @@ export default function DashboardPage() {
         body: JSON.stringify({
           ...data,
           auditId: audit.id,
-          context
+          context,
+          language: currentLanguage
         })
       })
       

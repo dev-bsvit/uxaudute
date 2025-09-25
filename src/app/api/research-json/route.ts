@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { openai } from '@/lib/openai'
-import { readFileSync } from 'fs'
-import { join } from 'path'
+import { promptService } from '@/lib/i18n/prompt-service'
+import { PromptType } from '@/lib/i18n/types'
 import { StructuredAnalysisResponse, isStructuredResponse } from '@/lib/analysis-types'
 import { validateSurvey, analyzeSurveyResults } from '@/lib/survey-utils'
 import { supabase } from '@/lib/supabase'
@@ -9,7 +9,7 @@ import { supabase } from '@/lib/supabase'
 export async function POST(request: NextRequest) {
   try {
     console.log('=== OpenAI API вызван ===')
-    const { url, screenshot, context, auditId } = await request.json()
+    const { url, screenshot, context, auditId, language = 'ru' } = await request.json()
     console.log('Параметры запроса:', { url: !!url, screenshot: !!screenshot, context: !!context, auditId })
 
     if (!url && !screenshot) {
@@ -20,11 +20,11 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Загружаем JSON-структурированный промпт
-    console.log('Загружаем промпт...')
-    const jsonPrompt = loadJSONPrompt()
+    // Загружаем JSON-структурированный промпт для выбранного языка
+    console.log('Загружаем промпт для языка:', language)
+    const jsonPrompt = await promptService.loadPrompt(PromptType.JSON_STRUCTURED, language)
     console.log('Промпт загружен, длина:', jsonPrompt.length)
-    const finalPrompt = combineWithContext(jsonPrompt, context)
+    const finalPrompt = promptService.combineWithContext(jsonPrompt, context, language)
     console.log('Финальный промпт готов, длина:', finalPrompt.length)
 
     let analysisResult: StructuredAnalysisResponse
@@ -197,117 +197,4 @@ export async function POST(request: NextRequest) {
   }
 }
 
-/**
- * Загружает JSON-структурированный промпт из файла
- */
-function loadJSONPrompt(): string {
-  try {
-    // Простой путь к файлу промпта
-    const promptPath = join(process.cwd(), 'prompts', 'json-structured-prompt.md')
-    console.log('Загружаем промпт из:', promptPath)
-    
-    const prompt = readFileSync(promptPath, 'utf-8')
-    console.log('Промпт загружен успешно, длина:', prompt.length)
-    
-    return prompt
-  } catch (error) {
-    console.error('Ошибка загрузки JSON промпта:', error)
-    console.error('Используем fallback промпт')
-    // Возвращаем fallback промпт
-    return getFallbackJSONPrompt()
-  }
-}
 
-/**
- * Объединяет JSON промпт с контекстом
- */
-function combineWithContext(jsonPrompt: string, context?: string): string {
-  if (!context || context.trim() === '') {
-    return jsonPrompt
-  }
-
-  return `${jsonPrompt}
-
-## Дополнительный контекст
-${context}
-
-Учти этот контекст при анализе и адаптируй вопросы под специфику бизнеса и аудитории.`
-}
-
-/**
- * Fallback JSON промпт на случай ошибки загрузки файла
- */
-function getFallbackJSONPrompt(): string {
-  return `Отвечай ТОЛЬКО в формате JSON. Проанализируй интерфейс и верни структурированный ответ:
-
-{
-  "screenDescription": {
-    "screenType": "string",
-    "userGoal": "string", 
-    "keyElements": ["string"],
-    "confidence": number,
-    "confidenceReason": "string"
-  },
-  "uxSurvey": {
-    "questions": [
-      {
-        "id": number,
-        "question": "string",
-        "options": ["A) ...", "B) ...", "C) ..."],
-        "scores": [number, number, number],
-        "confidence": number,
-        "category": "clarity|usability|accessibility|conversion|navigation|content",
-        "principle": "string",
-        "explanation": "string"
-      }
-    ],
-    "overallConfidence": number,
-    "summary": {
-      "totalQuestions": number,
-      "averageConfidence": number,
-      "criticalIssues": number,
-      "recommendations": ["string"]
-    }
-  },
-  "audience": {
-    "targetAudience": "string",
-    "mainPain": "string",
-    "fears": ["string"]
-  },
-  "behavior": {
-    "userScenarios": "string",
-    "behavioralPatterns": "string",
-    "frictionPoints": ["string"],
-    "actionMotivation": "string"
-  },
-  "problemsAndSolutions": [
-    {
-      "element": "string",
-      "problem": "string",
-      "principle": "string",
-      "consequence": "string", 
-      "recommendation": "string",
-      "expectedEffect": "string",
-      "priority": "high|medium|low"
-    }
-  ],
-  "selfCheck": {
-    "checklist": {
-      "coversAllElements": boolean,
-      "noContradictions": boolean,
-      "principlesJustified": boolean,
-      "actionClarity": boolean
-    },
-    "confidence": {
-      "analysis": number,
-      "survey": number,
-      "recommendations": number
-    }
-  },
-  "metadata": {
-    "timestamp": "string",
-    "version": "string",
-    "model": "string"
-  }
-}`
-}

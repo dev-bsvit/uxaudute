@@ -1,10 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { openai } from '@/lib/openai'
-import { loadMainPrompt, combineWithContext } from '@/lib/prompt-loader'
+import { promptService } from '@/lib/i18n/prompt-service'
+import { PromptType } from '@/lib/i18n/types'
 
 export async function POST(request: NextRequest) {
   try {
-    const { url, screenshot, context } = await request.json()
+    const { url, screenshot, context, language = 'ru' } = await request.json()
 
     if (!url && !screenshot) {
       return NextResponse.json(
@@ -13,9 +14,9 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Загружаем основной промпт и объединяем с контекстом
-    const mainPrompt = await loadMainPrompt()
-    const finalPrompt = combineWithContext(mainPrompt, context)
+    // Загружаем основной промпт для выбранного языка и объединяем с контекстом
+    const mainPrompt = await promptService.loadPrompt(PromptType.MAIN, language)
+    const finalPrompt = promptService.combineWithContext(mainPrompt, context, language)
 
     if (url) {
       // Реальный анализ через OpenAI
