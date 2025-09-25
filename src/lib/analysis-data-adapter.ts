@@ -386,20 +386,20 @@ function extractFrictionPoints(interfaceAnalysis: any, recommendations: any): an
  */
 function calculateAverageScore(interfaceAnalysis: any): number {
   let totalScore = 0
-  let count = 0
+  let scoreCount = 0
   
   (Object.values(interfaceAnalysis) as any[]).forEach((categoryData: any) => {
     if (categoryData && typeof categoryData === 'object') {
       (Object.values(categoryData) as any[]).forEach((score: any) => {
         if (typeof score === 'number') {
           totalScore += score
-          count++
+          scoreCount++
         }
       })
     }
   })
   
-  return count > 0 ? totalScore / count : 5
+  return scoreCount > 0 ? totalScore / scoreCount : 5
 }
 
 /**
