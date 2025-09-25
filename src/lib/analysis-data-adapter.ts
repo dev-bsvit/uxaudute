@@ -29,7 +29,13 @@ export function adaptLegacyAnalysisData(data: any): StructuredAnalysisResponse |
       
       uxSurvey: {
         questions: [], // Старый формат не содержит опросов
-        overallConfidence: data.interface_analysis?.confidence || 0
+        overallConfidence: data.interface_analysis?.confidence || 0,
+        summary: {
+          totalQuestions: 0,
+          averageConfidence: data.interface_analysis?.confidence || 0,
+          criticalIssues: 0,
+          recommendations: []
+        }
       },
       
       audience: {
@@ -90,7 +96,13 @@ export function adaptLegacyAnalysisData(data: any): StructuredAnalysisResponse |
       
       uxSurvey: {
         questions: [],
-        overallConfidence: 75
+        overallConfidence: 75,
+        summary: {
+          totalQuestions: 0,
+          averageConfidence: 75,
+          criticalIssues: 0,
+          recommendations: []
+        }
       },
       
       audience: {
