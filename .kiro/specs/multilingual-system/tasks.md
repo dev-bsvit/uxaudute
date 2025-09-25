@@ -90,13 +90,13 @@
   - Ensure all user-facing text supports multiple languages
   - _Requirements: 7.1, 7.2, 7.4_
 
-- [ ] 16. Create language addition documentation and tools
+- [x] 16. Create language addition documentation and tools
   - Write detailed step-by-step guide for adding new languages
   - Create validation tools for checking translation completeness
   - Document prompt translation guidelines and best practices
   - _Requirements: 4.3, 4.4, 5.1_
 
-- [-] 17. Implement analysis language tracking and indicators
+- [x] 17. Implement analysis language tracking and indicators
   - Add language metadata to analysis records in database
   - Create UI indicators showing which language was used for each analysis
   - Ensure analysis history properly displays language information
