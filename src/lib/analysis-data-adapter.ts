@@ -385,21 +385,30 @@ function extractFrictionPoints(interfaceAnalysis: any, recommendations: any): an
  * Вычисляет средний балл по всем категориям
  */
 function calculateAverageScore(interfaceAnalysis: any): number {
-  let totalScore = 0
-  let scoreCount = 0
+  if (!interfaceAnalysis || typeof interfaceAnalysis !== 'object') {
+    return 5
+  }
   
-  (Object.values(interfaceAnalysis) as any[]).forEach((categoryData: any) => {
+  const scores: number[] = []
+  
+  for (const categoryKey in interfaceAnalysis) {
+    const categoryData = interfaceAnalysis[categoryKey]
     if (categoryData && typeof categoryData === 'object') {
-      (Object.values(categoryData) as any[]).forEach((score: any) => {
+      for (const scoreKey in categoryData) {
+        const score = categoryData[scoreKey]
         if (typeof score === 'number') {
-          totalScore += score
-          scoreCount++
+          scores.push(score)
         }
-      })
+      }
     }
-  })
+  }
   
-  return scoreCount > 0 ? totalScore / scoreCount : 5
+  if (scores.length === 0) {
+    return 5
+  }
+  
+  const total = scores.reduce((sum, score) => sum + score, 0)
+  return total / scores.length
 }
 
 /**
