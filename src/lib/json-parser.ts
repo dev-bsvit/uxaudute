@@ -159,22 +159,34 @@ function validateAndFixStructure(parsed: any): StructuredAnalysisResponse {
 function recoverTruncatedJSON(jsonString: string): string | null {
   try {
     let recovered = jsonString.trim()
+    console.log('🔧 Attempting to recover JSON, length:', recovered.length)
+    console.log('🔧 Last 100 chars:', recovered.slice(-100))
     
     // Если JSON заканчивается на запятую, удаляем её
     if (recovered.endsWith(',')) {
       recovered = recovered.slice(0, -1)
+      console.log('🔧 Removed trailing comma')
     }
     
-    // Если JSON заканчивается на незакрытую кавычку, удаляем её
-    if (recovered.endsWith('"') && !recovered.endsWith('""')) {
-      // Проверяем, что это действительно незакрытая кавычка
+    // Если JSON заканчивается на незакрытую кавычку в середине значения
+    if (recovered.endsWith('"') && !recovered.endsWith('""') && !recovered.endsWith('"}') && !recovered.endsWith('"]')) {
+      // Проверяем, что это действительно незакрытая кавычка в значении
       const lastQuoteIndex = recovered.lastIndexOf('"')
       if (lastQuoteIndex > 0) {
         const beforeQuote = recovered[lastQuoteIndex - 1]
-        if (beforeQuote !== '\\' && beforeQuote !== '"') {
+        // Если перед кавычкой не двоеточие и не запятая, это незакрытое значение
+        if (beforeQuote !== ':' && beforeQuote !== ',' && beforeQuote !== '[') {
           recovered = recovered.slice(0, -1)
+          console.log('🔧 Removed incomplete string value')
         }
       }
+    }
+    
+    // Если строка заканчивается неполным значением (без кавычек), обрезаем до последнего полного поля
+    const lastCompleteField = findLastCompleteField(recovered)
+    if (lastCompleteField && lastCompleteField !== recovered) {
+      recovered = lastCompleteField
+      console.log('🔧 Truncated to last complete field')
     }
     
     // Подсчитываем открытые скобки и кавычки
@@ -209,26 +221,69 @@ function recoverTruncatedJSON(jsonString: string): string | null {
       }
     }
     
+    console.log('🔧 Open braces:', openBraces, 'Open brackets:', openBrackets, 'In string:', inString)
+    
     // Закрываем незакрытые строки
     if (inString) {
       recovered += '"'
+      console.log('🔧 Closed unclosed string')
     }
     
     // Закрываем незакрытые массивы
     while (openBrackets > 0) {
       recovered += ']'
       openBrackets--
+      console.log('🔧 Closed array bracket')
     }
     
     // Закрываем незакрытые объекты
     while (openBraces > 0) {
       recovered += '}'
       openBraces--
+      console.log('🔧 Closed object brace')
     }
     
+    console.log('🔧 Recovery complete, final length:', recovered.length)
     return recovered
   } catch (error) {
     console.warn('Error during JSON recovery:', error)
+    return null
+  }
+}
+
+/**
+ * Находит последнее полное поле в JSON строке
+ */
+function findLastCompleteField(jsonString: string): string | null {
+  try {
+    // Ищем последнее вхождение паттерна "field": "value" или "field": value
+    const patterns = [
+      /,\s*"[^"]+"\s*:\s*"[^"]*"$/,  // "field": "value" в конце
+      /,\s*"[^"]+"\s*:\s*[^,}]+$/,   // "field": value в конце
+      /"[^"]+"\s*:\s*"[^"]*"$/,      // первое поле
+      /"[^"]+"\s*:\s*[^,}]+$/        // первое поле с числом/boolean
+    ]
+    
+    for (const pattern of patterns) {
+      const matches = jsonString.match(pattern)
+      if (matches) {
+        const matchIndex = jsonString.lastIndexOf(matches[0])
+        if (matchIndex > 0) {
+          // Обрезаем до начала последнего полного поля
+          return jsonString.substring(0, matchIndex)
+        }
+      }
+    }
+    
+    // Если не нашли паттерн, ищем последнюю запятую перед полным полем
+    const lastCommaIndex = jsonString.lastIndexOf('",')
+    if (lastCommaIndex > 0) {
+      return jsonString.substring(0, lastCommaIndex + 1)
+    }
+    
+    return null
+  } catch (error) {
+    console.warn('Error finding last complete field:', error)
     return null
   }
 }

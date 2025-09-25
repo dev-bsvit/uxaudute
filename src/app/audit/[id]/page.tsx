@@ -15,6 +15,7 @@ import { BackArrow } from '@/components/icons/back-arrow'
 import { supabase } from '@/lib/supabase'
 import { User } from '@supabase/supabase-js'
 import { ABTestResponse, HypothesisResponse } from '@/lib/analysis-types'
+import { safeParseJSON } from '@/lib/json-parser'
 import Link from 'next/link'
 
 interface Audit {
@@ -484,82 +485,19 @@ export default function AuditPage() {
                 let result = audit.result_data
                 if (result && typeof result === 'object' && 'content' in result) {
                   try {
-                    console.log('Парсим content как JSON...')
-                    let contentToParse = result.content
+                    console.log('Парсим content как JSON с улучшенным парсером...')
                     
-                    // Умное восстановление JSON
-                    const tryParseJSON = (jsonString: string) => {
-                      try {
-                        return JSON.parse(jsonString)
-                      } catch (error) {
-                        return null
-                      }
+                    // Используем улучшенный парсер
+                    const parsedResult = safeParseJSON(result.content)
+                    
+                    if (parsedResult) {
+                      result = parsedResult
+                      console.log('✅ JSON успешно распарсен с улучшенным парсером')
+                      console.log('Результат распарсен:', Object.keys(result || {}))
+                    } else {
+                      console.log('❌ Не удалось распарсить JSON даже с улучшенным парсером')
+                      result = audit.result_data
                     }
-
-                    // Сначала пробуем парсить как есть
-                    let parsedResult = tryParseJSON(contentToParse)
-                    
-                    if (!parsedResult) {
-                      console.log('⚠️ JSON невалиден, пытаемся восстановить...')
-                      
-                      // Алгоритм восстановления JSON
-                      const fixTruncatedJSON = (jsonStr: string) => {
-                        // Убираем лишние пробелы в конце
-                        let fixed = jsonStr.trim()
-                        
-                        // Если строка не заканчивается на } или ], ищем последнюю валидную позицию
-                        if (!fixed.endsWith('}') && !fixed.endsWith(']')) {
-                          // Ищем последнюю закрывающую скобку
-                          let lastBrace = fixed.lastIndexOf('}')
-                          let lastBracket = fixed.lastIndexOf(']')
-                          let lastComplete = Math.max(lastBrace, lastBracket)
-                          
-                          if (lastComplete > 0) {
-                            // Обрезаем до последней валидной позиции
-                            fixed = fixed.substring(0, lastComplete + 1)
-                          } else {
-                            // Если нет закрывающих скобок, добавляем их
-                            const openBraces = (fixed.match(/\{/g) || []).length
-                            const closeBraces = (fixed.match(/\}/g) || []).length
-                            const openBrackets = (fixed.match(/\[/g) || []).length
-                            const closeBrackets = (fixed.match(/\]/g) || []).length
-                            
-                            // Добавляем недостающие закрывающие скобки
-                            for (let i = 0; i < openBraces - closeBraces; i++) {
-                              fixed += '}'
-                            }
-                            for (let i = 0; i < openBrackets - closeBrackets; i++) {
-                              fixed += ']'
-                            }
-                          }
-                        }
-                        
-                        return fixed
-                      }
-                      
-                      // Пробуем восстановить JSON
-                      const fixedJSON = fixTruncatedJSON(contentToParse)
-                      parsedResult = tryParseJSON(fixedJSON)
-                      
-                      if (parsedResult) {
-                        console.log('✅ JSON восстановлен успешно')
-                        contentToParse = fixedJSON
-                      } else {
-                        console.log('❌ Не удалось восстановить JSON, используем fallback')
-                        // Fallback: создаем минимальную структуру
-                        parsedResult = {
-                          screenDescription: { screenType: "Неизвестно", confidence: 0 },
-                          uxSurvey: { questions: [], overallConfidence: 0 },
-                          audience: { targetAudience: "Не удалось загрузить", mainPain: "Ошибка парсинга" },
-                          behavior: { userScenarios: {}, behavioralPatterns: "Ошибка парсинга" },
-                          problemsAndSolutions: [],
-                          selfCheck: { checklist: {}, varietyCheck: {}, confidence: { analysis: 0 } }
-                        }
-                      }
-                    }
-                    
-                    result = parsedResult
-                    console.log('Результат распарсен:', Object.keys(result || {}))
                   } catch (parseError) {
                     console.error('Ошибка парсинга content:', parseError)
                     console.log('Используем оригинальные данные без парсинга')
