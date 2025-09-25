@@ -92,18 +92,35 @@ export async function POST(request: NextRequest) {
     if (url) {
       // Анализ URL
       console.log('Запускаем анализ URL:', url)
+      const urlPrompt = `${finalPrompt}\n\nПроанализируй сайт по URL: ${url}\n\nПоскольку я не могу получить скриншот, проведи анализ основываясь на общих принципах UX для данного типа сайта.`
+      
       analysisResult = await executeAIRequest(
-        [{ role: 'user', content: finalPrompt }],
+        [{ role: 'user', content: urlPrompt }],
         {
           provider: provider,
           openrouterModel: openrouterModel
         }
       )
     } else if (screenshot) {
-      // Анализ скриншота
-      console.log('Запускаем анализ скриншота')
+      // Анализ скриншота с изображением
+      console.log('Запускаем анализ скриншота с изображением')
       analysisResult = await executeAIRequest(
-        [{ role: 'user', content: finalPrompt }],
+        [{
+          role: 'user',
+          content: [
+            {
+              type: "text",
+              text: finalPrompt
+            },
+            {
+              type: "image_url",
+              image_url: {
+                url: screenshot,
+                detail: "high"
+              }
+            }
+          ]
+        }],
         {
           provider: provider,
           openrouterModel: openrouterModel
