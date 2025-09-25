@@ -286,14 +286,18 @@ export function AnalysisResultDisplay({
                         {index + 1}
                       </span>
                       <div className="flex-1">
-                        <span className="text-gray-700">{frictionPoint.point}</span>
-                        <span className={`ml-2 px-2 py-1 rounded-full text-xs font-medium ${
-                          frictionPoint.impact === 'major' 
-                            ? 'bg-red-100 text-red-800' 
-                            : 'bg-yellow-100 text-yellow-800'
-                        }`}>
-                          {frictionPoint.impact === 'major' ? t('analysis-results.behavior.majorImpact') : t('analysis-results.behavior.minorImpact')}
+                        <span className="text-gray-700">
+                          {typeof frictionPoint === 'string' ? frictionPoint : frictionPoint.point}
                         </span>
+                        {typeof frictionPoint === 'object' && frictionPoint.impact && (
+                          <span className={`ml-2 px-2 py-1 rounded-full text-xs font-medium ${
+                            frictionPoint.impact === 'major' 
+                              ? 'bg-red-100 text-red-800' 
+                              : 'bg-yellow-100 text-yellow-800'
+                          }`}>
+                            {frictionPoint.impact === 'major' ? t('analysis-results.behavior.majorImpact') : t('analysis-results.behavior.minorImpact')}
+                          </span>
+                        )}
                       </div>
                     </li>
                   ))}
