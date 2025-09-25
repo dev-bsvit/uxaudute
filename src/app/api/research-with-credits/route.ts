@@ -71,14 +71,17 @@ export async function POST(request: NextRequest) {
     console.log('✅ Кредиты проверены успешно:', creditsCheck)
 
     // Загружаем промпт в зависимости от модели и языка
-    console.log('Загружаем промпт для языка:', language)
+    console.log('🔍 RESEARCH-WITH-CREDITS: Загружаем промпт для языка:', language)
+    console.log('🔍 RESEARCH-WITH-CREDITS: Provider:', provider, 'Model:', openrouterModel)
     let jsonPrompt: string
     if (provider === 'openrouter' && openrouterModel === 'sonoma') {
+      console.log('🔍 RESEARCH-WITH-CREDITS: Загружаем SONOMA промпт')
       jsonPrompt = await promptService.loadPrompt(PromptType.SONOMA_STRUCTURED, language)
-      console.log('Используем специальный промпт для Sonoma Sky Alpha')
+      console.log('✅ RESEARCH-WITH-CREDITS: Используем специальный промпт для Sonoma Sky Alpha')
     } else {
+      console.log('🔍 RESEARCH-WITH-CREDITS: Загружаем JSON_STRUCTURED промпт')
       jsonPrompt = await promptService.loadPrompt(PromptType.JSON_STRUCTURED, language)
-      console.log('Используем стандартный JSON промпт')
+      console.log('✅ RESEARCH-WITH-CREDITS: Используем стандартный JSON промпт')
     }
     
     const finalPrompt = promptService.combineWithContext(jsonPrompt, context, language)
