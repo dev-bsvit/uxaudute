@@ -277,8 +277,8 @@ export function needsDataAdaptation(data: any): boolean {
  */
 function extractAudienceFromAnalysis(interfaceAnalysis: any, recommendations: any): string {
   const usabilityScore = interfaceAnalysis?.usability ? 
-    Object.values(interfaceAnalysis.usability).reduce((a: any, b: any) => 
-      (typeof a === 'number' ? a : 0) + (typeof b === 'number' ? b : 0), 0
+    (Object.values(interfaceAnalysis.usability) as any[]).reduce((a: number, b: any) => 
+      a + (typeof b === 'number' ? b : 0), 0
     ) / Object.keys(interfaceAnalysis.usability).length : 5
   
   if (usabilityScore > 7) {
@@ -321,7 +321,7 @@ function extractMainPainFromAnalysis(interfaceAnalysis: any, recommendations: an
 function extractFearsFromAnalysis(interfaceAnalysis: any, recommendations: any): string[] {
   const fears: string[] = []
   
-  if (interfaceAnalysis?.accessibility && Object.values(interfaceAnalysis.accessibility).some((score: any) => score < 7)) {
+  if (interfaceAnalysis?.accessibility && (Object.values(interfaceAnalysis.accessibility) as any[]).some((score: any) => score < 7)) {
     fears.push('Interface may not be accessible to all users')
   }
   
@@ -329,7 +329,7 @@ function extractFearsFromAnalysis(interfaceAnalysis: any, recommendations: any):
     fears.push('Slow performance may cause frustration')
   }
   
-  if (interfaceAnalysis?.usability && Object.values(interfaceAnalysis.usability).some((score: any) => score < 6)) {
+  if (interfaceAnalysis?.usability && (Object.values(interfaceAnalysis.usability) as any[]).some((score: any) => score < 6)) {
     fears.push('Complex interface may be difficult to use')
   }
   
@@ -388,9 +388,9 @@ function calculateAverageScore(interfaceAnalysis: any): number {
   let totalScore = 0
   let count = 0
   
-  Object.values(interfaceAnalysis).forEach((categoryData: any) => {
+  (Object.values(interfaceAnalysis) as any[]).forEach((categoryData: any) => {
     if (categoryData && typeof categoryData === 'object') {
-      Object.values(categoryData).forEach((score: any) => {
+      (Object.values(categoryData) as any[]).forEach((score: any) => {
         if (typeof score === 'number') {
           totalScore += score
           count++
