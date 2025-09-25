@@ -38,51 +38,91 @@ export function AuditDebugPanel({ auditId, auditData }: AuditDebugPanelProps) {
 
       setDebugInfo(audit)
 
-      // Извлекаем промпт из input_data
-      if (audit.input_data?.prompt) {
-        setPromptData(audit.input_data.prompt)
-      } else if (audit.input_data?.messages) {
-        // Если промпт в формате messages
-        const messages = audit.input_data.messages
-        const promptText = messages.map((msg: any) => 
-          `**${msg.role.toUpperCase()}:**\n${msg.content}`
-        ).join('\n\n')
-        setPromptData(promptText)
-      } else if (audit.input_data?.url || audit.input_data?.screenshotUrl) {
-        // Если это анализ URL или скриншота
-        const inputInfo = []
-        if (audit.input_data.url) inputInfo.push(`URL: ${audit.input_data.url}`)
-        if (audit.input_data.screenshotUrl) inputInfo.push(`Screenshot: ${audit.input_data.screenshotUrl}`)
-        if (audit.input_data.analysisType) inputInfo.push(`Analysis Type: ${audit.input_data.analysisType}`)
+      // Загружаем реальный промпт, который использовался для анализа
+      try {
+        const language = audit.input_data?.language || 'ru'
+        const analysisType = audit.input_data?.analysisType || 'json'
         
-        setPromptData(`**INPUT DATA:**\n${inputInfo.join('\n')}\n\n**SYSTEM PROMPT:**\nПромпт был сгенерирован автоматически на основе типа анализа и входных данных.`)
-      } else {
-        setPromptData(`**INPUT DATA STRUCTURE:**\n${JSON.stringify(audit.input_data, null, 2)}`)
+        // Определяем тип промпта на основе типа анализа
+        let promptPath = ''
+        if (analysisType === 'json' || analysisType === 'structured') {
+          promptPath = `/prompts/${language}/json-structured-prompt.md`
+        } else if (analysisType === 'sonoma') {
+          promptPath = `/prompts/${language}/sonoma-structured-prompt.md`
+        } else {
+          promptPath = `/prompts/${language}/main-prompt.md`
+        }
+
+        // Загружаем промпт
+        const promptResponse = await fetch(promptPath)
+        if (promptResponse.ok) {
+          const promptContent = await promptResponse.text()
+          
+          // Формируем полный промпт как он отправляется в AI
+          let fullPrompt = `**SYSTEM PROMPT (${promptPath}):**\n\n${promptContent}\n\n`
+          
+          // Добавляем контекст если есть
+          if (audit.input_data?.context) {
+            fullPrompt += `**CONTEXT:**\n${audit.input_data.context}\n\n`
+          }
+          
+          // Добавляем инструкцию для анализа
+          if (audit.input_data?.url) {
+            fullPrompt += `**TASK:**\nПроанализируй сайт по URL: ${audit.input_data.url}\n\nПоскольку я не могу получить скриншот, проведи анализ основываясь на общих принципах UX для данного типа сайта.`
+          } else if (audit.input_data?.screenshotUrl) {
+            fullPrompt += `**TASK:**\nПроанализируй интерфейс на прикрепленном изображении.\n\n**IMAGE URL:**\n${audit.input_data.screenshotUrl}`
+          }
+          
+          setPromptData(fullPrompt)
+        } else {
+          // Fallback если промпт не найден
+          const inputInfo = []
+          if (audit.input_data?.url) inputInfo.push(`URL: ${audit.input_data.url}`)
+          if (audit.input_data?.screenshotUrl) inputInfo.push(`Screenshot: ${audit.input_data.screenshotUrl}`)
+          if (audit.input_data?.analysisType) inputInfo.push(`Analysis Type: ${audit.input_data.analysisType}`)
+          if (audit.input_data?.language) inputInfo.push(`Language: ${audit.input_data.language}`)
+          
+          setPromptData(`**INPUT DATA:**\n${inputInfo.join('\n')}\n\n**ERROR:**\nНе удалось загрузить промпт из ${promptPath}\n\n**INPUT DATA STRUCTURE:**\n${JSON.stringify(audit.input_data, null, 2)}`)
+        }
+      } catch (promptError) {
+        console.error('Ошибка загрузки промпта:', promptError)
+        setPromptData(`**ERROR LOADING PROMPT:**\n${promptError}\n\n**INPUT DATA:**\n${JSON.stringify(audit.input_data, null, 2)}`)
       }
 
-      // Извлекаем ответ из result_data
+      // Извлекаем ответ от OpenAI из result_data
       if (audit.result_data) {
+        let responseText = `**OPENAI RESPONSE:**\n\n`
+        
         if (typeof audit.result_data === 'string') {
-          // Пытаемся распарсить строку как JSON для красивого форматирования
+          // Если это строка, показываем как есть и пытаемся распарсить
+          responseText += `**RAW STRING:**\n${audit.result_data}\n\n`
           try {
             const parsed = JSON.parse(audit.result_data)
-            setResponseData(JSON.stringify(parsed, null, 2))
+            responseText += `**PARSED JSON:**\n${JSON.stringify(parsed, null, 2)}`
           } catch {
-            setResponseData(audit.result_data)
+            responseText += `**PARSE ERROR:** Не удалось распарсить как JSON`
           }
         } else if (audit.result_data.content) {
-          // Если есть content, пытаемся его распарсить
+          // Если есть content (старый формат)
+          responseText += `**CONTENT FIELD:**\n${audit.result_data.content}\n\n`
           try {
             const parsed = JSON.parse(audit.result_data.content)
-            setResponseData(JSON.stringify(parsed, null, 2))
+            responseText += `**PARSED CONTENT:**\n${JSON.stringify(parsed, null, 2)}`
           } catch {
-            setResponseData(audit.result_data.content)
+            responseText += `**PARSE ERROR:** Content не является валидным JSON`
           }
         } else {
-          setResponseData(JSON.stringify(audit.result_data, null, 2))
+          // Если это уже объект
+          responseText += `**STRUCTURED OBJECT:**\n${JSON.stringify(audit.result_data, null, 2)}`
         }
+        
+        // Добавляем информацию о размере ответа
+        const dataSize = JSON.stringify(audit.result_data).length
+        responseText += `\n\n**METADATA:**\n- Response size: ${dataSize} characters\n- Data type: ${typeof audit.result_data}\n- Has content field: ${audit.result_data.content ? 'Yes' : 'No'}`
+        
+        setResponseData(responseText)
       } else {
-        setResponseData('Ответ не найден в result_data')
+        setResponseData('**ERROR:** Ответ не найден в result_data\n\nВозможные причины:\n- Анализ не завершен\n- Ошибка при сохранении\n- Анализ в процессе выполнения')
       }
 
     } catch (error) {
@@ -319,6 +359,14 @@ export function AuditDebugPanel({ auditId, auditData }: AuditDebugPanelProps) {
                         <div>
                           <label className="text-sm font-medium text-gray-600">Пользователь ID</label>
                           <p className="font-mono text-sm bg-gray-100 p-2 rounded">{debugInfo?.user_id}</p>
+                        </div>
+                        <div>
+                          <label className="text-sm font-medium text-gray-600">API Endpoint</label>
+                          <p className="text-sm">{debugInfo?.input_data?.analysisType === 'json' ? '/api/research-json' : '/api/research'}</p>
+                        </div>
+                        <div>
+                          <label className="text-sm font-medium text-gray-600">Язык анализа</label>
+                          <p className="text-sm">{debugInfo?.input_data?.language || 'ru'}</p>
                         </div>
                       </div>
                     </div>
