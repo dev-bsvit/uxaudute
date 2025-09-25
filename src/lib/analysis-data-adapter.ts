@@ -67,7 +67,9 @@ export function adaptLegacyAnalysisData(data: any): StructuredAnalysisResponse |
           actionClarity: true
         },
         confidence: {
-          analysis: data.interface_analysis?.confidence || 0
+          analysis: data.interface_analysis?.confidence || 0,
+          survey: 0,
+          recommendations: data.interface_analysis?.confidence || 0
         }
       },
       
@@ -132,7 +134,9 @@ export function adaptLegacyAnalysisData(data: any): StructuredAnalysisResponse |
           actionClarity: true
         },
         confidence: {
-          analysis: 75
+          analysis: 75,
+          survey: 0,
+          recommendations: 75
         }
       },
       
