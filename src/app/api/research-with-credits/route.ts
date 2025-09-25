@@ -95,37 +95,54 @@ export async function POST(request: NextRequest) {
       const urlPrompt = `${finalPrompt}\n\nПроанализируй сайт по URL: ${url}\n\nПоскольку я не могу получить скриншот, проведи анализ основываясь на общих принципах UX для данного типа сайта.`
       
       analysisResult = await executeAIRequest(
-        [{ role: 'user', content: urlPrompt }],
+        [
+          {
+            role: 'system',
+            content: 'Вы - эксперт UX-аналитик с 20-летним опытом. Следуйте инструкциям точно и предоставляйте детальные, структурированные ответы в формате JSON.'
+          },
+          { 
+            role: 'user', 
+            content: urlPrompt 
+          }
+        ],
         {
           provider: provider,
           openrouterModel: openrouterModel,
-          max_tokens: 4000
+          max_tokens: 4000,
+          temperature: 0.3 // Более точные ответы
         }
       )
     } else if (screenshot) {
       // Анализ скриншота с изображением
       console.log('Запускаем анализ скриншота с изображением')
       analysisResult = await executeAIRequest(
-        [{
-          role: 'user',
-          content: [
-            {
-              type: "text",
-              text: finalPrompt
-            },
-            {
-              type: "image_url",
-              image_url: {
-                url: screenshot,
-                detail: "high"
+        [
+          {
+            role: 'system',
+            content: 'Вы - эксперт UX-аналитик с 20-летним опытом. Следуйте инструкциям точно и предоставляйте детальные, структурированные ответы в формате JSON. Анализируйте только то, что видите на изображении.'
+          },
+          {
+            role: 'user',
+            content: [
+              {
+                type: "text",
+                text: finalPrompt
+              },
+              {
+                type: "image_url",
+                image_url: {
+                  url: screenshot,
+                  detail: "high"
+                }
               }
-            }
-          ]
-        }],
+            ]
+          }
+        ],
         {
           provider: provider,
           openrouterModel: openrouterModel,
-          max_tokens: 4000
+          max_tokens: 4000,
+          temperature: 0.3 // Более точные ответы
         }
       )
     }

@@ -31,6 +31,9 @@ export interface AIRequestOptions {
   stream?: boolean
   provider?: AIProvider
   openrouterModel?: OpenRouterModel
+  top_p?: number
+  frequency_penalty?: number
+  presence_penalty?: number
 }
 
 export interface AIResponse {
@@ -58,7 +61,7 @@ const createProviderConfig = (provider: AIProvider, openrouterModel: OpenRouterM
     case 'openai':
       return {
         provider: 'openai',
-        model: 'gpt-4o',
+        model: 'gpt-4o-2024-08-06', // Последняя версия GPT-4o
         client: openai
       }
     
@@ -90,11 +93,14 @@ export const executeAIRequest = async (
   options: AIRequestOptions = {}
 ): Promise<AIResponse> => {
   const { 
-    temperature = 0.7, 
-    max_tokens = 2000, 
+    temperature = 0.3, 
+    max_tokens = 4000, 
     stream = false,
     provider,
-    openrouterModel = 'default'
+    openrouterModel = 'default',
+    top_p = 0.9,
+    frequency_penalty = 0.1,
+    presence_penalty = 0.1
   } = options
 
   // Если указан конкретный провайдер, используем его
@@ -126,8 +132,11 @@ export const executeAIRequest = async (
       const requestParams = {
         model: config.model,
         messages: messages as any,
-        temperature: isSonoma ? 0.8 : temperature,
-        max_tokens: isSonoma ? Math.max(max_tokens, 4000) : Math.max(max_tokens, 3000),
+        temperature: isSonoma ? 0.8 : 0.3, // Снижаем temperature для более точных ответов
+        max_tokens: isSonoma ? Math.max(max_tokens, 4000) : Math.max(max_tokens, 4000),
+        top_p: 0.9, // Добавляем top_p для лучшего качества
+        frequency_penalty: 0.1, // Небольшой penalty для разнообразия
+        presence_penalty: 0.1,
         stream
         // Убираем response_format чтобы AI следовал нашему промпту
         // response_format: { type: "json_object" }
@@ -196,8 +205,11 @@ export const executeAIRequest = async (
       const completion = await config.client.chat.completions.create({
         model: config.model,
         messages: messages as any,
-        temperature: isSonoma ? 0.8 : temperature,
-        max_tokens: isSonoma ? Math.max(max_tokens, 4000) : Math.max(max_tokens, 3000),
+        temperature: isSonoma ? 0.8 : 0.3, // Снижаем temperature для более точных ответов
+        max_tokens: isSonoma ? Math.max(max_tokens, 4000) : Math.max(max_tokens, 4000),
+        top_p: 0.9, // Добавляем top_p для лучшего качества
+        frequency_penalty: 0.1, // Небольшой penalty для разнообразия
+        presence_penalty: 0.1,
         stream
         // Убираем response_format чтобы AI следовал нашему промпту
         // response_format: { type: "json_object" }
