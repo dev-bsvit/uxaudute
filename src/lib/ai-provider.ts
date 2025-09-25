@@ -128,8 +128,9 @@ export const executeAIRequest = async (
         messages: messages as any,
         temperature: isSonoma ? 0.8 : temperature,
         max_tokens: isSonoma ? Math.max(max_tokens, 200) : max_tokens,
-        stream,
-        response_format: { type: "json_object" } // Включаем JSON формат для всех моделей
+        stream
+        // Убираем response_format чтобы AI следовал нашему промпту
+        // response_format: { type: "json_object" }
       }
       
       console.log(`📋 Параметры запроса:`, JSON.stringify(requestParams, null, 2))
@@ -197,8 +198,9 @@ export const executeAIRequest = async (
         messages: messages as any,
         temperature: isSonoma ? 0.8 : temperature,
         max_tokens: isSonoma ? Math.max(max_tokens, 200) : max_tokens,
-        stream,
-        response_format: { type: "json_object" } // Включаем JSON формат для всех моделей
+        stream
+        // Убираем response_format чтобы AI следовал нашему промпту
+        // response_format: { type: "json_object" }
       })
 
       const content = completion.choices[0]?.message?.content || 'Нет ответа'
