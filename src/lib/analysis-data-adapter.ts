@@ -108,23 +108,23 @@ export function adaptLegacyAnalysisData(data: any): StructuredAnalysisResponse |
       },
       
       audience: {
-        targetAudience: 'Not specified in this format',
-        mainPain: 'Not specified in this format',
-        fears: []
+        targetAudience: extractAudienceFromAnalysis(data.interfaceAnalysis, data.recommendations),
+        mainPain: extractMainPainFromAnalysis(data.interfaceAnalysis, data.recommendations),
+        fears: extractFearsFromAnalysis(data.interfaceAnalysis, data.recommendations)
       },
       
       behavior: {
         userScenarios: {
-          idealPath: 'Not specified',
-          typicalError: 'Not specified',
-          alternativeWorkaround: 'Not specified'
+          idealPath: 'User successfully navigates through the interface with high usability scores',
+          typicalError: 'User encounters difficulties in areas with low scores (< 7/10)',
+          alternativeWorkaround: 'User may use alternative paths to complete tasks'
         },
-        behavioralPatterns: 'Not specified',
-        frictionPoints: [],
-        actionMotivation: 'Not specified'
+        behavioralPatterns: extractBehavioralPatterns(data.interfaceAnalysis),
+        frictionPoints: extractFrictionPoints(data.interfaceAnalysis, data.recommendations),
+        actionMotivation: 'Users are motivated by clear navigation and good visual design'
       },
       
-      problemsAndSolutions: convertInterfaceAnalysisToProblems(data.interfaceAnalysis),
+      problemsAndSolutions: convertInterfaceAnalysisToProblems(data.interfaceAnalysis, data.recommendations),
       
       selfCheck: {
         checklist: {
@@ -198,31 +198,65 @@ function convertLegacyProblems(interfaceAnalysis: any): any[] {
 /**
  * Преобразует данные interfaceAnalysis в проблемы и решения
  */
-function convertInterfaceAnalysisToProblems(interfaceAnalysis: any): any[] {
-  if (!interfaceAnalysis) return []
-
+function convertInterfaceAnalysisToProblems(interfaceAnalysis: any, recommendations?: any): any[] {
   const problems: any[] = []
 
-  // Обрабатываем различные категории
-  Object.entries(interfaceAnalysis).forEach(([category, categoryData]: [string, any]) => {
-    if (categoryData && typeof categoryData === 'object') {
-      Object.entries(categoryData).forEach(([subcategory, data]: [string, any]) => {
-        if (data && data.issues && Array.isArray(data.issues)) {
-          data.issues.forEach((issue: string, index: number) => {
+  if (!interfaceAnalysis && !recommendations) return problems
+
+  // Если есть recommendations, используем их для создания проблем
+  if (recommendations && typeof recommendations === 'object') {
+    Object.entries(recommendations).forEach(([category, categoryData]: [string, any]) => {
+      if (categoryData && typeof categoryData === 'object') {
+        Object.entries(categoryData).forEach(([subcategory, recommendation]: [string, any]) => {
+          if (typeof recommendation === 'string') {
+            // Получаем соответствующую оценку из interfaceAnalysis
+            const score = interfaceAnalysis?.[category]?.[subcategory] || 5
+            const priority = score < 6 ? 'high' : score < 8 ? 'medium' : 'low'
+            
             problems.push({
               element: `${category} - ${subcategory}`,
-              problem: issue,
-              principle: 'Interface analysis principle',
-              consequence: data.description || 'May impact user experience',
-              recommendation: data.recommendations?.[index] || data.recommendations?.[0] || 'Review and improve',
-              expectedEffect: 'Improved user experience',
-              priority: data.issues.length > 2 ? 'high' : 'medium'
+              problem: `Score: ${score}/10 - Needs improvement`,
+              principle: 'UX Analysis Principle',
+              consequence: 'May negatively impact user experience and conversion',
+              recommendation: recommendation,
+              expectedEffect: 'Improved user experience and higher conversion rates',
+              priority: priority
             })
-          })
-        }
-      })
-    }
-  })
+          }
+        })
+      }
+    })
+  }
+
+  // Если есть interfaceAnalysis с низкими оценками, добавляем их как проблемы
+  if (interfaceAnalysis && typeof interfaceAnalysis === 'object') {
+    Object.entries(interfaceAnalysis).forEach(([category, categoryData]: [string, any]) => {
+      if (categoryData && typeof categoryData === 'object') {
+        Object.entries(categoryData).forEach(([subcategory, score]: [string, any]) => {
+          if (typeof score === 'number' && score < 7) {
+            // Проверяем, не добавили ли мы уже эту проблему из recommendations
+            const existingProblem = problems.find(p => 
+              p.element === `${category} - ${subcategory}`
+            )
+            
+            if (!existingProblem) {
+              const priority = score < 5 ? 'high' : score < 7 ? 'medium' : 'low'
+              
+              problems.push({
+                element: `${category} - ${subcategory}`,
+                problem: `Low score: ${score}/10`,
+                principle: 'UX Evaluation Principle',
+                consequence: 'Suboptimal user experience',
+                recommendation: `Improve ${subcategory} in ${category} category`,
+                expectedEffect: 'Better user satisfaction and engagement',
+                priority: priority
+              })
+            }
+          }
+        })
+      }
+    })
+  }
 
   return problems
 }
@@ -236,6 +270,136 @@ export function needsDataAdaptation(data: any): boolean {
   // Проверяем наличие старых форматов
   return !!(data.target_audience || data.interface_analysis || data.interfaceAnalysis) &&
          !(data.screenDescription || data.uxSurvey)
+}
+
+/**
+ * Извлекает информацию о целевой аудитории из анализа
+ */
+function extractAudienceFromAnalysis(interfaceAnalysis: any, recommendations: any): string {
+  const usabilityScore = interfaceAnalysis?.usability ? 
+    Object.values(interfaceAnalysis.usability).reduce((a: any, b: any) => 
+      (typeof a === 'number' ? a : 0) + (typeof b === 'number' ? b : 0), 0
+    ) / Object.keys(interfaceAnalysis.usability).length : 5
+  
+  if (usabilityScore > 7) {
+    return 'Tech-savvy users who appreciate well-designed interfaces and efficient workflows'
+  } else if (usabilityScore > 5) {
+    return 'General users who need clear guidance and intuitive navigation'
+  } else {
+    return 'Users who require significant assistance and simplified interfaces'
+  }
+}
+
+/**
+ * Извлекает основную боль пользователей из анализа
+ */
+function extractMainPainFromAnalysis(interfaceAnalysis: any, recommendations: any): string {
+  const lowScoreAreas: string[] = []
+  
+  if (interfaceAnalysis) {
+    Object.entries(interfaceAnalysis).forEach(([category, categoryData]: [string, any]) => {
+      if (categoryData && typeof categoryData === 'object') {
+        Object.entries(categoryData).forEach(([subcategory, score]: [string, any]) => {
+          if (typeof score === 'number' && score < 6) {
+            lowScoreAreas.push(`${category} ${subcategory}`)
+          }
+        })
+      }
+    })
+  }
+  
+  if (lowScoreAreas.length > 0) {
+    return `Users struggle with ${lowScoreAreas.join(', ')} which creates friction in their workflow`
+  }
+  
+  return 'Users need better interface design and improved usability to achieve their goals efficiently'
+}
+
+/**
+ * Извлекает страхи пользователей из анализа
+ */
+function extractFearsFromAnalysis(interfaceAnalysis: any, recommendations: any): string[] {
+  const fears: string[] = []
+  
+  if (interfaceAnalysis?.accessibility && Object.values(interfaceAnalysis.accessibility).some((score: any) => score < 7)) {
+    fears.push('Interface may not be accessible to all users')
+  }
+  
+  if (interfaceAnalysis?.functionality?.performance && interfaceAnalysis.functionality.performance < 7) {
+    fears.push('Slow performance may cause frustration')
+  }
+  
+  if (interfaceAnalysis?.usability && Object.values(interfaceAnalysis.usability).some((score: any) => score < 6)) {
+    fears.push('Complex interface may be difficult to use')
+  }
+  
+  if (fears.length === 0) {
+    fears.push('Users may abandon tasks if interface is confusing')
+  }
+  
+  return fears
+}
+
+/**
+ * Извлекает поведенческие паттерны из анализа
+ */
+function extractBehavioralPatterns(interfaceAnalysis: any): string {
+  if (!interfaceAnalysis) return 'Users follow standard interaction patterns'
+  
+  const avgScore = calculateAverageScore(interfaceAnalysis)
+  
+  if (avgScore > 7) {
+    return 'Users demonstrate confident navigation and efficient task completion with minimal hesitation'
+  } else if (avgScore > 5) {
+    return 'Users show mixed behavior - some areas work well while others cause confusion and slower task completion'
+  } else {
+    return 'Users exhibit hesitant behavior, frequent backtracking, and may abandon tasks due to interface complexity'
+  }
+}
+
+/**
+ * Извлекает точки трения из анализа
+ */
+function extractFrictionPoints(interfaceAnalysis: any, recommendations: any): any[] {
+  const frictionPoints: any[] = []
+  
+  if (interfaceAnalysis) {
+    Object.entries(interfaceAnalysis).forEach(([category, categoryData]: [string, any]) => {
+      if (categoryData && typeof categoryData === 'object') {
+        Object.entries(categoryData).forEach(([subcategory, score]: [string, any]) => {
+          if (typeof score === 'number' && score < 6) {
+            frictionPoints.push({
+              point: `${category} - ${subcategory}: Score ${score}/10`,
+              impact: score < 4 ? 'major' : 'minor'
+            })
+          }
+        })
+      }
+    })
+  }
+  
+  return frictionPoints
+}
+
+/**
+ * Вычисляет средний балл по всем категориям
+ */
+function calculateAverageScore(interfaceAnalysis: any): number {
+  let totalScore = 0
+  let count = 0
+  
+  Object.values(interfaceAnalysis).forEach((categoryData: any) => {
+    if (categoryData && typeof categoryData === 'object') {
+      Object.values(categoryData).forEach((score: any) => {
+        if (typeof score === 'number') {
+          totalScore += score
+          count++
+        }
+      })
+    }
+  })
+  
+  return count > 0 ? totalScore / count : 5
 }
 
 /**
