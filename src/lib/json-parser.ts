@@ -13,21 +13,24 @@ export function safeParseJSON(jsonString: string): StructuredAnalysisResponse | 
     return null
   }
 
+  // Очищаем строку от лишних символов
+  const cleanedString = cleanJSONString(jsonString)
+  
   try {
     // Сначала пытаемся обычный парсинг
-    const parsed = JSON.parse(jsonString)
+    const parsed = JSON.parse(cleanedString)
     console.log('✅ JSON parsed successfully')
-    return parsed
+    return validateAndFixStructure(parsed)
   } catch (error) {
     console.warn('⚠️ JSON parsing failed, attempting recovery...', error)
     
     // Пытаемся восстановить обрезанный JSON
-    const recovered = recoverTruncatedJSON(jsonString)
+    const recovered = recoverTruncatedJSON(cleanedString)
     if (recovered) {
       try {
         const parsed = JSON.parse(recovered)
         console.log('✅ JSON recovered and parsed successfully')
-        return parsed
+        return validateAndFixStructure(parsed)
       } catch (recoveryError) {
         console.warn('❌ JSON recovery failed', recoveryError)
       }
@@ -35,8 +38,119 @@ export function safeParseJSON(jsonString: string): StructuredAnalysisResponse | 
     
     // Если восстановление не удалось, создаем fallback объект
     console.log('🔄 Creating fallback object from partial JSON')
-    return createFallbackFromPartialJSON(jsonString)
+    return createFallbackFromPartialJSON(cleanedString)
   }
+}
+
+/**
+ * Очищает JSON строку от лишних символов и форматирования
+ */
+function cleanJSONString(jsonString: string): string {
+  return jsonString
+    .trim()
+    // Убираем возможные markdown блоки
+    .replace(/^```json\s*/i, '')
+    .replace(/\s*```$/i, '')
+    // Убираем лишние пробелы и переносы строк в начале и конце
+    .replace(/^\s+|\s+$/g, '')
+}
+
+/**
+ * Проверяет и исправляет структуру распарсенного объекта
+ */
+function validateAndFixStructure(parsed: any): StructuredAnalysisResponse {
+  if (!parsed || typeof parsed !== 'object') {
+    return createFallbackFromPartialJSON('')
+  }
+
+  // Создаем базовую структуру с fallback значениями
+  const result: StructuredAnalysisResponse = {
+    screenDescription: parsed.screenDescription || {
+      screenType: 'Неизвестно',
+      userGoal: 'Не удалось определить',
+      keyElements: [],
+      confidence: 0,
+      confidenceReason: 'Данные не загружены'
+    },
+    uxSurvey: parsed.uxSurvey || {
+      questions: [],
+      overallConfidence: 0,
+      summary: {
+        totalQuestions: 0,
+        averageConfidence: 0,
+        criticalIssues: 0,
+        recommendations: []
+      }
+    },
+    audience: parsed.audience || {
+      targetAudience: 'Не удалось определить',
+      mainPain: 'Данные недоступны',
+      fears: []
+    },
+    behavior: parsed.behavior || {
+      userScenarios: {
+        idealPath: 'Не удалось определить',
+        typicalError: 'Не удалось определить',
+        alternativeWorkaround: 'Не удалось определить'
+      },
+      behavioralPatterns: 'Данные недоступны',
+      frictionPoints: [],
+      actionMotivation: 'Не удалось определить'
+    },
+    problemsAndSolutions: parsed.problemsAndSolutions || [],
+    selfCheck: parsed.selfCheck || {
+      checklist: {
+        coversAllElements: false,
+        noContradictions: false,
+        principlesJustified: false,
+        actionClarity: false
+      },
+      confidence: {
+        analysis: 0,
+        survey: 0,
+        recommendations: 0
+      }
+    },
+    metadata: parsed.metadata || {
+      timestamp: new Date().toISOString(),
+      version: '1.0',
+      model: 'unknown'
+    }
+  }
+
+  // Исправляем возможные проблемы в данных
+  if (result.screenDescription && typeof result.screenDescription === 'object') {
+    result.screenDescription.keyElements = Array.isArray(result.screenDescription.keyElements) 
+      ? result.screenDescription.keyElements 
+      : []
+    result.screenDescription.confidence = typeof result.screenDescription.confidence === 'number' 
+      ? result.screenDescription.confidence 
+      : 0
+  }
+
+  if (result.uxSurvey && typeof result.uxSurvey === 'object') {
+    result.uxSurvey.questions = Array.isArray(result.uxSurvey.questions) 
+      ? result.uxSurvey.questions 
+      : []
+  }
+
+  if (result.audience && typeof result.audience === 'object') {
+    result.audience.fears = Array.isArray(result.audience.fears) 
+      ? result.audience.fears 
+      : []
+  }
+
+  if (result.behavior && typeof result.behavior === 'object') {
+    result.behavior.frictionPoints = Array.isArray(result.behavior.frictionPoints) 
+      ? result.behavior.frictionPoints 
+      : []
+  }
+
+  result.problemsAndSolutions = Array.isArray(result.problemsAndSolutions) 
+    ? result.problemsAndSolutions 
+    : []
+
+  return result
 }
 
 /**
