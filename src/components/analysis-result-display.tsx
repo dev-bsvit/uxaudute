@@ -43,40 +43,58 @@ export function AnalysisResultDisplay({
     )
   }
 
+  console.log('🔍 AnalysisResultDisplay получил данные:', analysis)
+  console.log('📊 Структура данных:', Object.keys(analysis))
+
   // Проверяем, что у нас есть минимально необходимая структура
   const safeAnalysis: StructuredAnalysisResponse = {
     screenDescription: analysis.screenDescription || { 
-      screenType: t('common.unknown'), 
-      confidence: 0,
-      userGoal: t('common.notLoaded'),
-      keyElements: [],
-      confidenceReason: t('common.notLoaded')
+      screenType: (analysis as any).screenType || t('common.unknown'), 
+      confidence: (analysis as any).confidence || 0,
+      userGoal: (analysis as any).userGoal || t('common.notLoaded'),
+      keyElements: (analysis as any).keyElements || [],
+      confidenceReason: (analysis as any).confidenceReason || t('common.notLoaded')
     },
-    uxSurvey: analysis.uxSurvey || { questions: [], overallConfidence: 0 },
+    uxSurvey: analysis.uxSurvey || { 
+      questions: (analysis as any).questions || [], 
+      overallConfidence: (analysis as any).overallConfidence || 0,
+      summary: (analysis as any).summary || {
+        totalQuestions: 0,
+        averageConfidence: 0,
+        criticalIssues: 0,
+        recommendations: []
+      }
+    },
     audience: analysis.audience || { 
-      targetAudience: t('common.notLoaded'), 
-      mainPain: t('common.loadingError'),
-      fears: []
+      targetAudience: (analysis as any).targetAudience || t('common.notLoaded'), 
+      mainPain: (analysis as any).mainPain || t('common.loadingError'),
+      fears: (analysis as any).fears || []
     },
     behavior: analysis.behavior || { 
-      userScenarios: {
+      userScenarios: (analysis as any).userScenarios || {
         idealPath: t('common.notLoaded'),
         typicalError: t('common.notLoaded'), 
         alternativeWorkaround: t('common.notLoaded')
       }, 
-      behavioralPatterns: t('common.loadingError'),
-      frictionPoints: [],
-      actionMotivation: t('common.notLoaded')
+      behavioralPatterns: (analysis as any).behavioralPatterns || t('common.loadingError'),
+      frictionPoints: (analysis as any).frictionPoints || [],
+      actionMotivation: (analysis as any).actionMotivation || t('common.notLoaded')
     },
     problemsAndSolutions: analysis.problemsAndSolutions || [],
     selfCheck: analysis.selfCheck || { 
-      checklist: {}, 
-      varietyCheck: {}, 
-      confidence: { analysis: 0 } 
+      checklist: (analysis as any).checklist || {}, 
+      varietyCheck: (analysis as any).varietyCheck || {}, 
+      confidence: (analysis as any).confidence || { analysis: 0 } 
     },
     annotations: analysis.annotations || '',
-    metadata: analysis.metadata || { version: '1.0', model: t('common.unknown'), timestamp: new Date().toISOString() }
+    metadata: analysis.metadata || { 
+      version: '1.0', 
+      model: t('common.unknown'), 
+      timestamp: new Date().toISOString() 
+    }
   }
+
+  console.log('✅ Безопасная структура данных создана:', safeAnalysis)
 
   const [annotationData, setAnnotationData] = useState<string>(safeAnalysis?.annotations || '')
 

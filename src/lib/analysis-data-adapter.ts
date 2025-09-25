@@ -87,44 +87,48 @@ export function adaptLegacyAnalysisData(data: any): StructuredAnalysisResponse |
   if (data.interfaceAnalysis) {
     console.log('📊 Converting interfaceAnalysis format to StructuredAnalysisResponse')
     
+    const interfaceAnalysis = data.interfaceAnalysis
+    const avgScore = calculateAverageScore(interfaceAnalysis)
+    const confidence = Math.round(avgScore * 10) // Конвертируем 0-10 в 0-100
+    
     return {
       screenDescription: {
-        screenType: 'Interface Analysis',
-        userGoal: 'Not specified',
-        keyElements: [],
-        confidence: 75,
-        confidenceReason: 'Converted from interface analysis'
+        screenType: 'Веб-интерфейс',
+        userGoal: 'Выполнение задач через пользовательский интерфейс',
+        keyElements: extractKeyElementsFromAnalysis(interfaceAnalysis),
+        confidence: confidence,
+        confidenceReason: `Анализ основан на оценках по ${Object.keys(interfaceAnalysis).length} категориям с средним баллом ${avgScore.toFixed(1)}/10`
       },
       
       uxSurvey: {
-        questions: [],
-        overallConfidence: 75,
+        questions: generateSurveyFromAnalysis(interfaceAnalysis),
+        overallConfidence: confidence,
         summary: {
-          totalQuestions: 0,
-          averageConfidence: 75,
-          criticalIssues: 0,
-          recommendations: []
+          totalQuestions: Object.keys(interfaceAnalysis).length,
+          averageConfidence: confidence,
+          criticalIssues: countCriticalIssues(interfaceAnalysis),
+          recommendations: extractRecommendationsFromAnalysis(interfaceAnalysis, data.recommendations)
         }
       },
       
       audience: {
-        targetAudience: extractAudienceFromAnalysis(data.interfaceAnalysis, data.recommendations),
-        mainPain: extractMainPainFromAnalysis(data.interfaceAnalysis, data.recommendations),
-        fears: extractFearsFromAnalysis(data.interfaceAnalysis, data.recommendations)
+        targetAudience: extractAudienceFromAnalysis(interfaceAnalysis, data.recommendations),
+        mainPain: extractMainPainFromAnalysis(interfaceAnalysis, data.recommendations),
+        fears: extractFearsFromAnalysis(interfaceAnalysis, data.recommendations)
       },
       
       behavior: {
         userScenarios: {
-          idealPath: 'User successfully navigates through the interface with high usability scores',
-          typicalError: 'User encounters difficulties in areas with low scores (< 7/10)',
-          alternativeWorkaround: 'User may use alternative paths to complete tasks'
+          idealPath: 'Пользователь успешно навигирует по интерфейсу с высокими оценками юзабилити',
+          typicalError: 'Пользователь сталкивается с трудностями в областях с низкими оценками (< 7/10)',
+          alternativeWorkaround: 'Пользователь может использовать альтернативные пути для выполнения задач'
         },
-        behavioralPatterns: extractBehavioralPatterns(data.interfaceAnalysis),
-        frictionPoints: extractFrictionPoints(data.interfaceAnalysis, data.recommendations),
-        actionMotivation: 'Users are motivated by clear navigation and good visual design'
+        behavioralPatterns: extractBehavioralPatterns(interfaceAnalysis),
+        frictionPoints: extractFrictionPoints(interfaceAnalysis, data.recommendations),
+        actionMotivation: 'Пользователи мотивированы четкой навигацией и хорошим визуальным дизайном'
       },
       
-      problemsAndSolutions: convertInterfaceAnalysisToProblems(data.interfaceAnalysis, data.recommendations),
+      problemsAndSolutions: convertInterfaceAnalysisToProblems(interfaceAnalysis, data.recommendations),
       
       selfCheck: {
         checklist: {
@@ -134,9 +138,9 @@ export function adaptLegacyAnalysisData(data: any): StructuredAnalysisResponse |
           actionClarity: true
         },
         confidence: {
-          analysis: 75,
-          survey: 0,
-          recommendations: 75
+          analysis: confidence,
+          survey: confidence,
+          recommendations: confidence
         }
       },
       
@@ -409,6 +413,93 @@ function calculateAverageScore(interfaceAnalysis: any): number {
   
   const total = scores.reduce((sum, score) => sum + score, 0)
   return total / scores.length
+}
+
+/**
+ * Извлекает ключевые элементы из анализа интерфейса
+ */
+function extractKeyElementsFromAnalysis(interfaceAnalysis: any): string[] {
+  const elements: string[] = []
+  
+  if (interfaceAnalysis) {
+    Object.keys(interfaceAnalysis).forEach(category => {
+      if (interfaceAnalysis[category] && typeof interfaceAnalysis[category] === 'object') {
+        Object.keys(interfaceAnalysis[category]).forEach(subcategory => {
+          elements.push(`${category}: ${subcategory}`)
+        })
+      }
+    })
+  }
+  
+  return elements.slice(0, 10) // Ограничиваем количество элементов
+}
+
+/**
+ * Генерирует опрос на основе анализа интерфейса
+ */
+function generateSurveyFromAnalysis(interfaceAnalysis: any): any[] {
+  const questions: any[] = []
+  
+  if (interfaceAnalysis) {
+    Object.entries(interfaceAnalysis).forEach(([category, categoryData]: [string, any]) => {
+      if (categoryData && typeof categoryData === 'object') {
+        Object.entries(categoryData).forEach(([subcategory, score]: [string, any]) => {
+          if (typeof score === 'number') {
+            questions.push({
+              question: `Как вы оцениваете ${subcategory} в категории ${category}?`,
+              answer: `${score}/10`,
+              confidence: score * 10,
+              reasoning: score < 6 ? 'Требует улучшения' : score < 8 ? 'Удовлетворительно' : 'Хорошо'
+            })
+          }
+        })
+      }
+    })
+  }
+  
+  return questions
+}
+
+/**
+ * Подсчитывает критические проблемы
+ */
+function countCriticalIssues(interfaceAnalysis: any): number {
+  let criticalCount = 0
+  
+  if (interfaceAnalysis) {
+    Object.values(interfaceAnalysis).forEach((categoryData: any) => {
+      if (categoryData && typeof categoryData === 'object') {
+        Object.values(categoryData).forEach((score: any) => {
+          if (typeof score === 'number' && score < 5) {
+            criticalCount++
+          }
+        })
+      }
+    })
+  }
+  
+  return criticalCount
+}
+
+/**
+ * Извлекает рекомендации из анализа
+ */
+function extractRecommendationsFromAnalysis(interfaceAnalysis: any, recommendations: any): string[] {
+  const recs: string[] = []
+  
+  if (recommendations && typeof recommendations === 'object') {
+    Object.values(recommendations).forEach((categoryRecs: any) => {
+      if (categoryRecs && typeof categoryRecs === 'object') {
+        Object.values(categoryRecs).forEach((rec: any) => {
+          if (typeof rec === 'string') {
+            recs.push(rec)
+          }
+        })
+      }
+    })
+  }
+  
+  return recs.slice(0, 5) // Ограничиваем количество рекомендаций
 }
 
 /**

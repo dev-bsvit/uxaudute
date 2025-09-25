@@ -6,6 +6,7 @@ import { AnalysisResultDisplay } from '@/components/analysis-result-display'
 import { ABTestDisplay } from '@/components/ab-test-display'
 import { HypothesesDisplay } from '@/components/hypotheses-display'
 import { BusinessTextDisplay } from '@/components/business-text-display'
+import { AuditDebugPanel } from '@/components/audit-debug-panel'
 import { SidebarDemo } from '@/components/sidebar-demo'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card'
@@ -580,6 +581,9 @@ export default function AuditPage() {
             </CardContent>
           </Card>
         )}
+
+        {/* Debug Panel */}
+        <AuditDebugPanel auditId={auditId} auditData={audit} />
       </div>
     </SidebarDemo>
   )

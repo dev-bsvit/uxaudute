@@ -3,31 +3,33 @@ import { createClient, SupabaseClient } from '@supabase/supabase-js'
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
 
-// Глобальный синглтон через window объект (только для клиентской стороны)
-declare global {
-  interface Window {
-    __supabaseClient?: SupabaseClient
-  }
-}
+// Глобальная переменная для хранения единственного экземпляра клиента
+let supabaseInstance: SupabaseClient | null = null
 
-// Клиент для клиентской стороны (с RLS) - глобальный синглтон
+// Клиент для клиентской стороны (с RLS) - строгий синглтон
 export const supabase = (() => {
   // На сервере всегда создаем новый экземпляр
   if (typeof window === 'undefined') {
     return createClient(supabaseUrl, supabaseAnonKey)
   }
   
-  // На клиенте используем глобальный синглтон
-  if (!window.__supabaseClient) {
-    window.__supabaseClient = createClient(supabaseUrl, supabaseAnonKey, {
+  // На клиенте используем строгий синглтон
+  if (!supabaseInstance) {
+    supabaseInstance = createClient(supabaseUrl, supabaseAnonKey, {
       auth: {
         persistSession: true,
         autoRefreshToken: true,
-        detectSessionInUrl: true
+        detectSessionInUrl: true,
+        storageKey: 'ux-audit-auth' // Уникальный ключ для нашего приложения
       }
     })
+    
+    // Добавляем в window только для отладки
+    if (typeof window !== 'undefined') {
+      (window as any).__supabaseClient = supabaseInstance
+    }
   }
-  return window.__supabaseClient
+  return supabaseInstance
 })()
 
 // Серверный клиент для API routes (с service role key или анонимным ключом)
