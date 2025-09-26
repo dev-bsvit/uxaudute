@@ -38,7 +38,11 @@ Static screenshot (required) + context and target audience when available. If co
 16. Do NOT add extra quotes around field names: use "model" NOT "'model'"
 17. Do NOT add extra quotes around string values: use "gpt-4o" NOT "'gpt-4o'"
 18. Boolean values should be true/false NOT "true"/"false"
-19. Numbers should be without quotes: 85 NOT "85"**
+19. Numbers should be without quotes: 85 NOT "85"
+20. ALL problemsAndSolutions entries must be COMPLETE - no empty fields allowed
+21. expectedEffect must be descriptive string like "15% increase in clicks" NOT just number 15
+22. NEVER use single quotes around field names or values
+23. Generate exactly 3-5 complete problems, not partial ones**
 
 ```json
 {
@@ -499,6 +503,28 @@ Static screenshot (required) + context and target audience when available. If co
   ],
   "actionMotivation": "Users are motivated by avoiding late fees and maintaining good credit standing"
 }
+```
+
+**CORRECT problemsAndSolutions format:**
+```json
+"problemsAndSolutions": [
+  {
+    "element": "Pay Button",
+    "problem": "Button lacks visual prominence",
+    "principle": "Visibility of System Status Principle",
+    "consequence": "Users may overlook the primary action",
+    "businessImpact": {
+      "metric": "conversion",
+      "impactLevel": "high",
+      "description": "Low visibility reduces completed payments"
+    },
+    "recommendation": "Increase button size and contrast",
+    "expectedEffect": "15% increase in button clicks",
+    "priority": "high",
+    "confidence": 85,
+    "confidenceSource": "Based on visual hierarchy analysis"
+  }
+]
 ```
 
 **IMPORTANT: Generate 3-5 real problems based on interface analysis. Don't invent problems not visible in the screenshot. Each problem should be justified by specific interface elements.**
