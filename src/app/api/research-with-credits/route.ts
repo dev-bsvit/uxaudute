@@ -7,15 +7,6 @@ import { promptService } from '@/lib/i18n/prompt-service'
 import { PromptType } from '@/lib/i18n/types'
 import { checkCreditsForAudit, deductCreditsForAudit } from '@/lib/credits'
 
-// Вспомогательная функция для объединения промпта с контекстом (как в stable)
-function combineWithContext(prompt: string, context?: string): string {
-  if (!context || context.trim() === '') {
-    return prompt
-  }
-  
-  return `${prompt}\n\nДополнительный контекст от пользователя:\n${context}`
-}
-
 export async function POST(request: NextRequest) {
   try {
     console.log('=== RESEARCH WITH CREDITS API вызван ===')
@@ -88,15 +79,14 @@ export async function POST(request: NextRequest) {
       jsonPrompt = await promptService.loadPrompt(PromptType.SONOMA_STRUCTURED, language)
       console.log('✅ RESEARCH-WITH-CREDITS: Используем специальный промпт для Sonoma Sky Alpha')
     } else {
-      console.log('🔍 RESEARCH-WITH-CREDITS: Загружаем JSON_STRUCTURED промпт v2 (как в stable)')
-      const { loadJSONPromptV2 } = await import('@/lib/prompt-loader')
-      jsonPrompt = await loadJSONPromptV2()
-      console.log('✅ RESEARCH-WITH-CREDITS: Используем стандартный JSON промпт v2')
+      console.log('🔍 RESEARCH-WITH-CREDITS: Загружаем JSON_STRUCTURED промпт через многоязычную систему')
+      jsonPrompt = await promptService.loadPrompt(PromptType.JSON_STRUCTURED, language)
+      console.log('✅ RESEARCH-WITH-CREDITS: Используем многоязычный JSON промпт')
       console.log('🔍 RESEARCH-WITH-CREDITS: Длина загруженного промпта:', jsonPrompt.length)
       console.log('🔍 RESEARCH-WITH-CREDITS: Первые 500 символов промпта:', jsonPrompt.substring(0, 500))
     }
     
-    const finalPrompt = combineWithContext(jsonPrompt, context)
+    const finalPrompt = promptService.combineWithContext(jsonPrompt, context, language)
     console.log('Финальный промпт готов, длина:', finalPrompt.length)
     console.log('🔍 RESEARCH-WITH-CREDITS: Последние 1000 символов финального промпта:', finalPrompt.slice(-1000))
 
