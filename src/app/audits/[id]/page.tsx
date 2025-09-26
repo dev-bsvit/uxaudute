@@ -26,7 +26,7 @@ interface AuditData {
   result_data?: {
     analysis_result?: string | StructuredAnalysisResponse
     screenshot_url?: string
-  }
+  } | StructuredAnalysisResponse | any
   input_data?: Record<string, unknown> | null
   confidence?: number | null
 }
@@ -98,13 +98,19 @@ export default function AuditPage() {
         console.log('✅ AUDIT PAGE: Data successfully adapted:', Object.keys(adaptedResult))
         setAuditData({
           ...audit,
-          result_data: adaptedResult
+          result_data: {
+            ...audit.result_data,
+            analysis_result: adaptedResult
+          }
         })
       } else {
         console.log('⚠️ AUDIT PAGE: Could not adapt data, using original format')
         setAuditData({
           ...audit,
-          result_data: analysisResult || audit.result_data
+          result_data: {
+            ...audit.result_data,
+            analysis_result: analysisResult || audit.result_data
+          }
         })
       }
     } catch (err) {
