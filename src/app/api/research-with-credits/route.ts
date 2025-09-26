@@ -79,15 +79,35 @@ export async function POST(request: NextRequest) {
       jsonPrompt = await promptService.loadPrompt(PromptType.SONOMA_STRUCTURED, language)
       console.log('✅ RESEARCH-WITH-CREDITS: Используем специальный промпт для Sonoma Sky Alpha')
     } else {
-      // ИСПРАВЛЕНО: Теперь promptService.loadPrompt() использует fs.readFileSync()
-      console.log('🔍 RESEARCH-WITH-CREDITS: Загружаем JSON_STRUCTURED промпт через многоязычную систему')
-      jsonPrompt = await promptService.loadPrompt(PromptType.JSON_STRUCTURED, language)
-      console.log('✅ RESEARCH-WITH-CREDITS: Используем многоязычный JSON промпт')
-      console.log('🔍 RESEARCH-WITH-CREDITS: Длина загруженного промпта:', jsonPrompt.length)
+      // ВРЕМЕННО: Возвращаемся к loadJSONPromptV2() из-за 500 ошибки
+      console.log('🔍 RESEARCH-WITH-CREDITS: Загружаем JSON_STRUCTURED промпт v2 (временно)')
+      
+      try {
+        console.log('🔍 RESEARCH-WITH-CREDITS: Пытаемся загрузить через многоязычную систему...')
+        jsonPrompt = await promptService.loadPrompt(PromptType.JSON_STRUCTURED, language)
+        console.log('✅ RESEARCH-WITH-CREDITS: Многоязычная система работает!')
+        console.log('🔍 RESEARCH-WITH-CREDITS: Длина загруженного промпта:', jsonPrompt.length)
+      } catch (promptError) {
+        console.error('❌ RESEARCH-WITH-CREDITS: Ошибка многоязычной системы:', promptError)
+        console.log('🔄 RESEARCH-WITH-CREDITS: Fallback на loadJSONPromptV2()')
+        const { loadJSONPromptV2 } = await import('@/lib/prompt-loader')
+        jsonPrompt = await loadJSONPromptV2()
+        console.log('✅ RESEARCH-WITH-CREDITS: Используем fallback промпт v2')
+      }
+      
+      console.log('🔍 RESEARCH-WITH-CREDITS: Финальная длина промпта:', jsonPrompt.length)
       console.log('🔍 RESEARCH-WITH-CREDITS: Первые 500 символов промпта:', jsonPrompt.substring(0, 500))
     }
     
-    const finalPrompt = promptService.combineWithContext(jsonPrompt, context, language)
+    // Объединяем с контекстом (с fallback)
+    let finalPrompt: string
+    try {
+      finalPrompt = promptService.combineWithContext(jsonPrompt, context, language)
+    } catch (contextError) {
+      console.error('❌ RESEARCH-WITH-CREDITS: Ошибка combineWithContext:', contextError)
+      // Простой fallback
+      finalPrompt = context ? `${jsonPrompt}\n\nДополнительный контекст от пользователя:\n${context}` : jsonPrompt
+    }
     console.log('Финальный промпт готов, длина:', finalPrompt.length)
     console.log('🔍 RESEARCH-WITH-CREDITS: Последние 1000 символов финального промпта:', finalPrompt.slice(-1000))
 

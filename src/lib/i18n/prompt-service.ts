@@ -106,27 +106,27 @@ class PromptService {
    */
   private async fetchPromptFile(promptType: PromptType, language: string): Promise<string> {
     const fileName = this.getPromptFileName(promptType)
-    
+
     // Проверяем, выполняется ли код на сервере
     if (typeof window === 'undefined') {
       // Серверный контекст - используем fs.readFileSync
       const filePath = this.getPromptFilePath(fileName, language)
       console.log(`📝 Loading prompt file (server): ${filePath}`)
-      
+
       try {
         const { readFileSync } = await import('fs')
         const content = readFileSync(filePath, 'utf-8')
-        
+
         console.log(`✅ Prompt loaded successfully: ${filePath} (${content.length} chars)`)
         console.log(`📄 Prompt preview: ${content.substring(0, 200)}...`)
-        
+
         // Проверяем, что промпт содержит нашу структуру
         if (promptType === PromptType.JSON_STRUCTURED && content.includes('screenDescription')) {
           console.log(`✅ Detailed JSON prompt loaded with screenDescription structure`)
         } else if (promptType === PromptType.JSON_STRUCTURED) {
           console.warn(`⚠️ JSON prompt loaded but doesn't contain screenDescription - might be wrong file`)
         }
-        
+
         return content
       } catch (error) {
         console.error(`❌ Failed to load prompt file: ${filePath}`)
@@ -137,9 +137,9 @@ class PromptService {
       // Браузерный контекст - используем fetch
       const url = `/prompts/${language}/${fileName}`
       console.log(`📝 Loading prompt file (client): ${url}`)
-      
+
       const response = await fetch(url)
-      
+
       if (!response.ok) {
         console.error(`❌ Failed to load prompt: ${url} - ${response.status}: ${response.statusText}`)
         throw new Error(`HTTP ${response.status}: ${response.statusText}`)
@@ -148,14 +148,14 @@ class PromptService {
       const content = await response.text()
       console.log(`✅ Prompt loaded successfully: ${url} (${content.length} chars)`)
       console.log(`📄 Prompt preview: ${content.substring(0, 200)}...`)
-      
+
       // Проверяем, что промпт содержит нашу структуру
       if (promptType === PromptType.JSON_STRUCTURED && content.includes('screenDescription')) {
         console.log(`✅ Detailed JSON prompt loaded with screenDescription structure`)
       } else if (promptType === PromptType.JSON_STRUCTURED) {
         console.warn(`⚠️ JSON prompt loaded but doesn't contain screenDescription - might be wrong file`)
       }
-      
+
       return content
     }
   }
@@ -165,7 +165,10 @@ class PromptService {
    */
   private getPromptFilePath(fileName: string, language: string): string {
     const { join } = require('path')
-    return join(process.cwd(), 'public', 'prompts', language, fileName)
+    const filePath = join(process.cwd(), 'public', 'prompts', language, fileName)
+    console.log(`🔍 Building file path: cwd=${process.cwd()}, language=${language}, fileName=${fileName}`)
+    console.log(`🔍 Final path: ${filePath}`)
+    return filePath
   }
 
   /**
