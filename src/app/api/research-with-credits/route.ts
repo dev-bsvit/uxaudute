@@ -84,9 +84,11 @@ export async function POST(request: NextRequest) {
       
       try {
         console.log('🔍 RESEARCH-WITH-CREDITS: Пытаемся загрузить через многоязычную систему...')
+        console.log('🔍 RESEARCH-WITH-CREDITS: Запрашиваемый язык:', language)
         jsonPrompt = await promptService.loadPrompt(PromptType.JSON_STRUCTURED, language)
         console.log('✅ RESEARCH-WITH-CREDITS: Многоязычная система работает!')
         console.log('🔍 RESEARCH-WITH-CREDITS: Длина загруженного промпта:', jsonPrompt.length)
+        console.log('🔍 RESEARCH-WITH-CREDITS: Язык промпта (первые 100 символов):', jsonPrompt.substring(0, 100))
       } catch (promptError) {
         console.error('❌ RESEARCH-WITH-CREDITS: Ошибка многоязычной системы:', promptError)
         console.log('🔄 RESEARCH-WITH-CREDITS: Fallback на loadJSONPromptV2()')

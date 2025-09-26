@@ -25,7 +25,12 @@ Static screenshot (required) + context and target audience when available. If co
 3. Do NOT wrap JSON in markdown blocks (```json)
 4. Do NOT add explanations or comments
 5. Start response with { and end with }
-6. Ensure JSON is valid and complete**
+6. Ensure JSON is valid and complete
+7. Use response_format: {"type": "json_object"} for correct JSON output
+8. All strings must be in quotes, numbers without quotes
+9. Arrays in square brackets [], objects in curly braces {}
+10. Do NOT use placeholder brackets like [metadata] or [model] - use actual field names
+11. Do NOT wrap field values in arrays unless they are actually arrays**
 
 ```json
 {
@@ -310,6 +315,9 @@ Static screenshot (required) + context and target audience when available. If co
 7. **Priorities** - only "high", "medium", "low"
 8. **Audience** - required block with target audience, pains, and fears analysis
 9. **Behavior** - required block with user scenarios, patterns, and friction points analysis
+10. **No placeholder brackets** - use "metadata" not "[metadata]", "model" not "[model]"
+11. **Correct data types** - strings in quotes, booleans as true/false, numbers as integers
+12. **Single values not arrays** - use "gpt-4o" not ["gpt-4o"], true not [true]
 
 ## UX Survey Rules:
 
@@ -398,8 +406,34 @@ Static screenshot (required) + context and target audience when available. If co
 - Don't use percentages as KPIs without research validation
 - Add additional context-specific questions if relevant
 - Audience analysis should be based on interface visual cues
+
+## CRITICAL: Avoid These Common JSON Errors:
+
+❌ **WRONG FORMAT:**
+```json
+"[metadata]": {
+  "[model]": ["gpt-4o"]
+}
+"[selfCheck]": {
+  "[checklist]": {
+    "[actionClarity]": [true]
+  }
+}
+```
+
+✅ **CORRECT FORMAT:**
+```json
+"metadata": {
+  "model": "gpt-4o"
+}
+"selfCheck": {
+  "checklist": {
+    "actionClarity": true
+  }
+}
+```
+
+**Remember:** Use actual field names, not placeholder brackets. Single values should not be wrapped in arrays.
 - Behavior analysis should consider typical user patterns and scenarios
 
 **IMPORTANT: Generate 3-5 real problems based on interface analysis. Don't invent problems not visible in the screenshot. Each problem should be justified by specific interface elements.**
-
-**Respond ONLY in JSON format in English.**
