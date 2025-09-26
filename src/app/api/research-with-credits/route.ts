@@ -3,8 +3,7 @@ import { executeAIRequest, AIResponse } from '@/lib/ai-provider'
 import { StructuredAnalysisResponse, isStructuredResponse } from '@/lib/analysis-types'
 import { validateSurvey, analyzeSurveyResults } from '@/lib/survey-utils'
 import { supabase } from '@/lib/supabase'
-import { promptService } from '@/lib/i18n/prompt-service'
-import { PromptType } from '@/lib/i18n/types'
+import { loadJSONPromptV2, loadSonomaStructuredPrompt } from '@/lib/prompt-loader'
 import { checkCreditsForAudit, deductCreditsForAudit } from '@/lib/credits'
 
 export async function POST(request: NextRequest) {
@@ -16,8 +15,7 @@ export async function POST(request: NextRequest) {
       context, 
       provider = 'openai',
       openrouterModel = 'sonoma',
-      auditId,
-      language = 'ru'
+      auditId
     } = await request.json()
     
     console.log('Параметры запроса:', { 
@@ -70,52 +68,28 @@ export async function POST(request: NextRequest) {
 
     console.log('✅ Кредиты проверены успешно:', creditsCheck)
 
-    // Загружаем промпт в зависимости от модели и языка
-    console.log('🔍 RESEARCH-WITH-CREDITS: Загружаем промпт для языка:', language)
+    // ВРЕМЕННО: Используем старый способ загрузки промптов как в stable
+    console.log('🔍 RESEARCH-WITH-CREDITS: Загружаем промпт (stable method)')
     console.log('🔍 RESEARCH-WITH-CREDITS: Provider:', provider, 'Model:', openrouterModel)
     let jsonPrompt: string
+    
     if (provider === 'openrouter' && openrouterModel === 'sonoma') {
       console.log('🔍 RESEARCH-WITH-CREDITS: Загружаем SONOMA промпт')
-      jsonPrompt = await promptService.loadPrompt(PromptType.SONOMA_STRUCTURED, language)
+      const { loadSonomaStructuredPrompt } = await import('@/lib/prompt-loader')
+      jsonPrompt = await loadSonomaStructuredPrompt()
       console.log('✅ RESEARCH-WITH-CREDITS: Используем специальный промпт для Sonoma Sky Alpha')
     } else {
-      // ВРЕМЕННО: Возвращаемся к loadJSONPromptV2() из-за 500 ошибки
-      console.log('🔍 RESEARCH-WITH-CREDITS: Загружаем JSON_STRUCTURED промпт v2 (временно)')
-      
-      try {
-        console.log('🔍 RESEARCH-WITH-CREDITS: Пытаемся загрузить через многоязычную систему...')
-        console.log('🔍 RESEARCH-WITH-CREDITS: Запрашиваемый язык:', language)
-        jsonPrompt = await promptService.loadPrompt(PromptType.JSON_STRUCTURED, language)
-        console.log('✅ RESEARCH-WITH-CREDITS: Многоязычная система работает!')
-        console.log('🔍 RESEARCH-WITH-CREDITS: Длина загруженного промпта:', jsonPrompt.length)
-        console.log('🔍 RESEARCH-WITH-CREDITS: Язык промпта (первые 100 символов):', jsonPrompt.substring(0, 100))
-        
-        // Проверяем, не слишком ли длинный промпт
-        if (jsonPrompt.length > 25000) {
-          console.warn('⚠️ RESEARCH-WITH-CREDITS: Промпт очень длинный:', jsonPrompt.length, 'символов')
-        }
-      } catch (promptError) {
-        console.error('❌ RESEARCH-WITH-CREDITS: Ошибка многоязычной системы:', promptError)
-        console.error('❌ RESEARCH-WITH-CREDITS: Stack trace:', promptError instanceof Error ? promptError.stack : 'No stack')
-        console.log('🔄 RESEARCH-WITH-CREDITS: Fallback на loadJSONPromptV2()')
-        const { loadJSONPromptV2 } = await import('@/lib/prompt-loader')
-        jsonPrompt = await loadJSONPromptV2()
-        console.log('✅ RESEARCH-WITH-CREDITS: Используем fallback промпт v2')
-      }
-      
-      console.log('🔍 RESEARCH-WITH-CREDITS: Финальная длина промпта:', jsonPrompt.length)
-      console.log('🔍 RESEARCH-WITH-CREDITS: Первые 500 символов промпта:', jsonPrompt.substring(0, 500))
+      console.log('🔍 RESEARCH-WITH-CREDITS: Загружаем JSON_STRUCTURED промпт v2 (stable)')
+      const { loadJSONPromptV2 } = await import('@/lib/prompt-loader')
+      jsonPrompt = await loadJSONPromptV2()
+      console.log('✅ RESEARCH-WITH-CREDITS: Используем стабильный промпт v2')
     }
     
-    // Объединяем с контекстом (с fallback)
-    let finalPrompt: string
-    try {
-      finalPrompt = promptService.combineWithContext(jsonPrompt, context, language)
-    } catch (contextError) {
-      console.error('❌ RESEARCH-WITH-CREDITS: Ошибка combineWithContext:', contextError)
-      // Простой fallback
-      finalPrompt = context ? `${jsonPrompt}\n\nДополнительный контекст от пользователя:\n${context}` : jsonPrompt
-    }
+    console.log('🔍 RESEARCH-WITH-CREDITS: Финальная длина промпта:', jsonPrompt.length)
+    console.log('🔍 RESEARCH-WITH-CREDITS: Первые 500 символов промпта:', jsonPrompt.substring(0, 500))
+    
+    // Объединяем с контекстом (простой способ как в stable)
+    const finalPrompt = context ? `${jsonPrompt}\n\nДополнительный контекст от пользователя:\n${context}` : jsonPrompt
     console.log('Финальный промпт готов, длина:', finalPrompt.length)
     console.log('🔍 RESEARCH-WITH-CREDITS: Последние 1000 символов финального промпта:', finalPrompt.slice(-1000))
 
