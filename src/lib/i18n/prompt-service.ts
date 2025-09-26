@@ -52,13 +52,6 @@ class PromptService {
    * Убеждается, что промпты для языка загружены
    */
   private async ensurePromptsLoaded(language: string): Promise<void> {
-    // Временно: всегда перезагружаем промпты для отладки
-    if (language === 'ru') {
-      console.log('🔄 Force reloading Russian prompts for debugging')
-      delete this.prompts[language]
-      delete this.loadingPromises[language]
-    }
-
     if (this.prompts[language]) {
       console.log(`✅ Prompts already loaded for ${language}`)
       return
@@ -212,7 +205,8 @@ Respond in the selected language.`,
 3. Do NOT wrap JSON in markdown blocks
 4. Start response with { and end with }
 5. Use this structure: {"screenDescription": {"screenType": "...", "userGoal": "...", "keyElements": [], "confidence": 85, "confidenceReason": "..."}, "uxSurvey": {"questions": [], "overallConfidence": 85}, "audience": {"targetAudience": "...", "mainPain": "...", "fears": []}, "behavior": {"userScenarios": {"idealPath": "...", "typicalError": "...", "alternativeWorkaround": "..."}, "behavioralPatterns": "...", "frictionPoints": [], "actionMotivation": "..."}, "problemsAndSolutions": [], "selfCheck": {"checklist": {}, "confidence": {}}, "metadata": {}}
-6. ALL TEXT IN JSON MUST BE IN RUSSIAN LANGUAGE**
+6. Use actual field names, not placeholder brackets like [metadata] or [model]
+7. Single values should not be wrapped in arrays**
 
 Respond in the selected language.`,
 
