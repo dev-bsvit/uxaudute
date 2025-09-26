@@ -89,8 +89,14 @@ export async function POST(request: NextRequest) {
         console.log('✅ RESEARCH-WITH-CREDITS: Многоязычная система работает!')
         console.log('🔍 RESEARCH-WITH-CREDITS: Длина загруженного промпта:', jsonPrompt.length)
         console.log('🔍 RESEARCH-WITH-CREDITS: Язык промпта (первые 100 символов):', jsonPrompt.substring(0, 100))
+        
+        // Проверяем, не слишком ли длинный промпт
+        if (jsonPrompt.length > 25000) {
+          console.warn('⚠️ RESEARCH-WITH-CREDITS: Промпт очень длинный:', jsonPrompt.length, 'символов')
+        }
       } catch (promptError) {
         console.error('❌ RESEARCH-WITH-CREDITS: Ошибка многоязычной системы:', promptError)
+        console.error('❌ RESEARCH-WITH-CREDITS: Stack trace:', promptError instanceof Error ? promptError.stack : 'No stack')
         console.log('🔄 RESEARCH-WITH-CREDITS: Fallback на loadJSONPromptV2()')
         const { loadJSONPromptV2 } = await import('@/lib/prompt-loader')
         jsonPrompt = await loadJSONPromptV2()
@@ -298,9 +304,16 @@ export async function POST(request: NextRequest) {
     })
 
   } catch (error) {
-    console.error('Ошибка в research-with-credits API:', error)
+    console.error('❌ CRITICAL ERROR in research-with-credits API:', error)
+    console.error('❌ Error stack:', error instanceof Error ? error.stack : 'No stack trace')
+    console.error('❌ Error message:', error instanceof Error ? error.message : String(error))
+    
     return NextResponse.json(
-      { error: 'Внутренняя ошибка сервера' },
+      { 
+        error: 'Внутренняя ошибка сервера',
+        details: error instanceof Error ? error.message : String(error),
+        timestamp: new Date().toISOString()
+      },
       { status: 500 }
     )
   }
