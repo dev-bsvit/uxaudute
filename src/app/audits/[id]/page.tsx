@@ -10,6 +10,7 @@ import { Download, Share } from 'lucide-react'
 import { BackArrow } from '@/components/icons/back-arrow'
 import { type ActionType } from '@/lib/utils'
 import { StructuredAnalysisResponse } from '@/lib/analysis-types'
+import { safeAdaptAnalysisData } from '@/lib/analysis-data-adapter'
 import Link from 'next/link'
 import { useParams, useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
@@ -63,23 +64,49 @@ export default function AuditPage() {
       // Обрабатываем результат - он может быть в разных форматах
       let analysisResult: string | StructuredAnalysisResponse | undefined
       
+      console.log('🔍 AUDIT PAGE: Обрабатываем результат...')
+      console.log('🔍 AUDIT PAGE: result_data type:', typeof audit.result_data)
+      console.log('🔍 AUDIT PAGE: result_data keys:', Object.keys(audit.result_data || {}))
+      
       if (audit.result_data?.analysis_result) {
+        console.log('✅ AUDIT PAGE: Найден analysis_result в result_data')
         analysisResult = audit.result_data.analysis_result as string | StructuredAnalysisResponse
       } else if (audit.result_data?.content) {
+        console.log('✅ AUDIT PAGE: Найден content в result_data')
         // Результат может быть в поле content
         analysisResult = audit.result_data.content as string
+      } else if (audit.result_data && (audit.result_data.screenDescription || audit.result_data.uxSurvey || audit.result_data.audience)) {
+        console.log('✅ AUDIT PAGE: result_data содержит структурированные данные напрямую')
+        // В новой системе данные лежат прямо в result_data
+        analysisResult = audit.result_data as any
       } else if (audit.result_data) {
+        console.log('✅ AUDIT PAGE: Используем весь result_data как результат')
         // Весь result_data может быть результатом
         analysisResult = audit.result_data as any
+      } else {
+        console.log('❌ AUDIT PAGE: Результат не найден')
       }
 
-      setAuditData({
-        ...audit,
-        result_data: {
-          ...audit.result_data,
-          analysis_result: analysisResult
-        }
-      })
+      console.log('🔍 AUDIT PAGE: Финальный analysisResult:', analysisResult)
+      console.log('🔍 AUDIT PAGE: Тип analysisResult:', typeof analysisResult)
+      
+      // Адаптируем данные к новому формату
+      console.log('🔄 AUDIT PAGE: Attempting to adapt data format...')
+      const adaptedResult = safeAdaptAnalysisData(analysisResult || audit.result_data)
+      
+      if (adaptedResult) {
+        console.log('✅ AUDIT PAGE: Data successfully adapted:', Object.keys(adaptedResult))
+        setAuditData({
+          ...audit,
+          result_data: adaptedResult
+        })
+      } else {
+        console.log('⚠️ AUDIT PAGE: Could not adapt data, using original format')
+        setAuditData({
+          ...audit,
+          result_data: analysisResult || audit.result_data
+        })
+      }
     } catch (err) {
       console.error('Error loading audit:', err)
       setError('Ошибка загрузки аудита')

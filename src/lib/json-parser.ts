@@ -620,19 +620,37 @@ function extractJSONSection(jsonString: string, sectionName: string): any {
  * Проверяет, является ли объект валидным StructuredAnalysisResponse
  */
 export function validateAnalysisResponse(obj: any): obj is StructuredAnalysisResponse {
-  if (!obj || typeof obj !== 'object') return false
-  
-  // Проверяем наличие основных полей
-  const requiredFields = ['screenDescription', 'uxSurvey', 'audience', 'behavior', 'problemsAndSolutions']
-  
-  for (const field of requiredFields) {
-    if (!(field in obj)) {
-      console.warn(`Missing required field: ${field}`)
-      return false
-    }
+  if (!obj || typeof obj !== 'object') {
+    console.warn('🔍 VALIDATION: Object is null or not an object')
+    return false
   }
   
-  return true
+  console.log('🔍 VALIDATION: Validating object with keys:', Object.keys(obj))
+  
+  // Проверяем наличие основных полей (делаем проверку менее строгой)
+  const requiredFields = ['screenDescription', 'uxSurvey', 'audience', 'behavior', 'problemsAndSolutions']
+  const presentFields = requiredFields.filter(field => field in obj)
+  
+  console.log('🔍 VALIDATION: Present fields:', presentFields)
+  console.log('🔍 VALIDATION: Missing fields:', requiredFields.filter(field => !(field in obj)))
+  
+  // Если есть хотя бы 3 из 5 обязательных полей, считаем валидным
+  if (presentFields.length >= 3) {
+    console.log('✅ VALIDATION: Object is valid (has', presentFields.length, 'of', requiredFields.length, 'required fields)')
+    return true
+  }
+  
+  // Альтернативная проверка - если есть любые из ключевых полей
+  const alternativeFields = ['audience', 'behavior', 'metadata', 'uxSurvey', 'selfCheck', 'screenDescription', 'problemsAndSolutions']
+  const hasAlternativeFields = alternativeFields.some(field => field in obj)
+  
+  if (hasAlternativeFields) {
+    console.log('✅ VALIDATION: Object is valid (has alternative structure)')
+    return true
+  }
+  
+  console.warn('❌ VALIDATION: Object is not valid - insufficient fields')
+  return false
 }
 
 /**

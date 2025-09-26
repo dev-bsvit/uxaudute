@@ -95,6 +95,11 @@ export function AnalysisResultDisplay({
   }
 
   console.log('✅ Безопасная структура данных создана:', safeAnalysis)
+  console.log('🔍 safeAnalysis.screenDescription:', safeAnalysis.screenDescription)
+  console.log('🔍 safeAnalysis.uxSurvey:', safeAnalysis.uxSurvey)
+  console.log('🔍 safeAnalysis.audience:', safeAnalysis.audience)
+  console.log('🔍 safeAnalysis.behavior:', safeAnalysis.behavior)
+  console.log('🔍 safeAnalysis.problemsAndSolutions:', safeAnalysis.problemsAndSolutions)
 
   const [annotationData, setAnnotationData] = useState<string>(safeAnalysis?.annotations || '')
 

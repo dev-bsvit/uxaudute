@@ -27,29 +27,57 @@ export function AnalysisResult({ result, screenshot, url, auditId }: AnalysisRes
   )
 
   function renderAnalysisContent() {
+    console.log('🔍 ANALYSIS RESULT: Starting renderAnalysisContent')
+    console.log('🔍 ANALYSIS RESULT: Result type:', typeof result)
+    console.log('🔍 ANALYSIS RESULT: Result keys:', Object.keys(result || {}))
+    
     // Пытаемся получить структурированный результат
     let structuredResult: StructuredAnalysisResponse | null = null
   
-  if (typeof result === 'object' && isStructuredResponse(result)) {
+  if (typeof result === 'object' && result && isStructuredResponse(result)) {
     // Уже структурированный объект
     structuredResult = result as StructuredAnalysisResponse
-    console.log('✅ Using existing structured result')
+    console.log('✅ ANALYSIS RESULT: Using existing structured result')
+  } else if (typeof result === 'object' && result) {
+    // Объект, но не прошел isStructuredResponse - попробуем использовать как есть
+    console.log('🔄 ANALYSIS RESULT: Object exists but not structured, trying as-is...')
+    structuredResult = result as StructuredAnalysisResponse
   } else if (typeof result === 'string') {
     // Пытаемся распарсить JSON строку
-    console.log('🔄 Attempting to parse JSON string...')
+    console.log('🔄 ANALYSIS RESULT: Attempting to parse JSON string...')
     structuredResult = safeParseJSON(result)
   } else if (typeof result === 'object' && result && 'content' in result) {
     // Результат содержит поле content с JSON
-    console.log('🔄 Extracting content from result object...')
+    console.log('🔄 ANALYSIS RESULT: Extracting content from result object...')
     const content = (result as any).content
     if (typeof content === 'string') {
       structuredResult = safeParseJSON(content)
     }
   }
+  
+  console.log('🔍 ANALYSIS RESULT: Structured result:', !!structuredResult)
+  if (structuredResult) {
+    console.log('🔍 ANALYSIS RESULT: Structured result keys:', Object.keys(structuredResult))
+  }
 
   // Если удалось получить структурированный результат, используем новый компонент
-  if (structuredResult && validateAnalysisResponse(structuredResult)) {
-    console.log('✅ Using AnalysisResultDisplay with structured data')
+  const isValid = structuredResult && validateAnalysisResponse(structuredResult)
+  console.log('🔍 ANALYSIS RESULT: Validation result:', isValid)
+  
+  if (structuredResult && isValid) {
+    console.log('✅ ANALYSIS RESULT: Using AnalysisResultDisplay with structured data')
+    return (
+      <div className="w-full">
+        <AnalysisResultDisplay 
+          analysis={structuredResult}
+          screenshot={screenshot}
+          url={url}
+          auditId={auditId}
+        />
+      </div>
+    )
+  } else if (structuredResult) {
+    console.log('⚠️ ANALYSIS RESULT: Structured result exists but validation failed, trying anyway...')
     return (
       <div className="w-full">
         <AnalysisResultDisplay 

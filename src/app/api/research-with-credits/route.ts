@@ -161,13 +161,54 @@ export async function POST(request: NextRequest) {
     let parsedResult = analysisResult
     if (analysisResult && typeof analysisResult === 'object' && 'content' in analysisResult) {
       try {
-        console.log('Парсим content как JSON...')
-        parsedResult = JSON.parse((analysisResult as any).content)
-        console.log('Результат распарсен:', Object.keys(parsedResult || {}))
+        console.log('🔍 PARSING: Парсим content как JSON...')
+        console.log('🔍 PARSING: Content type:', typeof (analysisResult as any).content)
+        console.log('🔍 PARSING: Content preview:', (analysisResult as any).content?.substring(0, 200))
+        
+        const contentString = (analysisResult as any).content
+        if (typeof contentString === 'string') {
+          parsedResult = JSON.parse(contentString)
+          console.log('✅ PARSING: Результат распарсен, ключи:', Object.keys(parsedResult || {}))
+          console.log('✅ PARSING: Структура результата:', JSON.stringify(parsedResult, null, 2))
+        } else {
+          console.log('⚠️ PARSING: Content не является строкой, используем как есть')
+          parsedResult = analysisResult
+        }
       } catch (parseError) {
-        console.error('Ошибка парсинга content:', parseError)
-        parsedResult = analysisResult
+        console.error('❌ PARSING: Ошибка парсинга content:', parseError)
+        console.error('❌ PARSING: Проблемный content:', (analysisResult as any).content)
+        
+        // Пытаемся исправить JSON если он неполный
+        try {
+          const contentString = (analysisResult as any).content
+          if (typeof contentString === 'string') {
+            // Добавляем закрывающие скобки если их нет
+            let fixedContent = contentString.trim()
+            if (!fixedContent.endsWith('}')) {
+              const openBraces = (fixedContent.match(/\{/g) || []).length
+              const closeBraces = (fixedContent.match(/\}/g) || []).length
+              const missingBraces = openBraces - closeBraces
+              
+              console.log('🔧 PARSING: Пытаемся исправить JSON, недостает скобок:', missingBraces)
+              for (let i = 0; i < missingBraces; i++) {
+                fixedContent += '}'
+              }
+            }
+            
+            parsedResult = JSON.parse(fixedContent)
+            console.log('✅ PARSING: JSON исправлен и распарсен успешно')
+          }
+        } catch (fixError) {
+          console.error('❌ PARSING: Не удалось исправить JSON:', fixError)
+          parsedResult = analysisResult
+        }
       }
+    } else if (analysisResult && typeof analysisResult === 'object' && 'success' in analysisResult) {
+      console.log('🔍 PARSING: Результат уже в формате объекта с success')
+      parsedResult = analysisResult
+    } else {
+      console.log('🔍 PARSING: Результат в неожиданном формате:', typeof analysisResult)
+      console.log('🔍 PARSING: Ключи результата:', Object.keys(analysisResult || {}))
     }
 
     // Валидация результата

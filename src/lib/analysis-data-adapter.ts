@@ -12,7 +12,8 @@ export function adaptLegacyAnalysisData(data: any): StructuredAnalysisResponse |
     return null
   }
 
-  console.log('🔄 Adapting legacy analysis data:', Object.keys(data))
+  console.log('🔄 ADAPTER: Adapting legacy analysis data:', Object.keys(data))
+  console.log('🔍 ADAPTER: Data structure:', JSON.stringify(data, null, 2))
 
   // Проверяем, есть ли данные в старом формате
   if (data.target_audience || data.interface_analysis) {
@@ -156,11 +157,14 @@ export function adaptLegacyAnalysisData(data: any): StructuredAnalysisResponse |
 
   // Если данные уже в правильном формате, возвращаем как есть
   if (data.screenDescription || data.uxSurvey || data.audience) {
-    console.log('✅ Data is already in StructuredAnalysisResponse format')
+    console.log('✅ ADAPTER: Data is already in StructuredAnalysisResponse format')
+    console.log('✅ ADAPTER: Available keys:', Object.keys(data))
     return data as StructuredAnalysisResponse
   }
 
-  console.log('❌ Unknown data format, cannot adapt')
+  console.log('❌ ADAPTER: Unknown data format, cannot adapt')
+  console.log('❌ ADAPTER: Available keys:', Object.keys(data))
+  console.log('❌ ADAPTER: Data sample:', JSON.stringify(data, null, 2).substring(0, 500))
   return null
 }
 

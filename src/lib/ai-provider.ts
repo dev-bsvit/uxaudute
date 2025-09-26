@@ -64,7 +64,7 @@ const createProviderConfig = (provider: AIProvider, openrouterModel: OpenRouterM
         model: 'gpt-4o-2024-08-06', // Последняя версия GPT-4o
         client: openai
       }
-    
+
     case 'openrouter':
       if (!isOpenRouterAvailable()) {
         console.log('OpenRouter недоступен, пропускаем')
@@ -80,7 +80,7 @@ const createProviderConfig = (provider: AIProvider, openrouterModel: OpenRouterM
         model: getOpenRouterModel(openrouterModel),
         client: openrouterClient
       }
-    
+
     default:
       console.warn(`Неизвестный провайдер: ${provider}`)
       return null
@@ -92,9 +92,9 @@ export const executeAIRequest = async (
   messages: Array<{ role: string; content: string | any[] }>,
   options: AIRequestOptions = {}
 ): Promise<AIResponse> => {
-  const { 
-    temperature = 0.3, 
-    max_tokens = 4000, 
+  const {
+    temperature = 0.3,
+    max_tokens = 4000,
     stream = false,
     provider,
     openrouterModel = 'default',
@@ -107,9 +107,9 @@ export const executeAIRequest = async (
   if (provider) {
     console.log(`🎯 Создаем конфигурацию для провайдера: ${provider}, модель: ${openrouterModel}`)
     const config = createProviderConfig(provider, openrouterModel)
-    
+
     console.log(`📋 Конфигурация создана:`, config)
-    
+
     if (!config) {
       console.error(`❌ Провайдер ${provider} недоступен`)
       return {
@@ -124,11 +124,11 @@ export const executeAIRequest = async (
     try {
       console.log(`Используем указанный провайдер: ${provider} (модель: ${config.model})`)
       console.log(`📤 Отправляем сообщения:`, JSON.stringify(messages, null, 2))
-      
+
       // Специальные параметры для Sonoma Sky Alpha
       const isSonoma = config.model.includes('sonoma-sky-alpha')
       console.log(`🎯 Это Sonoma Sky Alpha: ${isSonoma}`)
-      
+
       const requestParams = {
         model: config.model,
         messages: messages as any,
@@ -137,16 +137,17 @@ export const executeAIRequest = async (
         top_p: 0.9, // Добавляем top_p для лучшего качества
         frequency_penalty: 0.1, // Небольшой penalty для разнообразия
         presence_penalty: 0.1,
-        stream
-        // Убираем response_format чтобы AI следовал нашему промпту
-        // response_format: { type: "json_object" }
+        stream,
+        response_format: { type: "json_object" } // Принудительный JSON формат
       }
-      
+
       console.log(`📋 Параметры запроса:`, JSON.stringify(requestParams, null, 2))
-      
+
       const completion = await config.client.chat.completions.create(requestParams)
-      
-      console.log(`✅ Получен ответ от ${provider}:`, JSON.stringify(completion, null, 2))
+
+      console.log(`✅ Получен ответ от ${provider}`)
+      console.log(`📊 Usage:`, completion.usage)
+      console.log(`📝 Content preview:`, completion.choices[0]?.message?.content?.substring(0, 200))
 
       // Проверяем на ошибки в ответе
       if (completion.error) {
@@ -161,9 +162,9 @@ export const executeAIRequest = async (
       }
 
       const content = completion.choices[0]?.message?.content || 'Нет ответа'
-      
+
       console.log(`✅ Успешно использован провайдер: ${provider}`)
-      
+
       return {
         success: true,
         content,
@@ -171,7 +172,7 @@ export const executeAIRequest = async (
         model: config.model,
         usage: completion.usage
       }
-      
+
     } catch (error) {
       console.error(`❌ Ошибка указанного провайдера ${provider}:`, error)
       return {
@@ -190,7 +191,7 @@ export const executeAIRequest = async (
   // Пробуем каждый провайдер по порядку приоритета
   for (const providerName of providers) {
     const config = createProviderConfig(providerName, openrouterModel)
-    
+
     if (!config) {
       console.log(`Пропускаем провайдер ${providerName}: конфигурация недоступна`)
       continue
@@ -198,10 +199,10 @@ export const executeAIRequest = async (
 
     try {
       console.log(`Пробуем провайдер: ${providerName} (модель: ${config.model})`)
-      
+
       // Специальные параметры для Sonoma Sky Alpha
       const isSonoma = config.model.includes('sonoma-sky-alpha')
-      
+
       const completion = await config.client.chat.completions.create({
         model: config.model,
         messages: messages as any,
@@ -210,15 +211,14 @@ export const executeAIRequest = async (
         top_p: 0.9, // Добавляем top_p для лучшего качества
         frequency_penalty: 0.1, // Небольшой penalty для разнообразия
         presence_penalty: 0.1,
-        stream
-        // Убираем response_format чтобы AI следовал нашему промпту
-        // response_format: { type: "json_object" }
+        stream,
+        response_format: { type: "json_object" } // Принудительный JSON формат
       })
 
       const content = completion.choices[0]?.message?.content || 'Нет ответа'
-      
+
       console.log(`✅ Успешно использован провайдер: ${providerName}`)
-      
+
       return {
         success: true,
         content,
@@ -226,10 +226,10 @@ export const executeAIRequest = async (
         model: config.model,
         usage: completion.usage
       }
-      
+
     } catch (error) {
       console.error(`❌ Ошибка провайдера ${providerName}:`, error)
-      
+
       // Если это последний провайдер, возвращаем ошибку
       if (providerName === providers[providers.length - 1]) {
         return {
@@ -240,7 +240,7 @@ export const executeAIRequest = async (
           error: error instanceof Error ? error.message : 'Unknown error'
         }
       }
-      
+
       // Иначе пробуем следующий провайдер
       console.log(`Переключаемся на следующий провайдер...`)
     }
