@@ -42,10 +42,12 @@ Static screenshot (required) + context and target audience when available. If co
 16. Objects in curly braces: {}
 
 **STRUCTURE RULES:**
-17. ALL problemsAndSolutions entries must be COMPLETE
-18. Generate exactly 3-5 complete problems
-19. No empty fields allowed
+17. ALL problemsAndSolutions entries must be COMPLETE - every field required
+18. Generate exactly 3-5 complete problems with ALL fields filled
+19. No empty fields, no missing values, no incomplete entries
 20. expectedEffect must be descriptive: "15% increase in clicks"
+21. Every problem must have: element, problem, principle, consequence, recommendation, expectedEffect, priority
+22. selfCheck field names: "selfCheck" not "'selfCheck'", "checklist" not "'checklist'"
 
 **CRITICAL: The JSON must be parseable by JSON.parse() - any syntax error will fail**
 
@@ -505,7 +507,7 @@ Static screenshot (required) + context and target audience when available. If co
 }
 ```
 
-**CORRECT problemsAndSolutions format:**
+**CORRECT problemsAndSolutions format (ALL fields required):**
 ```json
 "problemsAndSolutions": [
   {
@@ -523,8 +525,41 @@ Static screenshot (required) + context and target audience when available. If co
     "priority": "high",
     "confidence": 85,
     "confidenceSource": "Based on visual hierarchy analysis"
+  },
+  {
+    "element": "Input Field",
+    "problem": "Missing currency indicator",
+    "principle": "Help Users Recognize Errors Principle",
+    "consequence": "Users may enter incorrect amounts",
+    "businessImpact": {
+      "metric": "error_rate",
+      "impactLevel": "medium",
+      "description": "Input errors lead to failed transactions"
+    },
+    "recommendation": "Add currency symbol next to input",
+    "expectedEffect": "40% reduction in input errors",
+    "priority": "medium",
+    "confidence": 80,
+    "confidenceSource": "Form usability research"
   }
 ]
+```
+
+**CORRECT selfCheck format:**
+```json
+"selfCheck": {
+  "checklist": {
+    "actionClarity": true,
+    "noContradictions": true,
+    "coversAllElements": true,
+    "principlesJustified": true
+  },
+  "confidence": {
+    "survey": 83,
+    "analysis": 85,
+    "recommendations": 88
+  }
+}
 ```
 
 **IMPORTANT: Generate 3-5 real problems based on interface analysis. Don't invent problems not visible in the screenshot. Each problem should be justified by specific interface elements.**
