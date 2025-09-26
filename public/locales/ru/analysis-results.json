@@ -11,6 +11,9 @@
     "title": "UX-опрос",
     "userScenarios": "Пользовательские сценарии"
   },
+  "questions": "вопросов",
+  "mostLikely": "Наиболее вероятно",
+  "lessLikely": "Менее вероятно",
   "audience": {
     "title": "Аудитория",
     "targetAudience": "Целевая аудитория",

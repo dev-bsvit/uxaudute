@@ -11,6 +11,9 @@
     "title": "UX Survey",
     "userScenarios": "User Scenarios"
   },
+  "questions": "questions",
+  "mostLikely": "Most likely",
+  "lessLikely": "Less likely",
   "audience": {
     "title": "Audience",
     "targetAudience": "Target Audience",

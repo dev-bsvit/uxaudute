@@ -5,6 +5,7 @@ import { UXQuestion, UXSurvey } from '@/lib/analysis-types'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Progress } from '@/components/ui/progress'
+import { useTranslation } from '@/hooks/use-translation'
 
 interface SurveyDisplayProps {
   survey: UXSurvey
@@ -17,6 +18,8 @@ export function SurveyDisplay({
   showCategories = true, 
   showPrinciples = true 
 }: SurveyDisplayProps) {
+  const { t } = useTranslation()
+  
   const getCategoryColor = (category: string) => {
     const colors = {
       clarity: 'bg-blue-100 text-blue-800',
@@ -35,7 +38,7 @@ export function SurveyDisplay({
       {/* Общая статистика */}
       <div className="flex items-center justify-between">
         <Badge variant="outline">
-          {survey.summary?.totalQuestions || survey.questions?.length || 0} вопросов
+          {survey.summary?.totalQuestions || survey.questions?.length || 0} {t('analysis-results.questions')}
         </Badge>
       </div>
 
@@ -129,7 +132,7 @@ export function SurveyDisplay({
                                 {score}%
                               </div>
                               <div className="text-xs text-gray-500">
-                                {isHighest ? 'Наиболее вероятно' : 'Менее вероятно'}
+                                {isHighest ? t('analysis-results.mostLikely') : t('analysis-results.lessLikely')}
                               </div>
                             </div>
                           </div>
