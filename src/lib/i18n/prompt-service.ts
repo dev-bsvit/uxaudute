@@ -11,7 +11,7 @@ class PromptService {
   async loadPrompt(promptType: PromptType, language: string): Promise<string> {
     try {
       console.log(`🔍 Loading prompt: ${promptType} for language: ${language}`)
-      
+
       // Убеждаемся, что промпты для языка загружены
       await this.ensurePromptsLoaded(language)
 
@@ -58,7 +58,7 @@ class PromptService {
       delete this.prompts[language]
       delete this.loadingPromises[language]
     }
-    
+
     if (this.prompts[language]) {
       console.log(`✅ Prompts already loaded for ${language}`)
       return
@@ -94,7 +94,7 @@ class PromptService {
         ErrorType.PROMPT_LOADING_FAILED,
         { promptType, language }
       )
-      
+
       prompts[promptType] = prompt
     }
 
@@ -111,29 +111,39 @@ class PromptService {
    */
   private async fetchPromptFile(promptType: PromptType, language: string): Promise<string> {
     const fileName = this.getPromptFileName(promptType)
-    const url = `/prompts/${language}/${fileName}`
+    const filePath = this.getPromptFilePath(fileName, language)
     
-    console.log(`📝 Loading prompt file: ${url}`)
-    const response = await fetch(url)
+    console.log(`📝 Loading prompt file: ${filePath}`)
     
-    if (!response.ok) {
-      console.error(`❌ Failed to load prompt: ${url} - ${response.status}: ${response.statusText}`)
-      console.error(`❌ This will trigger fallback to basic prompt!`)
-      throw new Error(`HTTP ${response.status}: ${response.statusText}`)
+    try {
+      // Используем fs.readFileSync вместо fetch для серверного контекста
+      const { readFileSync } = await import('fs')
+      const content = readFileSync(filePath, 'utf-8')
+      
+      console.log(`✅ Prompt loaded successfully: ${filePath} (${content.length} chars)`)
+      console.log(`📄 Prompt preview: ${content.substring(0, 200)}...`)
+      
+      // Проверяем, что промпт содержит нашу структуру
+      if (promptType === PromptType.JSON_STRUCTURED && content.includes('screenDescription')) {
+        console.log(`✅ Detailed JSON prompt loaded with screenDescription structure`)
+      } else if (promptType === PromptType.JSON_STRUCTURED) {
+        console.warn(`⚠️ JSON prompt loaded but doesn't contain screenDescription - might be wrong file`)
+      }
+      
+      return content
+    } catch (error) {
+      console.error(`❌ Failed to load prompt file: ${filePath}`)
+      console.error(`❌ Error:`, error)
+      throw error // Пробрасываем ошибку для fallback
     }
+  }
 
-    const content = await response.text()
-    console.log(`✅ Prompt loaded successfully: ${url} (${content.length} chars)`)
-    console.log(`📄 Prompt preview: ${content.substring(0, 200)}...`)
-    
-    // Проверяем, что промпт содержит нашу структуру
-    if (promptType === PromptType.JSON_STRUCTURED && content.includes('screenDescription')) {
-      console.log(`✅ Detailed JSON prompt loaded with screenDescription structure`)
-    } else if (promptType === PromptType.JSON_STRUCTURED) {
-      console.warn(`⚠️ JSON prompt loaded but doesn't contain screenDescription - might be wrong file`)
-    }
-    
-    return content
+  /**
+   * Получает полный путь к файлу промпта
+   */
+  private getPromptFilePath(fileName: string, language: string): string {
+    const { join } = require('path')
+    return join(process.cwd(), 'public', 'prompts', language, fileName)
   }
 
   /**
@@ -207,7 +217,7 @@ Respond in the selected language.`
   async getAvailablePrompts(language: string): Promise<PromptType[]> {
     await this.ensurePromptsLoaded(language)
     const prompts = this.prompts[language]
-    
+
     if (!prompts) return []
 
     return Object.keys(prompts).filter(key => prompts[key as PromptType]) as PromptType[]
@@ -256,11 +266,11 @@ ${contextInstruction}`
    */
   async forceReloadPrompt(promptType: PromptType, language: string): Promise<string> {
     console.log(`🔄 Force reloading prompt: ${promptType} for language: ${language}`)
-    
+
     // Очищаем кэш для этого языка
     delete this.prompts[language]
     delete this.loadingPromises[language]
-    
+
     // Загружаем заново
     return this.loadPrompt(promptType, language)
   }

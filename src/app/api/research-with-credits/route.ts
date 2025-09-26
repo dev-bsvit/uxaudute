@@ -7,15 +7,6 @@ import { promptService } from '@/lib/i18n/prompt-service'
 import { PromptType } from '@/lib/i18n/types'
 import { checkCreditsForAudit, deductCreditsForAudit } from '@/lib/credits'
 
-// Функция объединения промпта с контекстом
-function combineWithContext(prompt: string, context?: string): string {
-  if (!context || context.trim() === '') {
-    return prompt
-  }
-  
-  return `${prompt}\n\nДополнительный контекст от пользователя:\n${context}`
-}
-
 export async function POST(request: NextRequest) {
   try {
     console.log('=== RESEARCH WITH CREDITS API вызван ===')
@@ -88,21 +79,15 @@ export async function POST(request: NextRequest) {
       jsonPrompt = await promptService.loadPrompt(PromptType.SONOMA_STRUCTURED, language)
       console.log('✅ RESEARCH-WITH-CREDITS: Используем специальный промпт для Sonoma Sky Alpha')
     } else {
-      // ВРЕМЕННОЕ РЕШЕНИЕ: Используем loadJSONPromptV2() вместо promptService.loadPrompt()
-      // ПРОБЛЕМА: promptService.loadPrompt() использует fetch() который не работает в API routes
-      // РЕЗУЛЬТАТ: Fallback на базовый промпт (1,313 символов вместо 4,416+)
-      // РЕШЕНИЕ: См. docs/PROMPT_LOADING_ISSUE.md
-      // TODO: Исправить fetchPromptFile() в prompt-service.ts для использования fs.readFileSync()
-      
-      console.log('🔍 RESEARCH-WITH-CREDITS: Загружаем JSON_STRUCTURED промпт v2 (прямая загрузка)')
-      const { loadJSONPromptV2 } = await import('@/lib/prompt-loader')
-      jsonPrompt = await loadJSONPromptV2()
-      console.log('✅ RESEARCH-WITH-CREDITS: Используем полный JSON промпт v2')
+      // ИСПРАВЛЕНО: Теперь promptService.loadPrompt() использует fs.readFileSync()
+      console.log('🔍 RESEARCH-WITH-CREDITS: Загружаем JSON_STRUCTURED промпт через многоязычную систему')
+      jsonPrompt = await promptService.loadPrompt(PromptType.JSON_STRUCTURED, language)
+      console.log('✅ RESEARCH-WITH-CREDITS: Используем многоязычный JSON промпт')
       console.log('🔍 RESEARCH-WITH-CREDITS: Длина загруженного промпта:', jsonPrompt.length)
       console.log('🔍 RESEARCH-WITH-CREDITS: Первые 500 символов промпта:', jsonPrompt.substring(0, 500))
     }
     
-    const finalPrompt = combineWithContext(jsonPrompt, context)
+    const finalPrompt = promptService.combineWithContext(jsonPrompt, context, language)
     console.log('Финальный промпт готов, длина:', finalPrompt.length)
     console.log('🔍 RESEARCH-WITH-CREDITS: Последние 1000 символов финального промпта:', finalPrompt.slice(-1000))
 
