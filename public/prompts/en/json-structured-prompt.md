@@ -30,7 +30,11 @@ Static screenshot (required) + context and target audience when available. If co
 8. All strings must be in quotes, numbers without quotes
 9. Arrays in square brackets [], objects in curly braces {}
 10. Do NOT use placeholder brackets like [metadata] or [model] - use actual field names
-11. Do NOT wrap field values in arrays unless they are actually arrays**
+11. Do NOT wrap field values in arrays unless they are actually arrays
+12. Use SIMPLE string values, NOT complex nested objects with _textContent, _textValue1, etc.
+13. Example: "mainPain": "Simple text description" NOT "mainPain": {"description": [{"_textContent": [...]}]}
+14. Example: "targetAudience": "Simple text description" NOT complex nested structure
+15. Keep ALL field values as simple strings, numbers, or basic arrays**
 
 ```json
 {
@@ -434,6 +438,39 @@ Static screenshot (required) + context and target audience when available. If co
 ```
 
 **Remember:** Use actual field names, not placeholder brackets. Single values should not be wrapped in arrays.
-- Behavior analysis should consider typical user patterns and scenarios
+
+## REQUIRED: Simple Field Examples
+
+**CORRECT audience format:**
+```json
+"audience": {
+  "targetAudience": "Women aged 25-40 living in large cities who frequently use mobile banking apps for loan management and prefer convenient digital payment solutions.",
+  "mainPain": "Managing loan repayments efficiently while ensuring security and avoiding hidden fees or transaction errors.",
+  "fears": [
+    "Hidden fees and unexpected charges",
+    "Data security and privacy concerns", 
+    "Transaction errors and failed payments",
+    "Missing repayment deadlines",
+    "Unclear financial terms and conditions"
+  ]
+}
+```
+
+**CORRECT behavior format:**
+```json
+"behavior": {
+  "userScenarios": {
+    "idealPath": "User opens app, selects loan, enters payment amount, chooses payment method, confirms transaction",
+    "typicalError": "User confused about total amount due to unclear fee display",
+    "alternativeWorkaround": "User calls customer service to clarify payment details"
+  },
+  "behavioralPatterns": "Users typically check loan balance first, prefer saved payment methods, and want confirmation of successful payments",
+  "frictionPoints": [
+    {"point": "Unclear additional fee information", "impact": "major"},
+    {"point": "Small pay button size", "impact": "minor"}
+  ],
+  "actionMotivation": "Users are motivated by avoiding late fees and maintaining good credit standing"
+}
+```
 
 **IMPORTANT: Generate 3-5 real problems based on interface analysis. Don't invent problems not visible in the screenshot. Each problem should be justified by specific interface elements.**
