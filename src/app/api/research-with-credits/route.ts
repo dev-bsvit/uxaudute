@@ -7,6 +7,15 @@ import { promptService } from '@/lib/i18n/prompt-service'
 import { PromptType } from '@/lib/i18n/types'
 import { checkCreditsForAudit, deductCreditsForAudit } from '@/lib/credits'
 
+// Вспомогательная функция для объединения промпта с контекстом (как в stable)
+function combineWithContext(prompt: string, context?: string): string {
+  if (!context || context.trim() === '') {
+    return prompt
+  }
+  
+  return `${prompt}\n\nДополнительный контекст от пользователя:\n${context}`
+}
+
 export async function POST(request: NextRequest) {
   try {
     console.log('=== RESEARCH WITH CREDITS API вызван ===')
@@ -84,7 +93,7 @@ export async function POST(request: NextRequest) {
       console.log('✅ RESEARCH-WITH-CREDITS: Используем стандартный JSON промпт')
     }
     
-    const finalPrompt = promptService.combineWithContext(jsonPrompt, context, language)
+    const finalPrompt = combineWithContext(jsonPrompt, context)
     console.log('Финальный промпт готов, длина:', finalPrompt.length)
 
     let analysisResult: AIResponse | null = null
@@ -96,10 +105,6 @@ export async function POST(request: NextRequest) {
       
       analysisResult = await executeAIRequest(
         [
-          {
-            role: 'system',
-            content: 'Вы - эксперт UX-аналитик с 20-летним опытом. Следуйте инструкциям точно и предоставляйте детальные, структурированные ответы в формате JSON.'
-          },
           { 
             role: 'user', 
             content: urlPrompt 
@@ -108,8 +113,8 @@ export async function POST(request: NextRequest) {
         {
           provider: provider,
           openrouterModel: openrouterModel,
-          max_tokens: 4000,
-          temperature: 0.3 // Более точные ответы
+          max_tokens: 3000, // Как в stable версии
+          temperature: 0.7 // Как в stable версии
         }
       )
     } else if (screenshot) {
@@ -117,10 +122,6 @@ export async function POST(request: NextRequest) {
       console.log('Запускаем анализ скриншота с изображением')
       analysisResult = await executeAIRequest(
         [
-          {
-            role: 'system',
-            content: 'Вы - эксперт UX-аналитик с 20-летним опытом. Следуйте инструкциям точно и предоставляйте детальные, структурированные ответы в формате JSON. Анализируйте только то, что видите на изображении.'
-          },
           {
             role: 'user',
             content: [
@@ -141,8 +142,8 @@ export async function POST(request: NextRequest) {
         {
           provider: provider,
           openrouterModel: openrouterModel,
-          max_tokens: 4000,
-          temperature: 0.3 // Более точные ответы
+          max_tokens: 3000, // Как в stable версии
+          temperature: 0.7 // Как в stable версии
         }
       )
     }
@@ -157,58 +158,36 @@ export async function POST(request: NextRequest) {
 
     console.log('Анализ завершен, результат:', Object.keys(analysisResult || {}))
 
-    // Парсим результат если он в формате {content: "JSON_STRING"}
+    // Упрощенная обработка как в stable версии
     let parsedResult = analysisResult
+    
+    if (!analysisResult) {
+      console.log('❌ PARSING: Нет результата от AI')
+      return NextResponse.json({ error: 'Не удалось получить результат анализа' }, { status: 500 })
+    }
+
+    console.log('🔍 PARSING: Тип результата:', typeof analysisResult)
+    console.log('🔍 PARSING: Ключи результата:', Object.keys(analysisResult || {}))
+
+    // Если результат содержит content (как в AI response), извлекаем его
     if (analysisResult && typeof analysisResult === 'object' && 'content' in analysisResult) {
+      const content = (analysisResult as any).content
+      console.log('🔍 PARSING: Найден content, парсим как JSON...')
+      
       try {
-        console.log('🔍 PARSING: Парсим content как JSON...')
-        console.log('🔍 PARSING: Content type:', typeof (analysisResult as any).content)
-        console.log('🔍 PARSING: Content preview:', (analysisResult as any).content?.substring(0, 200))
-        
-        const contentString = (analysisResult as any).content
-        if (typeof contentString === 'string') {
-          parsedResult = JSON.parse(contentString)
-          console.log('✅ PARSING: Результат распарсен, ключи:', Object.keys(parsedResult || {}))
-          console.log('✅ PARSING: Структура результата:', JSON.stringify(parsedResult, null, 2))
-        } else {
-          console.log('⚠️ PARSING: Content не является строкой, используем как есть')
-          parsedResult = analysisResult
-        }
+        parsedResult = JSON.parse(content)
+        console.log('✅ PARSING: JSON успешно распарсен')
       } catch (parseError) {
-        console.error('❌ PARSING: Ошибка парсинга content:', parseError)
-        console.error('❌ PARSING: Проблемный content:', (analysisResult as any).content)
-        
-        // Пытаемся исправить JSON если он неполный
-        try {
-          const contentString = (analysisResult as any).content
-          if (typeof contentString === 'string') {
-            // Добавляем закрывающие скобки если их нет
-            let fixedContent = contentString.trim()
-            if (!fixedContent.endsWith('}')) {
-              const openBraces = (fixedContent.match(/\{/g) || []).length
-              const closeBraces = (fixedContent.match(/\}/g) || []).length
-              const missingBraces = openBraces - closeBraces
-              
-              console.log('🔧 PARSING: Пытаемся исправить JSON, недостает скобок:', missingBraces)
-              for (let i = 0; i < missingBraces; i++) {
-                fixedContent += '}'
-              }
-            }
-            
-            parsedResult = JSON.parse(fixedContent)
-            console.log('✅ PARSING: JSON исправлен и распарсен успешно')
-          }
-        } catch (fixError) {
-          console.error('❌ PARSING: Не удалось исправить JSON:', fixError)
-          parsedResult = analysisResult
-        }
+        console.error('❌ PARSING: Ошибка парсинга JSON:', parseError)
+        return NextResponse.json({ 
+          error: 'Ошибка обработки ответа AI. Попробуйте позже.',
+          details: parseError instanceof Error ? parseError.message : 'Parse error'
+        }, { status: 500 })
       }
-    } else if (analysisResult && typeof analysisResult === 'object' && 'success' in analysisResult) {
-      console.log('🔍 PARSING: Результат уже в формате объекта с success')
-      parsedResult = analysisResult
     } else {
-      console.log('🔍 PARSING: Результат в неожиданном формате:', typeof analysisResult)
-      console.log('🔍 PARSING: Ключи результата:', Object.keys(analysisResult || {}))
+      // Результат уже в нужном формате
+      parsedResult = analysisResult
+      console.log('✅ PARSING: Используем результат как есть')
     }
 
     // Валидация результата

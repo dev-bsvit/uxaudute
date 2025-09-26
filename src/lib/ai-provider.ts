@@ -94,7 +94,7 @@ export const executeAIRequest = async (
 ): Promise<AIResponse> => {
   const {
     temperature = 0.3,
-    max_tokens = 4000,
+    max_tokens = 3000, // Как в stable версии
     stream = false,
     provider,
     openrouterModel = 'default',
@@ -132,13 +132,13 @@ export const executeAIRequest = async (
       const requestParams = {
         model: config.model,
         messages: messages as any,
-        temperature: isSonoma ? 0.8 : 0.3, // Снижаем temperature для более точных ответов
-        max_tokens: isSonoma ? Math.max(max_tokens, 4000) : Math.max(max_tokens, 4000),
-        top_p: 0.9, // Добавляем top_p для лучшего качества
-        frequency_penalty: 0.1, // Небольшой penalty для разнообразия
+        temperature: isSonoma ? 0.8 : 0.7, // Как в stable версии
+        max_tokens: isSonoma ? Math.max(max_tokens, 3000) : Math.max(max_tokens, 3000),
+        top_p: 0.9,
+        frequency_penalty: 0.1,
         presence_penalty: 0.1,
         stream,
-        response_format: { type: "json_object" } // Принудительный JSON формат
+        response_format: { type: "json_object" }
       }
 
       console.log(`📋 Параметры запроса:`, JSON.stringify(requestParams, null, 2))
@@ -206,13 +206,13 @@ export const executeAIRequest = async (
       const completion = await config.client.chat.completions.create({
         model: config.model,
         messages: messages as any,
-        temperature: isSonoma ? 0.8 : 0.3, // Снижаем temperature для более точных ответов
-        max_tokens: isSonoma ? Math.max(max_tokens, 4000) : Math.max(max_tokens, 4000),
-        top_p: 0.9, // Добавляем top_p для лучшего качества
-        frequency_penalty: 0.1, // Небольшой penalty для разнообразия
+        temperature: isSonoma ? 0.8 : 0.7, // Как в stable версии
+        max_tokens: isSonoma ? Math.max(max_tokens, 3000) : Math.max(max_tokens, 3000),
+        top_p: 0.9,
+        frequency_penalty: 0.1,
         presence_penalty: 0.1,
         stream,
-        response_format: { type: "json_object" } // Принудительный JSON формат
+        response_format: { type: "json_object" }
       })
 
       const content = completion.choices[0]?.message?.content || 'Нет ответа'
