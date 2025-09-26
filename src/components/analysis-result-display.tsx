@@ -206,9 +206,14 @@ export function AnalysisResultDisplay({
             <div>
               <h4 className="font-medium text-gray-900 mb-3">{t('analysis-results.audience.targetAudience')}</h4>
               <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                <p className="text-gray-700 leading-relaxed whitespace-pre-line">
-                  {safeAnalysis.audience.targetAudience}
-                </p>
+                <div className="text-gray-700 leading-relaxed whitespace-pre-line">
+                  {typeof safeAnalysis.audience.targetAudience === 'string' 
+                    ? safeAnalysis.audience.targetAudience
+                    : typeof safeAnalysis.audience.targetAudience === 'object' && safeAnalysis.audience.targetAudience !== null
+                    ? JSON.stringify(safeAnalysis.audience.targetAudience, null, 2)
+                    : t('common.loadingError')
+                  }
+                </div>
               </div>
             </div>
 
@@ -216,9 +221,14 @@ export function AnalysisResultDisplay({
             <div>
               <h4 className="font-medium text-gray-900 mb-3">{t('analysis-results.audience.mainPain')}</h4>
               <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-                <p className="text-gray-700 leading-relaxed whitespace-pre-line">
-                  {safeAnalysis.audience.mainPain}
-                </p>
+                <div className="text-gray-700 leading-relaxed whitespace-pre-line">
+                  {typeof safeAnalysis.audience.mainPain === 'string' 
+                    ? safeAnalysis.audience.mainPain
+                    : typeof safeAnalysis.audience.mainPain === 'object' && safeAnalysis.audience.mainPain !== null
+                    ? JSON.stringify(safeAnalysis.audience.mainPain, null, 2)
+                    : t('common.loadingError')
+                  }
+                </div>
               </div>
             </div>
 
