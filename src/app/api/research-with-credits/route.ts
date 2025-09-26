@@ -88,6 +88,12 @@ export async function POST(request: NextRequest) {
       jsonPrompt = await promptService.loadPrompt(PromptType.SONOMA_STRUCTURED, language)
       console.log('✅ RESEARCH-WITH-CREDITS: Используем специальный промпт для Sonoma Sky Alpha')
     } else {
+      // ВРЕМЕННОЕ РЕШЕНИЕ: Используем loadJSONPromptV2() вместо promptService.loadPrompt()
+      // ПРОБЛЕМА: promptService.loadPrompt() использует fetch() который не работает в API routes
+      // РЕЗУЛЬТАТ: Fallback на базовый промпт (1,313 символов вместо 4,416+)
+      // РЕШЕНИЕ: См. docs/PROMPT_LOADING_ISSUE.md
+      // TODO: Исправить fetchPromptFile() в prompt-service.ts для использования fs.readFileSync()
+      
       console.log('🔍 RESEARCH-WITH-CREDITS: Загружаем JSON_STRUCTURED промпт v2 (прямая загрузка)')
       const { loadJSONPromptV2 } = await import('@/lib/prompt-loader')
       jsonPrompt = await loadJSONPromptV2()

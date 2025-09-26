@@ -103,6 +103,11 @@ class PromptService {
 
   /**
    * Загружает файл промпта
+   * 
+   * ИЗВЕСТНАЯ ПРОБЛЕМА: fetch() не работает для локальных файлов в Next.js API routes
+   * Результат: Fallback на getBasicPrompt() вместо полного файла
+   * См. docs/PROMPT_LOADING_ISSUE.md для деталей и решения
+   * TODO: Заменить fetch() на fs.readFileSync() для серверного контекста
    */
   private async fetchPromptFile(promptType: PromptType, language: string): Promise<string> {
     const fileName = this.getPromptFileName(promptType)
