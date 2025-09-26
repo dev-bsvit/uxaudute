@@ -102,25 +102,51 @@ class PromptService {
   }
 
   /**
-   * Загружает файл промпта
-   * 
-   * ИЗВЕСТНАЯ ПРОБЛЕМА: fetch() не работает для локальных файлов в Next.js API routes
-   * Результат: Fallback на getBasicPrompt() вместо полного файла
-   * См. docs/PROMPT_LOADING_ISSUE.md для деталей и решения
-   * TODO: Заменить fetch() на fs.readFileSync() для серверного контекста
+   * Загружает файл промпта (поддерживает и сервер, и клиент)
    */
   private async fetchPromptFile(promptType: PromptType, language: string): Promise<string> {
     const fileName = this.getPromptFileName(promptType)
-    const filePath = this.getPromptFilePath(fileName, language)
     
-    console.log(`📝 Loading prompt file: ${filePath}`)
-    
-    try {
-      // Используем fs.readFileSync вместо fetch для серверного контекста
-      const { readFileSync } = await import('fs')
-      const content = readFileSync(filePath, 'utf-8')
+    // Проверяем, выполняется ли код на сервере
+    if (typeof window === 'undefined') {
+      // Серверный контекст - используем fs.readFileSync
+      const filePath = this.getPromptFilePath(fileName, language)
+      console.log(`📝 Loading prompt file (server): ${filePath}`)
       
-      console.log(`✅ Prompt loaded successfully: ${filePath} (${content.length} chars)`)
+      try {
+        const { readFileSync } = await import('fs')
+        const content = readFileSync(filePath, 'utf-8')
+        
+        console.log(`✅ Prompt loaded successfully: ${filePath} (${content.length} chars)`)
+        console.log(`📄 Prompt preview: ${content.substring(0, 200)}...`)
+        
+        // Проверяем, что промпт содержит нашу структуру
+        if (promptType === PromptType.JSON_STRUCTURED && content.includes('screenDescription')) {
+          console.log(`✅ Detailed JSON prompt loaded with screenDescription structure`)
+        } else if (promptType === PromptType.JSON_STRUCTURED) {
+          console.warn(`⚠️ JSON prompt loaded but doesn't contain screenDescription - might be wrong file`)
+        }
+        
+        return content
+      } catch (error) {
+        console.error(`❌ Failed to load prompt file: ${filePath}`)
+        console.error(`❌ Error:`, error)
+        throw error // Пробрасываем ошибку для fallback
+      }
+    } else {
+      // Браузерный контекст - используем fetch
+      const url = `/prompts/${language}/${fileName}`
+      console.log(`📝 Loading prompt file (client): ${url}`)
+      
+      const response = await fetch(url)
+      
+      if (!response.ok) {
+        console.error(`❌ Failed to load prompt: ${url} - ${response.status}: ${response.statusText}`)
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`)
+      }
+
+      const content = await response.text()
+      console.log(`✅ Prompt loaded successfully: ${url} (${content.length} chars)`)
       console.log(`📄 Prompt preview: ${content.substring(0, 200)}...`)
       
       // Проверяем, что промпт содержит нашу структуру
@@ -131,10 +157,6 @@ class PromptService {
       }
       
       return content
-    } catch (error) {
-      console.error(`❌ Failed to load prompt file: ${filePath}`)
-      console.error(`❌ Error:`, error)
-      throw error // Пробрасываем ошибку для fallback
     }
   }
 
