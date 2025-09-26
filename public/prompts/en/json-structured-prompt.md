@@ -34,7 +34,11 @@ Static screenshot (required) + context and target audience when available. If co
 12. Use SIMPLE string values, NOT complex nested objects with _textContent, _textValue1, etc.
 13. Example: "mainPain": "Simple text description" NOT "mainPain": {"description": [{"_textContent": [...]}]}
 14. Example: "targetAudience": "Simple text description" NOT complex nested structure
-15. Keep ALL field values as simple strings, numbers, or basic arrays**
+15. Keep ALL field values as simple strings, numbers, or basic arrays
+16. Do NOT add extra quotes around field names: use "model" NOT "'model'"
+17. Do NOT add extra quotes around string values: use "gpt-4o" NOT "'gpt-4o'"
+18. Boolean values should be true/false NOT "true"/"false"
+19. Numbers should be without quotes: 85 NOT "85"**
 
 ```json
 {
@@ -415,14 +419,15 @@ Static screenshot (required) + context and target audience when available. If co
 
 ❌ **WRONG FORMAT:**
 ```json
-"[metadata]": {
-  "[model]": ["gpt-4o"]
+"'metadata'": {
+  "'model'": "'gpt-4o'"
 }
-"[selfCheck]": {
-  "[checklist]": {
-    "[actionClarity]": [true]
+"'selfCheck'": {
+  "'checklist'": {
+    "'actionClarity'": "true"
   }
 }
+"'element'": "'Pay Button'"
 ```
 
 ✅ **CORRECT FORMAT:**
@@ -435,6 +440,7 @@ Static screenshot (required) + context and target audience when available. If co
     "actionClarity": true
   }
 }
+"element": "Pay Button"
 ```
 
 **Remember:** Use actual field names, not placeholder brackets. Single values should not be wrapped in arrays.
@@ -453,6 +459,28 @@ Static screenshot (required) + context and target audience when available. If co
     "Missing repayment deadlines",
     "Unclear financial terms and conditions"
   ]
+}
+```
+
+**CORRECT metadata and selfCheck format:**
+```json
+"metadata": {
+  "model": "gpt-4o",
+  "version": "1.0",
+  "timestamp": "2024-01-01T12:00:00Z"
+},
+"selfCheck": {
+  "checklist": {
+    "actionClarity": true,
+    "noContradictions": true,
+    "coversAllElements": true,
+    "principlesJustified": true
+  },
+  "confidence": {
+    "survey": 82,
+    "analysis": 85,
+    "recommendations": 88
+  }
 }
 ```
 
