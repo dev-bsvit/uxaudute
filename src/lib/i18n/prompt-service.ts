@@ -1,12 +1,31 @@
 import { PromptType, FALLBACK_LANGUAGE } from './types'
 import { errorHandler, ErrorType } from './error-handler'
+import { ResponseQualityAnalyzer } from '../quality-metrics'
+
+interface PromptMetadata {
+  version: string
+  language: string
+  type: PromptType
+  loadedAt: string
+  tokenCount: number
+  isStable: boolean
+  hash: string
+}
+
+interface CachedPrompt {
+  content: string
+  metadata: PromptMetadata
+  lastValidated: string
+}
 
 class PromptService {
-  private prompts: Record<string, Record<PromptType, string>> = {}
+  private prompts: Record<string, Record<PromptType, CachedPrompt>> = {}
   private loadingPromises: Record<string, Promise<void> | undefined> = {}
+  private stablePrompts: Record<PromptType, string> = {} // Эталонные промпты из stable ветки
+  private validationEnabled: boolean = true
 
   /**
-   * Загружает промпт для указанного типа и языка
+   * Загружает промпт для указанного типа и языка с валидацией и fallback
    */
   async loadPrompt(promptType: PromptType, language: string): Promise<string> {
     try {
@@ -16,23 +35,37 @@ class PromptService {
       await this.ensurePromptsLoaded(language)
 
       // Пытаемся получить промпт на запрашиваемом языке
-      const prompt = this.prompts[language]?.[promptType]
-      if (prompt) {
-        return prompt
+      const cachedPrompt = this.prompts[language]?.[promptType]
+      if (cachedPrompt) {
+        // Валидируем промпт если включена валидация
+        if (this.validationEnabled && await this.validatePrompt(cachedPrompt, language)) {
+          console.log(`✅ Using validated prompt: ${promptType} for ${language}`)
+          return cachedPrompt.content
+        } else if (!this.validationEnabled) {
+          return cachedPrompt.content
+        }
       }
 
       // Fallback на основной язык
       if (language !== FALLBACK_LANGUAGE) {
-        console.warn(`Prompt ${promptType} not found for ${language}, trying fallback`)
+        console.warn(`Prompt ${promptType} not found or invalid for ${language}, trying fallback`)
         await this.ensurePromptsLoaded(FALLBACK_LANGUAGE)
         const fallbackPrompt = this.prompts[FALLBACK_LANGUAGE]?.[promptType]
-        if (fallbackPrompt) {
+        if (fallbackPrompt && await this.validatePrompt(fallbackPrompt, FALLBACK_LANGUAGE)) {
           errorHandler.createError(
             ErrorType.PROMPT_NOT_FOUND,
             { promptType, language }
           )
-          return fallbackPrompt
+          console.log(`✅ Using fallback prompt: ${promptType} for ${FALLBACK_LANGUAGE}`)
+          return fallbackPrompt.content
         }
+      }
+
+      // Fallback на стабильный промпт
+      const stablePrompt = this.getStablePrompt(promptType)
+      if (stablePrompt) {
+        console.warn(`Using stable prompt for ${promptType} as final fallback`)
+        return stablePrompt
       }
 
       throw new Error(`Prompt ${promptType} not found for any language`)
@@ -68,30 +101,63 @@ class PromptService {
   }
 
   /**
-   * Загружает все промпты для языка
+   * Загружает все промпты для языка с метаданными и валидацией
    */
   private async loadPromptsForLanguage(language: string): Promise<void> {
     const promptTypes = Object.values(PromptType)
-    const prompts: Record<PromptType, string> = {} as Record<PromptType, string>
+    const prompts: Record<PromptType, CachedPrompt> = {} as Record<PromptType, CachedPrompt>
 
     for (const promptType of promptTypes) {
-      const prompt = await errorHandler.handleErrorWithFallback(
-        async () => {
-          return await this.fetchPromptFile(promptType, language)
-        },
-        () => {
-          // Fallback: используем базовый промпт
-          console.warn(`Using basic prompt for ${promptType} in ${language}`)
-          return this.getBasicPrompt(promptType)
-        },
-        ErrorType.PROMPT_LOADING_FAILED,
-        { promptType, language }
-      )
+      try {
+        const content = await this.fetchPromptFile(promptType, language)
+        const metadata = this.createPromptMetadata(content, promptType, language)
+        
+        const cachedPrompt: CachedPrompt = {
+          content,
+          metadata,
+          lastValidated: new Date().toISOString()
+        }
 
-      prompts[promptType] = prompt
+        // Валидируем промпт при загрузке
+        if (this.validationEnabled) {
+          const isValid = await this.validatePromptContent(content, promptType, language)
+          if (!isValid) {
+            console.warn(`⚠️ Prompt validation failed for ${promptType} in ${language}`)
+            // Пытаемся использовать стабильный промпт
+            const stablePrompt = this.getStablePrompt(promptType)
+            if (stablePrompt) {
+              cachedPrompt.content = stablePrompt
+              cachedPrompt.metadata.isStable = true
+              console.log(`✅ Using stable prompt for ${promptType} in ${language}`)
+            }
+          }
+        }
+
+        prompts[promptType] = cachedPrompt
+        console.log(`✅ Loaded prompt: ${promptType} for ${language} (${content.length} chars)`)
+      } catch (error) {
+        console.error(`❌ Failed to load ${promptType} for ${language}:`, error)
+        
+        // Fallback chain: stable -> basic
+        let fallbackContent = this.getStablePrompt(promptType) || this.getBasicPrompt(promptType)
+        
+        const metadata = this.createPromptMetadata(fallbackContent, promptType, language, true)
+        prompts[promptType] = {
+          content: fallbackContent,
+          metadata,
+          lastValidated: new Date().toISOString()
+        }
+        
+        errorHandler.createError(
+          ErrorType.PROMPT_LOADING_FAILED,
+          { promptType, language },
+          error as Error
+        )
+      }
     }
 
     this.prompts[language] = prompts
+    console.log(`✅ All prompts loaded for language: ${language}`)
   }
 
   /**
@@ -304,6 +370,221 @@ ${contextInstruction}`
       console.error(`Failed to preload prompts for ${language}:`, error)
     }
   }
+
+  /**
+   * Валидирует кэшированный промпт
+   */
+  private async validatePrompt(cachedPrompt: CachedPrompt, language: string): Promise<boolean> {
+    if (!this.validationEnabled) return true
+
+    // Проверяем возраст валидации (перевалидируем каждые 24 часа)
+    const lastValidated = new Date(cachedPrompt.lastValidated)
+    const now = new Date()
+    const hoursSinceValidation = (now.getTime() - lastValidated.getTime()) / (1000 * 60 * 60)
+    
+    if (hoursSinceValidation < 24) {
+      return true // Считаем валидным если проверяли недавно
+    }
+
+    // Выполняем валидацию контента
+    const isValid = await this.validatePromptContent(cachedPrompt.content, cachedPrompt.metadata.type, language)
+    
+    if (isValid) {
+      cachedPrompt.lastValidated = now.toISOString()
+    }
+
+    return isValid
+  }
+
+  /**
+   * Валидирует содержимое промпта
+   */
+  private async validatePromptContent(content: string, promptType: PromptType, language: string): Promise<boolean> {
+    try {
+      // Базовые проверки
+      if (!content || content.trim().length < 50) {
+        console.warn(`❌ Prompt too short: ${promptType} for ${language}`)
+        return false
+      }
+
+      // Проверка языка
+      const expectedLanguage = language === 'ru' ? 'ru' : 'en'
+      const metrics = ResponseQualityAnalyzer.measureQuality('Sample text for validation', expectedLanguage)
+      
+      // Проверяем что промпт содержит ключевые слова для своего типа
+      const requiredKeywords = this.getRequiredKeywords(promptType, language)
+      const hasRequiredKeywords = requiredKeywords.some(keyword => 
+        content.toLowerCase().includes(keyword.toLowerCase())
+      )
+
+      if (!hasRequiredKeywords) {
+        console.warn(`❌ Prompt missing required keywords: ${promptType} for ${language}`)
+        return false
+      }
+
+      // Проверка на корректность JSON структуры для JSON промптов
+      if (promptType === PromptType.JSON_STRUCTURED) {
+        const hasJsonStructure = content.includes('screenDescription') && 
+                                content.includes('uxSurvey') &&
+                                content.includes('problemsAndSolutions')
+        
+        if (!hasJsonStructure) {
+          console.warn(`❌ JSON prompt missing required structure: ${promptType} for ${language}`)
+          return false
+        }
+      }
+
+      console.log(`✅ Prompt validation passed: ${promptType} for ${language}`)
+      return true
+    } catch (error) {
+      console.error(`❌ Prompt validation error: ${promptType} for ${language}:`, error)
+      return false
+    }
+  }
+
+  /**
+   * Получает обязательные ключевые слова для типа промпта
+   */
+  private getRequiredKeywords(promptType: PromptType, language: string): string[] {
+    const keywords: Record<PromptType, Record<string, string[]>> = {
+      [PromptType.MAIN]: {
+        'ru': ['анализ', 'интерфейс', 'UX', 'пользователь'],
+        'en': ['analysis', 'interface', 'UX', 'user']
+      },
+      [PromptType.JSON_STRUCTURED]: {
+        'ru': ['JSON', 'screenDescription', 'uxSurvey', 'анализ'],
+        'en': ['JSON', 'screenDescription', 'uxSurvey', 'analysis']
+      },
+      [PromptType.SONOMA_STRUCTURED]: {
+        'ru': ['структурированный', 'анализ', 'интерфейс'],
+        'en': ['structured', 'analysis', 'interface']
+      },
+      [PromptType.AB_TEST]: {
+        'ru': ['A/B', 'тест', 'конверсия'],
+        'en': ['A/B', 'test', 'conversion']
+      },
+      [PromptType.BUSINESS_ANALYTICS]: {
+        'ru': ['бизнес', 'аналитика', 'метрики'],
+        'en': ['business', 'analytics', 'metrics']
+      },
+      [PromptType.HYPOTHESES]: {
+        'ru': ['гипотеза', 'улучшение', 'предположение'],
+        'en': ['hypothesis', 'improvement', 'assumption']
+      }
+    }
+
+    return keywords[promptType]?.[language] || keywords[promptType]?.['en'] || []
+  }
+
+  /**
+   * Создает метаданные для промпта
+   */
+  private createPromptMetadata(
+    content: string, 
+    promptType: PromptType, 
+    language: string, 
+    isStable: boolean = false
+  ): PromptMetadata {
+    return {
+      version: '1.0.0',
+      language,
+      type: promptType,
+      loadedAt: new Date().toISOString(),
+      tokenCount: ResponseQualityAnalyzer.measureQuality(content, language as 'ru' | 'en').tokenCount,
+      isStable,
+      hash: this.generateContentHash(content)
+    }
+  }
+
+  /**
+   * Генерирует хэш содержимого для отслеживания изменений
+   */
+  private generateContentHash(content: string): string {
+    // Простой хэш для отслеживания изменений
+    let hash = 0
+    for (let i = 0; i < content.length; i++) {
+      const char = content.charCodeAt(i)
+      hash = ((hash << 5) - hash) + char
+      hash = hash & hash // Конвертируем в 32-битное число
+    }
+    return hash.toString(16)
+  }
+
+  /**
+   * Получает стабильный промпт (из stable ветки)
+   */
+  private getStablePrompt(promptType: PromptType): string | null {
+    return this.stablePrompts[promptType] || null
+  }
+
+  /**
+   * Устанавливает стабильные промпты (эталонные из stable ветки)
+   */
+  setStablePrompts(stablePrompts: Record<PromptType, string>): void {
+    this.stablePrompts = { ...stablePrompts }
+    console.log(`✅ Stable prompts loaded: ${Object.keys(stablePrompts).length} prompts`)
+  }
+
+  /**
+   * Включает/выключает валидацию промптов
+   */
+  setValidationEnabled(enabled: boolean): void {
+    this.validationEnabled = enabled
+    console.log(`🔧 Prompt validation ${enabled ? 'enabled' : 'disabled'}`)
+  }
+
+  /**
+   * Получает метаданные промпта
+   */
+  getPromptMetadata(promptType: PromptType, language: string): PromptMetadata | null {
+    return this.prompts[language]?.[promptType]?.metadata || null
+  }
+
+  /**
+   * Получает статистику загруженных промптов
+   */
+  getLoadedPromptsStats(): {
+    languages: string[]
+    promptTypes: PromptType[]
+    totalPrompts: number
+    stablePrompts: number
+    lastLoaded: string | null
+  } {
+    const languages = Object.keys(this.prompts)
+    const promptTypes = languages.length > 0 ? Object.keys(this.prompts[languages[0]]) as PromptType[] : []
+    const totalPrompts = languages.reduce((total, lang) => total + Object.keys(this.prompts[lang]).length, 0)
+    const stablePrompts = Object.keys(this.stablePrompts).length
+    
+    let lastLoaded: string | null = null
+    for (const lang of languages) {
+      for (const type of promptTypes) {
+        const loadedAt = this.prompts[lang]?.[type]?.metadata?.loadedAt
+        if (loadedAt && (!lastLoaded || loadedAt > lastLoaded)) {
+          lastLoaded = loadedAt
+        }
+      }
+    }
+
+    return {
+      languages,
+      promptTypes,
+      totalPrompts,
+      stablePrompts,
+      lastLoaded
+    }
+  }
 }
 
-export const promptService = new PromptService()
+// Создаем и инициализируем сервис промптов
+const promptService = new PromptService()
+
+// Загружаем стабильные промпты при инициализации
+import('../stable-prompts-loader').then(({ StablePromptsLoader }) => {
+  const stablePrompts = StablePromptsLoader.loadAllStablePrompts()
+  promptService.setStablePrompts(stablePrompts)
+  console.log('✅ PromptService initialized with stable prompts')
+}).catch(error => {
+  console.error('❌ Failed to load stable prompts:', error)
+})
+
+export { promptService }

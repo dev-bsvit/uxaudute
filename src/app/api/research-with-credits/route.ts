@@ -1,10 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { executeAIRequest, AIResponse } from '@/lib/ai-provider'
-import { StructuredAnalysisResponse, isStructuredResponse } from '@/lib/analysis-types'
+import { isStructuredResponse } from '@/lib/analysis-types'
 import { validateSurvey, analyzeSurveyResults } from '@/lib/survey-utils'
 import { supabase } from '@/lib/supabase'
-import { loadJSONPromptV2, loadSonomaStructuredPrompt } from '@/lib/prompt-loader'
 import { checkCreditsForAudit, deductCreditsForAudit } from '@/lib/credits'
+import { LanguageManager } from '@/lib/language-manager'
+import { PromptType } from '@/lib/i18n/types'
+import { ResponseQualityAnalyzer } from '@/lib/quality-metrics'
 
 export async function POST(request: NextRequest) {
   try {
@@ -68,30 +70,41 @@ export async function POST(request: NextRequest) {
 
     console.log('✅ Кредиты проверены успешно:', creditsCheck)
 
-    // ВРЕМЕННО: Используем старый способ загрузки промптов как в stable
-    console.log('🔍 RESEARCH-WITH-CREDITS: Загружаем промпт (stable method)')
-    console.log('🔍 RESEARCH-WITH-CREDITS: Provider:', provider, 'Model:', openrouterModel)
-    let jsonPrompt: string
-    
+    // Определяем язык для анализа
+    console.log('🌐 Determining language for analysis...')
+    const languageContext = await LanguageManager.determineAnalysisLanguage(request)
+    LanguageManager.logLanguageContext(languageContext, 'API Request')
+
+    // Выбираем тип промпта в зависимости от провайдера
+    let promptType: PromptType
     if (provider === 'openrouter' && openrouterModel === 'sonoma') {
-      console.log('🔍 RESEARCH-WITH-CREDITS: Загружаем SONOMA промпт')
-      const { loadSonomaStructuredPrompt } = await import('@/lib/prompt-loader')
-      jsonPrompt = await loadSonomaStructuredPrompt()
-      console.log('✅ RESEARCH-WITH-CREDITS: Используем специальный промпт для Sonoma Sky Alpha')
+      promptType = PromptType.SONOMA_STRUCTURED
+      console.log('🔍 Using SONOMA_STRUCTURED prompt for Sonoma model')
     } else {
-      console.log('🔍 RESEARCH-WITH-CREDITS: Загружаем JSON_STRUCTURED промпт v2 (stable)')
-      const { loadJSONPromptV2 } = await import('@/lib/prompt-loader')
-      jsonPrompt = await loadJSONPromptV2()
-      console.log('✅ RESEARCH-WITH-CREDITS: Используем стабильный промпт v2')
+      promptType = PromptType.JSON_STRUCTURED
+      console.log('🔍 Using JSON_STRUCTURED prompt for standard analysis')
+    }
+
+    // Загружаем промпт с учетом языка
+    console.log(`🔍 Loading prompt ${promptType} for language: ${languageContext.promptLanguage}`)
+    let jsonPrompt = await LanguageManager.loadPromptForLanguage(promptType, languageContext)
+    
+    // Принудительно устанавливаем язык ответа
+    jsonPrompt = LanguageManager.enforceResponseLanguage(jsonPrompt, languageContext.responseLanguage)
+    
+    console.log('🔍 Final prompt length:', jsonPrompt.length)
+    console.log('🔍 Prompt preview (first 300 chars):', jsonPrompt.substring(0, 300))
+    
+    // Объединяем с контекстом с учетом языка
+    let finalPrompt = jsonPrompt
+    if (context) {
+      const contextLabel = languageContext.promptLanguage === 'ru' 
+        ? '\n\nДополнительный контекст от пользователя:\n'
+        : '\n\nAdditional context from user:\n'
+      finalPrompt = `${jsonPrompt}${contextLabel}${context}`
     }
     
-    console.log('🔍 RESEARCH-WITH-CREDITS: Финальная длина промпта:', jsonPrompt.length)
-    console.log('🔍 RESEARCH-WITH-CREDITS: Первые 500 символов промпта:', jsonPrompt.substring(0, 500))
-    
-    // Объединяем с контекстом (простой способ как в stable)
-    const finalPrompt = context ? `${jsonPrompt}\n\nДополнительный контекст от пользователя:\n${context}` : jsonPrompt
-    console.log('Финальный промпт готов, длина:', finalPrompt.length)
-    console.log('🔍 RESEARCH-WITH-CREDITS: Последние 1000 символов финального промпта:', finalPrompt.slice(-1000))
+    console.log('Final prompt ready, length:', finalPrompt.length)
 
     let analysisResult: AIResponse | null = null
 
@@ -155,36 +168,54 @@ export async function POST(request: NextRequest) {
 
     console.log('Анализ завершен, результат:', Object.keys(analysisResult || {}))
 
-    // Упрощенная обработка как в stable версии
-    let parsedResult = analysisResult
-    
+    // Проверяем качество ответа
+    console.log('🔍 Checking response quality...')
     if (!analysisResult) {
-      console.log('❌ PARSING: Нет результата от AI')
+      console.log('❌ No result from AI')
       return NextResponse.json({ error: 'Не удалось получить результат анализа' }, { status: 500 })
     }
 
-    console.log('🔍 PARSING: Тип результата:', typeof analysisResult)
-    console.log('🔍 PARSING: Ключи результата:', Object.keys(analysisResult || {}))
-
-    // Если результат содержит content (как в AI response), извлекаем его
+    // Извлекаем контент из ответа AI
+    let responseContent = ''
     if (analysisResult && typeof analysisResult === 'object' && 'content' in analysisResult) {
-      const content = (analysisResult as any).content
-      console.log('🔍 PARSING: Найден content, парсим как JSON...')
-      
-      try {
-        parsedResult = JSON.parse(content)
-        console.log('✅ PARSING: JSON успешно распарсен')
-      } catch (parseError) {
-        console.error('❌ PARSING: Ошибка парсинга JSON:', parseError)
-        return NextResponse.json({ 
-          error: 'Ошибка обработки ответа AI. Попробуйте позже.',
-          details: parseError instanceof Error ? parseError.message : 'Parse error'
-        }, { status: 500 })
-      }
+      responseContent = (analysisResult as any).content
+    } else if (typeof analysisResult === 'string') {
+      responseContent = analysisResult
     } else {
-      // Результат уже в нужном формате
-      parsedResult = analysisResult
-      console.log('✅ PARSING: Используем результат как есть')
+      responseContent = JSON.stringify(analysisResult)
+    }
+
+    // Валидируем качество ответа
+    const qualityMetrics = ResponseQualityAnalyzer.measureQuality(
+      responseContent, 
+      languageContext.responseLanguage as 'ru' | 'en'
+    )
+    
+    console.log('📊 Response quality metrics:', qualityMetrics)
+    
+    // Проверяем языковую консистентность
+    const languageValidation = LanguageManager.validateLanguageConsistency(
+      finalPrompt,
+      responseContent,
+      languageContext.responseLanguage
+    )
+    
+    console.log('🌐 Language validation:', languageValidation)
+
+    // Парсим JSON ответ
+    let parsedResult
+    try {
+      parsedResult = JSON.parse(responseContent)
+      console.log('✅ JSON successfully parsed')
+    } catch (parseError) {
+      console.error('❌ JSON parsing error:', parseError)
+      console.log('📄 Raw response content:', responseContent.substring(0, 500))
+      return NextResponse.json({ 
+        error: 'Ошибка обработки ответа AI. Попробуйте позже.',
+        details: parseError instanceof Error ? parseError.message : 'Parse error',
+        quality: qualityMetrics,
+        language_validation: languageValidation
+      }, { status: 500 })
     }
 
     // Валидация результата
@@ -260,7 +291,11 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    console.log('Возвращаем успешный ответ...')
+    // Логируем финальные метрики качества
+    ResponseQualityAnalyzer.logQualityMetrics(qualityMetrics, 'API Response')
+    LanguageManager.logLanguageContext(languageContext, 'Final Response')
+
+    console.log('✅ Returning successful response with quality metrics')
     return NextResponse.json({ 
       success: true,
       data: parsedResult as any,
@@ -268,6 +303,18 @@ export async function POST(request: NextRequest) {
       validation: {
         survey: surveyValidation,
         analysis: surveyAnalysis
+      },
+      quality: {
+        score: qualityMetrics.qualityScore,
+        completeness: qualityMetrics.completeness,
+        language_accuracy: qualityMetrics.languageAccuracy,
+        is_truncated: qualityMetrics.isTruncated,
+        token_count: qualityMetrics.tokenCount,
+        meets_standards: ResponseQualityAnalyzer.meetsQualityStandards(qualityMetrics)
+      },
+      language: {
+        context: languageContext,
+        validation: languageValidation
       },
       credits_info: {
         deducted: auditId ? true : false,

@@ -2,8 +2,9 @@ import { NextRequest, NextResponse } from 'next/server'
 import { openai } from '@/lib/openai'
 import { supabase } from '@/lib/supabase'
 import { BusinessAnalyticsResponse } from '@/lib/analysis-types'
-import fs from 'fs'
-import path from 'path'
+import { LanguageManager } from '@/lib/language-manager'
+import { PromptType } from '@/lib/i18n/types'
+import { ResponseQualityAnalyzer } from '@/lib/quality-metrics'
 
 export async function POST(request: NextRequest) {
   try {
@@ -37,9 +38,21 @@ export async function POST(request: NextRequest) {
       }, { status: 400 })
     }
 
-    // Загружаем промт для бизнес аналитики
-    const promptPath = path.join(process.cwd(), 'prompts', 'business-analytics-prompt.md')
-    const businessAnalyticsPrompt = fs.readFileSync(promptPath, 'utf-8')
+    // Определяем языковой контекст
+    const languageContext = await LanguageManager.determineAnalysisLanguage(request)
+    LanguageManager.logLanguageContext(languageContext, 'Business Analytics API')
+
+    // Загружаем промт для бизнес аналитики с учетом языка
+    let businessAnalyticsPrompt = await LanguageManager.loadPromptForLanguage(
+      PromptType.BUSINESS_ANALYTICS, 
+      languageContext
+    )
+    
+    // Принудительно устанавливаем язык ответа
+    businessAnalyticsPrompt = LanguageManager.enforceResponseLanguage(
+      businessAnalyticsPrompt, 
+      languageContext.responseLanguage
+    )
 
     // Подготавливаем данные для промта
     const auditData = {
