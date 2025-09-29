@@ -7,7 +7,7 @@ import { errorHandler, ErrorType } from './error-handler'
 
 export interface LanguageDetectionResult {
   language: string
-  source: 'user-preference' | 'browser' | 'default'
+  source: 'user-preference' | 'browser' | 'default' | 'request-header'
   confidence: number
 }
 
