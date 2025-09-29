@@ -21,7 +21,7 @@ interface CachedPrompt {
 class PromptService {
   private prompts: Record<string, Record<PromptType, CachedPrompt>> = {}
   private loadingPromises: Record<string, Promise<void> | undefined> = {}
-  private stablePrompts: Record<PromptType, string> = {} // Эталонные промпты из stable ветки
+  private stablePrompts: Partial<Record<PromptType, string>> = {} // Эталонные промпты из stable ветки
   private validationEnabled: boolean = true
 
   /**
@@ -520,7 +520,7 @@ ${contextInstruction}`
   /**
    * Устанавливает стабильные промпты (эталонные из stable ветки)
    */
-  setStablePrompts(stablePrompts: Record<PromptType, string>): void {
+  setStablePrompts(stablePrompts: Partial<Record<PromptType, string>>): void {
     this.stablePrompts = { ...stablePrompts }
     console.log(`✅ Stable prompts loaded: ${Object.keys(stablePrompts).length} prompts`)
   }

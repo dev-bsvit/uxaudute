@@ -135,8 +135,8 @@ export class StablePromptsLoader {
   /**
    * Загружает все стабильные промпты
    */
-  static loadAllStablePrompts(): Record<PromptType, string> {
-    const prompts: Record<PromptType, string> = {} as Record<PromptType, string>
+  static loadAllStablePrompts(): Partial<Record<PromptType, string>> {
+    const prompts: Partial<Record<PromptType, string>> = {}
     
     for (const [type, data] of Object.entries(this.STABLE_PROMPTS)) {
       prompts[type as PromptType] = data.content
@@ -199,8 +199,8 @@ export class StablePromptsLoader {
   /**
    * Создает английские версии промптов (переводы)
    */
-  static generateEnglishPrompts(): Record<PromptType, string> {
-    const englishPrompts: Record<PromptType, string> = {
+  static generateEnglishPrompts(): Partial<Record<PromptType, string>> {
+    const englishPrompts: Partial<Record<PromptType, string>> = {
       [PromptType.MAIN]: `You are an experienced UX designer-researcher with 20 years of experience. Analyze interfaces based on proven UX methodologies: Nielsen's heuristics, WCAG 2.2, Fitts' Law, Hick-Hyman Law, ISO 9241, etc.
 
 Input: static screenshot (required) + context and target audience if available.
