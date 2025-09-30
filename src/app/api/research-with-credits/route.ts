@@ -1,12 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { executeAIRequest, AIResponse } from '@/lib/ai-provider'
+import { openai } from '@/lib/openai'
 import { isStructuredResponse } from '@/lib/analysis-types'
 import { validateSurvey, analyzeSurveyResults } from '@/lib/survey-utils'
 import { supabase } from '@/lib/supabase'
 import { checkCreditsForAudit, deductCreditsForAudit } from '@/lib/credits'
-import { LanguageManager } from '@/lib/language-manager'
+import { promptService } from '@/lib/i18n/prompt-service'
 import { PromptType } from '@/lib/i18n/types'
-import { ResponseQualityAnalyzer } from '@/lib/quality-metrics'
 
 export async function POST(request: NextRequest) {
   try {
