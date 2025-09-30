@@ -150,6 +150,24 @@ Respond in English.`
       parsedResult = analysisResult
     }
 
+    // Сохраняем результат в базу данных
+    console.log('💾 Saving result to database for audit:', auditId)
+    const { error: updateError } = await supabase
+      .from('audits')
+      .update({
+        result_data: parsedResult,
+        status: 'completed',
+        updated_at: new Date().toISOString()
+      })
+      .eq('id', auditId)
+
+    if (updateError) {
+      console.error('❌ Failed to save result to database:', updateError)
+      // Не возвращаем ошибку, так как анализ выполнен успешно
+    } else {
+      console.log('✅ Result saved to database successfully')
+    }
+
     // Списываем кредиты после успешного анализа
     await deductCreditsForAudit(user.id, 'research', auditId, 'UX Research Analysis')
 
