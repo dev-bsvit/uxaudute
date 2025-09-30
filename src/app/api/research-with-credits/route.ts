@@ -173,7 +173,7 @@ Respond in English.`
     const surveyAnalysis = analyzeSurveyResults(parsedResult.uxSurvey)
 
     // Списываем кредиты после успешного анализа
-    await deductCreditsForAudit(user.id, 'research', auditId)
+    await deductCreditsForAudit(user.id, 'research', auditId, 'UX Research Analysis')
 
     console.log('✅ Analysis completed successfully')
 
