@@ -1,7 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { openai } from '@/lib/openai'
-import { isStructuredResponse } from '@/lib/analysis-types'
-import { validateSurvey, analyzeSurveyResults } from '@/lib/survey-utils'
 import { supabase } from '@/lib/supabase'
 import { checkCreditsForAudit, deductCreditsForAudit } from '@/lib/credits'
 
