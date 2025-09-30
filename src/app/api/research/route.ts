@@ -1,7 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { openai } from '@/lib/openai'
-import { promptService } from '@/lib/i18n/prompt-service'
-import { PromptType } from '@/lib/i18n/types'
 
 export async function POST(request: NextRequest) {
   try {
@@ -15,27 +13,45 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Определяем язык (простая логика)
-    const detectedLanguage = language || 
-      request.headers.get('accept-language')?.includes('ru') ? 'ru' : 'en'
+    // Простой промпт без сложных систем
+    const isRussian = language === 'ru' || request.headers.get('accept-language')?.includes('ru')
     
-    console.log(`🌐 Using language: ${detectedLanguage}`)
+    const basePrompt = isRussian ? 
+      `Ты опытный UX-дизайнер-исследователь. Анализируй интерфейс и возвращай результат в JSON формате.
 
-    // Загружаем промпт
-    console.log(`🔍 Loading prompt for language: ${detectedLanguage}`)
-    let mainPrompt = await promptService.loadPrompt(PromptType.JSON_STRUCTURED, detectedLanguage)
-    
-    // Объединяем с контекстом
-    let finalPrompt = promptService.combineWithContext(mainPrompt, context, detectedLanguage)
+**КРИТИЧЕСКИ ВАЖНО: 
+1. Отвечай ТОЛЬКО в JSON формате
+2. НЕ добавляй никакого текста до или после JSON
+3. НЕ оборачивай JSON в markdown блоки
+4. Начинай ответ с { и заканчивай }
+5. Используй эту структуру: {"screenDescription": {"screenType": "...", "userGoal": "...", "keyElements": [], "confidence": 85}, "uxSurvey": {"questions": [], "overallConfidence": 85}, "problemsAndSolutions": [], "metadata": {}}**
 
-    console.log('🔍 Final prompt ready, length:', finalPrompt.length)
+Отвечай на русском языке.` :
+      `You are an experienced UX designer-researcher. Analyze the interface and return the result in JSON format.
+
+**CRITICALLY IMPORTANT: 
+1. Respond ONLY in JSON format
+2. Do NOT add any text before or after JSON
+3. Do NOT wrap JSON in markdown blocks
+4. Start response with { and end with }
+5. Use this structure: {"screenDescription": {"screenType": "...", "userGoal": "...", "keyElements": [], "confidence": 85}, "uxSurvey": {"questions": [], "overallConfidence": 85}, "problemsAndSolutions": [], "metadata": {}}**
+
+Respond in English.`
+
+    let finalPrompt = basePrompt
+    if (context) {
+      const contextLabel = isRussian ? '\n\nДополнительный контекст:\n' : '\n\nAdditional context:\n'
+      finalPrompt = `${basePrompt}${contextLabel}${context}`
+    }
+
+    console.log('🔍 Simple prompt ready, length:', finalPrompt.length)
 
     let analysisResult: string | null = null
 
     if (url) {
       // Анализ URL
       console.log('🔍 Analyzing URL:', url)
-      const urlInstruction = detectedLanguage === 'ru'
+      const urlInstruction = isRussian
         ? `\n\nПроанализируй сайт по URL: ${url}\n\nПоскольку я не могу получить скриншот, проведи анализ основываясь на общих принципах UX для данного типа сайта.`
         : `\n\nAnalyze the website at URL: ${url}\n\nSince I cannot get a screenshot, conduct analysis based on general UX principles for this type of website.`
       

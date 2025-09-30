@@ -69,10 +69,9 @@ export async function POST(request: NextRequest) {
 
     console.log('✅ Кредиты проверены успешно:', creditsCheck)
 
-    // Определяем язык для анализа
-    console.log('🌐 Determining language for analysis...')
-    const languageContext = await LanguageManager.determineAnalysisLanguage(request)
-    LanguageManager.logLanguageContext(languageContext, 'API Request')
+    // Определяем язык (простая логика)
+    const detectedLanguage = request.headers.get('accept-language')?.includes('ru') ? 'ru' : 'en'
+    console.log(`🌐 Using language: ${detectedLanguage}`)
 
     // Выбираем тип промпта в зависимости от провайдера
     let promptType: PromptType
@@ -84,12 +83,14 @@ export async function POST(request: NextRequest) {
       console.log('🔍 Using JSON_STRUCTURED prompt for standard analysis')
     }
 
-    // Загружаем промпт с учетом языка
-    console.log(`🔍 Loading prompt ${promptType} for language: ${languageContext.promptLanguage}`)
-    let jsonPrompt = await LanguageManager.loadPromptForLanguage(promptType, languageContext)
+    // Загружаем промпт
+    console.log(`🔍 Loading prompt ${promptType} for language: ${detectedLanguage}`)
+    let jsonPrompt = await promptService.loadPrompt(promptType, detectedLanguage)
     
-    // Принудительно устанавливаем язык ответа
-    jsonPrompt = LanguageManager.enforceResponseLanguage(jsonPrompt, languageContext.responseLanguage)
+    // Объединяем с контекстом если есть
+    if (context) {
+      jsonPrompt = promptService.combineWithContext(jsonPrompt, context, detectedLanguage)
+    }
     
     console.log('🔍 Final prompt length:', jsonPrompt.length)
     console.log('🔍 Prompt preview (first 300 chars):', jsonPrompt.substring(0, 300))
@@ -184,18 +185,18 @@ export async function POST(request: NextRequest) {
       responseContent = JSON.stringify(analysisResult)
     }
 
-    // Валидируем качество ответа
-    const qualityMetrics = ResponseQualityAnalyzer.measureQuality(
-      responseContent, 
-      languageContext.responseLanguage as 'ru' | 'en'
-    )
+    console.log('✅ Response received, length:', responseContent.length)
     
     console.log('📊 Response quality metrics:', qualityMetrics)
     
-    // Проверяем языковую консистентность
-    const languageValidation = LanguageManager.validateLanguageConsistency(
-      finalPrompt,
-      responseContent,
+    // Простая проверка что ответ не пустой
+    if (!responseContent || responseContent.trim().length === 0) {
+      console.error('❌ Empty response received')
+      return NextResponse.json(
+        { error: 'Получен пустой ответ от AI' },
+        { status: 500 }
+      )
+    }
       languageContext.responseLanguage
     )
     
@@ -290,9 +291,7 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // Логируем финальные метрики качества
-    ResponseQualityAnalyzer.logQualityMetrics(qualityMetrics, 'API Response')
-    LanguageManager.logLanguageContext(languageContext, 'Final Response')
+    console.log('✅ Analysis completed successfully')
 
     console.log('✅ Returning successful response with quality metrics')
     return NextResponse.json({ 
@@ -303,18 +302,7 @@ export async function POST(request: NextRequest) {
         survey: surveyValidation,
         analysis: surveyAnalysis
       },
-      quality: {
-        score: qualityMetrics.qualityScore,
-        completeness: qualityMetrics.completeness,
-        language_accuracy: qualityMetrics.languageAccuracy,
-        is_truncated: qualityMetrics.isTruncated,
-        token_count: qualityMetrics.tokenCount,
-        meets_standards: ResponseQualityAnalyzer.meetsQualityStandards(qualityMetrics)
-      },
-      language: {
-        context: languageContext,
-        validation: languageValidation
-      },
+      language: detectedLanguage,
       credits_info: {
         deducted: auditId ? true : false,
         is_test_account: creditsCheck.isTestAccount,
