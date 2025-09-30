@@ -142,47 +142,13 @@ Respond in English.`
       )
     }
 
-    // Парсим JSON ответ
-    let parsedResult
-    try {
-      parsedResult = JSON.parse(analysisResult)
-    } catch (error) {
-      console.error('❌ Failed to parse JSON response:', error)
-      return NextResponse.json(
-        { error: 'Некорректный JSON ответ от AI' },
-        { status: 500 }
-      )
-    }
-
-    // Валидируем структуру ответа
-    if (!isStructuredResponse(parsedResult)) {
-      console.error('❌ Invalid response structure')
-      return NextResponse.json(
-        { error: 'Некорректная структура ответа' },
-        { status: 500 }
-      )
-    }
-
-    // Валидируем опрос
-    const surveyValidation = validateSurvey(parsedResult.uxSurvey)
-    if (!surveyValidation.isValid) {
-      console.warn('⚠️ Survey validation failed:', surveyValidation.errors)
-    }
-
-    // Анализируем результаты опроса
-    const surveyAnalysis = analyzeSurveyResults(parsedResult.uxSurvey)
-
     // Списываем кредиты после успешного анализа
     await deductCreditsForAudit(user.id, 'research', auditId, 'UX Research Analysis')
 
     console.log('✅ Analysis completed successfully')
 
     return NextResponse.json({
-      result: parsedResult,
-      surveyAnalysis,
-      validation: {
-        survey: surveyValidation
-      }
+      result: analysisResult
     })
 
   } catch (error) {
