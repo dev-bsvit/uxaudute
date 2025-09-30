@@ -140,13 +140,23 @@ Respond in English.`
       )
     }
 
+    // Парсим JSON ответ для фронтенда
+    let parsedResult
+    try {
+      parsedResult = JSON.parse(analysisResult)
+      console.log('✅ JSON parsed successfully')
+    } catch (error) {
+      console.error('❌ Failed to parse JSON, returning as string:', error)
+      parsedResult = analysisResult
+    }
+
     // Списываем кредиты после успешного анализа
     await deductCreditsForAudit(user.id, 'research', auditId, 'UX Research Analysis')
 
     console.log('✅ Analysis completed successfully')
 
     return NextResponse.json({
-      result: analysisResult
+      result: parsedResult
     })
 
   } catch (error) {
