@@ -44,7 +44,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Проверяем кредиты
-    const hasCredits = await checkCreditsForAudit(user.id)
+    const hasCredits = await checkCreditsForAudit(user.id, 'research')
     if (!hasCredits) {
       return NextResponse.json({ error: 'Insufficient credits' }, { status: 402 })
     }
@@ -173,7 +173,7 @@ Respond in English.`
     const surveyAnalysis = analyzeSurveyResults(parsedResult.uxSurvey)
 
     // Списываем кредиты после успешного анализа
-    await deductCreditsForAudit(user.id, auditId)
+    await deductCreditsForAudit(user.id, 'research', auditId)
 
     console.log('✅ Analysis completed successfully')
 
