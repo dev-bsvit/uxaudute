@@ -410,7 +410,7 @@ export function AnalysisResultDisplay({
               }
               
               return (
-              <div key={index} className="border rounded-lg p-4 space-y-3">
+                <div key={index} className="border rounded-lg p-4 space-y-3">
                 <div className="flex items-start justify-between">
                   <h4 className="font-medium text-gray-900">{cleanProblem.element}</h4>
                   <Badge className={getPriorityColor(cleanProblem.priority)}>
@@ -440,7 +440,7 @@ export function AnalysisResultDisplay({
                     <span className="text-gray-700">{cleanProblem.expectedEffect}</span>
                   </div>
                 </div>
-              </div>
+                </div>
               )
             }
             )) : (
