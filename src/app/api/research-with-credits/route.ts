@@ -140,13 +140,17 @@ Respond in English.`
       )
     }
 
+    console.log('🔍 Raw analysis result length:', analysisResult.length)
+    console.log('🔍 Raw analysis result preview:', analysisResult.substring(0, 200) + '...')
+
     // Парсим JSON ответ для фронтенда
     let parsedResult
     try {
       parsedResult = JSON.parse(analysisResult)
-      console.log('✅ JSON parsed successfully')
+      console.log('✅ JSON parsed successfully, keys:', Object.keys(parsedResult))
     } catch (error) {
       console.error('❌ Failed to parse JSON, returning as string:', error)
+      console.error('❌ Raw content that failed to parse:', analysisResult)
       parsedResult = analysisResult
     }
 
