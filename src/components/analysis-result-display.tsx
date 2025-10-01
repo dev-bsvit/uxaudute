@@ -397,38 +397,52 @@ export function AnalysisResultDisplay({
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
-            {(safeAnalysis.problemsAndSolutions || []).length > 0 ? (safeAnalysis.problemsAndSolutions || []).map((problem: any, index: number) => (
+            {(safeAnalysis.problemsAndSolutions || []).length > 0 ? (safeAnalysis.problemsAndSolutions || []).map((problem: any, index: number) => {
+              // Очищаем лишние кавычки из ключей
+              const cleanProblem = {
+                element: (problem.element || problem["'element'"] || '').replace(/^'|'$/g, ''),
+                problem: (problem.problem || problem["'problem'"] || '').replace(/^'|'$/g, ''),
+                principle: (problem.principle || problem["'principle'"] || '').replace(/^'|'$/g, ''),
+                consequence: (problem.consequence || problem["'consequence'"] || '').replace(/^'|'$/g, ''),
+                recommendation: (problem.recommendation || problem["'recommendation'"] || '').replace(/^'|'$/g, ''),
+                expectedEffect: (problem.expectedEffect || problem["'expectedEffect'"] || '').replace(/^'|'$/g, ''),
+                priority: (problem.priority || problem["'priority'"] || 'medium').replace(/^'|'$/g, '')
+              }
+              
+              return (
               <div key={index} className="border rounded-lg p-4 space-y-3">
                 <div className="flex items-start justify-between">
-                  <h4 className="font-medium text-gray-900">{problem.element}</h4>
-                  <Badge className={getPriorityColor(problem.priority)}>
-                    {getPriorityText(problem.priority)} {t('common.priority').toLowerCase()}
+                  <h4 className="font-medium text-gray-900">{cleanProblem.element}</h4>
+                  <Badge className={getPriorityColor(cleanProblem.priority)}>
+                    {getPriorityText(cleanProblem.priority)} приоритет
                   </Badge>
                 </div>
                 
                 <div className="space-y-2">
                   <div>
-                    <span className="font-medium text-red-600">{t('analysis-results.problemsAndSolutions.problem')}</span>{' '}
-                    <span className="text-gray-700">{problem.problem}</span>
+                    <span className="font-medium text-red-600">Проблема:</span>{' '}
+                    <span className="text-gray-700">{cleanProblem.problem}</span>
                   </div>
                   <div>
-                    <span className="font-medium text-blue-600">{t('analysis-results.problemsAndSolutions.principle')}</span>{' '}
-                    <span className="text-gray-700">{problem.principle}</span>
+                    <span className="font-medium text-blue-600">Принцип:</span>{' '}
+                    <span className="text-gray-700">{cleanProblem.principle}</span>
                   </div>
                   <div>
-                    <span className="font-medium text-orange-600">{t('analysis-results.problemsAndSolutions.consequence')}</span>{' '}
-                    <span className="text-gray-700">{problem.consequence}</span>
+                    <span className="font-medium text-orange-600">Последствие:</span>{' '}
+                    <span className="text-gray-700">{cleanProblem.consequence}</span>
                   </div>
                   <div>
-                    <span className="font-medium text-green-600">{t('analysis-results.problemsAndSolutions.recommendation')}</span>{' '}
-                    <span className="text-gray-700">{problem.recommendation}</span>
+                    <span className="font-medium text-green-600">Рекомендация:</span>{' '}
+                    <span className="text-gray-700">{cleanProblem.recommendation}</span>
                   </div>
                   <div>
-                    <span className="font-medium text-purple-600">{t('analysis-results.problemsAndSolutions.expectedEffect')}</span>{' '}
-                    <span className="text-gray-700">{problem.expectedEffect}</span>
+                    <span className="font-medium text-purple-600">Ожидаемый эффект:</span>{' '}
+                    <span className="text-gray-700">{cleanProblem.expectedEffect}</span>
                   </div>
                 </div>
               </div>
+              )
+            }
             )) : (
               <div className="text-center text-gray-500 py-8">
                 <p>{t('analysis-results.problemsAndSolutions.noProblemsFound')}</p>
