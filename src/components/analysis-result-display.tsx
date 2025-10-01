@@ -7,10 +7,6 @@ import { Badge } from '@/components/ui/badge'
 import { SurveyDisplay } from '@/components/ui/survey-display'
 import { CanvasAnnotations } from '@/components/ui/canvas-annotations'
 import { Monitor, Link2 } from 'lucide-react'
-import { useTranslation } from '@/hooks/use-translation'
-import { useFormatters } from '@/hooks/use-formatters'
-import { AnalysisResultLanguageIndicator } from '@/components/language-indicator'
-import { analysisLanguageTracker } from '@/lib/analysis-language-tracker'
 
 interface AnalysisResultDisplayProps {
   analysis?: StructuredAnalysisResponse
@@ -31,14 +27,73 @@ export function AnalysisResultDisplay({
   auditId,
   analysisLanguage
 }: AnalysisResultDisplayProps) {
-  const { t } = useTranslation()
-  const { formatDateTime, getLanguageIndicator } = useFormatters()
+  // Простые функции без переводов
+  const formatDateTime = (timestamp: string) => new Date(timestamp).toLocaleString('ru-RU')
+  const t = (key: string) => {
+    const translations: Record<string, string> = {
+      'common.noDataToDisplay': 'Нет данных для отображения',
+      'common.unknown': 'Неизвестно',
+      'common.notLoaded': 'Не загружено',
+      'common.loadingError': 'Ошибка загрузки',
+      'common.confidence': 'Уверенность',
+      'common.high': 'Высокий',
+      'common.medium': 'Средний',
+      'common.low': 'Низкий',
+      'common.problems': 'проблем',
+      'common.priority': 'Приоритет',
+      'common.analysis': 'Анализ',
+      'common.version': 'Версия',
+      'common.model': 'Модель',
+      'common.time': 'Время',
+      'analysis-results.title': 'Результаты UX анализа',
+      'analysis-results.screenDescription.title': 'Описание экрана',
+      'analysis-results.screenDescription.screenType': 'Тип экрана',
+      'analysis-results.screenDescription.userGoal': 'Цель пользователя',
+      'analysis-results.screenDescription.keyElements': 'Ключевые элементы',
+      'analysis-results.screenDescription.confidenceReason': 'Обоснование уверенности',
+      'analysis-results.audience.title': 'Аудитория',
+      'analysis-results.audience.targetAudience': 'Целевая аудитория',
+      'analysis-results.audience.mainPain': 'Основная боль',
+      'analysis-results.audience.fears': 'Страхи пользователей',
+      'analysis-results.behavior.title': 'Поведение',
+      'analysis-results.behavior.userScenarios': 'Пользовательские сценарии',
+      'analysis-results.behavior.idealPath': 'Идеальный путь:',
+      'analysis-results.behavior.typicalError': 'Типичная ошибка:',
+      'analysis-results.behavior.alternativeWorkaround': 'Альтернативный обход:',
+      'analysis-results.behavior.behavioralPatterns': 'Поведенческие паттерны',
+      'analysis-results.behavior.frictionPoints': 'Точки трения',
+      'analysis-results.behavior.actionMotivation': 'Мотивация к действию',
+      'analysis-results.behavior.majorImpact': 'Серьезное влияние',
+      'analysis-results.behavior.minorImpact': 'Незначительное влияние',
+      'analysis-results.problemsAndSolutions.title': 'Проблемы и решения',
+      'analysis-results.problemsAndSolutions.problem': 'Проблема:',
+      'analysis-results.problemsAndSolutions.principle': 'Принцип:',
+      'analysis-results.problemsAndSolutions.consequence': 'Последствие:',
+      'analysis-results.problemsAndSolutions.recommendation': 'Рекомендация:',
+      'analysis-results.problemsAndSolutions.expectedEffect': 'Ожидаемый эффект:',
+      'analysis-results.problemsAndSolutions.noProblemsFound': 'Проблемы и решения не найдены',
+      'analysis-results.selfCheck.title': 'Проверка качества анализа',
+      'analysis-results.selfCheck.checklist': 'Чек-лист',
+      'analysis-results.selfCheck.confidenceByBlocks': 'Уверенность по блокам',
+      'analysis-results.selfCheck.coversAllElements': 'Покрывает все элементы',
+      'analysis-results.selfCheck.noContradictions': 'Нет противоречий',
+      'analysis-results.selfCheck.principlesJustified': 'Принципы обоснованы',
+      'analysis-results.selfCheck.actionClarity': 'Четкость действий',
+      'analysis-results.selfCheck.survey': 'Опрос',
+      'analysis-results.selfCheck.recommendations': 'Рекомендации',
+      'analysis-results.metadata.title': 'Метаданные',
+      'analysis-results.interface.analyzedInterface': 'Анализируемый интерфейс',
+      'analysis-results.interface.analyzedUrl': 'Анализируемый URL',
+      'analysis-results.interface.annotationEditor': 'Редактор аннотаций - кликните и рисуйте на изображении'
+    }
+    return translations[key] || key
+  }
   
   // Защита от ошибок - проверяем структуру данных
   if (!analysis) {
     return (
       <div className="text-center py-8">
-        <p className="text-gray-500">{t('common.noDataToDisplay')}</p>
+        <p className="text-gray-500">Нет данных для отображения</p>
       </div>
     )
   }
@@ -49,11 +104,11 @@ export function AnalysisResultDisplay({
   // Проверяем, что у нас есть минимально необходимая структура
   const safeAnalysis: StructuredAnalysisResponse = {
     screenDescription: analysis.screenDescription || { 
-      screenType: (analysis as any).screenType || t('common.unknown'), 
+      screenType: (analysis as any).screenType || 'Неизвестно', 
       confidence: (analysis as any).confidence || 0,
-      userGoal: (analysis as any).userGoal || t('common.notLoaded'),
+      userGoal: (analysis as any).userGoal || 'Не определено',
       keyElements: (analysis as any).keyElements || [],
-      confidenceReason: (analysis as any).confidenceReason || t('common.notLoaded')
+      confidenceReason: (analysis as any).confidenceReason || 'Не указано'
     },
     uxSurvey: analysis.uxSurvey || { 
       questions: (analysis as any).questions || [], 
@@ -66,19 +121,19 @@ export function AnalysisResultDisplay({
       }
     },
     audience: analysis.audience || { 
-      targetAudience: (analysis as any).targetAudience || t('common.notLoaded'), 
-      mainPain: (analysis as any).mainPain || t('common.loadingError'),
+      targetAudience: (analysis as any).targetAudience || 'Не определена', 
+      mainPain: (analysis as any).mainPain || 'Не выявлена',
       fears: (analysis as any).fears || []
     },
     behavior: analysis.behavior || { 
       userScenarios: (analysis as any).userScenarios || {
-        idealPath: t('common.notLoaded'),
-        typicalError: t('common.notLoaded'), 
-        alternativeWorkaround: t('common.notLoaded')
+        idealPath: 'Не определен',
+        typicalError: 'Не определена', 
+        alternativeWorkaround: 'Не определен'
       }, 
-      behavioralPatterns: (analysis as any).behavioralPatterns || t('common.loadingError'),
+      behavioralPatterns: (analysis as any).behavioralPatterns || 'Не выявлены',
       frictionPoints: (analysis as any).frictionPoints || [],
-      actionMotivation: (analysis as any).actionMotivation || t('common.notLoaded')
+      actionMotivation: (analysis as any).actionMotivation || 'Не определена'
     },
     problemsAndSolutions: analysis.problemsAndSolutions || [],
     selfCheck: analysis.selfCheck || { 
@@ -89,7 +144,7 @@ export function AnalysisResultDisplay({
     annotations: analysis.annotations || '',
     metadata: analysis.metadata || { 
       version: '1.0', 
-      model: t('common.unknown'), 
+      model: 'GPT-4', 
       timestamp: new Date().toISOString() 
     }
   }
@@ -141,11 +196,8 @@ export function AnalysisResultDisplay({
         <div className="text-center">
           <div className="flex items-center justify-center gap-3 mb-2">
             <h2 className="text-3xl font-bold text-gray-900">
-              {t('analysis-results.title')}
+              Результаты UX анализа
             </h2>
-            {analysisLanguage && (
-              <AnalysisResultLanguageIndicator language={analysisLanguage} />
-            )}
           </div>
         </div>
 

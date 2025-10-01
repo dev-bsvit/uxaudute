@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Progress } from '@/components/ui/progress'
 import { Card, CardContent } from '@/components/ui/card'
 import { Sparkles, Brain, BarChart3, CheckCircle, X } from 'lucide-react'
@@ -66,8 +66,11 @@ export function AnalysisModal({ isOpen, onClose, screenshot, url, canClose = fal
 
   return (
     <Dialog open={isOpen} onOpenChange={canClose ? onClose : undefined}>
-      <DialogContent className={`max-w-2xl mx-auto ${!canClose ? '[&>button]:hidden' : ''}`}>
+      <DialogContent className={`max-w-2xl mx-auto ${!canClose ? '[&>button]:hidden' : ''}`} aria-describedby="analysis-progress-description">
         <DialogHeader className="text-center">
+          <DialogDescription id="analysis-progress-description">
+            Выполняется анализ пользовательского опыта с помощью искусственного интеллекта
+          </DialogDescription>
           <div className="flex items-center justify-center mb-4">
             <div className="flex items-center justify-center w-16 h-16 bg-slate-900 rounded-2xl shadow-lg">
               <CurrentStepIcon className="w-8 h-8 text-white animate-pulse" />

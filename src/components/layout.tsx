@@ -8,9 +8,6 @@ import { User, LogOut, Settings, ChevronDown } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 import { signOut } from '@/lib/database'
 import { User as SupabaseUser } from '@supabase/supabase-js'
-import { LanguageSelector } from '@/components/language-selector'
-import { useTranslation } from '@/hooks/use-translation'
-
 interface LayoutProps {
   children: ReactNode
   title?: string
@@ -21,12 +18,11 @@ export function Layout({ children, title = 'UX Audit', transparentHeader = false
   const pathname = usePathname()
   const [user, setUser] = useState<SupabaseUser | null>(null)
   const [showUserMenu, setShowUserMenu] = useState(false)
-  const { t } = useTranslation()
   
   // Навигация с Dashboard для быстрого анализа
   const navigation = [
-    { name: t('navigation.quickAnalysis'), href: '/dashboard', current: pathname === '/dashboard' },
-    { name: t('navigation.myProjects'), href: '/projects', current: pathname.startsWith('/projects') },
+    { name: 'Быстрый анализ', href: '/dashboard', current: pathname === '/dashboard' },
+    { name: 'Мои проекты', href: '/projects', current: pathname.startsWith('/projects') },
   ]
 
   useEffect(() => {
@@ -142,7 +138,7 @@ export function Layout({ children, title = 'UX Audit', transparentHeader = false
                     <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-1 z-50">
                       <div className="px-4 py-2 border-b border-gray-100">
                         <p className="text-sm font-medium text-gray-900">
-                          {user.user_metadata?.full_name || t('common.user')}
+                          {user.user_metadata?.full_name || 'Пользователь'}
                         </p>
                         <p className="text-xs text-gray-500">{user.email}</p>
                       </div>
@@ -153,7 +149,7 @@ export function Layout({ children, title = 'UX Audit', transparentHeader = false
                         onClick={() => setShowUserMenu(false)}
                       >
                         <span>🎯</span>
-                        {t('navigation.quickAnalysis')}
+                        Быстрый анализ
                       </Link>
                       
                       <Link
@@ -162,7 +158,7 @@ export function Layout({ children, title = 'UX Audit', transparentHeader = false
                         onClick={() => setShowUserMenu(false)}
                       >
                         <Settings className="w-4 h-4" />
-                        {t('navigation.myProjects')}
+                        Мои проекты
                       </Link>
                       
                       <Link
@@ -171,7 +167,7 @@ export function Layout({ children, title = 'UX Audit', transparentHeader = false
                         onClick={() => setShowUserMenu(false)}
                       >
                         <Settings className="w-4 h-4" />
-                        {t('navigation.settings')}
+                        Настройки
                       </Link>
                       
                       <button
@@ -179,7 +175,7 @@ export function Layout({ children, title = 'UX Audit', transparentHeader = false
                         className="flex items-center gap-2 w-full px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors"
                       >
                         <LogOut className="w-4 h-4" />
-                        {t('navigation.logout')}
+                        Выйти
                       </button>
                     </div>
                   )}
@@ -187,7 +183,7 @@ export function Layout({ children, title = 'UX Audit', transparentHeader = false
               ) : (
                 <Link href="/dashboard">
                   <Button size="sm" className="bg-blue-600 hover:bg-blue-700 text-white">
-                    {t('navigation.login')}
+                    Войти
                   </Button>
                 </Link>
               )}

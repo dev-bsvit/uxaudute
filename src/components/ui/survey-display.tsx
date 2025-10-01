@@ -5,8 +5,6 @@ import { UXQuestion, UXSurvey } from '@/lib/analysis-types'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Progress } from '@/components/ui/progress'
-import { useTranslation } from '@/hooks/use-translation'
-
 interface SurveyDisplayProps {
   survey: UXSurvey
   showCategories?: boolean
@@ -18,7 +16,15 @@ export function SurveyDisplay({
   showCategories = true, 
   showPrinciples = true 
 }: SurveyDisplayProps) {
-  const { t } = useTranslation()
+  // Простые переводы без системы
+  const t = (key: string) => {
+    const translations: Record<string, string> = {
+      'analysis-results.questions': 'вопросов',
+      'analysis-results.mostLikely': 'Наиболее вероятно',
+      'analysis-results.lessLikely': 'Менее вероятно'
+    }
+    return translations[key] || key
+  }
   
   const getCategoryColor = (category: string) => {
     const colors = {
