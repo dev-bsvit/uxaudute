@@ -103,14 +103,6 @@ export function Layout({ children, title = 'UX Audit', transparentHeader = false
             </div>
             
             <div className="flex items-center space-x-4">
-              {/* Селектор языка */}
-              <LanguageSelector 
-                variant="header" 
-                showFlags={true} 
-                showNativeNames={false}
-                className="hidden sm:block"
-              />
-              
               {title !== 'UX Audit' && (
                 <div className="text-sm text-gray-600 hidden sm:block">
                   {title}
