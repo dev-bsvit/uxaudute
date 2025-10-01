@@ -12,7 +12,7 @@ import { ensureUserHasInitialBalance } from '@/lib/database'
 import { useTranslation } from '@/hooks/use-translation'
 
 export default function HomePage() {
-  // Версия 1.1 - обновленная структура
+  // Версия 1.1.1 - исправлены критические ошибки React Error #31
   const [mounted, setMounted] = useState(false)
   const { t } = useTranslation()
   
