@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { openai } from '@/lib/openai'
+import { executeAIRequest, AIResponse } from '@/lib/ai-provider'
+import { StructuredAnalysisResponse, isStructuredResponse } from '@/lib/analysis-types'
+import { validateSurvey, analyzeSurveyResults } from '@/lib/survey-utils'
 import { supabase } from '@/lib/supabase'
+import { loadJSONPromptV2, loadSonomaStructuredPrompt } from '@/lib/prompt-loader'
 import { checkCreditsForAudit, deductCreditsForAudit } from '@/lib/credits'
 
 export async function POST(request: NextRequest) {
@@ -10,6 +13,8 @@ export async function POST(request: NextRequest) {
       url, 
       screenshot, 
       context, 
+      provider = 'openai',
+      openrouterModel = 'sonoma',
       auditId
     } = await request.json()
     
@@ -17,6 +22,8 @@ export async function POST(request: NextRequest) {
       url: !!url, 
       screenshot: !!screenshot, 
       context: !!context,
+      provider,
+      openrouterModel,
       auditId
     })
 
@@ -41,157 +48,199 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Invalid token' }, { status: 401 })
     }
 
-    // Проверяем кредиты
-    const hasCredits = await checkCreditsForAudit(user.id, 'research')
-    if (!hasCredits) {
-      return NextResponse.json({ error: 'Insufficient credits' }, { status: 402 })
-    }
-
-    // Простой промпт без сложных систем
-    const isRussian = request.headers.get('accept-language')?.includes('ru')
+    // Проверяем кредиты перед запуском аудита
+    console.log('🔍 Проверяем кредиты для пользователя:', user.id)
+    console.log('🔍 Тип аудита: research')
     
-    const basePrompt = isRussian ? 
-      `Ты опытный UX-дизайнер-исследователь. Анализируй интерфейс и возвращай результат в JSON формате.
-
-**КРИТИЧЕСКИ ВАЖНО: 
-1. Отвечай ТОЛЬКО в JSON формате
-2. НЕ добавляй никакого текста до или после JSON
-3. НЕ оборачивай JSON в markdown блоки
-4. Начинай ответ с { и заканчивай }
-5. Используй эту структуру: {"screenDescription": {"screenType": "...", "userGoal": "...", "keyElements": [], "confidence": 85}, "uxSurvey": {"questions": [], "overallConfidence": 85}, "problemsAndSolutions": [], "metadata": {}}**
-
-Отвечай на русском языке.` :
-      `You are an experienced UX designer-researcher. Analyze the interface and return the result in JSON format.
-
-**CRITICALLY IMPORTANT: 
-1. Respond ONLY in JSON format
-2. Do NOT add any text before or after JSON
-3. Do NOT wrap JSON in markdown blocks
-4. Start response with { and end with }
-5. Use this structure: {"screenDescription": {"screenType": "...", "userGoal": "...", "keyElements": [], "confidence": 85}, "uxSurvey": {"questions": [], "overallConfidence": 85}, "problemsAndSolutions": [], "metadata": {}}**
-
-Respond in English.`
-
-    let finalPrompt = basePrompt
-    if (context) {
-      const contextLabel = isRussian ? '\n\nДополнительный контекст:\n' : '\n\nAdditional context:\n'
-      finalPrompt = `${basePrompt}${contextLabel}${context}`
+    const creditsCheck = await checkCreditsForAudit(user.id, 'research')
+    console.log('🔍 Результат проверки кредитов:', JSON.stringify(creditsCheck, null, 2))
+    
+    if (!creditsCheck.canProceed) {
+      console.log('❌ Недостаточно кредитов:', creditsCheck)
+      return NextResponse.json({
+        error: 'Insufficient credits',
+        message: creditsCheck.message,
+        required_credits: creditsCheck.requiredCredits,
+        current_balance: creditsCheck.currentBalance,
+        is_test_account: creditsCheck.isTestAccount
+      }, { status: 402 }) // 402 Payment Required
     }
 
-    console.log('🔍 Simple prompt ready, length:', finalPrompt.length)
+    console.log('✅ Кредиты проверены успешно:', creditsCheck)
 
-    let analysisResult: string | null = null
+    // Загружаем промпт в зависимости от модели
+    console.log('Загружаем промпт...')
+    let jsonPrompt: string
+    if (provider === 'openrouter' && openrouterModel === 'sonoma') {
+      jsonPrompt = await loadSonomaStructuredPrompt()
+      console.log('Используем специальный промпт для Sonoma Sky Alpha')
+    } else {
+      jsonPrompt = await loadJSONPromptV2()
+      console.log('Используем стандартный промпт v2')
+    }
+    
+    const finalPrompt = combineWithContext(jsonPrompt, context)
+    console.log('Финальный промпт готов, длина:', finalPrompt.length)
+
+    let analysisResult: AIResponse | null = null
 
     if (url) {
       // Анализ URL
-      console.log('🔍 Analyzing URL:', url)
-      const urlInstruction = isRussian
-        ? `\n\nПроанализируй сайт по URL: ${url}\n\nПоскольку я не могу получить скриншот, проведи анализ основываясь на общих принципах UX для данного типа сайта.`
-        : `\n\nAnalyze the website at URL: ${url}\n\nSince I cannot get a screenshot, conduct analysis based on general UX principles for this type of website.`
-      
-      const analysisPrompt = finalPrompt + urlInstruction
-      
-      const completion = await openai.chat.completions.create({
-        model: "gpt-4o",
-        messages: [{ role: "user", content: analysisPrompt }],
-        temperature: 0.7,
-        max_tokens: 4096,
-        response_format: { type: "json_object" }
-      })
-
-      analysisResult = completion.choices[0]?.message?.content || null
-    }
-
-    if (screenshot) {
+      console.log('Запускаем анализ URL:', url)
+      analysisResult = await executeAIRequest(
+        [{ role: 'user', content: finalPrompt }],
+        {
+          provider: provider,
+          openrouterModel: openrouterModel
+        }
+      )
+    } else if (screenshot) {
       // Анализ скриншота
-      console.log('🔍 Analyzing screenshot')
-      
-      const completion = await openai.chat.completions.create({
-        model: "gpt-4o",
-        messages: [
-          {
-            role: "user",
-            content: [
-              { type: "text", text: finalPrompt },
-              {
-                type: "image_url",
-                image_url: {
-                  url: screenshot,
-                  detail: "high"
-                }
-              }
-            ]
-          }
-        ],
-        temperature: 0.7,
-        max_tokens: 4096,
-        response_format: { type: "json_object" }
-      })
-
-      analysisResult = completion.choices[0]?.message?.content || null
+      console.log('Запускаем анализ скриншота')
+      analysisResult = await executeAIRequest(
+        [{ 
+          role: 'user', 
+          content: [
+            { type: 'text', text: finalPrompt },
+            { type: 'image_url', image_url: { url: screenshot, detail: 'high' } }
+          ]
+        }],
+        {
+          provider: provider,
+          openrouterModel: openrouterModel
+        }
+      )
     }
 
-    // Проверяем что получили результат
     if (!analysisResult) {
-      console.error('❌ No analysis result received')
+      console.log('Ошибка: анализ не выполнен')
       return NextResponse.json(
-        { error: 'Получен пустой ответ от AI' },
+        { error: 'Не удалось выполнить анализ' },
         { status: 500 }
       )
     }
 
-    console.log('🔍 Raw analysis result length:', analysisResult.length)
-    console.log('🔍 Raw analysis result preview:', analysisResult.substring(0, 200) + '...')
+    console.log('Анализ завершен, результат:', Object.keys(analysisResult || {}))
 
-    // Парсим JSON ответ для фронтенда
-    let parsedResult
-    try {
-      parsedResult = JSON.parse(analysisResult)
-      console.log('✅ JSON parsed successfully, keys:', Object.keys(parsedResult))
-    } catch (error) {
-      console.error('❌ Failed to parse JSON, returning as string:', error)
-      console.error('❌ Raw content that failed to parse:', analysisResult)
-      parsedResult = analysisResult
+    // Парсим результат если он в формате {content: "JSON_STRING"}
+    let parsedResult = analysisResult
+    if (analysisResult && typeof analysisResult === 'object' && 'content' in analysisResult) {
+      try {
+        console.log('Парсим content как JSON...')
+        parsedResult = JSON.parse((analysisResult as any).content)
+        console.log('Результат распарсен:', Object.keys(parsedResult || {}))
+      } catch (parseError) {
+        console.error('Ошибка парсинга content:', parseError)
+        parsedResult = analysisResult
+      }
     }
 
-    // Сохраняем результат в базу данных
-    console.log('💾 Saving result to database for audit:', auditId)
-    const { error: updateError } = await supabase
-      .from('audits')
-      .update({
-        result_data: parsedResult,
-        status: 'completed',
-        updated_at: new Date().toISOString()
-      })
-      .eq('id', auditId)
+    // Валидация результата
+    let validation: any = { isValid: false, errors: [] }
+    let surveyValidation: any = null
+    let surveyAnalysis: any = null
 
-    if (updateError) {
-      console.error('❌ Failed to save result to database:', updateError)
-      // Не возвращаем ошибку, так как анализ выполнен успешно
+    if (parsedResult && isStructuredResponse(parsedResult as any)) {
+      console.log('Результат структурированный, валидируем...')
+      
+      // Валидация опроса
+      if ((parsedResult as any).uxSurvey) {
+        surveyValidation = validateSurvey((parsedResult as any).uxSurvey)
+        console.log('Валидация опроса:', surveyValidation)
+      }
+
+      // Анализ результатов опроса
+      if ((parsedResult as any).uxSurvey && surveyValidation?.isValid) {
+        surveyAnalysis = analyzeSurveyResults((parsedResult as any).uxSurvey)
+        console.log('Анализ опроса:', surveyAnalysis)
+      }
+
+      validation = { isValid: true, errors: [] }
+    }
+
+    // Сохраняем результат в таблицу audits
+    if (auditId) {
+      try {
+        console.log('Сохраняем результат в audits:', {
+          auditId,
+          result_data: parsedResult as any,
+          status: 'completed'
+        })
+        
+        const { error: auditUpdateError } = await supabase
+          .from('audits')
+          .update({
+            result_data: parsedResult as any,
+            status: 'completed',
+            updated_at: new Date().toISOString()
+          })
+          .eq('id', auditId)
+        
+        if (auditUpdateError) {
+          console.error('Ошибка обновления audits:', auditUpdateError)
+          throw new Error(`Ошибка сохранения результата: ${auditUpdateError.message}`)
+        } else {
+          console.log('✅ Аудит успешно обновлен с результатом')
+        }
+      } catch (saveError) {
+        console.error('Ошибка сохранения результата:', saveError)
+        throw new Error(`Ошибка сохранения аудита: ${saveError instanceof Error ? saveError.message : 'Неизвестная ошибка'}`)
+      }
     } else {
-      console.log('✅ Result saved to database successfully')
+      console.warn('⚠️ auditId не предоставлен, результат не сохранен')
     }
 
-    // Списываем кредиты после успешного анализа
-    await deductCreditsForAudit(user.id, 'research', auditId, 'UX Research Analysis')
+    // Списываем кредиты после успешного выполнения аудита
+    if (auditId) {
+      console.log('Списываем кредиты за аудит:', auditId)
+      const deductResult = await deductCreditsForAudit(
+        user.id,
+        'research',
+        auditId,
+        `UX Research audit: ${url || 'screenshot analysis'}`
+      )
 
-    console.log('✅ Analysis completed successfully')
+      if (!deductResult.success) {
+        console.error('Ошибка списания кредитов:', deductResult)
+        // Не прерываем выполнение, так как аудит уже выполнен
+      } else {
+        console.log('✅ Кредиты успешно списаны:', deductResult)
+      }
+    }
 
-    return NextResponse.json({
-      result: parsedResult
+    console.log('Возвращаем успешный ответ...')
+    return NextResponse.json({ 
+      success: true,
+      data: parsedResult as any,
+      format: 'json',
+      validation: {
+        survey: surveyValidation,
+        analysis: surveyAnalysis
+      },
+      credits_info: {
+        deducted: auditId ? true : false,
+        is_test_account: creditsCheck.isTestAccount,
+        required_credits: creditsCheck.requiredCredits,
+        current_balance: creditsCheck.currentBalance
+      }
     })
 
   } catch (error) {
-    console.error('Research with credits API error:', error)
-    
-    if (error instanceof Error) {
-      console.error('Error message:', error.message)
-      console.error('Error stack:', error.stack)
-    }
-    
+    console.error('Ошибка в research-with-credits API:', error)
     return NextResponse.json(
-      { error: 'Не удалось выполнить анализ. Попробуйте позже.' },
+      { error: 'Внутренняя ошибка сервера' },
       { status: 500 }
     )
   }
+}
+
+/**
+ * Комбинирует промпт с контекстом
+ */
+function combineWithContext(prompt: string, context?: string): string {
+  if (!context || context.trim() === '') {
+    return prompt
+  }
+
+  return `${prompt}\n\n## Дополнительный контекст:\n${context}`
 }
