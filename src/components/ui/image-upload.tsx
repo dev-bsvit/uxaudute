@@ -4,7 +4,7 @@ import * as React from 'react'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 import { Progress } from '@/components/ui/progress'
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
 import { Upload, X, Check, AlertCircle } from 'lucide-react'
 
 interface ImageUploadProps {
@@ -220,9 +220,12 @@ export function ImageUpload({
                     </Button>
                   </DialogTrigger>
                   
-                  <DialogContent className="sm:max-w-md">
+                  <DialogContent className="sm:max-w-md" aria-describedby="image-upload-description">
                     <DialogHeader>
                       <DialogTitle>Загрузка изображения</DialogTitle>
+                      <DialogDescription id="image-upload-description">
+                        Выберите изображение для загрузки и анализа
+                      </DialogDescription>
                     </DialogHeader>
                     
                     <div className="space-y-4">
