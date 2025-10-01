@@ -423,10 +423,23 @@ function extractPartialProblemsAndSolutions(jsonString: string): any[] {
   try {
     const problems: any[] = []
     
-    // Ищем начало массива problemsAndSolutions
-    const problemsStart = jsonString.indexOf('"problemsAndSolutions": [')
+    // Ищем начало массива problemsAndSolutions (разные варианты)
+    let problemsStart = jsonString.indexOf('"problemsAndSolutions": [')
+    if (problemsStart === -1) {
+      problemsStart = jsonString.indexOf("'problemsAndSolutions': [")
+    }
+    if (problemsStart === -1) {
+      problemsStart = jsonString.indexOf('problemsAndSolutions: [')
+    }
+    
     if (problemsStart === -1) {
       console.log('❌ problemsAndSolutions section not found')
+      // Попробуем найти хотя бы упоминание проблем
+      const problemMention = jsonString.indexOf('"element"')
+      if (problemMention !== -1) {
+        console.log('🔍 Found element mention, trying to extract...')
+        return extractProblemsFromText(jsonString)
+      }
       return []
     }
     
@@ -511,6 +524,61 @@ function extractPartialProblemsAndSolutions(jsonString: string): any[] {
     return problems
   } catch (error) {
     console.warn('Error extracting partial problems:', error)
+    return []
+  }
+}
+
+/**
+ * Извлекает проблемы из текста, даже если JSON поврежден
+ */
+function extractProblemsFromText(text: string): any[] {
+  const problems: any[] = []
+  
+  try {
+    // Ищем паттерны элементов проблем
+    const elementRegex = /"element":\s*"([^"]+)"/g
+    const problemRegex = /"problem":\s*"([^"]+)"/g
+    const recommendationRegex = /"recommendation":\s*"([^"]+)"/g
+    
+    let elementMatch
+    const elements: string[] = []
+    const problemTexts: string[] = []
+    const recommendations: string[] = []
+    
+    // Извлекаем все элементы
+    while ((elementMatch = elementRegex.exec(text)) !== null) {
+      elements.push(elementMatch[1])
+    }
+    
+    // Извлекаем все проблемы
+    let problemMatch
+    while ((problemMatch = problemRegex.exec(text)) !== null) {
+      problemTexts.push(problemMatch[1])
+    }
+    
+    // Извлекаем все рекомендации
+    let recommendationMatch
+    while ((recommendationMatch = recommendationRegex.exec(text)) !== null) {
+      recommendations.push(recommendationMatch[1])
+    }
+    
+    // Создаем объекты проблем
+    const maxLength = Math.max(elements.length, problemTexts.length, recommendations.length)
+    for (let i = 0; i < maxLength; i++) {
+      problems.push({
+        element: elements[i] || 'Неизвестный элемент',
+        problem: problemTexts[i] || 'Проблема не описана',
+        recommendation: recommendations[i] || 'Рекомендация не указана',
+        priority: 'medium',
+        principle: 'Принцип UX'
+      })
+    }
+    
+    console.log(`🔧 Extracted ${problems.length} problems from text patterns`)
+    return problems
+    
+  } catch (error) {
+    console.log('❌ Error extracting problems from text:', error)
     return []
   }
 }
