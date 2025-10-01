@@ -22,3 +22,4 @@ WHERE analysis_result IS NULL AND result_data IS NOT NULL;
 
 
 
+

@@ -5,8 +5,6 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Textarea } from '@/components/ui/textarea'
 import { Label } from '@/components/ui/label'
-import { useTranslation } from '@/hooks/use-translation'
-
 interface ContextFormProps {
   onContextSubmit: (context: string) => void
   onSkip: () => void
@@ -14,7 +12,17 @@ interface ContextFormProps {
 }
 
 export function ContextForm({ onContextSubmit, onSkip, isLoading = false }: ContextFormProps) {
-  const { t } = useTranslation()
+  // Простые переводы
+  const t = (key: string) => {
+    const translations: Record<string, string> = {
+      'contextForm.title': 'Дополнительный контекст',
+      'contextForm.description': 'Добавьте дополнительную информацию для более точного анализа',
+      'contextForm.placeholder': 'Например: целевая аудитория, цели страницы, особенности бизнеса...',
+      'contextForm.skip': 'Пропустить',
+      'contextForm.analyze': 'Анализировать'
+    }
+    return translations[key] || key
+  }
   const [context, setContext] = useState('')
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -70,6 +78,7 @@ export function ContextForm({ onContextSubmit, onSkip, isLoading = false }: Cont
     </Card>
   )
 }
+
 
 
 

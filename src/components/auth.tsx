@@ -6,14 +6,23 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { signInWithEmail, signUpWithEmail, signInWithGoogle, signOut, getCurrentUser } from '@/lib/database'
 import { User } from '@supabase/supabase-js'
 import { LogIn, LogOut, UserPlus } from 'lucide-react'
-import { useTranslation } from '@/hooks/use-translation'
+// import { useTranslation } from '@/hooks/use-translation' // Временно отключено
 
 interface AuthProps {
   onAuthChange?: (user: User | null) => void
 }
 
 export function Auth({ onAuthChange }: AuthProps) {
-  const { t } = useTranslation()
+  // Простые переводы
+  const t = (key: string) => {
+    const translations: Record<string, string> = {
+      'auth.signInWithGoogle': 'Войти через Google',
+      'auth.signOut': 'Выйти',
+      'auth.welcome': 'Добро пожаловать',
+      'auth.loading': 'Загрузка...'
+    }
+    return translations[key] || key
+  }
   const [user, setUser] = useState<User | null>(null)
   const [loading, setLoading] = useState(true)
   const [mode, setMode] = useState<'signin' | 'signup'>('signin')
