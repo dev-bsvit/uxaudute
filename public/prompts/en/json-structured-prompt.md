@@ -42,7 +42,8 @@ RULES:
 10. Each problemsAndSolutions item must be a COMPLETE object with ALL fields
 11. Generate exactly 4-5 complete problems
 12. **IMPORTANT**: uxSurvey.questions array must have EXACTLY 5 questions (not 1, not 3 - exactly 5!)
-13. **CRITICALLY IMPORTANT for uxSurvey.questions**: Examples below are a TEMPLATE. You MUST adapt questions to the specific screenshot:
+13. **FORBIDDEN to include "selfCheck" block** - DO NOT generate this field in response! Response structure: screenDescription, uxSurvey, audience, behavior, problemsAndSolutions, metadata
+14. **CRITICALLY IMPORTANT for uxSurvey.questions**: Examples below are a TEMPLATE. You MUST adapt questions to the specific screenshot:
     - Questions must be RELEVANT to the screen type and its elements
     - For landing: trust, value proposition, CTA visibility
     - For forms: field clarity, error fear, motivation to complete
