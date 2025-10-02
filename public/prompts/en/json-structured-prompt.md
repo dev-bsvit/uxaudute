@@ -224,63 +224,32 @@ RULES:
   },
   "problemsAndSolutions": [
     {
-      "element": "'Register' Button",
-      "problem": "Low CTA button visibility",
-      "principle": "Visibility of System Status Principle",
-      "consequence": "Users may not notice the main call to action",
-      "businessImpact": {
-        "metric": "conversion",
-        "impactLevel": "high",
-        "description": "Complex form → high drop-off → fewer registrations"
-      },
-      "recommendation": "Increase button contrast and size, add hover animation",
-      "expectedEffect": "15-20% conversion increase",
-      "priority": "high",
-      "confidence": 85,
-      "confidenceSource": "Based on visual analysis of contrast and button size"
+      "title": "Register button lacks visual prominence and gets lost among other elements",
+      "impact": "high",
+      "why": "The gray button color (#6B7280) blends with the background creating insufficient contrast (2.8:1 vs required 4.5:1 WCAG AA). Users performing an F-pattern scan will overlook the CTA in the first 3-5 seconds. Eye-tracking studies show 60% of users miss low-contrast CTAs. The button size (36x120px) is below the recommended touch target of 48x48px for mobile interfaces. This directly impacts conversion as delayed CTA discovery reduces action probability by 40%.",
+      "fix": "Redesign the button with high-contrast accent color (#10B981 green or #3B82F6 blue) achieving minimum 4.5:1 contrast ratio. Increase dimensions to 48x160px for better touch targeting. Add subtle shadow (shadow-md: 0 4px 6px rgba(0,0,0,0.1)) for depth perception. Implement micro-interaction on hover (scale 1.02 transform + 200ms transition). Position in sticky footer for persistent visibility during scroll. Add loading state with spinner to prevent double submissions.",
+      "result": "Expected 25-30% increase in button clicks and 15-20% overall conversion uplift within first 2 weeks post-launch based on similar optimization case studies"
     },
     {
-      "element": "Email Input Field",
-      "problem": "No real-time validation",
-      "principle": "Error Prevention",
-      "consequence": "Users may submit incorrect email and not receive notifications",
-      "businessImpact": {
-        "metric": "user_satisfaction",
-        "impactLevel": "medium",
-        "description": "Input errors → frustration → decreased product trust"
-      },
-      "recommendation": "Add real-time email validation with hints",
-      "expectedEffect": "40% reduction in input errors",
-      "priority": "medium",
-      "confidence": 90,
-      "confidenceSource": "Confirmed by UX form pattern research"
+      "title": "Email input field missing real-time validation feedback",
+      "impact": "medium",
+      "why": "Users submit forms without knowing if their email format is valid, discovering errors only after submission. This creates friction and frustration. Studies show inline validation reduces form completion time by 22% and error rates by 40%. Without real-time feedback, users with typos (missing @ or .com) won't receive account activation emails, leading to support tickets and abandoned registrations. The cost of poor form UX is significant - Baymard Institute reports 67% cart abandonment due to complex checkout processes.",
+      "fix": "Implement progressive validation: check format on blur event using regex pattern /^[^\s@]+@[^\s@]+\.[^\s@]+$/. Show green checkmark icon for valid emails and red warning for invalid with specific error message ('Please include @ in email address'). Add debounced validation (300ms delay) during typing for premium experience. Display helpful hints below field: 'Use format: name@example.com'. Ensure error messages are WCAG accessible with aria-live regions and sufficient color contrast (not relying solely on color).",
+      "result": "40-50% reduction in email input errors and 15-20% decrease in form abandonment rate, reducing customer support load by approximately 25 tickets/month"
     },
     {
-      "element": "Navigation Menu",
-      "problem": "Unclear navigation structure",
-      "principle": "Recognition Rather Than Recall",
-      "consequence": "Users spend time searching for needed sections",
-      "recommendation": "Simplify menu structure, add icons and grouping",
-      "expectedEffect": "30% reduction in search time",
-      "priority": "high"
+      "title": "Page heading too generic and doesn't communicate value proposition",
+      "impact": "medium",
+      "why": "The heading 'Register' is functional but fails to motivate users or explain benefits. Jakob Nielsen's usability research shows that specific, benefit-driven headings increase engagement by 28%. Users scan headings to quickly determine if the page solves their problem. A generic heading creates uncertainty and increases bounce rates. For SaaS registration pages, headings that communicate unique value ('Start Your Free Trial', 'Join 10,000+ Happy Users') outperform generic ones by 35% in A/B tests. The missed opportunity to reduce anxiety and clarify benefits directly impacts form completion rates.",
+      "fix": "Replace generic 'Register' with benefit-focused microcopy: 'Create Your Free Account' or 'Start Your 14-Day Trial - No Credit Card Required'. Add supporting subheading (16px, text-gray-600) explaining key benefits in one sentence: 'Join 50,000+ users improving their workflow'. Use sentence case for better scannability. Ensure heading hierarchy: H1 at 32-36px (desktop) / 24-28px (mobile) with font-weight 600-700. Add visual emphasis with brand color accent or subtle gradient. Keep total character count under 60 for optimal readability.",
+      "result": "20-25% reduction in form page bounces and 10-15% increase in registration starts within 3-4 weeks"
     },
     {
-      "element": "Page Heading",
-      "problem": "Uninformative heading",
-      "principle": "Message Clarity",
-      "consequence": "Users don't understand page purpose",
-      "recommendation": "Rewrite heading to be more specific and clear",
-      "expectedEffect": "25% increase in understanding",
-      "priority": "medium"
-    },
-    {
-      "element": "Form Fields",
-      "problem": "No hints or examples",
-      "principle": "Help Users Recognize, Diagnose, and Recover from Errors",
-      "consequence": "Users don't know expected data format",
-      "recommendation": "Add placeholders with examples and field hints",
-      "expectedEffect": "50% reduction in completion errors",
-      "priority": "low"
+      "title": "Form fields lack contextual help and input format examples",
+      "impact": "low",
+      "why": "Empty fields without placeholders or examples create cognitive load. Users must guess expected formats for phone numbers (with or without country code?), dates (MM/DD/YYYY vs DD/MM/YYYY?), and special fields. Baymard Institute's form usability research found that 21% of users abandon forms due to unclear input expectations. Each field requiring mental effort compounds friction. Mobile users especially struggle without examples due to limited screen space. Missing field hints increase support requests ('How should I format my phone number?') and incomplete submissions where users skip confusing fields.",
+      "fix": "Add light gray placeholder text (text-gray-400) showing format examples: 'example@company.com' for email, '+1 (555) 123-4567' for phone. Include helpful hint text below complex fields using 14px text-gray-500: 'We'll only use this for account recovery'. For date fields, use native date pickers on mobile and show format mask on desktop (MM/DD/YYYY). Add field-specific icons (envelope for email, phone for number) as visual anchors. Implement smart defaults: pre-select country based on IP geolocation. Use progressive disclosure for optional fields to reduce perceived form length.",
+      "result": "30-40% reduction in field-level errors and 12-18% improvement in form completion rate with 20% decrease in user-initiated support tickets"
     }
   ],
   "selfCheck": {
@@ -500,40 +469,22 @@ RULES:
 }
 ```
 
-**CORRECT problemsAndSolutions format (ALL fields required):**
+**NEW SIMPLIFIED problemsAndSolutions format (use ONLY these 5 fields):**
 ```json
 "problemsAndSolutions": [
   {
-    "element": "Pay Button",
-    "problem": "Button lacks visual prominence",
-    "principle": "Visibility of System Status Principle",
-    "consequence": "Users may overlook the primary action",
-    "businessImpact": {
-      "metric": "conversion",
-      "impactLevel": "high",
-      "description": "Low visibility reduces completed payments"
-    },
-    "recommendation": "Increase button size and contrast",
-    "expectedEffect": "15% increase in button clicks",
-    "priority": "high",
-    "confidence": 85,
-    "confidenceSource": "Based on visual hierarchy analysis"
+    "title": "Pay button blends into background and lacks visual emphasis",
+    "impact": "high",
+    "why": "The button uses low-contrast gray (#6B7280) against white background (2.9:1 contrast vs WCAG required 4.5:1). This violates accessibility standards and reduces discoverability. F-pattern eye-tracking shows users miss low-contrast CTAs 58% of the time in first 5 seconds. Small button size (40x110px) is below Apple's minimum touch target recommendation of 44x44px, causing mis-taps on mobile. Poor affordance (button doesn't look clickable) increases cognitive load and hesitation before action.",
+    "fix": "Redesign with vibrant accent color (brand primary or action-green #10B981) ensuring 4.5:1+ contrast. Enlarge to minimum 48x160px for optimal thumb reach on mobile devices. Add depth with shadow-lg (0 10px 15px rgba(0,0,0,0.1)). Implement hover states: slight elevation (translateY(-2px)) and brightness increase on desktop. Add ripple effect on click for tactile feedback. Include disabled/loading states to prevent double-clicks. Position button in sticky footer below 768px viewport for constant visibility during form scroll.",
+    "result": "Expected 28-35% increase in payment button engagement and 18-22% conversion rate improvement measured over 30-day period post-implementation"
   },
   {
-    "element": "Input Field",
-    "problem": "Missing currency indicator",
-    "principle": "Help Users Recognize Errors Principle",
-    "consequence": "Users may enter incorrect amounts",
-    "businessImpact": {
-      "metric": "error_rate",
-      "impactLevel": "medium",
-      "description": "Input errors lead to failed transactions"
-    },
-    "recommendation": "Add currency symbol next to input",
-    "expectedEffect": "40% reduction in input errors",
-    "priority": "medium",
-    "confidence": 80,
-    "confidenceSource": "Form usability research"
+    "title": "Amount input field lacks currency indicator causing user confusion",
+    "impact": "medium",
+    "why": "Empty number field without currency context forces users to guess denomination. Is it dollars, cents, or local currency? This ambiguity causes input errors - users entering 50 when they mean $50.00 or entering 5000 for $50.00. Financial UX research shows currency confusion increases transaction errors by 34% and triggers 40% more customer service contacts. Multi-currency sites especially suffer when currency isn't explicit. Cognitive load increases when users must remember currency from another page section rather than seeing it inline with input.",
+    "fix": "Add currency symbol prefix inside input field using input-group pattern: styled span with $, €, or £ positioned at input start. Use text-gray-700 at 16px matching input text size. For international support, add currency dropdown next to input showing current selection (USD, EUR, GBP) with flag icons. Format input automatically as user types: 1234 becomes $1,234.00 using Intl.NumberFormat API. Add helper text below field in 14px text-gray-500: 'Amount in USD'. Validate min/max amounts client-side with clear error messages ('Minimum payment: $10.00').",
+    "result": "35-45% reduction in amount entry errors and 50% decrease in payment failure rate due to incorrect values, cutting support tickets by ~30 requests/month"
   }
 ]
 ```
@@ -555,6 +506,15 @@ RULES:
 }
 ```
 
-**IMPORTANT: Generate 3-5 real problems based on interface analysis. Don't invent problems not visible in the screenshot. Each problem should be justified by specific interface elements.**
+**CRITICAL INSTRUCTIONS FOR problemsAndSolutions:**
+
+1. **Generate EXACTLY 4-5 problems** - not 3, not 6
+2. **Use ONLY the 5 new fields**: title, impact, why, fix, result
+3. **Write DETAILED, VALUABLE responses**:
+   - `why`: 3-5 sentences with research data, percentages, user behavior patterns
+   - `fix`: 3-5 sentences with specific metrics (#10B981 colors, 48px sizes, WCAG 4.5:1 ratios)
+   - `result`: Include number ranges (25-30%) AND timeframes (first 2 weeks)
+4. **Base problems on actual interface elements** - don't invent issues
+5. **Include real UX research references**: Nielsen studies, WCAG guidelines, eye-tracking data, A/B test results
 
 **FINAL REMINDER: Your response must be VALID JSON that can be parsed by JSON.parse(). Use only double quotes for strings, no single quotes, no curly braces around field names. Test your JSON syntax before responding.**

@@ -288,41 +288,86 @@ export function AnalysisResultDisplay({
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
-            {Array.isArray(safeAnalysis.problemsAndSolutions) ? safeAnalysis.problemsAndSolutions.map((problem: any, index: number) => (
-              <div key={index} className="border rounded-lg p-4 space-y-3">
-                <div className="flex items-start justify-between">
-                  <h4 className="font-medium text-gray-900">{problem.element}</h4>
-                  <Badge className={getPriorityColor(problem.priority)}>
-                    {problem.priority === 'high' ? t('analysis-results.problemsAndSolutions.highPriority') :
-                     problem.priority === 'medium' ? t('analysis-results.problemsAndSolutions.mediumPriority') :
+            {Array.isArray(safeAnalysis.problemsAndSolutions) ? safeAnalysis.problemsAndSolutions.map((problem: any, index: number) => {
+              // Поддержка новой и старой структуры
+              const isNewFormat = 'title' in problem && 'why' in problem && 'fix' in problem
+
+              return (
+              <div key={index} className="border border-gray-200 rounded-xl p-6 space-y-4 hover:shadow-md transition-shadow bg-white">
+                {/* Заголовок и приоритет */}
+                <div className="flex items-start justify-between gap-4">
+                  <h4 className="font-semibold text-lg text-gray-900 leading-tight">
+                    {isNewFormat ? problem.title : problem.element}
+                  </h4>
+                  <Badge className={getPriorityColor(isNewFormat ? problem.impact : problem.priority)}>
+                    {(isNewFormat ? problem.impact : problem.priority) === 'high' ? t('analysis-results.problemsAndSolutions.highPriority') :
+                     (isNewFormat ? problem.impact : problem.priority) === 'medium' ? t('analysis-results.problemsAndSolutions.mediumPriority') :
                      t('analysis-results.problemsAndSolutions.lowPriority')}
                   </Badge>
                 </div>
 
-                <div className="space-y-2">
-                  <div>
-                    <span className="font-medium text-red-600">{t('analysis-results.problemsAndSolutions.problem')}</span>{' '}
-                    <span className="text-gray-700">{problem.problem}</span>
-                  </div>
-                  <div>
-                    <span className="font-medium text-blue-600">{t('analysis-results.problemsAndSolutions.principle')}</span>{' '}
-                    <span className="text-gray-700">{problem.principle}</span>
-                  </div>
-                  <div>
-                    <span className="font-medium text-orange-600">{t('analysis-results.problemsAndSolutions.consequence')}</span>{' '}
-                    <span className="text-gray-700">{problem.consequence}</span>
-                  </div>
-                  <div>
-                    <span className="font-medium text-green-600">{t('analysis-results.problemsAndSolutions.recommendation')}</span>{' '}
-                    <span className="text-gray-700">{problem.recommendation}</span>
-                  </div>
-                  <div>
-                    <span className="font-medium text-purple-600">{t('analysis-results.problemsAndSolutions.expectedEffect')}</span>{' '}
-                    <span className="text-gray-700">{problem.expectedEffect}</span>
-                  </div>
+                {/* Содержимое */}
+                <div className="space-y-4">
+                  {isNewFormat ? (
+                    // Новый формат - детальный и ценный
+                    <>
+                      <div className="bg-red-50 border-l-4 border-red-400 p-4 rounded">
+                        <div className="flex items-start gap-2">
+                          <span className="text-red-600 font-semibold text-sm uppercase tracking-wide">Почему это проблема</span>
+                        </div>
+                        <p className="text-gray-800 mt-2 leading-relaxed">{problem.why}</p>
+                      </div>
+
+                      <div className="bg-blue-50 border-l-4 border-blue-400 p-4 rounded">
+                        <div className="flex items-start gap-2">
+                          <span className="text-blue-600 font-semibold text-sm uppercase tracking-wide">Как исправить</span>
+                        </div>
+                        <p className="text-gray-800 mt-2 leading-relaxed">{problem.fix}</p>
+                      </div>
+
+                      <div className="bg-green-50 border-l-4 border-green-400 p-4 rounded">
+                        <div className="flex items-start gap-2">
+                          <span className="text-green-600 font-semibold text-sm uppercase tracking-wide">Ожидаемый результат</span>
+                        </div>
+                        <p className="text-gray-800 mt-2 leading-relaxed">{problem.result}</p>
+                      </div>
+                    </>
+                  ) : (
+                    // Старый формат - для обратной совместимости
+                    <>
+                      <div>
+                        <span className="font-medium text-red-600">{t('analysis-results.problemsAndSolutions.problem')}</span>{' '}
+                        <span className="text-gray-700">{problem.problem}</span>
+                      </div>
+                      {problem.principle && (
+                        <div>
+                          <span className="font-medium text-blue-600">{t('analysis-results.problemsAndSolutions.principle')}</span>{' '}
+                          <span className="text-gray-700">{problem.principle}</span>
+                        </div>
+                      )}
+                      {problem.consequence && (
+                        <div>
+                          <span className="font-medium text-orange-600">{t('analysis-results.problemsAndSolutions.consequence')}</span>{' '}
+                          <span className="text-gray-700">{problem.consequence}</span>
+                        </div>
+                      )}
+                      {problem.recommendation && (
+                        <div>
+                          <span className="font-medium text-green-600">{t('analysis-results.problemsAndSolutions.recommendation')}</span>{' '}
+                          <span className="text-gray-700">{problem.recommendation}</span>
+                        </div>
+                      )}
+                      {problem.expectedEffect && (
+                        <div>
+                          <span className="font-medium text-purple-600">{t('analysis-results.problemsAndSolutions.expectedEffect')}</span>{' '}
+                          <span className="text-gray-700">{problem.expectedEffect}</span>
+                        </div>
+                      )}
+                    </>
+                  )}
                 </div>
               </div>
-            )) : (
+            )}) : (
               <div className="text-center text-gray-500 py-8">
                 <p>{t('analysis-results.problemsAndSolutions.noProblemsFound')}</p>
               </div>

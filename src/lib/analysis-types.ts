@@ -62,24 +62,31 @@ export interface Behavior {
   actionMotivation: string // Мотивация к действию - 1 абзац
 }
 
-// Блок "Проблемы и решения"
-export interface BusinessImpact {
-  metric: string // Метрика, на которую влияет проблема
-  impactLevel: 'high' | 'medium' | 'low' // Уровень влияния
-  description: string // Описание влияния на бизнес
+// Блок "Проблемы и решения" - упрощённая структура v3
+export interface ProblemSolution {
+  title: string        // Краткое название проблемы (1-2 предложения)
+  impact: 'high' | 'medium' | 'low'  // Приоритет/влияние
+  why: string          // Подробное объяснение причин и последствий (2-4 предложения с данными)
+  fix: string          // Конкретное решение с метриками и техническими деталями (2-4 предложения)
+  result: string       // Ожидаемый эффект с числами и временными рамками (1-2 предложения)
 }
 
-export interface ProblemSolution {
+// Legacy interface для обратной совместимости со старыми данными в БД
+export interface LegacyProblemSolution {
   element: string
   problem: string
   principle: string
   consequence: string
-  businessImpact?: BusinessImpact // v2: влияние на бизнес-метрики
+  businessImpact?: {
+    metric: string
+    impactLevel: 'high' | 'medium' | 'low'
+    description: string
+  }
   recommendation: string
   expectedEffect: string
   priority: 'high' | 'medium' | 'low'
-  confidence?: number // v2: уверенность в рекомендации
-  confidenceSource?: string // v2: источник уверенности
+  confidence?: number
+  confidenceSource?: string
 }
 
 // Блок "Self-Check & Confidence"
