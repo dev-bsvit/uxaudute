@@ -328,21 +328,21 @@ export function AnalysisResultDisplay({
                     <>
                       <div className="bg-red-50 border-l-4 border-red-400 p-4 rounded">
                         <div className="flex items-start gap-2">
-                          <span className="text-red-600 font-semibold text-sm uppercase tracking-wide">Почему это проблема</span>
+                          <span className="text-red-600 font-semibold text-sm uppercase tracking-wide">{t('analysis-results.problemsAndSolutions.why')}</span>
                         </div>
                         <p className="text-gray-800 mt-2 leading-relaxed">{problem.why}</p>
                       </div>
 
                       <div className="bg-blue-50 border-l-4 border-blue-400 p-4 rounded">
                         <div className="flex items-start gap-2">
-                          <span className="text-blue-600 font-semibold text-sm uppercase tracking-wide">Как исправить</span>
+                          <span className="text-blue-600 font-semibold text-sm uppercase tracking-wide">{t('analysis-results.problemsAndSolutions.fix')}</span>
                         </div>
                         <p className="text-gray-800 mt-2 leading-relaxed">{problem.fix}</p>
                       </div>
 
                       <div className="bg-green-50 border-l-4 border-green-400 p-4 rounded">
                         <div className="flex items-start gap-2">
-                          <span className="text-green-600 font-semibold text-sm uppercase tracking-wide">Ожидаемый результат</span>
+                          <span className="text-green-600 font-semibold text-sm uppercase tracking-wide">{t('analysis-results.problemsAndSolutions.result')}</span>
                         </div>
                         <p className="text-gray-800 mt-2 leading-relaxed">{problem.result}</p>
                       </div>
@@ -390,26 +390,6 @@ export function AnalysisResultDisplay({
           </div>
         </CardContent>
       </Card>
-
-      {/* Метаданные */}
-      {showDetails && (
-        <Card className="bg-gray-50">
-          <CardContent className="pt-6">
-            <h4 className="font-medium text-gray-900 mb-2">{t('analysis-results.metadata.title')}</h4>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm text-gray-600">
-              <div>
-                <span className="font-medium">{t('analysis-results.metadata.version')}</span> {safeAnalysis.metadata?.version || '1.0'}
-              </div>
-              <div>
-                <span className="font-medium">{t('analysis-results.metadata.model')}</span> {safeAnalysis.metadata?.model || unknownLabel}
-              </div>
-              <div>
-                <span className="font-medium">{t('analysis-results.metadata.time')}</span> {safeAnalysis.metadata?.timestamp ? formatDateTime(safeAnalysis.metadata.timestamp) : unknownLabel}
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      )}
       </div>
 
       {/* Правая колонка - Изображение с редактором */}
