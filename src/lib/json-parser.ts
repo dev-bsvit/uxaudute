@@ -110,7 +110,14 @@ function cleanQuotedKeys(obj: any): any {
 
   // Если это массив, рекурсивно очищаем каждый элемент
   if (Array.isArray(obj)) {
-    return obj.map(item => cleanQuotedKeys(item))
+    console.log(`🔄 Cleaning array with ${obj.length} items`)
+    const cleaned = obj.map((item, index) => {
+      console.log(`  📦 Cleaning array item #${index}:`, Object.keys(item || {}))
+      const cleanedItem = cleanQuotedKeys(item)
+      console.log(`  ✅ Cleaned array item #${index}:`, Object.keys(cleanedItem || {}))
+      return cleanedItem
+    })
+    return cleaned
   }
 
   // Если это объект, рекурсивно очищаем ключи и значения
