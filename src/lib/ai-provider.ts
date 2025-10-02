@@ -94,7 +94,7 @@ export const executeAIRequest = async (
 ): Promise<AIResponse> => {
   const {
     temperature = 0.3,
-    max_tokens = 4096, // Увеличиваем для полных ответов
+    max_tokens = 16384, // Увеличиваем для полных ответов (GPT-4o поддерживает до 16k)
     stream = false,
     provider,
     openrouterModel = 'default',
@@ -133,7 +133,7 @@ export const executeAIRequest = async (
         model: config.model,
         messages: messages as any,
         temperature: isSonoma ? 0.8 : 0.7, // Как в stable версии
-        max_tokens: isSonoma ? Math.max(max_tokens, 4096) : Math.max(max_tokens, 4096),
+        max_tokens: Math.max(max_tokens, 16384),
         top_p: 0.9,
         frequency_penalty: 0.1,
         presence_penalty: 0.1,
@@ -207,7 +207,7 @@ export const executeAIRequest = async (
         model: config.model,
         messages: messages as any,
         temperature: isSonoma ? 0.8 : 0.7, // Как в stable версии
-        max_tokens: isSonoma ? Math.max(max_tokens, 4096) : Math.max(max_tokens, 4096),
+        max_tokens: Math.max(max_tokens, 16384),
         top_p: 0.9,
         frequency_penalty: 0.1,
         presence_penalty: 0.1,

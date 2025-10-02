@@ -3,28 +3,31 @@ import { executeAIRequest, AIResponse } from '@/lib/ai-provider'
 import { StructuredAnalysisResponse, isStructuredResponse } from '@/lib/analysis-types'
 import { validateSurvey, analyzeSurveyResults } from '@/lib/survey-utils'
 import { supabase } from '@/lib/supabase'
-import { loadJSONPromptV2, loadSonomaStructuredPrompt } from '@/lib/prompt-loader'
+import { loadJSONPrompt, combineWithContext } from '@/lib/prompt-loader'
 import { checkCreditsForAudit, deductCreditsForAudit } from '@/lib/credits'
+import { FALLBACK_LANGUAGE } from '@/lib/i18n'
 
 export async function POST(request: NextRequest) {
   try {
     console.log('=== RESEARCH WITH CREDITS API вызван ===')
-    const { 
-      url, 
-      screenshot, 
-      context, 
+    const {
+      url,
+      screenshot,
+      context,
       provider = 'openai',
       openrouterModel = 'sonoma',
-      auditId
+      auditId,
+      language = FALLBACK_LANGUAGE
     } = await request.json()
-    
-    console.log('Параметры запроса:', { 
-      url: !!url, 
-      screenshot: !!screenshot, 
+
+    console.log('Параметры запроса:', {
+      url: !!url,
+      screenshot: !!screenshot,
       context: !!context,
       provider,
       openrouterModel,
-      auditId
+      auditId,
+      language
     })
 
     if (!url && !screenshot) {
@@ -68,18 +71,12 @@ export async function POST(request: NextRequest) {
 
     console.log('✅ Кредиты проверены успешно:', creditsCheck)
 
-    // Загружаем промпт в зависимости от модели
-    console.log('Загружаем промпт...')
-    let jsonPrompt: string
-    if (provider === 'openrouter' && openrouterModel === 'sonoma') {
-      jsonPrompt = await loadSonomaStructuredPrompt()
-      console.log('Используем специальный промпт для Sonoma Sky Alpha')
-    } else {
-      jsonPrompt = await loadJSONPromptV2()
-      console.log('Используем стандартный промпт v2')
-    }
-    
-    const finalPrompt = combineWithContext(jsonPrompt, context)
+    // Загружаем промпт с поддержкой языка
+    console.log(`Загружаем промпт для языка: ${language}`)
+    const jsonPrompt = await loadJSONPrompt(language)
+    console.log(`Промпт загружен для языка ${language}, длина:`, jsonPrompt.length)
+
+    const finalPrompt = combineWithContext(jsonPrompt, context, language)
     console.log('Финальный промпт готов, длина:', finalPrompt.length)
 
     let analysisResult: AIResponse | null = null
@@ -234,13 +231,3 @@ export async function POST(request: NextRequest) {
   }
 }
 
-/**
- * Комбинирует промпт с контекстом
- */
-function combineWithContext(prompt: string, context?: string): string {
-  if (!context || context.trim() === '') {
-    return prompt
-  }
-
-  return `${prompt}\n\n## Дополнительный контекст:\n${context}`
-}

@@ -162,7 +162,8 @@ export async function createAudit(
   name: string,
   type: AuditInsert['type'],
   inputData: Record<string, unknown>,
-  context?: string
+  context?: string,
+  language?: string
 ): Promise<Audit> {
   // Получаем текущего пользователя
   const { data: { user } } = await supabase.auth.getUser()
@@ -179,7 +180,8 @@ export async function createAudit(
       type,
       status: 'in_progress',
       input_data: inputData,
-      context: context || null
+      context: context || null,
+      language: language || 'en'
     })
     .select()
     .single()

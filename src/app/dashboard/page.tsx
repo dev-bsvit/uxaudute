@@ -18,7 +18,8 @@ import { createProject, createAudit, updateAuditResult, addAuditHistory, uploadS
 import { supabase } from '@/lib/supabase'
 import { StructuredAnalysisResponse } from '@/lib/analysis-types'
 import Link from 'next/link'
-// import { useTranslation } from '@/hooks/use-translation' // Временно отключено
+import { useLanguage } from '@/hooks/use-language'
+import { useTranslation } from '@/hooks/use-translation'
 
 // Функция для проверки и создания профиля пользователя
 async function ensureUserProfileAndBalance(user: User) {
@@ -118,24 +119,10 @@ async function ensureUserProfileAndBalance(user: User) {
 
 export default function DashboardPage() {
   console.log('🔍 DashboardPage компонент загружен')
-  
-  // Простые переводы без системы
-  const currentLanguage = 'ru'
-  const t = (key: string, params?: any) => {
-    const translations: Record<string, string> = {
-      'dashboard.auth.pleaseSignIn': 'Пожалуйста, войдите в систему',
-      'dashboard.errors.notEnoughCredits': `Недостаточно кредитов. Требуется: ${params?.required || 2}, доступно: ${params?.available || 0}`,
-      'dashboard.welcome.title': 'Добро пожаловать в UX Audit',
-      'dashboard.welcome.subtitle': 'Анализируйте пользовательский опыт с помощью ИИ',
-      'dashboard.title': 'Быстрый анализ',
-      'dashboard.subtitle': 'Загрузите скриншот или URL для анализа',
-      'dashboard.hero.title': 'Анализ UX с помощью ИИ',
-      'dashboard.hero.description': 'Загрузите скриншот интерфейса или укажите URL сайта для получения детального анализа пользовательского опыта',
-      'dashboard.actions.downloadReport': 'Скачать отчет',
-      'dashboard.actions.share': 'Поделиться'
-    }
-    return translations[key] || key
-  }
+
+  // Используем систему переводов и определения языка
+  const { currentLanguage } = useLanguage()
+  const { t } = useTranslation()
   const [user, setUser] = useState<User | null>(null)
   const [loading, setLoading] = useState(true)
   const [result, setResult] = useState<string | StructuredAnalysisResponse | null>(null)
@@ -285,7 +272,7 @@ export default function DashboardPage() {
         screenshotUrl = await uploadScreenshotFromBase64(data.screenshot, user.id)
       }
 
-      // Создаем новый аудит
+      // Создаем новый аудит с текущим языком
       const audit = await createAudit(
         tempProject.id,
         `Анализ ${new Date().toLocaleDateString('ru-RU')} ${new Date().toLocaleTimeString('ru-RU')}`,
@@ -296,7 +283,8 @@ export default function DashboardPage() {
           screenshotUrl,
           timestamp: new Date().toISOString()
         },
-        context
+        context,
+        currentLanguage
       )
 
       setCurrentAudit(audit.id)
