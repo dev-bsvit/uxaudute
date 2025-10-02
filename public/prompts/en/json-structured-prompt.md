@@ -42,7 +42,15 @@ RULES:
 8. NO curly braces around keys: "metadata" NOT "{metadata}"
 9. NO dollar signs around keys: "element" NOT "$element$"
 10. Each problemsAndSolutions item must be a COMPLETE object with ALL fields
-11. Generate exactly 4-5 complete problems**
+11. Generate exactly 4-5 complete problems
+12. **IMPORTANT**: uxSurvey.questions array must have EXACTLY 5 questions (not 1, not 3 - exactly 5!)
+13. **CRITICALLY IMPORTANT for uxSurvey.questions**: Examples below are a TEMPLATE. You MUST adapt questions to the specific screenshot:
+    - Questions must be RELEVANT to the screen type and its elements
+    - For landing: trust, value proposition, CTA visibility
+    - For forms: field clarity, error fear, motivation to complete
+    - For dashboard: data clarity, next step, navigation
+    - For e-commerce: product trust, price/value, ease of purchase
+    - Use examples as foundation, but ADD contextual questions specific to THIS screen**
 
 ```json
 {
@@ -129,53 +137,11 @@ RULES:
         "category": "usability",
         "principle": "Error Prevention Principle",
         "explanation": "Interface should minimize cognitive load"
-      },
-      {
-        "id": 6,
-        "question": "What happens if nothing is done?",
-        "options": [
-          "A) Nothing critical",
-          "B) Miss important step",
-          "C) Lose data/money"
-        ],
-        "scores": [10, 30, 60],
-        "confidence": 85,
-        "category": "conversion",
-        "principle": "Action Motivation Principle",
-        "explanation": "User should understand the value of taking action"
-      },
-      {
-        "id": 7,
-        "question": "How easy is it to find needed information?",
-        "options": [
-          "A) Very easy",
-          "B) Difficult",
-          "C) Impossible"
-        ],
-        "scores": [50, 35, 15],
-        "confidence": 75,
-        "category": "navigation",
-        "principle": "Information Architecture Principle",
-        "explanation": "Information should be logically organized and easily findable"
-      },
-      {
-        "id": 8,
-        "question": "Are all elements accessible to users with disabilities?",
-        "options": [
-          "A) Fully accessible",
-          "B) Partially accessible",
-          "C) Not accessible"
-        ],
-        "scores": [30, 50, 20],
-        "confidence": 80,
-        "category": "accessibility",
-        "principle": "WCAG 2.2 - Accessibility",
-        "explanation": "Interface should be accessible to all users"
       }
     ],
     "overallConfidence": 82,
     "summary": {
-      "totalQuestions": 8,
+      "totalQuestions": 5,
       "averageConfidence": 82,
       "criticalIssues": 2,
       "recommendations": [
