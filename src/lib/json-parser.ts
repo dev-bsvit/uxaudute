@@ -46,13 +46,20 @@ export function safeParseJSON(jsonString: string): StructuredAnalysisResponse | 
  * Очищает JSON строку от лишних символов и форматирования
  */
 function cleanJSONString(jsonString: string): string {
-  return jsonString
+  let cleaned = jsonString
     .trim()
     // Убираем возможные markdown блоки
     .replace(/^```json\s*/i, '')
     .replace(/\s*```$/i, '')
     // Убираем лишние пробелы и переносы строк в начале и конце
     .replace(/^\s+|\s+$/g, '')
+
+  // Исправляем ошибочные одинарные кавычки в именах полей и значениях
+  // "'field'" -> "field"
+  // "'value'" -> "value"
+  cleaned = cleaned.replace(/"'([^']+)'"/g, '"$1"')
+
+  return cleaned
 }
 
 /**
