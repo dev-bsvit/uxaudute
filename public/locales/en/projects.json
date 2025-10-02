@@ -19,7 +19,8 @@
     "contextPlaceholder": "For example: Mobile app for food ordering. Main audience - young people 18-35 years old. Key goals: fast order processing, convenient menu navigation, transparent payment system...",
     "contextNote": "This context will be applied to all audits in the project",
     "createButton": "Create Project",
-    "cancel": "Cancel"
+    "cancel": "Cancel",
+    "loading": "Creating..."
   },
   "empty": {
     "title": "You don't have any projects yet",

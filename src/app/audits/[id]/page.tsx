@@ -11,6 +11,7 @@ import { BackArrow } from '@/components/icons/back-arrow'
 import { type ActionType } from '@/lib/utils'
 import { StructuredAnalysisResponse } from '@/lib/analysis-types'
 import { safeAdaptAnalysisData } from '@/lib/analysis-data-adapter'
+import { cleanQuotedKeys } from '@/lib/json-parser'
 import Link from 'next/link'
 import { useParams, useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
@@ -56,10 +57,22 @@ export default function AuditPage() {
 
       console.log('Аудит загружен:', audit)
       console.log('✅ Результат найден в audits:', audit.result_data)
-      console.log('Отображаем результат аудита:', audit.result_data)
-      console.log('Ключи result_data:', Object.keys(audit.result_data || {}))
-      console.log('analysis_result:', audit.result_data?.analysis_result)
-      console.log('Весь result_data:', JSON.stringify(audit.result_data))
+
+      // 🧹 ОЧИСТКА ДАННЫХ ОТ ИСПОРЧЕННЫХ КЛЮЧЕЙ
+      // Данные из БД могут содержать ключи с кавычками ('element', $key$, и т.д.)
+      console.log('🧹 Cleaning corrupted keys from database data...')
+      console.log('📋 Keys before cleaning:', Object.keys(audit.result_data || {}))
+
+      const cleanedResultData = cleanQuotedKeys(audit.result_data)
+
+      console.log('✅ Keys after cleaning:', Object.keys(cleanedResultData || {}))
+      console.log('Отображаем результат аудита:', cleanedResultData)
+      console.log('Ключи result_data:', Object.keys(cleanedResultData || {}))
+      console.log('analysis_result:', cleanedResultData?.analysis_result)
+      console.log('Весь result_data:', JSON.stringify(cleanedResultData))
+
+      // Заменяем оригинальные данные очищенными
+      audit.result_data = cleanedResultData
 
       // Обрабатываем результат - он может быть в разных форматах
       let analysisResult: string | StructuredAnalysisResponse | undefined

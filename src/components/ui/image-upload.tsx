@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button'
 import { Progress } from '@/components/ui/progress'
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
 import { Upload, X, Check, AlertCircle } from 'lucide-react'
+import { useTranslation } from '@/hooks/use-translation'
 
 interface ImageUploadProps {
   onImageSelect?: (file: File) => void
@@ -24,6 +25,7 @@ export function ImageUpload({
   className,
   disabled = false,
 }: ImageUploadProps) {
+  const { t } = useTranslation()
   const [dragActive, setDragActive] = React.useState(false)
   const [uploading, setUploading] = React.useState(false)
   const [uploadProgress, setUploadProgress] = React.useState(0)
@@ -34,6 +36,11 @@ export function ImageUpload({
   const [open, setOpen] = React.useState(false)
 
   const inputRef = React.useRef<HTMLInputElement>(null)
+  const acceptedFormats = React.useMemo(
+    () => acceptedTypes.map((type) => type.split('/')[1]?.toUpperCase()).join(', '),
+    [acceptedTypes]
+  )
+  const maxSizeMb = React.useMemo(() => Math.round(maxSize / 1024 / 1024).toString(), [maxSize])
 
   const handleDrag = (e: React.DragEvent) => {
     e.preventDefault()
@@ -64,13 +71,21 @@ export function ImageUpload({
 
     // Validate file type
     if (!acceptedTypes.includes(file.type)) {
-      setError(`Неподдерживаемый формат файла. Разрешены: ${acceptedTypes.join(', ')}`)
+      setError(
+        t('components.imageUpload.errors.format', {
+          formats: acceptedFormats
+        })
+      )
       return
     }
 
     // Validate file size
     if (file.size > maxSize) {
-      setError(`Файл слишком большой. Максимальный размер: ${Math.round(maxSize / 1024 / 1024)}MB`)
+      setError(
+        t('components.imageUpload.errors.size', {
+          size: maxSizeMb
+        })
+      )
       return
     }
 
@@ -126,7 +141,7 @@ export function ImageUpload({
         }
       }, 1500)
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Ошибка загрузки файла')
+      setError(err instanceof Error ? err.message : t('components.imageUpload.errors.upload'))
       setUploading(false)
       setUploadProgress(0)
     }
@@ -209,12 +224,12 @@ export function ImageUpload({
                       {uploading ? (
                         <>
                           <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent mr-2" />
-                          Загружаем...
+                          {t('components.imageUpload.uploading')}
                         </>
                       ) : (
                         <>
                           <Upload className="h-4 w-4 mr-2" />
-                          Загрузить изображение
+                          {t('components.imageUpload.uploadButton')}
                         </>
                       )}
                     </Button>
@@ -222,9 +237,9 @@ export function ImageUpload({
                   
                   <DialogContent className="sm:max-w-md" aria-describedby="image-upload-description">
                     <DialogHeader>
-                      <DialogTitle>Загрузка изображения</DialogTitle>
+                      <DialogTitle>{t('components.imageUpload.dialogTitle')}</DialogTitle>
                       <DialogDescription id="image-upload-description">
-                        Выберите изображение для загрузки и анализа
+                        {t('components.imageUpload.dialogDescription')}
                       </DialogDescription>
                     </DialogHeader>
                     
@@ -232,7 +247,7 @@ export function ImageUpload({
                       {uploading && (
                         <div className="space-y-2">
                           <div className="flex items-center justify-between text-sm">
-                            <span>Загружаем...</span>
+                            <span>{t('components.imageUpload.uploading')}</span>
                             <span>{Math.round(uploadProgress)}%</span>
                           </div>
                           <Progress value={uploadProgress} className="w-full" />
@@ -242,7 +257,7 @@ export function ImageUpload({
                       {success && (
                         <div className="flex items-center space-x-2 text-green-600">
                           <Check className="h-4 w-4" />
-                          <span>Изображение успешно загружено!</span>
+                          <span>{t('components.imageUpload.success')}</span>
                         </div>
                       )}
                       
@@ -265,15 +280,15 @@ export function ImageUpload({
               
               <div className="space-y-1">
                 <p className="text-sm font-medium text-gray-900">
-                  Перетащите изображение сюда
+                  {t('components.imageUpload.dropTitle')}
                 </p>
                 <p className="text-xs text-gray-500">
-                  или нажмите для выбора файла
+                  {t('components.imageUpload.dropSubtitle')}
                 </p>
               </div>
-              
+
               <p className="text-xs text-gray-400">
-                PNG, JPG, GIF, WebP до {Math.round(maxSize / 1024 / 1024)}MB
+                {t('components.imageUpload.fileHint', { formats: acceptedFormats, size: maxSizeMb })}
               </p>
             </div>
           )}

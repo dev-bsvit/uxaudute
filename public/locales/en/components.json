@@ -126,6 +126,26 @@
       "abTest": "1 credit"
     }
   },
+  "imageUpload": {
+    "dropTitle": "Drag and drop image here",
+    "dropSubtitle": "or click to choose a file",
+    "fileHint": "{{formats}} up to {{size}}MB",
+    "uploadButton": "Upload image",
+    "upload": "Upload",
+    "uploading": "Uploading...",
+    "preview": "Preview & upload",
+    "previewTitle": "Image preview",
+    "previewDescription": "Check the image before uploading",
+    "remove": "Remove",
+    "success": "Image uploaded successfully!",
+    "errors": {
+      "format": "Unsupported format. Allowed: {{formats}}",
+      "size": "File is too large. Maximum: {{size}}MB",
+      "upload": "File upload error"
+    },
+    "dialogTitle": "Uploading image",
+    "dialogDescription": "Select an image to upload for analysis"
+  },
   "sidebar": {
     "home": "Home",
     "quickAnalysis": "Quick Analysis",

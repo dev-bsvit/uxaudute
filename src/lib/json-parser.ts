@@ -80,8 +80,9 @@ function cleanJSONString(jsonString: string): string {
 
 /**
  * Рекурсивно очищает объект от ключей и значений с неправильными кавычками и символами
+ * Экспортируется для использования на клиенте при загрузке данных из БД
  */
-function cleanQuotedKeys(obj: any): any {
+export function cleanQuotedKeys(obj: any): any {
   if (obj === null || obj === undefined) {
     return obj
   }

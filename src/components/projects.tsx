@@ -98,8 +98,8 @@ export function Projects({ user, onProjectSelect }: ProjectsProps) {
       await loadProjects()
     } catch (error) {
       console.error('Error creating project:', error)
-      const errorMessage = error instanceof Error ? error.message : 'Неизвестная ошибка'
-      alert(`Ошибка при создании проекта: ${errorMessage}`)
+      const errorMessage = error instanceof Error ? error.message : 'unknown'
+      alert(t('projects.errors.createError', { error: errorMessage }))
     } finally {
       setCreating(false)
     }
@@ -126,7 +126,7 @@ export function Projects({ user, onProjectSelect }: ProjectsProps) {
       await loadProjects()
     } catch (error) {
       console.error('Error updating project:', error)
-      alert('Ошибка при обновлении проекта')
+      alert(t('projects.errors.updateError'))
     }
   }
 
@@ -145,7 +145,7 @@ export function Projects({ user, onProjectSelect }: ProjectsProps) {
       await loadProjects()
     } catch (error) {
       console.error('Error deleting project:', error)
-      alert('Ошибка при удалении проекта')
+      alert(t('projects.errors.deleteError'))
     }
   }
 
@@ -181,14 +181,14 @@ export function Projects({ user, onProjectSelect }: ProjectsProps) {
       {showCreateForm && (
         <div className="bg-white rounded-2xl border border-gray-200 shadow-lg p-8">
           <div className="mb-6">
-            <h3 className="text-2xl font-bold text-slate-900 mb-2">Создать новый проект</h3>
-            <p className="text-slate-600">Заполните информацию о вашем новом UX проекте</p>
+            <h3 className="text-2xl font-bold text-slate-900 mb-2">{t('projects.createProject.title')}</h3>
+            <p className="text-slate-600">{t('projects.createProject.description')}</p>
           </div>
           
           <form onSubmit={handleCreateProject} className="space-y-6">
             <div>
               <label htmlFor="projectName" className="block text-sm font-medium text-slate-700 mb-2">
-                Название проекта
+                {t('projects.createProject.nameLabel')}
               </label>
               <input
                 id="projectName"
@@ -196,14 +196,14 @@ export function Projects({ user, onProjectSelect }: ProjectsProps) {
                 value={newProject.name}
                 onChange={(e) => setNewProject({ ...newProject, name: e.target.value })}
                 className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
-                placeholder="Например: Редизайн интернет-магазина"
+                placeholder={t('projects.createProject.namePlaceholder')}
                 required
               />
             </div>
             
             <div>
               <label htmlFor="projectDescription" className="block text-sm font-medium text-slate-700 mb-2">
-                Описание (опционально)
+                {t('projects.createProject.descriptionLabel')}
               </label>
               <textarea
                 id="projectDescription"
@@ -211,13 +211,13 @@ export function Projects({ user, onProjectSelect }: ProjectsProps) {
                 onChange={(e) => setNewProject({ ...newProject, description: e.target.value })}
                 className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
                 rows={3}
-                placeholder="Краткое описание целей проекта"
+                placeholder={t('projects.createProject.descriptionPlaceholder')}
               />
             </div>
 
             <div>
               <label htmlFor="projectContext" className="block text-sm font-medium text-slate-700 mb-2">
-                Контекст проекта (опционально)
+                {t('projects.createProject.contextLabel')}
               </label>
               <textarea
                 id="projectContext"
@@ -225,10 +225,10 @@ export function Projects({ user, onProjectSelect }: ProjectsProps) {
                 onChange={(e) => setNewProject({ ...newProject, context: e.target.value })}
                 className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
                 rows={4}
-                placeholder="Например: Мобильное приложение для заказа еды. Основная аудитория - молодые люди 18-35 лет. Ключевые цели: быстрое оформление заказа, удобная навигация по меню, прозрачная система оплаты..."
+                placeholder={t('projects.createProject.contextPlaceholder')}
               />
               <p className="text-sm text-slate-500 mt-1">
-                Этот контекст будет применяться ко всем аудитам в проекте
+                {t('projects.createProject.contextNote')}
               </p>
             </div>
 
@@ -243,7 +243,7 @@ export function Projects({ user, onProjectSelect }: ProjectsProps) {
                 ) : (
                   <Plus className="w-4 h-4" />
                 )}
-                Создать проект
+                {creating ? t('projects.createProject.loading') : t('projects.createProject.createButton')}
               </Button>
               <Button
                 type="button"
@@ -254,7 +254,7 @@ export function Projects({ user, onProjectSelect }: ProjectsProps) {
                 }}
                 className="px-6 py-3 rounded-lg font-medium border-2 border-gray-200 hover:border-gray-300"
               >
-                Отмена
+                {t('projects.createProject.cancel')}
               </Button>
             </div>
           </form>
@@ -268,17 +268,17 @@ export function Projects({ user, onProjectSelect }: ProjectsProps) {
             <FolderOpen className="w-8 h-8 text-gray-400" />
           </div>
           <h3 className="text-2xl font-bold text-slate-900 mb-3">
-            У вас пока нет проектов
+            {t('projects.empty.title')}
           </h3>
           <p className="text-lg text-slate-600 mb-8 max-w-md mx-auto">
-            Создайте первый проект, чтобы начать UX исследования и анализ интерфейсов
+            {t('projects.empty.description')}
           </p>
           <Button
             onClick={() => setShowCreateForm(true)}
             className="flex items-center gap-2 mx-auto bg-black hover:bg-gray-800 text-white px-8 py-4 rounded-lg font-medium text-lg"
           >
             <Plus className="w-5 h-5" />
-            Создать первый проект
+            {t('projects.empty.createFirst')}
           </Button>
         </div>
       ) : (
@@ -312,14 +312,14 @@ export function Projects({ user, onProjectSelect }: ProjectsProps) {
                       <DropdownMenuContent align="end">
                         <DropdownMenuItem onClick={() => handleEditProject(project)}>
                           <Edit className="mr-2 h-4 w-4" />
-                          Переименовать
+                          {t('projects.project.rename')}
                         </DropdownMenuItem>
                         <DropdownMenuItem 
                           onClick={() => handleDeleteClick(project)}
                           className="text-red-600"
                         >
                           <Trash2 className="mr-2 h-4 w-4" />
-                          Удалить
+                          {t('projects.project.delete')}
                         </DropdownMenuItem>
                       </DropdownMenuContent>
                     </DropdownMenu>
@@ -330,7 +330,9 @@ export function Projects({ user, onProjectSelect }: ProjectsProps) {
                   <div className="flex items-center justify-between text-sm text-slate-500 pt-4 border-t border-gray-100">
                     <div className="flex items-center gap-2">
                       <BarChart3 className="w-4 h-4" />
-                      <span className="font-medium">{project.auditsCount || 0} аудитов</span>
+                      <span className="font-medium">
+                        {t('projects.project.auditsLabel', { count: project.auditsCount || 0 })}
+                      </span>
                     </div>
                     <div className="flex items-center gap-2">
                       <Calendar className="w-4 h-4" />
@@ -348,23 +350,23 @@ export function Projects({ user, onProjectSelect }: ProjectsProps) {
       {editingProject && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white rounded-2xl p-8 w-full max-w-md mx-4">
-            <h2 className="text-2xl font-bold text-slate-900 mb-6">Редактировать проект</h2>
+            <h2 className="text-2xl font-bold text-slate-900 mb-6">{t('projects.edit.title')}</h2>
             <form onSubmit={handleUpdateProject}>
               <div className="mb-6">
                 <Label htmlFor="editName" className="block text-sm font-medium text-slate-700 mb-2">
-                  Название проекта
+                  {t('projects.edit.nameLabel')}
                 </Label>
                 <Input
                   id="editName"
                   value={editName}
                   onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEditName(e.target.value)}
-                  placeholder="Введите название проекта"
+                  placeholder={t('projects.edit.namePlaceholder')}
                   required
                 />
               </div>
               <div className="mb-6">
                 <Label htmlFor="editDescription" className="block text-sm font-medium text-slate-700 mb-2">
-                  Описание (опционально)
+                  {t('projects.edit.descriptionLabel')}
                 </Label>
                 <textarea
                   id="editDescription"
@@ -372,12 +374,12 @@ export function Projects({ user, onProjectSelect }: ProjectsProps) {
                   onChange={(e) => setEditDescription(e.target.value)}
                   className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
                   rows={4}
-                  placeholder="Краткое описание целей проекта"
+                  placeholder={t('projects.edit.descriptionPlaceholder')}
                 />
               </div>
               <div className="flex gap-4">
                 <Button type="submit" className="flex-1">
-                  Сохранить
+                  {t('projects.edit.save')}
                 </Button>
                 <Button
                   type="button"
@@ -389,7 +391,7 @@ export function Projects({ user, onProjectSelect }: ProjectsProps) {
                   }}
                   className="flex-1"
                 >
-                  Отмена
+                  {t('projects.edit.cancel')}
                 </Button>
               </div>
             </form>
@@ -401,16 +403,15 @@ export function Projects({ user, onProjectSelect }: ProjectsProps) {
       <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Удалить проект?</AlertDialogTitle>
+            <AlertDialogTitle>{t('projects.delete.title')}</AlertDialogTitle>
             <AlertDialogDescription>
-              Вы уверены, что хотите удалить проект "{projectToDelete?.name}"? 
-              Это действие нельзя отменить. Все аудиты в этом проекте также будут удалены.
+              {t('projects.delete.description', { name: projectToDelete?.name || '' })}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Отмена</AlertDialogCancel>
+            <AlertDialogCancel>{t('projects.delete.cancel')}</AlertDialogCancel>
             <AlertDialogAction onClick={handleDeleteConfirm} className="bg-red-600 hover:bg-red-700">
-              Удалить
+              {t('projects.delete.confirm')}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
