@@ -240,6 +240,33 @@ RULES:
 11. **Correct data types** - strings in quotes, booleans as true/false, numbers as integers
 12. **Single values not arrays** - use "gpt-4o" not ["gpt-4o"], true not [true]
 
+## ⚠️ CRITICAL INSTRUCTIONS FOR problemsAndSolutions:
+
+1. **Generate EXACTLY 4-5 COMPLETE problems** - each MUST have ALL 5 fields fully filled!
+   - ❌ FORBIDDEN to create objects with empty fields
+   - ❌ FORBIDDEN to leave fields unfilled or with placeholder text
+   - ✅ REQUIRED each problem must be FULLY described with all details
+
+2. **Use ONLY 5 new fields**: title, impact, why, fix, result
+
+3. **⚠️ CRITICALLY IMPORTANT - ANALYZE ONLY THE REAL SCREENSHOT:**
+   - ❌ ABSOLUTELY FORBIDDEN to copy or reuse examples from the prompt
+   - ❌ FORBIDDEN generic phrases like "Low CTA button visibility", "Increase button contrast"
+   - ❌ FORBIDDEN to write about "contrast", "button size" if it's NOT a real problem on the screenshot
+   - ❌ DO NOT use template solutions - each fix must be specific to THIS screen
+   - ✅ REQUIRED analyze REAL elements that are VISIBLE on the screenshot
+   - ✅ Name problems by SPECIFIC elements: "Button 'Pay' [specific issue]"
+   - ✅ If a button is well highlighted and contrasted - DO NOT write about it as a problem!
+   - ✅ Each problem must be UNIQUE and based on visual analysis of THIS screenshot
+   - ✅ Examples in prompt are STRUCTURE templates, NOT content to copy
+
+4. **VARY PROBLEM TYPES** - don't repeat the same category 4 times:
+   - Visual hierarchy (sizes, colors, positioning)
+   - Content and copy (headlines, texts, value proposition)
+   - Forms and inputs (validation, labels, error handling)
+   - Navigation and wayfinding (menu, breadcrumbs, CTAs)
+   - Trust and credibility (social proof, security, testimonials)
+
 ## UX Survey Rules:
 
 1. **Minimum 5 questions** - basic set
