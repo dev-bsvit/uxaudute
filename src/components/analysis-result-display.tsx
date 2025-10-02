@@ -388,7 +388,7 @@ export function AnalysisResultDisplay({
             <div>
               <h4 className="font-medium text-gray-900 mb-3">{t('analysis-results.selfCheck.checklist')}</h4>
               <div className="space-y-2">
-                {Object.entries(safeAnalysis.selfCheck.checklist).map(([key, value]: [string, any]) => (
+                {safeAnalysis.selfCheck?.checklist && Object.entries(safeAnalysis.selfCheck.checklist).map(([key, value]: [string, any]) => (
                   <div key={key} className="flex items-center gap-2">
                     <span className={value ? 'text-green-500' : 'text-red-500'}>
                       {value ? '✅' : '❌'}
@@ -407,7 +407,7 @@ export function AnalysisResultDisplay({
             <div>
               <h4 className="font-medium text-gray-900 mb-3">{t('analysis-results.selfCheck.confidenceByBlocks')}</h4>
               <div className="space-y-2">
-                {Object.entries(safeAnalysis.selfCheck.confidence).map(([key, value]: [string, any]) => (
+                {safeAnalysis.selfCheck?.confidence && Object.entries(safeAnalysis.selfCheck.confidence).map(([key, value]: [string, any]) => (
                   <div key={key} className="flex items-center justify-between">
                     <span className="text-sm text-gray-700">
                       {key === 'analysis' && t('analysis-results.screenDescription.title')}
