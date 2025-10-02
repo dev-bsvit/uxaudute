@@ -54,10 +54,26 @@ function cleanJSONString(jsonString: string): string {
     // Убираем лишние пробелы и переносы строк в начале и конце
     .replace(/^\s+|\s+$/g, '')
 
-  // Исправляем ошибочные одинарные кавычки в именах полей и значениях
-  // "'field'" -> "field"
-  // "'value'" -> "value"
-  cleaned = cleaned.replace(/"'([^']+)'"/g, '"$1"')
+  console.log('🧹 Starting JSON string cleaning...')
+
+  // Агрессивная очистка различных форматов неправильных ключей:
+
+  // 1. "'key'": -> "key":
+  cleaned = cleaned.replace(/"'([^']+)'"\s*:/g, '"$1":')
+
+  // 2. "$key$": -> "key": и "$key$ ": -> "key":
+  cleaned = cleaned.replace(/"\$([^$]+)\$\s*"\s*:/g, '"$1":')
+
+  // 3. Значения с префиксом двоеточия ": value" -> "value"
+  cleaned = cleaned.replace(/:\s*":\s*([^"]+)"/g, ': "$1"')
+
+  // 4. Значения с одинарными кавычками "'value'" -> "value"
+  cleaned = cleaned.replace(/:\s*"'([^']+)'"/g, ': "$1"')
+
+  // 5. Ключи только с начальной одинарной кавычкой "'key": -> "key":
+  cleaned = cleaned.replace(/"'([^"]+)"\s*:/g, '"$1":')
+
+  console.log('✅ JSON string cleaned')
 
   return cleaned
 }
@@ -100,31 +116,65 @@ function cleanQuotedKeys(obj: any): any {
   // Если это объект, рекурсивно очищаем ключи и значения
   if (typeof obj === 'object') {
     const cleaned: any = {}
+    let hadQuotedKeys = false
+
     for (const key in obj) {
+      const originalKey = key
       // Очищаем ключ от разных типов кавычек и символов
       let cleanKey = key.trim()
 
-      // Убираем "'key'" -> "key"
-      if (cleanKey.startsWith("'") && cleanKey.endsWith("'")) {
-        cleanKey = cleanKey.slice(1, -1)
+      // Убираем все типы обёрток вокруг ключа:
+      // "'key'" -> "key"
+      // "$key$" -> "key"
+      // "'key" -> "key"
+      // "key'" -> "key"
+
+      // 1. Убираем одинарные кавычки с обеих сторон
+      while ((cleanKey.startsWith("'") && cleanKey.endsWith("'")) ||
+             (cleanKey.startsWith("'") && cleanKey.length > 1)) {
+        if (cleanKey.startsWith("'") && cleanKey.endsWith("'") && cleanKey.length >= 2) {
+          cleanKey = cleanKey.slice(1, -1)
+          hadQuotedKeys = true
+        } else if (cleanKey.startsWith("'")) {
+          cleanKey = cleanKey.slice(1)
+          hadQuotedKeys = true
+        } else if (cleanKey.endsWith("'")) {
+          cleanKey = cleanKey.slice(0, -1)
+          hadQuotedKeys = true
+        } else {
+          break
+        }
+        cleanKey = cleanKey.trim()
       }
 
-      // Убираем "$key$" -> "key" и "$key$ " -> "key"
-      if (cleanKey.startsWith("$") && cleanKey.includes("$")) {
+      // 2. Убираем dollar signs "$key$" или "$key"
+      if (cleanKey.includes("$")) {
         cleanKey = cleanKey.replace(/\$/g, '').trim()
+        hadQuotedKeys = true
       }
 
-      // Убираем лишние пробелы
+      // 3. Убираем лишние пробелы
       cleanKey = cleanKey.trim()
 
-      // Пропускаем странные ключи вроде "}", ":", "]", ", "
-      if (cleanKey.length === 0 || [':', '}', ']', ',', '|', '}:'].includes(cleanKey)) {
+      // 4. Пропускаем пустые или мусорные ключи
+      if (cleanKey.length === 0 || [':', '}', ']', ',', '|', '}:', '{'].includes(cleanKey)) {
+        console.log(`🗑️ Skipping garbage key: "${originalKey}"`)
         continue
+      }
+
+      // Логируем если ключ был изменен
+      if (originalKey !== cleanKey) {
+        console.log(`🔧 Cleaned key: "${originalKey}" -> "${cleanKey}"`)
       }
 
       // Рекурсивно очищаем значение
       cleaned[cleanKey] = cleanQuotedKeys(obj[key])
     }
+
+    if (hadQuotedKeys) {
+      console.log('✅ Object had quoted keys, cleaned:', Object.keys(cleaned))
+    }
+
     return cleaned
   }
 
