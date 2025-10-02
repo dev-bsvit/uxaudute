@@ -422,7 +422,10 @@ RULES:
 
 **CRITICAL INSTRUCTIONS FOR problemsAndSolutions:**
 
-1. **Generate EXACTLY 4-5 problems** - not 3, not 6
+1. **Generate EXACTLY 4-5 COMPLETE problems** - not 3, not 6, and EVERY problem MUST have ALL 5 fields fully filled!
+   - ❌ FORBIDDEN to create objects with empty fields: `{"title": "", "why": "", "fix": "", "result": "", "impact": ""}`
+   - ❌ FORBIDDEN to leave fields unfilled or with placeholder text
+   - ✅ REQUIRED every problem must be FULLY described with all details
 2. **Use ONLY the 5 new fields**: title, impact, why, fix, result
 3. **IMPORTANT - ANALYZE THE REAL SCREENSHOT**:
    - ❌ DO NOT copy examples from prompt (about button contrast, email validation, headings)

@@ -277,13 +277,33 @@ export function AnalysisResultDisplay({
           <CardTitle className="flex items-center gap-2">
             🔧 {t('analysis-results.problemsAndSolutions.title')}
             <Badge variant="outline">
-              {Array.isArray(safeAnalysis.problemsAndSolutions) ? safeAnalysis.problemsAndSolutions.length : 0} {t('analysis-results.problemsAndSolutions.problems')}
+              {Array.isArray(safeAnalysis.problemsAndSolutions) ? safeAnalysis.problemsAndSolutions.filter((p: any) => {
+                const isNewFormat = 'title' in p && 'why' in p && 'fix' in p
+                return isNewFormat
+                  ? (p.title && p.title.trim() && p.why && p.why.trim() && p.fix && p.fix.trim())
+                  : (p.element && p.element.trim() && p.problem && p.problem.trim())
+              }).length : 0} {t('analysis-results.problemsAndSolutions.problems')}
             </Badge>
           </CardTitle>
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
-            {Array.isArray(safeAnalysis.problemsAndSolutions) ? safeAnalysis.problemsAndSolutions.map((problem: any, index: number) => {
+            {Array.isArray(safeAnalysis.problemsAndSolutions) ? safeAnalysis.problemsAndSolutions
+              .filter((problem: any) => {
+                // Фильтруем пустые проблемы
+                const isNewFormat = 'title' in problem && 'why' in problem && 'fix' in problem
+                if (isNewFormat) {
+                  // Новый формат: проверяем что title, why, fix НЕ пустые
+                  return problem.title && problem.title.trim() !== '' &&
+                         problem.why && problem.why.trim() !== '' &&
+                         problem.fix && problem.fix.trim() !== ''
+                } else {
+                  // Старый формат: проверяем element и problem
+                  return problem.element && problem.element.trim() !== '' &&
+                         problem.problem && problem.problem.trim() !== ''
+                }
+              })
+              .map((problem: any, index: number) => {
               // Поддержка новой и старой структуры
               const isNewFormat = 'title' in problem && 'why' in problem && 'fix' in problem
 
