@@ -63,6 +63,46 @@ function cleanJSONString(jsonString: string): string {
 }
 
 /**
+ * Рекурсивно очищает объект от ключей и значений с одинарными кавычками
+ */
+function cleanQuotedKeys(obj: any): any {
+  if (obj === null || obj === undefined) {
+    return obj
+  }
+
+  // Если это строка, убираем одинарные кавычки на границах
+  if (typeof obj === 'string') {
+    // Убираем "'value'" -> "value"
+    if (obj.startsWith("'") && obj.endsWith("'")) {
+      return obj.slice(1, -1)
+    }
+    return obj
+  }
+
+  // Если это массив, рекурсивно очищаем каждый элемент
+  if (Array.isArray(obj)) {
+    return obj.map(item => cleanQuotedKeys(item))
+  }
+
+  // Если это объект, рекурсивно очищаем ключи и значения
+  if (typeof obj === 'object') {
+    const cleaned: any = {}
+    for (const key in obj) {
+      // Очищаем ключ от одинарных кавычек: "'key'" -> "key"
+      let cleanKey = key
+      if (key.startsWith("'") && key.endsWith("'")) {
+        cleanKey = key.slice(1, -1)
+      }
+      // Рекурсивно очищаем значение
+      cleaned[cleanKey] = cleanQuotedKeys(obj[key])
+    }
+    return cleaned
+  }
+
+  return obj
+}
+
+/**
  * Проверяет и исправляет структуру распарсенного объекта
  */
 function validateAndFixStructure(parsed: any): StructuredAnalysisResponse {
@@ -70,16 +110,20 @@ function validateAndFixStructure(parsed: any): StructuredAnalysisResponse {
     return createFallbackFromPartialJSON('')
   }
 
+  // Сначала очищаем объект от неправильных кавычек
+  const cleaned = cleanQuotedKeys(parsed)
+  console.log('✅ Cleaned object from quoted keys:', Object.keys(cleaned))
+
   // Создаем базовую структуру с fallback значениями
   const result: StructuredAnalysisResponse = {
-    screenDescription: parsed.screenDescription || {
+    screenDescription: cleaned.screenDescription || {
       screenType: 'Неизвестно',
       userGoal: 'Не удалось определить',
       keyElements: [],
       confidence: 0,
       confidenceReason: 'Данные не загружены'
     },
-    uxSurvey: parsed.uxSurvey || {
+    uxSurvey: cleaned.uxSurvey || {
       questions: [],
       overallConfidence: 0,
       summary: {
@@ -89,12 +133,12 @@ function validateAndFixStructure(parsed: any): StructuredAnalysisResponse {
         recommendations: []
       }
     },
-    audience: parsed.audience || {
+    audience: cleaned.audience || {
       targetAudience: 'Не удалось определить',
       mainPain: 'Данные недоступны',
       fears: []
     },
-    behavior: parsed.behavior || {
+    behavior: cleaned.behavior || {
       userScenarios: {
         idealPath: 'Не удалось определить',
         typicalError: 'Не удалось определить',
@@ -104,8 +148,8 @@ function validateAndFixStructure(parsed: any): StructuredAnalysisResponse {
       frictionPoints: [],
       actionMotivation: 'Не удалось определить'
     },
-    problemsAndSolutions: parsed.problemsAndSolutions || [],
-    selfCheck: parsed.selfCheck || {
+    problemsAndSolutions: cleaned.problemsAndSolutions || [],
+    selfCheck: cleaned.selfCheck || {
       checklist: {
         coversAllElements: false,
         noContradictions: false,
@@ -118,12 +162,14 @@ function validateAndFixStructure(parsed: any): StructuredAnalysisResponse {
         recommendations: 0
       }
     },
-    metadata: parsed.metadata || {
+    metadata: cleaned.metadata || {
       timestamp: new Date().toISOString(),
       version: '1.0',
       model: 'unknown'
     }
   }
+
+  console.log('✅ Final result problemsAndSolutions count:', result.problemsAndSolutions?.length || 0)
 
   // Исправляем возможные проблемы в данных
   if (result.screenDescription && typeof result.screenDescription === 'object') {
