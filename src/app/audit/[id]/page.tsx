@@ -56,7 +56,7 @@ export default function AuditPage() {
 
   // Функция для создания публичной ссылки
   const createPublicLink = async (): Promise<string | null> => {
-    if (!audit) return
+    if (!audit) return null
     
     setPublicUrlLoading(true)
     try {
