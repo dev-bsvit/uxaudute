@@ -52,9 +52,10 @@ export default function AuditPage() {
   const [businessAnalyticsLoading, setBusinessAnalyticsLoading] = useState(false)
   const [publicUrl, setPublicUrl] = useState<string | null>(null)
   const [publicUrlLoading, setPublicUrlLoading] = useState(false)
+  const [shareStatus, setShareStatus] = useState<'idle' | 'loading' | 'copied'>('idle')
 
   // Функция для создания публичной ссылки
-  const createPublicLink = async () => {
+  const createPublicLink = async (): Promise<string | null> => {
     if (!audit) return
     
     setPublicUrlLoading(true)
@@ -74,52 +75,38 @@ export default function AuditPage() {
       const data = await response.json()
       setPublicUrl(data.publicUrl)
       console.log('✅ Публичная ссылка создана:', data.publicUrl)
+      return data.publicUrl
     } catch (error) {
       console.error('❌ Ошибка создания публичной ссылки:', error)
       alert('Ошибка создания публичной ссылки')
+      return null
     } finally {
       setPublicUrlLoading(false)
     }
   }
 
-  // Функция для отключения публичной ссылки
-  const disablePublicLink = async () => {
-    if (!audit) return
-    
-    setPublicUrlLoading(true)
-    try {
-      const response = await fetch(`/api/audits/${auditId}/public-link`, {
-        method: 'DELETE',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${(await supabase.auth.getSession()).data.session?.access_token}`
-        }
-      })
+  const handleShareClick = async () => {
+    if (publicUrlLoading || shareStatus === 'loading') return
 
-      if (!response.ok) {
-        throw new Error('Failed to disable public link')
+    setShareStatus('loading')
+    try {
+      let url = publicUrl
+      if (!url) {
+        url = await createPublicLink() || null
       }
 
-      setPublicUrl(null)
-      console.log('✅ Публичная ссылка отключена')
-    } catch (error) {
-      console.error('❌ Ошибка отключения публичной ссылки:', error)
-      alert('Ошибка отключения публичной ссылки')
-    } finally {
-      setPublicUrlLoading(false)
-    }
-  }
+      if (!url) {
+        setShareStatus('idle')
+        return
+      }
 
-  // Функция для копирования ссылки
-  const copyPublicLink = async () => {
-    if (!publicUrl) return
-    
-    try {
-      await navigator.clipboard.writeText(publicUrl)
-      alert('Ссылка скопирована в буфер обмена!')
+      await navigator.clipboard.writeText(url)
+      setShareStatus('copied')
+      setTimeout(() => setShareStatus('idle'), 2000)
     } catch (error) {
       console.error('❌ Ошибка копирования ссылки:', error)
       alert('Ошибка копирования ссылки')
+      setShareStatus('idle')
     }
   }
 
@@ -413,36 +400,25 @@ export default function AuditPage() {
               Скачать отчет
             </Button>
             {/* Кнопка публичного доступа */}
-            {!publicUrl ? (
-              <Button 
-                variant="outline" 
-                onClick={createPublicLink}
-                disabled={publicUrlLoading}
-                className="flex items-center gap-2"
-              >
-                <Share2 className="w-4 h-4" />
-                {publicUrlLoading ? 'Создание...' : 'Поделиться'}
-              </Button>
-            ) : (
-              <div className="flex items-center gap-2">
-                <Button 
-                  variant="outline" 
-                  onClick={copyPublicLink}
-                  className="flex items-center gap-2"
-                >
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleShareClick}
+              disabled={publicUrlLoading || shareStatus === 'loading'}
+              className={`flex items-center gap-2 ${shareStatus === 'copied' ? 'text-green-600 border-green-200 bg-green-50 hover:bg-green-100' : ''}`}
+            >
+              {shareStatus === 'loading' ? (
+                <div className="flex items-center gap-2">
+                  <div className="animate-spin rounded-full h-4 w-4 border-2 border-current border-t-transparent" />
+                  {publicUrl ? 'Копируем...' : 'Создание ссылки...'}
+                </div>
+              ) : (
+                <>
                   <Share2 className="w-4 h-4" />
-                  Копировать ссылку
-                </Button>
-                <Button 
-                  variant="outline" 
-                  onClick={disablePublicLink}
-                  disabled={publicUrlLoading}
-                  className="flex items-center gap-2 text-red-600 hover:text-red-700"
-                >
-                  Отключить
-                </Button>
-              </div>
-            )}
+                  {shareStatus === 'copied' ? 'Ссылка скопирована' : 'Поделиться'}
+                </>
+              )}
+            </Button>
           </div>
         </div>
 

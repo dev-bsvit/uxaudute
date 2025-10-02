@@ -127,7 +127,7 @@ export interface StructuredAnalysisResponse {
   audience?: Audience // Опционально для обратной совместимости
   behavior?: Behavior // Опционально для обратной совместимости
   problemsAndSolutions: ProblemSolution[]
-  selfCheck: SelfCheck
+  selfCheck?: SelfCheck // Опционально - больше не используется, но сохранено для обратной совместимости со старыми данными
   metadata: {
     timestamp: string
     version: string
