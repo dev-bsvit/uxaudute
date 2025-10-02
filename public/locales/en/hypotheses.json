@@ -1,0 +1,60 @@
+{
+  "title": "Hypotheses for UX Improvement",
+  "generated": "Generated {{count}} hypotheses with ICE scoring",
+  "generating": "Generating hypotheses...",
+  "notGenerated": "Hypotheses not generated",
+  "notGeneratedDescription": "Click the button below to generate hypotheses based on UX analysis results",
+  "generateButton": "Get Hypotheses",
+  "share": "Share",
+  "creating": "Creating...",
+  "copyLink": "Copy Link",
+  "export": "Export",
+  "refresh": "Refresh",
+  "notFound": "Not found",
+  "kpiAnalysis": {
+    "title": "KPI and Pain Points Analysis",
+    "currentMetrics": "Current Metrics",
+    "target": "Target",
+    "benchmark": "Benchmark",
+    "painPoints": "Pain Points"
+  },
+  "iceRating": {
+    "title": "Hypotheses ICE Rating",
+    "rank": "Rank",
+    "hypothesis": "Hypothesis",
+    "ice": "ICE",
+    "impact": "Impact",
+    "confidence": "Confidence",
+    "effort": "Effort"
+  },
+  "hypothesis": {
+    "title": "Hypothesis",
+    "priority": "Priority",
+    "effort": "Effort",
+    "effortDays": "{{days}} days",
+    "confidenceScore": "Confidence",
+    "confidenceOf10": "{{score}}/10",
+    "top3": "Top-3",
+    "description": "Description",
+    "problem": "Problem",
+    "proposedSolution": "Proposed Solution",
+    "iceScore": "ICE Score",
+    "userStory": "User Story",
+    "uxPatterns": "UX Patterns",
+    "validationPlan": "Validation Plan",
+    "method": "Method",
+    "duration": "Duration",
+    "sampleSize": "Sample Size",
+    "deltaMetrics": "Δ-metrics",
+    "trackingMetrics": "Tracking Metrics",
+    "assumptions": "Assumptions"
+  },
+  "nextSteps": {
+    "title": "Next Steps"
+  },
+  "priority": {
+    "high": "high",
+    "medium": "medium",
+    "low": "low"
+  }
+}

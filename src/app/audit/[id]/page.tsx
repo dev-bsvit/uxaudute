@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { useParams } from 'next/navigation'
+import { useParams, useRouter } from 'next/navigation'
 import { AnalysisResultDisplay } from '@/components/analysis-result-display'
 import { ABTestDisplay } from '@/components/ab-test-display'
 import { HypothesesDisplay } from '@/components/hypotheses-display'
@@ -11,7 +11,7 @@ import { SidebarDemo } from '@/components/sidebar-demo'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { Download, Share2, RefreshCw } from 'lucide-react'
+import { Share2, RefreshCw } from 'lucide-react'
 import { BackArrow } from '@/components/icons/back-arrow'
 import { supabase } from '@/lib/supabase'
 import { User } from '@supabase/supabase-js'
@@ -38,8 +38,9 @@ interface Audit {
 
 export default function AuditPage() {
   const params = useParams()
+  const router = useRouter()
   const auditId = params.id as string
-  
+
   const [user, setUser] = useState<User | null>(null)
   const [audit, setAudit] = useState<Audit | null>(null)
   const [loading, setLoading] = useState(true)
@@ -53,6 +54,11 @@ export default function AuditPage() {
   const [publicUrl, setPublicUrl] = useState<string | null>(null)
   const [publicUrlLoading, setPublicUrlLoading] = useState(false)
   const [shareStatus, setShareStatus] = useState<'idle' | 'loading' | 'copied'>('idle')
+
+  // Функция обновления страницы
+  const handleRefresh = () => {
+    router.refresh()
+  }
 
   // Функция для создания публичной ссылки
   const createPublicLink = async (): Promise<string | null> => {
@@ -339,10 +345,6 @@ export default function AuditPage() {
     }
   }
 
-  const handleRefresh = () => {
-    loadAudit()
-  }
-
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-100 flex items-center justify-center">
@@ -387,18 +389,6 @@ export default function AuditPage() {
           </div>
           
           <div className="flex items-center gap-3">
-            <Button 
-              variant="outline" 
-              onClick={handleRefresh}
-              className="flex items-center gap-2"
-            >
-              <RefreshCw className="w-4 h-4" />
-              Обновить
-            </Button>
-            <Button variant="outline" className="flex items-center gap-2">
-              <Download className="w-4 h-4" />
-              Скачать отчет
-            </Button>
             {/* Кнопка публичного доступа */}
             <Button
               variant="outline"

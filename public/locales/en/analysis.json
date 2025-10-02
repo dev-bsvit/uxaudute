@@ -171,5 +171,59 @@
     "submit": "Start analysis",
     "submitting": "Analyzing...",
     "skip": "Skip"
+  },
+  "abTest": {
+    "title": "A/B tests",
+    "generatedCount": "Generated {{count}} tests",
+    "loading": "Generating A/B tests...",
+    "empty": {
+      "title": "A/B tests not generated",
+      "description": "Click the button below to generate A/B tests based on UX analysis results",
+      "action": "Generate A/B tests"
+    },
+    "actions": {
+      "share": "Share",
+      "creatingLink": "Creating...",
+      "copyLink": "Copy link",
+      "export": "Export",
+      "refresh": "Refresh",
+      "generate": "Generate A/B tests",
+      "generating": "Generating..."
+    },
+    "badges": {
+      "impact": "Impact: {{score}}/10 ({{label}})",
+      "confidence": "Confidence: {{score}}/10 ({{label}})",
+      "ease": "Ease: {{score}}/10 ({{label}})"
+    },
+    "scoreLabels": {
+      "high": "High",
+      "medium": "Medium",
+      "low": "Low"
+    },
+    "sections": {
+      "hypothesis": "Hypothesis",
+      "solution": "Solution",
+      "targetMetrics": "Target metrics",
+      "primaryMetric": "Primary metric",
+      "baseline": "Current value",
+      "expectedUplift": "Expected uplift",
+      "detailedTasks": "Detailed tasks",
+      "riskMitigation": "Risks and mitigation",
+      "statisticalPower": "Statistical power",
+      "nextSteps": "Next steps",
+      "assumptions": "Assumptions"
+    },
+    "tasks": {
+      "design": "Design",
+      "backend": "Backend",
+      "frontend": "Frontend",
+      "analytics": "Analytics"
+    },
+    "stats": {
+      "traffic": "Traffic: {{traffic}}",
+      "duration": "Duration: {{days}} days",
+      "significance": "Significance level: {{alpha}}"
+    },
+    "testTitle": "Test #{{index}}: {{title}}"
   }
 }

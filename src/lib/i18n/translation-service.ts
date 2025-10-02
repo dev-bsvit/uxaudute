@@ -40,15 +40,16 @@ class TranslationService {
     return await errorHandler.handleErrorWithFallback(
       async () => {
         const translationFiles = [
-          'common', 
-          'navigation', 
-          'analysis', 
+          'common',
+          'navigation',
+          'analysis',
           'settings',
           'errors',
           'analysis-results',
           'dashboard',
           'projects',
-          'components'
+          'components',
+          'hypotheses'
         ]
         const translations: TranslationMap = {}
 

@@ -1,0 +1,60 @@
+{
+  "title": "Гипотезы для улучшения UX",
+  "generated": "Сгенерировано {{count}} гипотез с ICE-оценкой",
+  "generating": "Генерируем гипотезы...",
+  "notGenerated": "Гипотезы не сгенерированы",
+  "notGeneratedDescription": "Нажмите кнопку ниже, чтобы сгенерировать гипотезы на основе результатов UX анализа",
+  "generateButton": "Получить гипотезы",
+  "share": "Поделиться",
+  "creating": "Создание...",
+  "copyLink": "Копировать ссылку",
+  "export": "Экспорт",
+  "refresh": "Обновить",
+  "notFound": "Не найдено",
+  "kpiAnalysis": {
+    "title": "Анализ KPI и болевых точек",
+    "currentMetrics": "Текущие метрики",
+    "target": "Цель",
+    "benchmark": "Бенчмарк",
+    "painPoints": "Болевые точки"
+  },
+  "iceRating": {
+    "title": "ICE Рейтинг гипотез",
+    "rank": "Ранг",
+    "hypothesis": "Гипотеза",
+    "ice": "ICE",
+    "impact": "Impact",
+    "confidence": "Confidence",
+    "effort": "Effort"
+  },
+  "hypothesis": {
+    "title": "Гипотеза",
+    "priority": "Приоритет",
+    "effort": "Усилия",
+    "effortDays": "{{days}} дней",
+    "confidenceScore": "Уверенность",
+    "confidenceOf10": "{{score}}/10",
+    "top3": "Топ-3",
+    "description": "Описание",
+    "problem": "Проблема",
+    "proposedSolution": "Предлагаемое решение",
+    "iceScore": "ICE Оценка",
+    "userStory": "User Story",
+    "uxPatterns": "UX Паттерны",
+    "validationPlan": "План валидации",
+    "method": "Метод",
+    "duration": "Длительность",
+    "sampleSize": "Размер выборки",
+    "deltaMetrics": "Δ-метрики",
+    "trackingMetrics": "Метрики для отслеживания",
+    "assumptions": "Предположения"
+  },
+  "nextSteps": {
+    "title": "Следующие шаги"
+  },
+  "priority": {
+    "high": "high",
+    "medium": "medium",
+    "low": "low"
+  }
+}

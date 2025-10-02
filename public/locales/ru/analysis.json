@@ -171,5 +171,59 @@
     "submit": "Начать анализ",
     "submitting": "Анализируем...",
     "skip": "Пропустить"
+  },
+  "abTest": {
+    "title": "A/B тесты",
+    "generatedCount": "Сгенерировано {{count}} тестов",
+    "loading": "Генерируем A/B тесты...",
+    "empty": {
+      "title": "A/B тесты не сгенерированы",
+      "description": "Нажмите кнопку ниже, чтобы сгенерировать A/B тесты на основе результатов UX-анализа",
+      "action": "Получить A/B тесты"
+    },
+    "actions": {
+      "share": "Поделиться",
+      "creatingLink": "Создание...",
+      "copyLink": "Копировать ссылку",
+      "export": "Экспорт",
+      "refresh": "Обновить",
+      "generate": "Получить A/B тесты",
+      "generating": "Генерация..."
+    },
+    "badges": {
+      "impact": "Влияние: {{score}}/10 ({{label}})",
+      "confidence": "Уверенность: {{score}}/10 ({{label}})",
+      "ease": "Простота: {{score}}/10 ({{label}})"
+    },
+    "scoreLabels": {
+      "high": "Высокий",
+      "medium": "Средний",
+      "low": "Низкий"
+    },
+    "sections": {
+      "hypothesis": "Гипотеза",
+      "solution": "Решение",
+      "targetMetrics": "Целевые метрики",
+      "primaryMetric": "Основная метрика",
+      "baseline": "Текущее значение",
+      "expectedUplift": "Ожидаемый рост",
+      "detailedTasks": "Детальные задачи",
+      "riskMitigation": "Риски и митигация",
+      "statisticalPower": "Статистическая мощность",
+      "nextSteps": "Следующие шаги",
+      "assumptions": "Предположения"
+    },
+    "tasks": {
+      "design": "Дизайн",
+      "backend": "Бэкенд",
+      "frontend": "Фронтенд",
+      "analytics": "Аналитика"
+    },
+    "stats": {
+      "traffic": "Трафик: {{traffic}}",
+      "duration": "Длительность: {{days}} дней",
+      "significance": "Уровень значимости: {{alpha}}"
+    },
+    "testTitle": "Тест №{{index}}: {{title}}"
   }
 }
