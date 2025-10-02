@@ -63,12 +63,25 @@ export default function AuditPage() {
       console.log('🧹 Cleaning corrupted keys from database data...')
       console.log('📋 Keys before cleaning:', Object.keys(audit.result_data || {}))
 
+      // Показываем problemsAndSolutions до очистки
+      if (audit.result_data?.problemsAndSolutions) {
+        console.log('🔍 problemsAndSolutions BEFORE cleaning:')
+        audit.result_data.problemsAndSolutions.forEach((p: any, i: number) => {
+          console.log(`  Problem #${i} keys:`, Object.keys(p))
+        })
+      }
+
       const cleanedResultData = cleanQuotedKeys(audit.result_data)
 
+      // Показываем problemsAndSolutions после очистки
+      if (cleanedResultData?.problemsAndSolutions) {
+        console.log('✅ problemsAndSolutions AFTER cleaning:')
+        cleanedResultData.problemsAndSolutions.forEach((p: any, i: number) => {
+          console.log(`  Problem #${i} keys:`, Object.keys(p))
+        })
+      }
+
       console.log('✅ Keys after cleaning:', Object.keys(cleanedResultData || {}))
-      console.log('Отображаем результат аудита:', cleanedResultData)
-      console.log('Ключи result_data:', Object.keys(cleanedResultData || {}))
-      console.log('analysis_result:', cleanedResultData?.analysis_result)
       console.log('Весь result_data:', JSON.stringify(cleanedResultData))
 
       // Заменяем оригинальные данные очищенными
