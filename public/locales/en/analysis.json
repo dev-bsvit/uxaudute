@@ -103,5 +103,73 @@
     "placeholder": "https://example.com",
     "analyzing": "Analyzing...",
     "getTestFree": "Get the test for free"
+  },
+  "actionsPanel": {
+    "title": "Expert actions",
+    "subtitle": "Choose the analysis type to get professional insights",
+    "badge": "Analyses are powered by GPT-4 AI",
+    "actions": {
+      "research": "Research",
+      "collect": "Collect data",
+      "analytics": "Analytics",
+      "abTest": "A/B test",
+      "hypotheses": "Hypotheses"
+    }
+  },
+  "uploadForm": {
+    "title": "Start research",
+    "description": "Upload a URL or screenshot for professional UX analysis",
+    "tabs": {
+      "upload": "Screenshot",
+      "url": "Website URL"
+    },
+    "urlLabel": "Page URL for analysis",
+    "urlPlaceholder": "https://example.com",
+    "urlHelp": "Enter the full URL of the page you want to analyse",
+    "contextLabel": "Context for analysis (optional)",
+    "contextPlaceholder": "For example: This is a food delivery app. Main audience is 18-35. Users must quickly find a restaurant and place an order...",
+    "contextHelp": "The more context you provide, the more precise the analysis will be",
+    "submit": "Start analysis with OpenAI",
+    "submitting": "Analyzing with OpenAI...",
+    "benefitsTitle": "What you will get:",
+    "benefits": {
+      "uxAnalysis": "Detailed UX analysis with expert recommendations",
+      "businessAnalytics": "Business analytics and conversion impact",
+      "abTests": "Ready A/B testing plans for improvements",
+      "productHypotheses": "Product hypotheses for growth"
+    }
+  },
+  "analysisModal": {
+    "title": "Analysis in progress",
+    "description": "AI-powered UX analysis is running",
+    "steps": {
+      "interface": "Analyzing interface...",
+      "metrics": "Evaluating UX metrics...",
+      "recommendations": "Generating recommendations...",
+      "finalizing": "Wrapping up analysis..."
+    },
+    "loadingFallback": "Processing data...",
+    "progress": "Analysis progress",
+    "contentTitle": "Content under analysis:",
+    "screenshotLabel": "Interface screenshot",
+    "urlLabel": "URL for analysis",
+    "loadingPlaceholder": "Loading data for analysis...",
+    "stagesTitle": "Analysis stages:",
+    "status": {
+      "completed": "Completed",
+      "active": "In progress...",
+      "pending": "Waiting"
+    },
+    "noteTitle": "Analysis may take 30-60 seconds",
+    "noteDescription": "Please do not close this window until the analysis is finished",
+    "cancel": "Cancel analysis"
+  },
+  "contextForm": {
+    "title": "Additional context",
+    "description": "Add extra information for a more accurate analysis",
+    "placeholder": "For example: target audience, page goals, business specifics...",
+    "submit": "Start analysis",
+    "submitting": "Analyzing...",
+    "skip": "Skip"
   }
 }

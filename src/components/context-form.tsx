@@ -5,6 +5,8 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Textarea } from '@/components/ui/textarea'
 import { Label } from '@/components/ui/label'
+import { useTranslation } from '@/hooks/use-translation'
+
 interface ContextFormProps {
   onContextSubmit: (context: string) => void
   onSkip: () => void
@@ -12,17 +14,7 @@ interface ContextFormProps {
 }
 
 export function ContextForm({ onContextSubmit, onSkip, isLoading = false }: ContextFormProps) {
-  // Простые переводы
-  const t = (key: string) => {
-    const translations: Record<string, string> = {
-      'contextForm.title': 'Дополнительный контекст',
-      'contextForm.description': 'Добавьте дополнительную информацию для более точного анализа',
-      'contextForm.placeholder': 'Например: целевая аудитория, цели страницы, особенности бизнеса...',
-      'contextForm.skip': 'Пропустить',
-      'contextForm.analyze': 'Анализировать'
-    }
-    return translations[key] || key
-  }
+  const { t } = useTranslation()
   const [context, setContext] = useState('')
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -34,25 +26,25 @@ export function ContextForm({ onContextSubmit, onSkip, isLoading = false }: Cont
     <Card className="w-full max-w-2xl mx-auto">
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
-          📝 {t('analysis.addContext')}
+          📝 {t('analysis.contextForm.title')}
         </CardTitle>
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
             <Label htmlFor="context">
-              {t('components.analysis.contextDescription')}
+              {t('analysis.contextForm.description')}
             </Label>
             <Textarea
               id="context"
-              placeholder={t('components.upload.contextPlaceholder')}
+              placeholder={t('analysis.contextForm.placeholder')}
               value={context}
               onChange={(e) => setContext(e.target.value)}
               rows={4}
               className="resize-none"
             />
             <p className="text-sm text-gray-500">
-              {t('components.analysis.contextHelp')}
+              {t('analysis.uploadForm.contextHelp')}
             </p>
           </div>
           
@@ -62,7 +54,7 @@ export function ContextForm({ onContextSubmit, onSkip, isLoading = false }: Cont
               disabled={isLoading}
               className="flex-1"
             >
-              {isLoading ? t('components.analysis.analyzing') : t('components.analysis.startAnalysis')}
+              {isLoading ? t('analysis.contextForm.submitting') : t('analysis.contextForm.submit')}
             </Button>
             <Button 
               type="button" 
@@ -70,7 +62,7 @@ export function ContextForm({ onContextSubmit, onSkip, isLoading = false }: Cont
               onClick={onSkip}
               disabled={isLoading}
             >
-              {t('components.analysis.skip')}
+              {t('analysis.contextForm.skip')}
             </Button>
           </div>
         </form>
@@ -78,7 +70,6 @@ export function ContextForm({ onContextSubmit, onSkip, isLoading = false }: Cont
     </Card>
   )
 }
-
 
 
 

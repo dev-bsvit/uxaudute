@@ -7,6 +7,7 @@ import { Textarea } from "@/components/ui/textarea"
 import { Label } from "@/components/ui/label"
 import { ImageUpload } from "@/components/ui/image-upload"
 import { Upload, Link as LinkIcon, Sparkles, Zap } from "lucide-react"
+import { useTranslation } from '@/hooks/use-translation'
 
 interface UploadFormProps {
   onSubmit: (data: { url?: string; screenshot?: string; context?: string; provider?: string; openrouterModel?: string }) => void
@@ -20,6 +21,7 @@ export function UploadForm({ onSubmit, isLoading }: UploadFormProps) {
   const [activeTab, setActiveTab] = useState<'url' | 'upload'>('upload')
   const [provider, setProvider] = useState<'openai' | 'openrouter'>('openai')
   const [openrouterModel, setOpenrouterModel] = useState<'sonoma'>('sonoma')
+  const { t } = useTranslation()
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -65,10 +67,10 @@ export function UploadForm({ onSubmit, isLoading }: UploadFormProps) {
             </div>
           </div>
           <CardTitle className="text-3xl font-bold text-gradient mb-2">
-            Начать исследование
+            {t('analysis.uploadForm.title')}
           </CardTitle>
           <p className="text-slate-600 text-lg">
-            Загрузите URL или скриншот для профессионального UX анализа
+            {t('analysis.uploadForm.description')}
           </p>
         </CardHeader>
         
@@ -84,7 +86,7 @@ export function UploadForm({ onSubmit, isLoading }: UploadFormProps) {
               onClick={() => setActiveTab('upload')}
             >
               <Upload className="w-5 h-5 inline mr-3" />
-              Скриншот
+              {t('analysis.uploadForm.tabs.upload')}
             </button>
             <button
               className={`flex-1 py-4 px-6 text-center rounded-xl font-semibold transition-all duration-300 ${
@@ -95,7 +97,7 @@ export function UploadForm({ onSubmit, isLoading }: UploadFormProps) {
               onClick={() => setActiveTab('url')}
             >
               <LinkIcon className="w-5 h-5 inline mr-3" />
-              URL сайта
+              {t('analysis.uploadForm.tabs.url')}
             </button>
           </div>
 
@@ -103,7 +105,7 @@ export function UploadForm({ onSubmit, isLoading }: UploadFormProps) {
             {activeTab === 'url' ? (
               <div className="space-y-3">
                 <label htmlFor="url" className="block text-lg font-semibold text-slate-800">
-                  Ссылка на страницу для анализа
+                  {t('analysis.uploadForm.urlLabel')}
                 </label>
                 <div className="relative">
                   <input
@@ -111,14 +113,14 @@ export function UploadForm({ onSubmit, isLoading }: UploadFormProps) {
                     type="url"
                     value={url}
                     onChange={(e) => setUrl(e.target.value)}
-                    placeholder="https://example.com"
+                    placeholder={t('analysis.uploadForm.urlPlaceholder')}
                     className="w-full px-6 py-4 text-lg border-2 border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-white/80 backdrop-blur-sm"
                     required
                   />
                   <LinkIcon className="absolute right-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-slate-400" />
                 </div>
                 <p className="text-sm text-slate-500">
-                  Введите полную ссылку на страницу, которую хотите проанализировать
+                  {t('analysis.uploadForm.urlHelp')}
                 </p>
               </div>
             ) : (
@@ -135,18 +137,18 @@ export function UploadForm({ onSubmit, isLoading }: UploadFormProps) {
             {/* Поле контекста */}
             <div className="space-y-2">
               <Label htmlFor="context">
-                Контекст для анализа (необязательно)
+                {t('analysis.uploadForm.contextLabel')}
               </Label>
               <Textarea
                 id="context"
-                placeholder="Например: Это мобильное приложение для заказа еды. Основная аудитория - молодые люди 18-35 лет. Пользователи должны быстро найти ресторан и оформить заказ..."
+                placeholder={t('analysis.uploadForm.contextPlaceholder')}
                 value={context}
                 onChange={(e) => setContext(e.target.value)}
                 rows={3}
                 className="resize-none"
               />
               <p className="text-sm text-slate-500">
-                Чем больше контекста вы предоставите, тем точнее будет анализ
+                {t('analysis.uploadForm.contextHelp')}
               </p>
             </div>
 
@@ -162,12 +164,12 @@ export function UploadForm({ onSubmit, isLoading }: UploadFormProps) {
               {isLoading ? (
                 <>
                   <div className="animate-spin rounded-full h-5 w-5 border-2 border-white border-t-transparent mr-3"></div>
-                  Анализируем с OpenAI...
+                  {t('analysis.uploadForm.submitting')}
                 </>
               ) : (
                 <>
                   <Sparkles className="w-5 h-5 mr-3" />
-                  Начать анализ с OpenAI
+                  {t('analysis.uploadForm.submit')}
                 </>
               )}
             </Button>
@@ -175,23 +177,23 @@ export function UploadForm({ onSubmit, isLoading }: UploadFormProps) {
 
           {/* Дополнительная информация */}
           <div className="mt-8 p-6 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-2xl border border-blue-100">
-            <h4 className="font-semibold text-slate-800 mb-3">Что вы получите:</h4>
+            <h4 className="font-semibold text-slate-800 mb-3">{t('analysis.uploadForm.benefitsTitle')}</h4>
             <ul className="space-y-2 text-sm text-slate-600">
               <li className="flex items-start">
                 <span className="text-blue-500 mr-2">✨</span>
-                Подробный UX анализ с экспертными рекомендациями
+                {t('analysis.uploadForm.benefits.uxAnalysis')}
               </li>
               <li className="flex items-start">
                 <span className="text-blue-500 mr-2">📊</span>
-                Бизнес-аналитика и влияние на конверсию
+                {t('analysis.uploadForm.benefits.businessAnalytics')}
               </li>
               <li className="flex items-start">
                 <span className="text-blue-500 mr-2">🧪</span>
-                Готовые планы A/B тестов для улучшений
+                {t('analysis.uploadForm.benefits.abTests')}
               </li>
               <li className="flex items-start">
                 <span className="text-blue-500 mr-2">💡</span>
-                Продуктовые гипотезы для развития
+                {t('analysis.uploadForm.benefits.productHypotheses')}
               </li>
             </ul>
           </div>

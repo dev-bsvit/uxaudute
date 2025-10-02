@@ -8,6 +8,7 @@ import { SurveyDisplay } from '@/components/ui/survey-display'
 import { CanvasAnnotations } from '@/components/ui/canvas-annotations'
 import { Monitor, Link2 } from 'lucide-react'
 import { useTranslation } from '@/hooks/use-translation'
+import { createFormatters } from '@/lib/i18n/formatters'
 
 interface AnalysisResultDisplayProps {
   analysis?: StructuredAnalysisResponse
@@ -26,35 +27,40 @@ export function AnalysisResultDisplay({
   onAnnotationUpdate,
   auditId
 }: AnalysisResultDisplayProps) {
-  const { t } = useTranslation()
+  const { t, currentLanguage } = useTranslation()
+  const { formatDate, formatDateTime } = createFormatters(currentLanguage || 'en')
+  const notLoadedLabel = t('common.notLoaded') || 'Not loaded'
+  const loadingErrorLabel = t('common.loadingError') || 'Loading error'
+  const unknownLabel = t('common.unknown') || 'Unknown'
+  const noDataLabel = t('common.noDataToDisplay') || 'No data to display'
 
   // Защита от ошибок - проверяем структуру данных
   if (!analysis) {
     return (
       <div className="text-center py-8">
-        <p className="text-gray-500">Нет данных для отображения</p>
+        <p className="text-gray-500">{noDataLabel}</p>
       </div>
     )
   }
 
   // Проверяем, что у нас есть минимально необходимая структура
   const safeAnalysis: StructuredAnalysisResponse = {
-    screenDescription: analysis.screenDescription || { screenType: "Неизвестно", confidence: 0 },
+    screenDescription: analysis.screenDescription || { screenType: unknownLabel, confidence: 0 },
     uxSurvey: analysis.uxSurvey || { questions: [], overallConfidence: 0 },
-    audience: analysis.audience || { 
-      targetAudience: "Не загружено", 
-      mainPain: "Ошибка загрузки",
+    audience: analysis.audience || {
+      targetAudience: notLoadedLabel,
+      mainPain: loadingErrorLabel,
       fears: []
     },
-    behavior: analysis.behavior || { 
+    behavior: analysis.behavior || {
       userScenarios: {
-        idealPath: "Не загружено",
-        typicalError: "Не загружено", 
-        alternativeWorkaround: "Не загружено"
-      }, 
-      behavioralPatterns: "Ошибка загрузки",
+        idealPath: notLoadedLabel,
+        typicalError: notLoadedLabel,
+        alternativeWorkaround: notLoadedLabel
+      },
+      behavioralPatterns: loadingErrorLabel,
       frictionPoints: [],
-      actionMotivation: "Не загружено"
+      actionMotivation: notLoadedLabel
     },
     problemsAndSolutions: analysis.problemsAndSolutions || [],
     selfCheck: analysis.selfCheck || { 
@@ -63,7 +69,7 @@ export function AnalysisResultDisplay({
       confidence: { analysis: 0 } 
     },
     annotations: analysis.annotations || '',
-    metadata: analysis.metadata || { version: '1.0', model: 'Unknown', timestamp: new Date().toISOString() }
+    metadata: analysis.metadata || { version: '1.0', model: unknownLabel, timestamp: new Date().toISOString() }
   }
 
   const [annotationData, setAnnotationData] = useState<string>(safeAnalysis?.annotations || '')
@@ -384,10 +390,10 @@ export function AnalysisResultDisplay({
                 <span className="font-medium">{t('analysis-results.metadata.version')}</span> {safeAnalysis.metadata?.version || '1.0'}
               </div>
               <div>
-                <span className="font-medium">{t('analysis-results.metadata.model')}</span> {safeAnalysis.metadata?.model || 'Unknown'}
+                <span className="font-medium">{t('analysis-results.metadata.model')}</span> {safeAnalysis.metadata?.model || unknownLabel}
               </div>
               <div>
-                <span className="font-medium">{t('analysis-results.metadata.time')}</span> {safeAnalysis.metadata?.timestamp ? new Date(safeAnalysis.metadata.timestamp).toLocaleString('ru-RU') : 'Неизвестно'}
+                <span className="font-medium">{t('analysis-results.metadata.time')}</span> {safeAnalysis.metadata?.timestamp ? formatDateTime(safeAnalysis.metadata.timestamp) : unknownLabel}
               </div>
             </div>
           </CardContent>
@@ -420,7 +426,9 @@ export function AnalysisResultDisplay({
                     💡 {t('analysis-results.interface.annotationEditor')}
                   </div>
                   <div className="text-xs text-gray-400 text-center mt-2">
-                    Анализ {safeAnalysis.metadata?.timestamp ? new Date(safeAnalysis.metadata.timestamp).toLocaleDateString('ru-RU') : 'Неизвестно'}
+                    {t('analysis-results.interface.analysisDate', {
+                      date: safeAnalysis.metadata?.timestamp ? formatDate(safeAnalysis.metadata.timestamp) : unknownLabel
+                    })}
                   </div>
                 </div>
               ) : url ? (

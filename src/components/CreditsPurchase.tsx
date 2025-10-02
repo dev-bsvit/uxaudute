@@ -4,6 +4,8 @@ import { useState, useEffect } from 'react'
 import { loadStripe } from '@stripe/stripe-js'
 import { Elements } from '@stripe/react-stripe-js'
 import StripeCheckout from './StripeCheckout'
+import { useTranslation } from '@/hooks/use-translation'
+import { createFormatters } from '@/lib/i18n/formatters'
 
 interface Package {
   id: string
@@ -48,6 +50,8 @@ export default function CreditsPurchase({ userId, onPurchaseComplete }: CreditsP
   const [purchasing, setPurchasing] = useState(false)
   const [clientSecret, setClientSecret] = useState<string | null>(null)
   const [stripePromise, setStripePromise] = useState<any>(null)
+  const { t, currentLanguage } = useTranslation()
+  const { formatNumber } = createFormatters(currentLanguage || 'en')
 
   useEffect(() => {
     // Используем моковые данные с правильными ценами
@@ -83,7 +87,7 @@ export default function CreditsPurchase({ userId, onPurchaseComplete }: CreditsP
 
   const handlePurchase = async (pkg: Package) => {
     if (!userId) {
-      setError('Пользователь не авторизован')
+      setError(t('components.credits.userNotAuthorized'))
       return
     }
 
@@ -140,7 +144,7 @@ export default function CreditsPurchase({ userId, onPurchaseComplete }: CreditsP
     return (
       <div className="flex items-center justify-center p-8">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-        <span className="ml-2 text-gray-600">Загрузка пакетов...</span>
+        <span className="ml-2 text-gray-600">{t('components.credits.purchase.loading')}</span>
       </div>
     )
   }
@@ -148,18 +152,22 @@ export default function CreditsPurchase({ userId, onPurchaseComplete }: CreditsP
   if (error) {
     return (
       <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-        <p className="text-red-800">Ошибка: {error}</p>
+        <p className="text-red-800">{t('components.credits.purchase.loadError', { error })}</p>
       </div>
     )
   }
 
   // Если есть clientSecret, показываем Stripe Checkout
   if (clientSecret && selectedPackage && stripePromise) {
+    const packageName = t(`components.credits.packages.${selectedPackage.package_type}` as const)
+
     return (
       <div className="space-y-6">
         <div className="text-center">
-          <h2 className="text-2xl font-bold text-gray-900 mb-2">Оплата</h2>
-          <p className="text-gray-600">Завершите покупку кредитов</p>
+          <h2 className="text-2xl font-bold text-gray-900 mb-2">
+            {t('components.credits.checkout.title', { package: packageName })}
+          </h2>
+          <p className="text-gray-600">{t('components.credits.checkout.description')}</p>
         </div>
 
         <Elements stripe={stripePromise} options={{ clientSecret }}>
@@ -178,7 +186,7 @@ export default function CreditsPurchase({ userId, onPurchaseComplete }: CreditsP
           }}
           className="w-full py-2 px-4 rounded-md font-medium text-gray-600 border border-gray-300 hover:bg-gray-50"
         >
-          Отменить покупку
+          {t('components.credits.checkout.cancel')}
         </button>
       </div>
     )
@@ -188,65 +196,71 @@ export default function CreditsPurchase({ userId, onPurchaseComplete }: CreditsP
     <div className="space-y-6">
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        {packages.map((pkg) => (
-          <div
-            key={pkg.id}
-            className={`relative rounded-lg border-2 p-6 transition-all duration-200 ${
-              selectedPackage?.id === pkg.id
-                ? 'border-blue-500 bg-blue-50'
-                : 'border-gray-200 hover:border-gray-300'
-            }`}
-          >
-            <div className="text-center">
-              <h3 className="text-lg font-semibold text-gray-900 capitalize mb-2">
-                {pkg.package_type}
-              </h3>
-              
-              <div className="mb-4">
-                <div className="text-3xl font-bold text-blue-600">
-                  {pkg.credits_amount}
+        {packages.map((pkg) => {
+          const packageName = t(`components.credits.packages.${pkg.package_type}` as const)
+          const totalPrice = (pkg.price_rub / 100).toFixed(2)
+          const pricePerCredit = (pkg.price_rub / 100 / pkg.credits_amount).toFixed(2)
+
+          return (
+            <div
+              key={pkg.id}
+              className={`relative rounded-lg border-2 p-6 transition-all duration-200 ${
+                selectedPackage?.id === pkg.id
+                  ? 'border-blue-500 bg-blue-50'
+                  : 'border-gray-200 hover:border-gray-300'
+              }`}
+            >
+              <div className="text-center">
+                <h3 className="text-lg font-semibold text-gray-900 capitalize mb-2">
+                  {packageName}
+                </h3>
+                
+                <div className="mb-4">
+                  <div className="text-3xl font-bold text-blue-600">
+                    {formatNumber(pkg.credits_amount)}
+                  </div>
+                  <div className="text-sm text-gray-500">{t('components.credits.purchase.credits')}</div>
                 </div>
-                <div className="text-sm text-gray-500">кредитов</div>
+
+                <div className="mb-6">
+                  <div className="text-2xl font-bold text-gray-900">
+                    {totalPrice}
+                  </div>
+                  <div className="text-sm text-gray-500">
+                    {t('components.credits.purchase.pricePerCredit', { price: pricePerCredit })}
+                  </div>
+                </div>
+
+                <button
+                  onClick={() => handlePurchase(pkg)}
+                  disabled={purchasing}
+                  className={`w-full py-2 px-4 rounded-md font-medium transition-colors ${
+                    purchasing
+                      ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                      : 'bg-blue-600 text-white hover:bg-blue-700'
+                  }`}
+                >
+                  {purchasing ? t('components.credits.preparingPayment') : t('components.credits.buy')}
+                </button>
               </div>
 
-              <div className="mb-6">
-                <div className="text-2xl font-bold text-gray-900">
-                  ${(pkg.price_rub / 100).toFixed(2)}
+              {pkg.package_type === 'pro' && (
+                <div className="absolute -top-2 -right-2 bg-green-500 text-white text-xs font-bold px-2 py-1 rounded-full">
+                  {t('components.credits.purchase.popular')}
                 </div>
-                <div className="text-sm text-gray-500">
-                  ${(pkg.price_rub / 100 / pkg.credits_amount).toFixed(2)} за кредит
-                </div>
-              </div>
-
-              <button
-                onClick={() => handlePurchase(pkg)}
-                disabled={purchasing}
-                className={`w-full py-2 px-4 rounded-md font-medium transition-colors ${
-                  purchasing
-                    ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                    : 'bg-blue-600 text-white hover:bg-blue-700'
-                }`}
-              >
-                {purchasing ? 'Подготовка платежа...' : 'Купить'}
-              </button>
+              )}
             </div>
-
-            {pkg.package_type === 'pro' && (
-              <div className="absolute -top-2 -right-2 bg-green-500 text-white text-xs font-bold px-2 py-1 rounded-full">
-                Популярный
-              </div>
-            )}
-          </div>
-        ))}
+          )
+        })}
       </div>
 
       <div className="bg-gray-50 rounded-lg p-4">
-        <h4 className="font-medium text-gray-900 mb-2">Информация о кредитах:</h4>
+        <h4 className="font-medium text-gray-900 mb-2">{t('components.credits.purchase.infoTitle')}</h4>
         <ul className="text-sm text-gray-600 space-y-1">
-          <li>• Основной аудит: 2 кредита</li>
-          <li>• Дополнительный аудит: 1 кредит</li>
-          <li>• Кредиты не имеют срока действия</li>
-          <li>• Grace-лимит: можно уйти в минус на 1 кредит</li>
+          <li>• {t('components.credits.purchase.info.mainAudit')}</li>
+          <li>• {t('components.credits.purchase.info.additionalAudit')}</li>
+          <li>• {t('components.credits.purchase.info.noExpiry')}</li>
+          <li>• {t('components.credits.purchase.info.graceLimit')}</li>
         </ul>
       </div>
     </div>

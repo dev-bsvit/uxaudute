@@ -67,6 +67,7 @@
   "interface": {
     "analyzedInterface": "Analyzed Interface",
     "analyzedUrl": "Analyzed URL",
-    "annotationEditor": "Annotation editor opens automatically. Add comments and highlights to the screenshot"
+    "annotationEditor": "Annotation editor opens automatically. Add comments and highlights to the screenshot",
+    "analysisDate": "Analysis on {{date}}"
   }
 }

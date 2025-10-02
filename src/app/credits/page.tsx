@@ -4,22 +4,20 @@ import { useState, useEffect } from 'react'
 import { SidebarDemo } from '@/components/sidebar-demo'
 import { PageHeader } from '@/components/ui/page-header'
 import { PageContent } from '@/components/ui/page-content'
-import { Section } from '@/components/ui/section'
 import CreditsBalance from '@/components/CreditsBalance'
 import CreditsPurchase from '@/components/CreditsPurchase'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
-import { Separator } from '@/components/ui/separator'
 import { User } from '@supabase/supabase-js'
 import { supabase } from '@/lib/supabase'
-import { useRouter } from 'next/navigation'
 import { CreditCard, TrendingUp, History, Info } from 'lucide-react'
+import { useTranslation } from '@/hooks/use-translation'
 
 export default function CreditsPage() {
   const [user, setUser] = useState<User | null>(null)
   const [loading, setLoading] = useState(true)
   const [refreshBalance, setRefreshBalance] = useState(0)
-  const router = useRouter()
+  const { t } = useTranslation()
 
   // Используем реального пользователя
   const userId = user?.id
@@ -40,13 +38,18 @@ export default function CreditsPage() {
     return () => subscription.unsubscribe()
   }, [])
 
-  const handleAuthChange = (user: User | null) => {
-    setUser(user)
-  }
-
   const handlePurchaseComplete = () => {
     setRefreshBalance(prev => prev + 1)
   }
+
+  const auditTypeItems = [
+    { key: 'main', badge: 'main' },
+    { key: 'additional', badge: 'additional' },
+    { key: 'business', badge: 'business' },
+    { key: 'abTest', badge: 'abTest' }
+  ] as const
+
+  const featureItems = ['graceLimit', 'noExpiry', 'testAccounts', 'teamAccounts'] as const
 
   if (loading) {
     return (
@@ -62,10 +65,10 @@ export default function CreditsPage() {
         <div className="max-w-md mx-auto bg-white rounded-2xl shadow-lg p-8">
           <div className="text-center mb-8">
             <h2 className="text-3xl font-bold text-slate-900 mb-4">
-              Войдите для управления кредитами
+              {t('components.creditsPage.loginTitle')}
             </h2>
             <p className="text-lg text-slate-600">
-              Управляйте своим балансом кредитов и покупайте дополнительные пакеты
+              {t('components.creditsPage.loginDescription')}
             </p>
           </div>
         </div>
@@ -78,14 +81,14 @@ export default function CreditsPage() {
       <PageContent maxWidth="7xl">
         <div className="space-y-8">
           <PageHeader 
-            title="Счет"
-            description="Управляйте своим балансом кредитов и покупайте дополнительные пакеты для проведения аудитов."
+            title={t('components.creditsPage.title')}
+            description={t('components.creditsPage.description')}
           />
           
           {/* Баланс кредитов */}
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-2xl font-bold">Баланс кредитов</CardTitle>
+              <CardTitle className="text-2xl font-bold">{t('components.credits.balanceTitle')}</CardTitle>
               <CreditCard className="h-6 w-6 text-muted-foreground" />
             </CardHeader>
             <CardContent>
@@ -102,10 +105,10 @@ export default function CreditsPage() {
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <TrendingUp className="h-5 w-5" />
-                Пополнить баланс
+                {t('components.creditsPage.purchaseTitle')}
               </CardTitle>
               <CardDescription>
-                Выберите пакет кредитов для пополнения баланса
+                {t('components.creditsPage.purchaseDescription')}
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -121,10 +124,10 @@ export default function CreditsPage() {
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <History className="h-5 w-5" />
-                История транзакций
+                {t('components.creditsPage.historyTitle')}
               </CardTitle>
               <CardDescription>
-                Последние операции с вашим балансом кредитов
+                {t('components.creditsPage.historyDescription')}
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -141,55 +144,35 @@ export default function CreditsPage() {
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Info className="h-5 w-5" />
-                Как работает система кредитов
+                {t('components.creditsPage.infoTitle')}
               </CardTitle>
               <CardDescription>
-                Подробная информация о типах аудитов и особенностях системы
+                {t('components.creditsPage.infoDescription')}
               </CardDescription>
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                  <h4 className="font-semibold mb-3 text-foreground">Типы аудитов</h4>
+                  <h4 className="font-semibold mb-3 text-foreground">{t('components.creditsPage.auditTypesTitle')}</h4>
                   <div className="space-y-2">
-                    <div className="flex justify-between items-center p-2 bg-muted rounded">
-                      <span className="text-sm">Основной аудит</span>
-                      <Badge variant="outline">2 кредита</Badge>
-                    </div>
-                    <div className="flex justify-between items-center p-2 bg-muted rounded">
-                      <span className="text-sm">Дополнительный аудит</span>
-                      <Badge variant="outline">1 кредит</Badge>
-                    </div>
-                    <div className="flex justify-between items-center p-2 bg-muted rounded">
-                      <span className="text-sm">Бизнес-анализ</span>
-                      <Badge variant="outline">1 кредит</Badge>
-                    </div>
-                    <div className="flex justify-between items-center p-2 bg-muted rounded">
-                      <span className="text-sm">A/B тестирование</span>
-                      <Badge variant="outline">1 кредит</Badge>
-                    </div>
+                    {auditTypeItems.map((item) => (
+                      <div key={item.key} className="flex justify-between items-center p-2 bg-muted rounded">
+                        <span className="text-sm">{t(`components.creditsPage.auditTypes.${item.key}` as const)}</span>
+                        <Badge variant="outline">{t(`components.creditsPage.auditBadges.${item.badge}` as const)}</Badge>
+                      </div>
+                    ))}
                   </div>
                 </div>
                 
                 <div>
-                  <h4 className="font-semibold mb-3 text-foreground">Особенности</h4>
+                  <h4 className="font-semibold mb-3 text-foreground">{t('components.creditsPage.featuresTitle')}</h4>
                   <div className="space-y-2">
-                    <div className="flex items-center gap-2 p-2 bg-muted rounded">
-                      <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
-                      <span className="text-sm">Grace-лимит: -1 кредит</span>
-                    </div>
-                    <div className="flex items-center gap-2 p-2 bg-muted rounded">
-                      <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                      <span className="text-sm">Кредиты не сгорают</span>
-                    </div>
-                    <div className="flex items-center gap-2 p-2 bg-muted rounded">
-                      <div className="w-2 h-2 bg-purple-500 rounded-full"></div>
-                      <span className="text-sm">Тестовые аккаунты: бесплатно</span>
-                    </div>
-                    <div className="flex items-center gap-2 p-2 bg-muted rounded">
-                      <div className="w-2 h-2 bg-orange-500 rounded-full"></div>
-                      <span className="text-sm">Командные аккаунты: общий пул</span>
-                    </div>
+                    {featureItems.map((featureKey, index) => (
+                      <div key={featureKey} className="flex items-center gap-2 p-2 bg-muted rounded">
+                        <div className={`w-2 h-2 rounded-full ${['bg-blue-500','bg-green-500','bg-purple-500','bg-orange-500'][index % 4]}`}></div>
+                        <span className="text-sm">{t(`components.creditsPage.features.${featureKey}` as const)}</span>
+                      </div>
+                    ))}
                   </div>
                 </div>
               </div>
@@ -199,7 +182,7 @@ export default function CreditsPage() {
           {/* Статус системы */}
           <div className="text-center">
             <div className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800">
-              ✅ Система токеномики активна
+              {t('components.creditsPage.statusActive')}
             </div>
           </div>
         </div>
@@ -207,4 +190,3 @@ export default function CreditsPage() {
     </SidebarDemo>
   )
 }
-

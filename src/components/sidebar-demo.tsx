@@ -31,35 +31,35 @@ export function SidebarDemo({ children, user }: SidebarDemoProps) {
 
   const links = [
     {
-      label: tWithFallback("components.sidebar.home", "Главная"),
+      label: tWithFallback("components.sidebar.home", "Home"),
       href: "/",
       icon: (
         <IconHome className="h-5 w-5 shrink-0 text-white" />
       ),
     },
     {
-      label: tWithFallback("components.sidebar.quickAnalysis", "Быстрый анализ"),
+      label: tWithFallback("components.sidebar.quickAnalysis", "Quick Analysis"),
       href: "/dashboard",
       icon: (
         <IconChartBar className="h-5 w-5 shrink-0 text-white" />
       ),
     },
     {
-      label: tWithFallback("components.sidebar.myProjects", "Мои проекты"),
+      label: tWithFallback("components.sidebar.myProjects", "My Projects"),
       href: "/projects",
       icon: (
         <IconFolder className="h-5 w-5 shrink-0 text-white" />
       ),
     },
     {
-      label: tWithFallback("components.sidebar.credits", "Кредиты"),
+      label: tWithFallback("components.sidebar.credits", "Credits"),
       href: "/credits",
       icon: (
         <IconCreditCard className="h-5 w-5 shrink-0 text-white" />
       ),
     },
     {
-      label: tWithFallback("components.sidebar.settings", "Настройки"),
+      label: tWithFallback("components.sidebar.settings", "Settings"),
       href: "/settings",
       icon: (
         <IconSettings className="h-5 w-5 shrink-0 text-white" />
@@ -134,7 +134,7 @@ export function SidebarDemo({ children, user }: SidebarDemoProps) {
               {/* Баланс кредитов */}
               <div className="mt-4 p-3 bg-white/10 rounded-lg">
                 <div className="flex items-center justify-between">
-                  <span className="text-sm text-white/80">{tWithFallback("components.credits.balance", "Баланс")}</span>
+                  <span className="text-sm text-white/80">{tWithFallback("components.credits.balance", "Balance")}</span>
                   <span className="text-lg font-bold text-white">
                     {creditsBalance !== null ? creditsBalance : '...'}
                   </span>
@@ -146,14 +146,14 @@ export function SidebarDemo({ children, user }: SidebarDemoProps) {
                 className="flex items-center gap-3 px-3 py-2 text-sm font-medium text-white hover:bg-white/20 rounded-lg transition-colors"
               >
                 <IconLogout className="h-5 w-5 shrink-0" />
-                {tWithFallback("navigation.logout", "Выйти")}
+                {tWithFallback("navigation.logout", "Log out")}
               </button>
             </div>
           </div>
           <div>
             <SidebarLink
               link={{
-                label: user?.user_metadata?.full_name || user?.email?.split('@')[0] || tWithFallback("components.sidebar.user", "Пользователь"),
+                label: user?.user_metadata?.full_name || user?.email?.split('@')[0] || tWithFallback("components.sidebar.user", "User"),
                 href: "#",
                 icon: (
                   <div className="h-7 w-7 shrink-0 rounded-full bg-gradient-to-r from-blue-500 to-purple-600 flex items-center justify-center">

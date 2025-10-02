@@ -5,7 +5,48 @@
     "buy": "Buy",
     "processingPayment": "Processing payment...",
     "pay": "Pay",
-    "balance": "Balance"
+    "balance": "Balance",
+    "loading": "Loading balance...",
+    "loadError": "Failed to load balance: {{error}}",
+    "notFound": "Balance not found",
+    "balanceTitle": "Credit balance",
+    "lastUpdated": "Last updated: {{date}}",
+    "creditsLabel": "credits",
+    "graceLimitWarning": "⚠️ Grace limit used. Top up your balance to continue working.",
+    "transactionsTitle": "Transaction history",
+    "transactionBalance": "Balance: {{balance}}",
+    "packages": {
+      "basic": "Basic",
+      "pro": "Pro",
+      "team": "Team"
+    },
+    "purchase": {
+      "loading": "Loading packages...",
+      "loadError": "Error: {{error}}",
+      "credits": "credits",
+      "pricePerCredit": "{{price}} per credit",
+      "popular": "Popular",
+      "infoTitle": "Credit information:",
+      "info": {
+        "mainAudit": "Main audit: 2 credits",
+        "additionalAudit": "Additional audit: 1 credit",
+        "businessAudit": "Business analysis: 1 credit",
+        "abTest": "A/B testing: 1 credit",
+        "graceLimit": "Grace limit: -1 credit",
+        "noExpiry": "Credits never expire",
+        "testAccounts": "Test accounts: free",
+        "teamAccounts": "Team accounts: shared pool"
+      }
+    },
+    "checkout": {
+      "title": "Package {{package}} purchase",
+      "description": "Complete your credit purchase",
+      "amount": "{{amount}} credits",
+      "total": "{{price}} ₽",
+      "processing": "Processing payment...",
+      "pay": "Pay {{price}} ₽",
+      "cancel": "Cancel purchase"
+    }
   },
   "analysis": {
     "receivedData": "AnalysisResult received:",
@@ -51,6 +92,39 @@
     "ready": "Language system ready",
     "waiting": "Waiting for initialization",
     "loadingTranslations": "Loading translations and settings..."
+  },
+  "creditsPage": {
+    "loginTitle": "Sign in to manage credits",
+    "loginDescription": "Manage your credit balance and purchase additional packages",
+    "title": "Account",
+    "description": "Manage your credit balance and purchase additional packages for running audits.",
+    "purchaseTitle": "Top up balance",
+    "purchaseDescription": "Choose a credit package to add to your balance",
+    "historyTitle": "Transaction history",
+    "historyDescription": "Latest operations with your credit balance",
+    "infoTitle": "How the credit system works",
+    "infoDescription": "Detailed information about audit types and system features",
+    "auditTypesTitle": "Audit types",
+    "featuresTitle": "Features",
+    "statusActive": "✅ Tokenomics system active",
+    "auditTypes": {
+      "main": "Main audit",
+      "additional": "Additional audit",
+      "business": "Business analysis",
+      "abTest": "A/B testing"
+    },
+    "features": {
+      "graceLimit": "Grace limit: -1 credit",
+      "noExpiry": "Credits never expire",
+      "testAccounts": "Test accounts: free",
+      "teamAccounts": "Team accounts: shared pool"
+    },
+    "auditBadges": {
+      "main": "2 credits",
+      "additional": "1 credit",
+      "business": "1 credit",
+      "abTest": "1 credit"
+    }
   },
   "sidebar": {
     "home": "Home",

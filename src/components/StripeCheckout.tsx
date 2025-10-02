@@ -2,6 +2,8 @@
 
 import { useState } from 'react'
 import { useStripe, useElements, PaymentElement } from '@stripe/react-stripe-js'
+import { useTranslation } from '@/hooks/use-translation'
+import { createFormatters } from '@/lib/i18n/formatters'
 
 interface StripeCheckoutProps {
   clientSecret: string
@@ -18,6 +20,13 @@ function CheckoutForm({ clientSecret, packageInfo, onSuccess, onError }: StripeC
   const stripe = useStripe()
   const elements = useElements()
   const [isProcessing, setIsProcessing] = useState(false)
+  const { t, currentLanguage } = useTranslation()
+  const { formatNumber } = createFormatters(currentLanguage || 'en')
+  const packageName = t(`components.credits.packages.${packageInfo.package_type}` as const)
+  const creditsLabel = t('components.credits.checkout.amount', {
+    amount: formatNumber(packageInfo.credits_amount)
+  })
+  const totalPrice = formatNumber(packageInfo.price_rub)
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault()
@@ -53,14 +62,14 @@ function CheckoutForm({ clientSecret, packageInfo, onSuccess, onError }: StripeC
     <form onSubmit={handleSubmit} className="space-y-6">
       <div className="bg-blue-50 rounded-lg p-4">
         <h3 className="text-lg font-semibold text-blue-900 mb-2">
-          Покупка пакета {packageInfo.package_type}
+          {t('components.credits.checkout.title', { package: packageName })}
         </h3>
         <div className="flex justify-between items-center">
           <span className="text-blue-800">
-            {packageInfo.credits_amount} кредитов
+            {creditsLabel}
           </span>
           <span className="text-xl font-bold text-blue-900">
-            {packageInfo.price_rub.toLocaleString('ru-RU')} ₽
+            {t('components.credits.checkout.total', { price: totalPrice })}
           </span>
         </div>
       </div>
@@ -78,7 +87,9 @@ function CheckoutForm({ clientSecret, packageInfo, onSuccess, onError }: StripeC
             : 'bg-blue-600 text-white hover:bg-blue-700'
         }`}
       >
-        {isProcessing ? 'Обработка платежа...' : `Оплатить ${packageInfo.price_rub.toLocaleString('ru-RU')} ₽`}
+        {isProcessing
+          ? t('components.credits.checkout.processing')
+          : t('components.credits.checkout.pay', { price: totalPrice })}
       </button>
     </form>
   )
@@ -91,4 +102,3 @@ export default function StripeCheckout(props: StripeCheckoutProps) {
     </div>
   )
 }
-

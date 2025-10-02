@@ -5,7 +5,48 @@
     "buy": "Купить",
     "processingPayment": "Обработка платежа...",
     "pay": "Оплатить",
-    "balance": "Баланс"
+    "balance": "Баланс",
+    "loading": "Загрузка баланса...",
+    "loadError": "Ошибка загрузки баланса: {{error}}",
+    "notFound": "Баланс не найден",
+    "balanceTitle": "Баланс кредитов",
+    "lastUpdated": "Последнее обновление: {{date}}",
+    "creditsLabel": "кредитов",
+    "graceLimitWarning": "⚠️ Использован grace-лимит. Пополните баланс для продолжения работы.",
+    "transactionsTitle": "История транзакций",
+    "transactionBalance": "Баланс: {{balance}}",
+    "packages": {
+      "basic": "Базовый",
+      "pro": "Pro",
+      "team": "Team"
+    },
+    "purchase": {
+      "loading": "Загрузка пакетов...",
+      "loadError": "Ошибка: {{error}}",
+      "credits": "кредитов",
+      "pricePerCredit": "{{price}} за кредит",
+      "popular": "Популярный",
+      "infoTitle": "Информация о кредитах:",
+      "info": {
+        "mainAudit": "Основной аудит: 2 кредита",
+        "additionalAudit": "Дополнительный аудит: 1 кредит",
+        "businessAudit": "Бизнес-анализ: 1 кредит",
+        "abTest": "A/B тестирование: 1 кредит",
+        "graceLimit": "Grace-лимит: -1 кредит",
+        "noExpiry": "Кредиты не сгорают",
+        "testAccounts": "Тестовые аккаунты: бесплатно",
+        "teamAccounts": "Командные аккаунты: общий пул"
+      }
+    },
+    "checkout": {
+      "title": "Покупка пакета {{package}}",
+      "description": "Завершите покупку кредитов",
+      "amount": "{{amount}} кредитов",
+      "total": "{{price}} ₽",
+      "processing": "Обработка платежа...",
+      "pay": "Оплатить {{price}} ₽",
+      "cancel": "Отменить покупку"
+    }
   },
   "analysis": {
     "receivedData": "AnalysisResult получил:",
@@ -51,6 +92,39 @@
     "ready": "Языковая система готова",
     "waiting": "Ожидание инициализации",
     "loadingTranslations": "Загрузка переводов и настроек..."
+  },
+  "creditsPage": {
+    "loginTitle": "Войдите для управления кредитами",
+    "loginDescription": "Управляйте своим балансом кредитов и покупайте дополнительные пакеты",
+    "title": "Счет",
+    "description": "Управляйте своим балансом кредитов и покупайте дополнительные пакеты для проведения аудитов.",
+    "purchaseTitle": "Пополнить баланс",
+    "purchaseDescription": "Выберите пакет кредитов для пополнения баланса",
+    "historyTitle": "История транзакций",
+    "historyDescription": "Последние операции с вашим балансом кредитов",
+    "infoTitle": "Как работает система кредитов",
+    "infoDescription": "Подробная информация о типах аудитов и особенностях системы",
+    "auditTypesTitle": "Типы аудитов",
+    "featuresTitle": "Особенности",
+    "statusActive": "✅ Система токеномики активна",
+    "auditTypes": {
+      "main": "Основной аудит",
+      "additional": "Дополнительный аудит",
+      "business": "Бизнес-анализ",
+      "abTest": "A/B тестирование"
+    },
+    "features": {
+      "graceLimit": "Grace-лимит: -1 кредит",
+      "noExpiry": "Кредиты не сгорают",
+      "testAccounts": "Тестовые аккаунты: бесплатно",
+      "teamAccounts": "Командные аккаунты: общий пул"
+    },
+    "auditBadges": {
+      "main": "2 кредита",
+      "additional": "1 кредит",
+      "business": "1 кредит",
+      "abTest": "1 кредит"
+    }
   },
   "sidebar": {
     "home": "Главная",

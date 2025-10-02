@@ -11,6 +11,7 @@ import {
   Lightbulb,
   Sparkles 
 } from "lucide-react"
+import { useTranslation } from '@/hooks/use-translation'
 
 interface ActionPanelProps {
   onAction: (action: ActionType) => void
@@ -33,19 +34,29 @@ const actionGradients: Record<string, { gradient: string; hoverGradient: string 
   'hypotheses': { gradient: 'from-yellow-500 to-amber-500', hoverGradient: 'from-yellow-600 to-amber-600' }
 }
 
+const actionTranslationKeys: Record<ActionType, string> = {
+  'research': 'analysis.actionsPanel.actions.research',
+  'collect': 'analysis.actionsPanel.actions.collect',
+  'analytics': 'analysis.actionsPanel.actions.analytics',
+  'ab-test': 'analysis.actionsPanel.actions.abTest',
+  'hypotheses': 'analysis.actionsPanel.actions.hypotheses'
+}
+
 export function ActionPanel({ onAction, className }: ActionPanelProps) {
+  const { t } = useTranslation()
+
   return (
     <div className={`w-full max-w-6xl mx-auto p-6 ${className}`}>
       <div className="text-center mb-8">
         <div className="flex items-center justify-center mb-3">
           <Sparkles className="w-6 h-6 text-blue-500 mr-2" />
           <h3 className="text-2xl font-bold text-gradient">
-            Экспертные действия
+            {t('analysis.actionsPanel.title')}
           </h3>
           <Sparkles className="w-6 h-6 text-purple-500 ml-2" />
         </div>
         <p className="text-slate-600">
-          Выберите тип анализа для получения профессиональных инсайтов
+          {t('analysis.actionsPanel.subtitle')}
         </p>
       </div>
       
@@ -53,6 +64,8 @@ export function ActionPanel({ onAction, className }: ActionPanelProps) {
         {ACTIONS.map((action, index) => {
           const Icon = actionIcons[action.id] || Search
           const colors = actionGradients[action.id] || actionGradients['research']
+          const translationKey = actionTranslationKeys[action.id]
+          const label = t(translationKey)
           
           return (
             <Card 
@@ -68,14 +81,14 @@ export function ActionPanel({ onAction, className }: ActionPanelProps) {
                 </div>
                 
                 <span className="text-sm font-semibold text-center leading-tight">
-                  {action.label}
+                  {label}
                 </span>
               </div>
 
               <Button
                 onClick={() => onAction(action.id)}
                 className="absolute inset-0 w-full h-full bg-transparent hover:bg-transparent border-none shadow-none"
-                aria-label={action.label}
+                aria-label={label}
               />
               
               {/* Эффект свечения при наведении */}
@@ -90,7 +103,7 @@ export function ActionPanel({ onAction, className }: ActionPanelProps) {
         <div className="inline-flex items-center px-4 py-2 bg-white/60 backdrop-blur-sm rounded-full border border-white/20 shadow-soft">
           <div className="w-2 h-2 bg-green-500 rounded-full mr-2 animate-pulse"></div>
           <span className="text-xs font-medium text-slate-700">
-            Анализы выполняются с помощью GPT-4 ИИ
+            {t('analysis.actionsPanel.badge')}
           </span>
         </div>
       </div>

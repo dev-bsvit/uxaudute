@@ -1,8 +1,9 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { createClient } from '@supabase/supabase-js'
 import { supabase } from '@/lib/supabase'
+import { useTranslation } from '@/hooks/use-translation'
+import { createFormatters } from '@/lib/i18n/formatters'
 
 interface CreditsBalanceProps {
   userId?: string
@@ -30,6 +31,8 @@ export default function CreditsBalance({ userId, showTransactions = false }: Cre
   const [transactions, setTransactions] = useState<Transaction[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const { t, currentLanguage } = useTranslation()
+  const { formatDateTime, formatNumber } = createFormatters(currentLanguage || 'en')
 
   useEffect(() => {
     if (!userId) return
@@ -99,7 +102,7 @@ export default function CreditsBalance({ userId, showTransactions = false }: Cre
     return (
       <div className="flex items-center space-x-2">
         <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600"></div>
-        <span className="text-sm text-gray-600">Загрузка баланса...</span>
+        <span className="text-sm text-gray-600">{t('components.credits.loading')}</span>
       </div>
     )
   }
@@ -107,7 +110,7 @@ export default function CreditsBalance({ userId, showTransactions = false }: Cre
   if (error) {
     return (
       <div className="text-red-600 text-sm">
-        Ошибка загрузки баланса: {error}
+        {t('components.credits.loadError', { error })}
       </div>
     )
   }
@@ -115,7 +118,7 @@ export default function CreditsBalance({ userId, showTransactions = false }: Cre
   if (!balance) {
     return (
       <div className="text-gray-500 text-sm">
-        Баланс не найден
+        {t('components.credits.notFound')}
       </div>
     )
   }
@@ -126,17 +129,17 @@ export default function CreditsBalance({ userId, showTransactions = false }: Cre
       <div className="bg-white rounded-lg border border-gray-200 p-4">
         <div className="flex items-center justify-between">
           <div>
-            <h3 className="text-lg font-semibold text-gray-900">Баланс кредитов</h3>
+            <h3 className="text-lg font-semibold text-gray-900">{t('components.credits.balanceTitle')}</h3>
             <p className="text-sm text-gray-600">
-              Последнее обновление: {new Date(balance.last_updated).toLocaleString('ru-RU')}
+              {t('components.credits.lastUpdated', { date: formatDateTime(balance.last_updated) })}
             </p>
           </div>
           <div className="text-right">
             <div className="text-3xl font-bold text-blue-600">
-              {balance.balance}
+              {formatNumber(balance.balance)}
             </div>
             <div className="text-sm text-gray-500">
-              кредитов
+              {t('components.credits.creditsLabel')}
             </div>
           </div>
         </div>
@@ -144,7 +147,7 @@ export default function CreditsBalance({ userId, showTransactions = false }: Cre
         {balance.grace_limit_used && (
           <div className="mt-3 p-2 bg-yellow-50 border border-yellow-200 rounded-md">
             <p className="text-sm text-yellow-800">
-              ⚠️ Использован grace-лимит. Пополните баланс для продолжения работы.
+              {t('components.credits.graceLimitWarning')}
             </p>
           </div>
         )}
@@ -153,7 +156,7 @@ export default function CreditsBalance({ userId, showTransactions = false }: Cre
       {/* Транзакции */}
       {showTransactions && transactions.length > 0 && (
         <div className="bg-white rounded-lg border border-gray-200 p-4">
-          <h4 className="text-lg font-semibold text-gray-900 mb-3">История транзакций</h4>
+          <h4 className="text-lg font-semibold text-gray-900 mb-3">{t('components.credits.transactionsTitle')}</h4>
           <div className="space-y-2">
             {transactions.map((transaction) => (
               <div key={transaction.id} className="flex items-center justify-between py-2 border-b border-gray-100 last:border-b-0">
@@ -171,17 +174,17 @@ export default function CreditsBalance({ userId, showTransactions = false }: Cre
                     </span>
                   </div>
                   <div className="text-xs text-gray-500 mt-1">
-                    {transaction.source} • {new Date(transaction.created_at).toLocaleString('ru-RU')}
+                    {transaction.source} • {formatDateTime(transaction.created_at)}
                   </div>
                 </div>
                 <div className="text-right">
                   <div className={`text-sm font-medium ${
                     transaction.type === 'credit' ? 'text-green-600' : 'text-red-600'
                   }`}>
-                    {transaction.type === 'credit' ? '+' : ''}{transaction.amount}
+                    {transaction.type === 'credit' ? '+' : ''}{formatNumber(transaction.amount)}
                   </div>
                   <div className="text-xs text-gray-500">
-                    Баланс: {transaction.balance_after}
+                    {t('components.credits.transactionBalance', { balance: formatNumber(transaction.balance_after) })}
                   </div>
                 </div>
               </div>
