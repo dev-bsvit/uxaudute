@@ -5,7 +5,7 @@ import { useParams, useSearchParams } from 'next/navigation'
 import { AnalysisResultDisplay } from '@/components/analysis-result-display'
 import { ABTestDisplay } from '@/components/ab-test-display'
 import { HypothesesDisplay } from '@/components/hypotheses-display'
-import { BusinessTextDisplay } from '@/components/business-text-display'
+import { BusinessAnalyticsModern } from '@/components/business-analytics-modern'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -264,7 +264,7 @@ export default function PublicAuditPage() {
           {/* Вкладка Продуктовая аналитика */}
           <TabsContent value="analytics" className="mt-6">
             {audit.business_analytics_data ? (
-              <BusinessTextDisplay 
+              <BusinessAnalyticsModern
                 data={audit.business_analytics_data}
                 isLoading={false}
               />

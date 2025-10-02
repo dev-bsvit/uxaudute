@@ -313,10 +313,16 @@ export interface UserBehaviorInsight {
 
 export interface ConversionBarrier {
   barrier: string
-  impact_level: 'high' | 'medium' | 'low'
-  affected_users: string
-  business_cost: string
-  solution: string
+  // New format fields (from updated prompt)
+  severity?: 'high' | 'medium' | 'low'
+  affected_stage?: string
+  cost_to_business?: string
+  recommended_fix?: string
+  // Legacy format fields (backward compatibility)
+  impact_level?: 'high' | 'medium' | 'low'
+  affected_users?: string
+  business_cost?: string
+  solution?: string
 }
 
 export interface OptimizationOpportunity {
@@ -408,17 +414,24 @@ export interface BusinessAnalyticsResponse {
 export interface BusinessRisk {
   risk: string
   severity: 'high' | 'medium' | 'low'
-  affected_users: string
-  business_consequences: string
+  // New format fields
+  probability?: string
   mitigation: string
+  // Legacy format fields
+  affected_users?: string
+  business_consequences?: string
 }
 
 export interface MissedOpportunity {
   opportunity: string
-  potential_impact: string
+  // New format fields
+  potential_value?: string
+  how_to_capture?: string
   effort_required: 'high' | 'medium' | 'low'
-  priority: 'high' | 'medium' | 'low'
-  implementation: string
+  // Legacy format fields
+  potential_impact?: string
+  priority?: 'high' | 'medium' | 'low'
+  implementation?: string
 }
 
 // Union тип для всех возможных ответов

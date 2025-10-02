@@ -219,16 +219,20 @@ export const BusinessAnalyticsDisplay: React.FC<BusinessAnalyticsDisplayProps> =
                       <Badge className={getImpactColor(risk.severity)}>
                         {risk.severity}
                       </Badge>
-                      <Badge variant="outline">
-                        {risk.affected_users}
-                      </Badge>
+                      {(risk.affected_users || risk.probability) && (
+                        <Badge variant="outline">
+                          {risk.affected_users || risk.probability}
+                        </Badge>
+                      )}
                     </div>
                   </div>
                   <div className="grid md:grid-cols-2 gap-4 text-sm">
-                    <div>
-                      <span className="text-slate-600">Бизнес-последствия:</span>
-                      <p className="font-medium text-red-600">{risk.business_consequences}</p>
-                    </div>
+                    {(risk.business_consequences || risk.probability) && (
+                      <div>
+                        <span className="text-slate-600">{risk.business_consequences ? 'Бизнес-последствия:' : 'Вероятность:'}</span>
+                        <p className="font-medium text-red-600">{risk.business_consequences || risk.probability}</p>
+                      </div>
+                    )}
                     <div>
                       <span className="text-slate-600">Рекомендации по снижению:</span>
                       <p className="font-medium">{risk.mitigation}</p>
@@ -257,9 +261,11 @@ export const BusinessAnalyticsDisplay: React.FC<BusinessAnalyticsDisplayProps> =
                   <div className="flex items-center justify-between mb-2">
                     <h4 className="font-semibold text-slate-900">{opportunity.opportunity}</h4>
                     <div className="flex gap-2">
-                      <Badge className={getPriorityColor(opportunity.priority)}>
-                        {opportunity.priority}
-                      </Badge>
+                      {opportunity.priority && (
+                        <Badge className={getPriorityColor(opportunity.priority)}>
+                          {opportunity.priority}
+                        </Badge>
+                      )}
                       <Badge className={getImpactColor(opportunity.effort_required)}>
                         {opportunity.effort_required}
                       </Badge>
@@ -268,11 +274,11 @@ export const BusinessAnalyticsDisplay: React.FC<BusinessAnalyticsDisplayProps> =
                   <div className="grid md:grid-cols-2 gap-4 text-sm">
                     <div>
                       <span className="text-slate-600">Потенциальное влияние:</span>
-                      <p className="font-medium text-green-600">{opportunity.potential_impact}</p>
+                      <p className="font-medium text-green-600">{opportunity.potential_impact || opportunity.potential_value || 'N/A'}</p>
                     </div>
                     <div>
                       <span className="text-slate-600">Как реализовать:</span>
-                      <p className="font-medium">{opportunity.implementation}</p>
+                      <p className="font-medium">{opportunity.implementation || opportunity.how_to_capture || 'N/A'}</p>
                     </div>
                   </div>
                 </div>
@@ -294,22 +300,26 @@ export const BusinessAnalyticsDisplay: React.FC<BusinessAnalyticsDisplayProps> =
                 <div className="flex items-center justify-between mb-2">
                   <h4 className="font-semibold text-slate-900">{barrier.barrier}</h4>
                   <div className="flex gap-2">
-                    <Badge className={getImpactColor(barrier.impact_level)}>
-                      {barrier.impact_level}
-                    </Badge>
-                    <Badge variant="outline">
-                      {barrier.affected_users}
-                    </Badge>
+                    {(barrier.impact_level || barrier.severity) && (
+                      <Badge className={getImpactColor(barrier.impact_level || barrier.severity || 'low')}>
+                        {barrier.impact_level || barrier.severity}
+                      </Badge>
+                    )}
+                    {(barrier.affected_users || barrier.affected_stage) && (
+                      <Badge variant="outline">
+                        {barrier.affected_users || barrier.affected_stage}
+                      </Badge>
+                    )}
                   </div>
                 </div>
                 <div className="grid md:grid-cols-2 gap-4 text-sm">
                   <div>
                     <span className="text-slate-600">Бизнес-стоимость:</span>
-                    <p className="font-medium text-red-600">{barrier.business_cost}</p>
+                    <p className="font-medium text-red-600">{barrier.business_cost || barrier.cost_to_business || 'N/A'}</p>
                   </div>
                   <div>
                     <span className="text-slate-600">Решение:</span>
-                    <p className="font-medium">{barrier.solution}</p>
+                    <p className="font-medium">{barrier.solution || barrier.recommended_fix || 'N/A'}</p>
                   </div>
                 </div>
               </div>

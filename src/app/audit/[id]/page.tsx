@@ -5,7 +5,7 @@ import { useParams, useRouter } from 'next/navigation'
 import { AnalysisResultDisplay } from '@/components/analysis-result-display'
 import { ABTestDisplay } from '@/components/ab-test-display'
 import { HypothesesDisplay } from '@/components/hypotheses-display'
-import { BusinessTextDisplay } from '@/components/business-text-display'
+import { BusinessAnalyticsModern } from '@/components/business-analytics-modern'
 import { AuditDebugPanel } from '@/components/audit-debug-panel'
 import { SidebarDemo } from '@/components/sidebar-demo'
 import { Button } from '@/components/ui/button'
@@ -15,7 +15,7 @@ import { Share2, RefreshCw } from 'lucide-react'
 import { BackArrow } from '@/components/icons/back-arrow'
 import { supabase } from '@/lib/supabase'
 import { User } from '@supabase/supabase-js'
-import { ABTestResponse, HypothesisResponse } from '@/lib/analysis-types'
+import { ABTestResponse, HypothesisResponse, BusinessAnalyticsResponse } from '@/lib/analysis-types'
 import { safeParseJSON } from '@/lib/json-parser'
 import { safeAdaptAnalysisData } from '@/lib/analysis-data-adapter'
 import Link from 'next/link'
@@ -49,7 +49,7 @@ export default function AuditPage() {
   const [abTestLoading, setAbTestLoading] = useState(false)
   const [hypothesesData, setHypothesesData] = useState<HypothesisResponse | null>(null)
   const [hypothesesLoading, setHypothesesLoading] = useState(false)
-  const [businessAnalyticsData, setBusinessAnalyticsData] = useState<{ result: string } | null>(null)
+  const [businessAnalyticsData, setBusinessAnalyticsData] = useState<BusinessAnalyticsResponse | null>(null)
   const [businessAnalyticsLoading, setBusinessAnalyticsLoading] = useState(false)
   const [publicUrl, setPublicUrl] = useState<string | null>(null)
   const [publicUrlLoading, setPublicUrlLoading] = useState(false)
@@ -218,21 +218,17 @@ export default function AuditPage() {
   // Функция для генерации бизнес аналитики
   const generateBusinessAnalytics = async () => {
     if (!audit) return
-    
+
     setBusinessAnalyticsLoading(true)
     try {
-      // Подготавливаем контекст для бизнес анализа
-      const context = JSON.stringify(audit.result_data, null, 2)
-      
-      const response = await fetch('/api/business-with-credits', {
+      const response = await fetch('/api/business-analytics', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${(await supabase.auth.getSession()).data.session?.access_token}`
         },
-        body: JSON.stringify({ 
-          context,
-          auditId: audit.id 
+        body: JSON.stringify({
+          auditId: audit.id
         }),
       })
 
@@ -253,8 +249,7 @@ export default function AuditPage() {
       }
 
       const data = await response.json()
-      // Бизнес аналитика возвращает текст, а не JSON объект
-      setBusinessAnalyticsData({ result: data.result } as any)
+      setBusinessAnalyticsData(data.data)
       
       // Обновляем данные аудита
       setAudit(prev => prev ? {
@@ -520,7 +515,7 @@ export default function AuditPage() {
             </TabsContent>
             
             <TabsContent value="analytics">
-              <BusinessTextDisplay 
+              <BusinessAnalyticsModern
                 data={businessAnalyticsData}
                 isLoading={businessAnalyticsLoading}
                 onGenerate={audit?.status === 'completed' ? generateBusinessAnalytics : undefined}
