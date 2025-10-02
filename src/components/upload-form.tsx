@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Textarea } from "@/components/ui/textarea"
 import { Label } from "@/components/ui/label"
+import { ImageUpload } from "@/components/ui/image-upload"
 import { Upload, Link as LinkIcon, Sparkles, Zap } from "lucide-react"
 
 interface UploadFormProps {
@@ -48,11 +49,8 @@ export function UploadForm({ onSubmit, isLoading }: UploadFormProps) {
     }
   }
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const selectedFile = e.target.files?.[0]
-    if (selectedFile) {
-      setFile(selectedFile)
-    }
+  const handleFileChange = (selectedFile: File) => {
+    setFile(selectedFile)
   }
 
   const isValid = (activeTab === 'url' && url) || (activeTab === 'upload' && file)
@@ -125,30 +123,12 @@ export function UploadForm({ onSubmit, isLoading }: UploadFormProps) {
               </div>
             ) : (
               <div className="space-y-3">
-                <label htmlFor="file" className="block text-lg font-semibold text-slate-800">
-                  Загрузить скриншот
-                </label>
-                <div className="relative">
-                  <input
-                    id="file"
-                    type="file"
-                    accept="image/*"
-                    onChange={handleFileChange}
-                    className="w-full px-6 py-4 text-lg border-2 border-dashed border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-white/80 backdrop-blur-sm hover:border-blue-300"
-                    required
-                  />
-                  <Upload className="absolute right-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-slate-400" />
-                </div>
-                {file && (
-                  <div className="p-4 bg-green-50 border border-green-200 rounded-xl">
-                    <p className="text-green-800 font-medium">
-                      ✅ Выбран файл: {file.name}
-                    </p>
-                  </div>
-                )}
-                <p className="text-sm text-slate-500">
-                  Поддерживаются форматы: JPG, PNG, GIF, WebP
-                </p>
+                <ImageUpload
+                  onImageSelect={handleFileChange}
+                  maxSize={10 * 1024 * 1024} // 10MB
+                  acceptedTypes={['image/jpeg', 'image/png', 'image/gif', 'image/webp']}
+                  className="w-full"
+                />
               </div>
             )}
 
