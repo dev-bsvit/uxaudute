@@ -126,7 +126,7 @@ export const BusinessAnalyticsDisplay: React.FC<BusinessAnalyticsDisplayProps> =
         </CardHeader>
         <CardContent>
           <div className="grid md:grid-cols-5 gap-4">
-            {Object.entries(data.business_metrics.conversion_funnel).map(([stage, description], index) => (
+            {data.business_metrics?.conversion_funnel && Object.entries(data.business_metrics.conversion_funnel).map(([stage, description], index) => (
               <div key={stage} className="text-center">
                 <div className="w-12 h-12 bg-blue-100 text-blue-800 rounded-full flex items-center justify-center text-lg font-bold mx-auto mb-2">
                   {index + 1}
@@ -149,7 +149,7 @@ export const BusinessAnalyticsDisplay: React.FC<BusinessAnalyticsDisplayProps> =
         </CardHeader>
         <CardContent>
           <div className="grid md:grid-cols-2 gap-4">
-            {data.business_metrics.key_kpis.map((kpi, index) => (
+            {data.business_metrics?.key_kpis && data.business_metrics.key_kpis.map((kpi, index) => (
               <div key={index} className="bg-slate-50 p-4 rounded-lg">
                 <div className="flex items-center justify-between mb-2">
                   <h4 className="font-semibold text-slate-900">{kpi.metric}</h4>
@@ -186,22 +186,22 @@ export const BusinessAnalyticsDisplay: React.FC<BusinessAnalyticsDisplayProps> =
           <div className="grid md:grid-cols-3 gap-4">
             <div className="text-center">
               <h4 className="text-sm text-slate-600 mb-1">Текущие показатели</h4>
-              <p className="text-2xl font-bold text-slate-900">{data.business_metrics.revenue_impact.current_monthly_revenue}</p>
+              <p className="text-2xl font-bold text-slate-900">{data.business_metrics?.revenue_impact?.current_monthly_revenue || 'N/A'}</p>
             </div>
             <div className="text-center">
               <h4 className="text-sm text-slate-600 mb-1">Потенциальный рост</h4>
-              <p className="text-2xl font-bold text-green-600">{data.business_metrics.revenue_impact.potential_increase}</p>
+              <p className="text-2xl font-bold text-green-600">{data.business_metrics?.revenue_impact?.potential_increase || 'N/A'}</p>
             </div>
             <div className="text-center">
               <h4 className="text-sm text-slate-600 mb-1">Стоимость проблем</h4>
-              <p className="text-2xl font-bold text-red-600">{data.business_metrics.revenue_impact.cost_of_issues}</p>
+              <p className="text-2xl font-bold text-red-600">{data.business_metrics?.revenue_impact?.cost_of_issues || 'N/A'}</p>
             </div>
           </div>
         </CardContent>
       </Card>
 
       {/* Бизнес-риски */}
-      {data.business_risks && data.business_risks.length > 0 && (
+      {data.business_risks && data.business_risks?.length > 0 && (
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center">
@@ -211,7 +211,7 @@ export const BusinessAnalyticsDisplay: React.FC<BusinessAnalyticsDisplayProps> =
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              {data.business_risks.map((risk, index) => (
+              {data.business_risks?.map((risk, index) => (
                 <div key={index} className="border-l-4 border-red-200 pl-4 py-2">
                   <div className="flex items-center justify-between mb-2">
                     <h4 className="font-semibold text-slate-900">{risk.risk}</h4>
@@ -242,7 +242,7 @@ export const BusinessAnalyticsDisplay: React.FC<BusinessAnalyticsDisplayProps> =
       )}
 
       {/* Упущенные возможности */}
-      {data.missed_opportunities && data.missed_opportunities.length > 0 && (
+      {data.missed_opportunities && data.missed_opportunities?.length > 0 && (
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center">
@@ -252,7 +252,7 @@ export const BusinessAnalyticsDisplay: React.FC<BusinessAnalyticsDisplayProps> =
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              {data.missed_opportunities.map((opportunity, index) => (
+              {data.missed_opportunities?.map((opportunity, index) => (
                 <div key={index} className="bg-slate-50 p-4 rounded-lg">
                   <div className="flex items-center justify-between mb-2">
                     <h4 className="font-semibold text-slate-900">{opportunity.opportunity}</h4>
@@ -289,7 +289,7 @@ export const BusinessAnalyticsDisplay: React.FC<BusinessAnalyticsDisplayProps> =
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
-            {data.conversion_barriers.map((barrier, index) => (
+            {data.conversion_barriers?.map((barrier, index) => (
               <div key={index} className="border-l-4 border-red-200 pl-4 py-2">
                 <div className="flex items-center justify-between mb-2">
                   <h4 className="font-semibold text-slate-900">{barrier.barrier}</h4>
@@ -329,7 +329,7 @@ export const BusinessAnalyticsDisplay: React.FC<BusinessAnalyticsDisplayProps> =
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
-            {data.user_behavior_insights.map((insight, index) => (
+            {data.user_behavior_insights?.map((insight, index) => (
               <div key={index} className="border-l-4 border-blue-200 pl-4 py-2">
                 <h4 className="font-semibold text-slate-900 mb-2">{insight.pattern}</h4>
                 <p className="text-slate-700 mb-2">{insight.description}</p>

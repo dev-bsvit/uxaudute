@@ -49,7 +49,8 @@ class TranslationService {
           'dashboard',
           'projects',
           'components',
-          'hypotheses'
+          'hypotheses',
+          'business'
         ]
         const translations: TranslationMap = {}
 

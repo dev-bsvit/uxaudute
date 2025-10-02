@@ -1,0 +1,67 @@
+{
+  "title": "Product Analytics",
+  "subtitle": "Growth metrics and prioritization",
+  "loading": "Generating analytics...",
+  "notGenerated": "Analytics not generated",
+  "notGeneratedDesc": "Get prioritized recommendations based on ICE/RICE framework",
+  "generateButton": "Get Analytics",
+  "share": "Share",
+  "creating": "Creating...",
+  "copyLink": "Copy Link",
+  "industry": {
+    "title": "Industry Analysis",
+    "identified": "Industry",
+    "framework": "Metrics Framework",
+    "benchmarks": "Benchmarks"
+  },
+  "kpi": {
+    "title": "KPI Table",
+    "metric": "Metric",
+    "current": "Current",
+    "benchmark": "Benchmark",
+    "improvement": "Potential"
+  },
+  "hypotheses": {
+    "title": "Growth Hypotheses",
+    "rank": "Rank",
+    "hypothesis": "Hypothesis",
+    "ice": "ICE",
+    "rice": "RICE",
+    "impact": "Impact",
+    "confidence": "Confidence",
+    "effort": "Effort",
+    "reach": "Reach",
+    "outcome": "Expected Outcome",
+    "userStory": "User Story",
+    "patterns": "UX Patterns",
+    "testPlan": "Test Plan",
+    "method": "Method",
+    "duration": "Duration",
+    "sampleSize": "Sample Size",
+    "metrics": "Δ-metrics"
+  },
+  "painPoints": {
+    "title": "Pain Points",
+    "category": "Category",
+    "stage": "Funnel Stage",
+    "affected": "Affected Users"
+  },
+  "barriers": {
+    "title": "Conversion Barriers"
+  },
+  "risks": {
+    "title": "Business Risks"
+  },
+  "opportunities": {
+    "title": "Missed Opportunities"
+  },
+  "summary": {
+    "title": "Summary Table",
+    "totalHypotheses": "Total Hypotheses",
+    "conversionLift": "Conversion Lift",
+    "timeline": "Timeline"
+  },
+  "nextSteps": {
+    "title": "Next Steps"
+  }
+}

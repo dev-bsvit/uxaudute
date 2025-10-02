@@ -327,22 +327,77 @@ export interface OptimizationOpportunity {
   expected_roi: string
 }
 
+// New Business Analytics types with Growth focus
+export interface ProductHypothesis {
+  id: number
+  hypothesis: string
+  problem: string
+  solution: string
+  impact: number // 1-10
+  confidence: number // 1-10
+  effort: number // 1-10
+  reach?: number // optional user reach
+  ice_score: number
+  rice_score?: number // optional RICE score
+  priority_rank: number
+  expected_outcome: string
+  is_top_3: boolean
+  user_story?: string // for top-3 only
+  ux_patterns?: string // for top-3 only
+  test_plan?: {
+    method: string
+    duration: string
+    sample_size: string
+    delta_metrics: string[]
+    success_criteria: string
+  }
+}
+
+export interface KPITableItem {
+  metric: string
+  current_value: string
+  industry_benchmark: string
+  problem_impact: string
+  potential_improvement: string
+}
+
+export interface PainPoint {
+  category: 'quantitative' | 'qualitative' | 'heuristic'
+  description: string
+  affected_users: string
+  funnel_stage: 'awareness' | 'interest' | 'consideration' | 'purchase' | 'retention'
+  business_impact: string
+}
+
 export interface BusinessAnalyticsResponse {
   industry_analysis: {
     identified_industry: string
-    industry_standards: string
-    market_context: string
+    key_metrics_framework?: string // AARRR, HEART, etc.
+    industry_benchmarks?: string
+    // Legacy fields for backward compatibility
+    industry_standards?: string
+    market_context?: string
   }
-  business_metrics: {
-    conversion_funnel: ConversionFunnel
-    key_kpis: KPI[]
-    revenue_impact: RevenueImpact
+  kpi_table?: KPITableItem[]
+  pain_points?: PainPoint[]
+  hypotheses?: ProductHypothesis[]
+  conversion_barriers?: ConversionBarrier[]
+  business_risks?: BusinessRisk[]
+  missed_opportunities?: MissedOpportunity[]
+  next_steps?: string[]
+  summary_table?: {
+    total_hypotheses: number
+    top_3_ice_scores: number[]
+    expected_conversion_lift: string
+    implementation_timeline: string
   }
-  business_risks: BusinessRisk[]
-  missed_opportunities: MissedOpportunity[]
-  user_behavior_insights: UserBehaviorInsight[]
-  conversion_barriers: ConversionBarrier[]
-  next_steps: string[]
+  // Legacy fields for backward compatibility
+  business_metrics?: {
+    conversion_funnel?: ConversionFunnel
+    key_kpis?: KPI[]
+    revenue_impact?: RevenueImpact
+  }
+  user_behavior_insights?: UserBehaviorInsight[]
   metadata: {
     timestamp: string
     version: string
