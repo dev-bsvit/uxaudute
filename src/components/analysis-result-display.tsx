@@ -7,6 +7,7 @@ import { Badge } from '@/components/ui/badge'
 import { SurveyDisplay } from '@/components/ui/survey-display'
 import { CanvasAnnotations } from '@/components/ui/canvas-annotations'
 import { Monitor, Link2 } from 'lucide-react'
+import { useTranslation } from '@/hooks/use-translation'
 
 interface AnalysisResultDisplayProps {
   analysis?: StructuredAnalysisResponse
@@ -17,14 +18,16 @@ interface AnalysisResultDisplayProps {
   auditId?: string // ID аудита для сохранения аннотаций
 }
 
-export function AnalysisResultDisplay({ 
-  analysis, 
+export function AnalysisResultDisplay({
+  analysis,
   showDetails = true,
   screenshot,
   url,
   onAnnotationUpdate,
   auditId
 }: AnalysisResultDisplayProps) {
+  const { t } = useTranslation()
+
   // Защита от ошибок - проверяем структуру данных
   if (!analysis) {
     return (
@@ -93,7 +96,7 @@ export function AnalysisResultDisplay({
         {/* Заголовок */}
         <div className="text-center">
           <h2 className="text-3xl font-bold text-gray-900 mb-2">
-            Результаты UX анализа
+            {t('analysis-results.title')}
           </h2>
         </div>
 
@@ -102,26 +105,26 @@ export function AnalysisResultDisplay({
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            📱 Описание экрана
+            📱 {t('analysis-results.screenDescription.title')}
             <Badge variant="outline" className={getConfidenceColor(safeAnalysis.screenDescription.confidence)}>
-              Уверенность: {safeAnalysis.screenDescription.confidence}%
+              {t('analysis-results.screenDescription.confidence')} {safeAnalysis.screenDescription.confidence}%
             </Badge>
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <h4 className="font-medium text-gray-900 mb-2">Тип экрана</h4>
+              <h4 className="font-medium text-gray-900 mb-2">{t('analysis-results.screenDescription.screenType')}</h4>
               <p className="text-gray-600">{safeAnalysis.screenDescription.screenType}</p>
             </div>
             <div>
-              <h4 className="font-medium text-gray-900 mb-2">Цель пользователя</h4>
+              <h4 className="font-medium text-gray-900 mb-2">{t('analysis-results.screenDescription.userGoal')}</h4>
               <p className="text-gray-600">{safeAnalysis.screenDescription.userGoal}</p>
             </div>
           </div>
-          
+
           <div>
-            <h4 className="font-medium text-gray-900 mb-2">Ключевые элементы</h4>
+            <h4 className="font-medium text-gray-900 mb-2">{t('analysis-results.screenDescription.keyElements')}</h4>
             <div className="flex flex-wrap gap-2">
               {safeAnalysis.screenDescription.keyElements.map((element: string, index: number) => (
                 <Badge key={index} variant="secondary">
@@ -130,9 +133,9 @@ export function AnalysisResultDisplay({
               ))}
             </div>
           </div>
-          
+
           <div>
-            <h4 className="font-medium text-gray-900 mb-2">Обоснование уверенности</h4>
+            <h4 className="font-medium text-gray-900 mb-2">{t('analysis-results.screenDescription.confidenceReason')}</h4>
             <p className="text-gray-600">{safeAnalysis.screenDescription.confidenceReason}</p>
           </div>
         </CardContent>
@@ -146,13 +149,13 @@ export function AnalysisResultDisplay({
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              👥 Аудитория
+              👥 {t('analysis-results.audience.title')}
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-6">
             {/* Целевая аудитория */}
             <div>
-              <h4 className="font-medium text-gray-900 mb-3">Целевая аудитория</h4>
+              <h4 className="font-medium text-gray-900 mb-3">{t('analysis-results.audience.targetAudience')}</h4>
               <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
                 <p className="text-gray-700 leading-relaxed whitespace-pre-line">
                   {safeAnalysis.audience.targetAudience}
@@ -162,7 +165,7 @@ export function AnalysisResultDisplay({
 
             {/* Основная боль */}
             <div>
-              <h4 className="font-medium text-gray-900 mb-3">Основная боль</h4>
+              <h4 className="font-medium text-gray-900 mb-3">{t('analysis-results.audience.mainPain')}</h4>
               <div className="bg-red-50 border border-red-200 rounded-lg p-4">
                 <p className="text-gray-700 leading-relaxed whitespace-pre-line">
                   {safeAnalysis.audience.mainPain}
@@ -172,7 +175,7 @@ export function AnalysisResultDisplay({
 
             {/* Страхи */}
             <div>
-              <h4 className="font-medium text-gray-900 mb-3">Страхи пользователей</h4>
+              <h4 className="font-medium text-gray-900 mb-3">{t('analysis-results.audience.fears')}</h4>
               <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
                 <ol className="space-y-2">
                   {safeAnalysis.audience.fears.map((fear: string, index: number) => (
@@ -195,24 +198,24 @@ export function AnalysisResultDisplay({
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              🎯 Поведение
+              🎯 {t('analysis-results.behavior.title')}
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-6">
             {/* Пользовательские сценарии */}
             <div>
-              <h4 className="font-medium text-gray-900 mb-3">Пользовательские сценарии</h4>
+              <h4 className="font-medium text-gray-900 mb-3">{t('analysis-results.behavior.userScenarios')}</h4>
               <div className="bg-green-50 border border-green-200 rounded-lg p-4 space-y-3">
                 <div>
-                  <span className="font-medium text-green-800">Идеальный путь:</span>
+                  <span className="font-medium text-green-800">{t('analysis-results.behavior.idealPath')}</span>
                   <p className="text-gray-700 mt-1">{safeAnalysis.behavior.userScenarios.idealPath}</p>
                 </div>
                 <div>
-                  <span className="font-medium text-orange-800">Типичная ошибка:</span>
+                  <span className="font-medium text-orange-800">{t('analysis-results.behavior.typicalError')}</span>
                   <p className="text-gray-700 mt-1">{safeAnalysis.behavior.userScenarios.typicalError}</p>
                 </div>
                 <div>
-                  <span className="font-medium text-blue-800">Альтернативный обход:</span>
+                  <span className="font-medium text-blue-800">{t('analysis-results.behavior.alternativeWorkaround')}</span>
                   <p className="text-gray-700 mt-1">{safeAnalysis.behavior.userScenarios.alternativeWorkaround}</p>
                 </div>
               </div>
@@ -220,7 +223,7 @@ export function AnalysisResultDisplay({
 
             {/* Поведенческие паттерны */}
             <div>
-              <h4 className="font-medium text-gray-900 mb-3">Поведенческие паттерны</h4>
+              <h4 className="font-medium text-gray-900 mb-3">{t('analysis-results.behavior.behavioralPatterns')}</h4>
               <div className="bg-purple-50 border border-purple-200 rounded-lg p-4">
                 <p className="text-gray-700 leading-relaxed whitespace-pre-line">
                   {safeAnalysis.behavior.behavioralPatterns}
@@ -230,7 +233,7 @@ export function AnalysisResultDisplay({
 
             {/* Точки трения */}
             <div>
-              <h4 className="font-medium text-gray-900 mb-3">Точки трения</h4>
+              <h4 className="font-medium text-gray-900 mb-3">{t('analysis-results.behavior.frictionPoints')}</h4>
               <div className="bg-orange-50 border border-orange-200 rounded-lg p-4">
                 <ol className="space-y-2">
                   {safeAnalysis.behavior.frictionPoints.map((frictionPoint: any, index: number) => (
@@ -241,11 +244,11 @@ export function AnalysisResultDisplay({
                       <div className="flex-1">
                         <span className="text-gray-700">{frictionPoint.point}</span>
                         <span className={`ml-2 px-2 py-1 rounded-full text-xs font-medium ${
-                          frictionPoint.impact === 'major' 
-                            ? 'bg-red-100 text-red-800' 
+                          frictionPoint.impact === 'major'
+                            ? 'bg-red-100 text-red-800'
                             : 'bg-yellow-100 text-yellow-800'
                         }`}>
-                          {frictionPoint.impact === 'major' ? 'Высокое' : 'Низкое'} влияние
+                          {frictionPoint.impact === 'major' ? t('analysis-results.behavior.majorImpact') : t('analysis-results.behavior.minorImpact')}
                         </span>
                       </div>
                     </li>
@@ -256,7 +259,7 @@ export function AnalysisResultDisplay({
 
             {/* Мотивация к действию */}
             <div>
-              <h4 className="font-medium text-gray-900 mb-3">Мотивация к действию</h4>
+              <h4 className="font-medium text-gray-900 mb-3">{t('analysis-results.behavior.actionMotivation')}</h4>
               <div className="bg-indigo-50 border border-indigo-200 rounded-lg p-4">
                 <p className="text-gray-700 leading-relaxed whitespace-pre-line">
                   {safeAnalysis.behavior.actionMotivation}
@@ -271,9 +274,9 @@ export function AnalysisResultDisplay({
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            🔧 Проблемы и решения
+            🔧 {t('analysis-results.problemsAndSolutions.title')}
             <Badge variant="outline">
-              {Array.isArray(safeAnalysis.problemsAndSolutions) ? safeAnalysis.problemsAndSolutions.length : 0} проблем
+              {Array.isArray(safeAnalysis.problemsAndSolutions) ? safeAnalysis.problemsAndSolutions.length : 0} {t('analysis-results.problemsAndSolutions.problems')}
             </Badge>
           </CardTitle>
         </CardHeader>
@@ -284,37 +287,38 @@ export function AnalysisResultDisplay({
                 <div className="flex items-start justify-between">
                   <h4 className="font-medium text-gray-900">{problem.element}</h4>
                   <Badge className={getPriorityColor(problem.priority)}>
-                    {problem.priority === 'high' ? 'Высокий' : 
-                     problem.priority === 'medium' ? 'Средний' : 'Низкий'} приоритет
+                    {problem.priority === 'high' ? t('analysis-results.problemsAndSolutions.highPriority') :
+                     problem.priority === 'medium' ? t('analysis-results.problemsAndSolutions.mediumPriority') :
+                     t('analysis-results.problemsAndSolutions.lowPriority')}
                   </Badge>
                 </div>
-                
+
                 <div className="space-y-2">
                   <div>
-                    <span className="font-medium text-red-600">Проблема:</span>{' '}
+                    <span className="font-medium text-red-600">{t('analysis-results.problemsAndSolutions.problem')}</span>{' '}
                     <span className="text-gray-700">{problem.problem}</span>
                   </div>
                   <div>
-                    <span className="font-medium text-blue-600">Принцип:</span>{' '}
+                    <span className="font-medium text-blue-600">{t('analysis-results.problemsAndSolutions.principle')}</span>{' '}
                     <span className="text-gray-700">{problem.principle}</span>
                   </div>
                   <div>
-                    <span className="font-medium text-orange-600">Последствие:</span>{' '}
+                    <span className="font-medium text-orange-600">{t('analysis-results.problemsAndSolutions.consequence')}</span>{' '}
                     <span className="text-gray-700">{problem.consequence}</span>
                   </div>
                   <div>
-                    <span className="font-medium text-green-600">Рекомендация:</span>{' '}
+                    <span className="font-medium text-green-600">{t('analysis-results.problemsAndSolutions.recommendation')}</span>{' '}
                     <span className="text-gray-700">{problem.recommendation}</span>
                   </div>
                   <div>
-                    <span className="font-medium text-purple-600">Ожидаемый эффект:</span>{' '}
+                    <span className="font-medium text-purple-600">{t('analysis-results.problemsAndSolutions.expectedEffect')}</span>{' '}
                     <span className="text-gray-700">{problem.expectedEffect}</span>
                   </div>
                 </div>
               </div>
             )) : (
               <div className="text-center text-gray-500 py-8">
-                <p>Проблемы и решения не найдены</p>
+                <p>{t('analysis-results.problemsAndSolutions.noProblemsFound')}</p>
               </div>
             )}
           </div>
@@ -325,13 +329,13 @@ export function AnalysisResultDisplay({
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            ✅ Проверка качества анализа
+            ✅ {t('analysis-results.selfCheck.title')}
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
-              <h4 className="font-medium text-gray-900 mb-3">Чек-лист</h4>
+              <h4 className="font-medium text-gray-900 mb-3">{t('analysis-results.selfCheck.checklist')}</h4>
               <div className="space-y-2">
                 {Object.entries(safeAnalysis.selfCheck.checklist).map(([key, value]: [string, any]) => (
                   <div key={key} className="flex items-center gap-2">
@@ -339,25 +343,25 @@ export function AnalysisResultDisplay({
                       {value ? '✅' : '❌'}
                     </span>
                     <span className="text-sm text-gray-700">
-                      {key === 'coversAllElements' && 'Покрыты все ключевые элементы'}
-                      {key === 'noContradictions' && 'Нет противоречивых рекомендаций'}
-                      {key === 'principlesJustified' && 'Каждая рекомендация обоснована принципом'}
-                      {key === 'actionClarity' && 'Проверена понятность целевого действия'}
+                      {key === 'coversAllElements' && t('analysis-results.selfCheck.coversAllElements')}
+                      {key === 'noContradictions' && t('analysis-results.selfCheck.noContradictions')}
+                      {key === 'principlesJustified' && t('analysis-results.selfCheck.principlesJustified')}
+                      {key === 'actionClarity' && t('analysis-results.selfCheck.actionClarity')}
                     </span>
                   </div>
                 ))}
               </div>
             </div>
-            
+
             <div>
-              <h4 className="font-medium text-gray-900 mb-3">Уверенность по блокам</h4>
+              <h4 className="font-medium text-gray-900 mb-3">{t('analysis-results.selfCheck.confidenceByBlocks')}</h4>
               <div className="space-y-2">
                 {Object.entries(safeAnalysis.selfCheck.confidence).map(([key, value]: [string, any]) => (
                   <div key={key} className="flex items-center justify-between">
                     <span className="text-sm text-gray-700">
-                      {key === 'analysis' && 'Анализ'}
-                      {key === 'survey' && 'Опрос'}
-                      {key === 'recommendations' && 'Рекомендации'}
+                      {key === 'analysis' && t('analysis-results.screenDescription.title')}
+                      {key === 'survey' && t('analysis-results.selfCheck.survey')}
+                      {key === 'recommendations' && t('analysis-results.selfCheck.recommendations')}
                     </span>
                     <span className={`font-medium ${getConfidenceColor(Number(value))}`}>
                       {value}%
@@ -374,16 +378,16 @@ export function AnalysisResultDisplay({
       {showDetails && (
         <Card className="bg-gray-50">
           <CardContent className="pt-6">
-            <h4 className="font-medium text-gray-900 mb-2">Информация об анализе</h4>
+            <h4 className="font-medium text-gray-900 mb-2">{t('analysis-results.metadata.title')}</h4>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm text-gray-600">
               <div>
-                <span className="font-medium">Версия:</span> {safeAnalysis.metadata?.version || '1.0'}
+                <span className="font-medium">{t('analysis-results.metadata.version')}</span> {safeAnalysis.metadata?.version || '1.0'}
               </div>
               <div>
-                <span className="font-medium">Модель:</span> {safeAnalysis.metadata?.model || 'Unknown'}
+                <span className="font-medium">{t('analysis-results.metadata.model')}</span> {safeAnalysis.metadata?.model || 'Unknown'}
               </div>
               <div>
-                <span className="font-medium">Время:</span> {safeAnalysis.metadata?.timestamp ? new Date(safeAnalysis.metadata.timestamp).toLocaleString('ru-RU') : 'Неизвестно'}
+                <span className="font-medium">{t('analysis-results.metadata.time')}</span> {safeAnalysis.metadata?.timestamp ? new Date(safeAnalysis.metadata.timestamp).toLocaleString('ru-RU') : 'Неизвестно'}
               </div>
             </div>
           </CardContent>
@@ -398,7 +402,7 @@ export function AnalysisResultDisplay({
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 {screenshot ? <Monitor className="w-5 h-5" /> : <Link2 className="w-5 h-5" />}
-                {screenshot ? 'Анализируемый интерфейс' : 'Анализируемый URL'}
+                {screenshot ? t('analysis-results.interface.analyzedInterface') : t('analysis-results.interface.analyzedUrl')}
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -413,7 +417,7 @@ export function AnalysisResultDisplay({
                     auditId={auditId}
                   />
                   <div className="text-sm text-gray-500 text-center">
-                    💡 Редактор аннотаций открывается автоматически. Добавьте комментарии и выделения к скриншоту
+                    💡 {t('analysis-results.interface.annotationEditor')}
                   </div>
                   <div className="text-xs text-gray-400 text-center mt-2">
                     Анализ {safeAnalysis.metadata?.timestamp ? new Date(safeAnalysis.metadata.timestamp).toLocaleDateString('ru-RU') : 'Неизвестно'}

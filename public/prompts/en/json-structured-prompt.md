@@ -28,7 +28,7 @@ Static screenshot (required) + context and target audience when available. If co
 6. Booleans: true NOT "true"
 7. Numbers: 85 NOT "85"
 8. ALL problemsAndSolutions entries must be COMPLETE
-9. Generate exactly 3-5 complete problems**
+9. Generate exactly 4-5 complete problems with ALL fields filled**
 
 ```json
 {

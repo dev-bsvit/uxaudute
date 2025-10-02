@@ -19,7 +19,7 @@
 **UX Audit Platform** — это полнофункциональная веб-платформа для автоматизированного анализа пользовательского опыта с использованием GPT-4 Vision API.
 
 - **Версия**: 0.1.0
-- **Production**: https://uxaudute.vercel.app
+- **Production**: https://uxaudit.vercel.app
 - **Framework**: Next.js 14 (App Router)
 - **База данных**: PostgreSQL (Supabase)
 - **Деплой**: Vercel

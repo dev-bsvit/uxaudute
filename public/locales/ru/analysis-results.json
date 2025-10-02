@@ -5,7 +5,8 @@
     "screenType": "Тип экрана",
     "userGoal": "Цель пользователя",
     "keyElements": "Ключевые элементы",
-    "confidenceReason": "Обоснование уверенности"
+    "confidenceReason": "Обоснование уверенности",
+    "confidence": "Уверенность:"
   },
   "uxSurvey": {
     "title": "UX-опрос",
@@ -40,7 +41,11 @@
     "consequence": "Последствие:",
     "recommendation": "Рекомендация:",
     "expectedEffect": "Ожидаемый эффект:",
-    "noProblemsFound": "Проблемы и решения не найдены"
+    "noProblemsFound": "Проблемы и решения не найдены",
+    "problems": "проблем",
+    "highPriority": "Высокий приоритет",
+    "mediumPriority": "Средний приоритет",
+    "lowPriority": "Низкий приоритет"
   },
   "selfCheck": {
     "title": "Проверка качества анализа",
@@ -54,7 +59,10 @@
     "recommendations": "Рекомендации"
   },
   "metadata": {
-    "title": "Информация об анализе"
+    "title": "Информация об анализе",
+    "version": "Версия:",
+    "model": "Модель:",
+    "time": "Время:"
   },
   "interface": {
     "analyzedInterface": "Анализируемый интерфейс",

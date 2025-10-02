@@ -5,7 +5,8 @@
     "screenType": "Screen Type",
     "userGoal": "User Goal",
     "keyElements": "Key Elements",
-    "confidenceReason": "Confidence Reasoning"
+    "confidenceReason": "Confidence Reasoning",
+    "confidence": "Confidence:"
   },
   "uxSurvey": {
     "title": "UX Survey",
@@ -40,7 +41,11 @@
     "consequence": "Consequence:",
     "recommendation": "Recommendation:",
     "expectedEffect": "Expected Effect:",
-    "noProblemsFound": "No problems and solutions found"
+    "noProblemsFound": "No problems and solutions found",
+    "problems": "problems",
+    "highPriority": "High priority",
+    "mediumPriority": "Medium priority",
+    "lowPriority": "Low priority"
   },
   "selfCheck": {
     "title": "Analysis Quality Check",
@@ -54,7 +59,10 @@
     "recommendations": "Recommendations"
   },
   "metadata": {
-    "title": "Analysis Information"
+    "title": "Analysis Information",
+    "version": "Version:",
+    "model": "Model:",
+    "time": "Time:"
   },
   "interface": {
     "analyzedInterface": "Analyzed Interface",
