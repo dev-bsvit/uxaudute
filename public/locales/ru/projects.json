@@ -29,6 +29,7 @@
   },
   "project": {
     "audits": "аудитов",
+    "auditsLabel": "{count} аудитов",
     "rename": "Переименовать",
     "delete": "Удалить"
   },

@@ -29,6 +29,7 @@
   },
   "project": {
     "audits": "audits",
+    "auditsLabel": "{count} audits",
     "rename": "Rename",
     "delete": "Delete"
   },

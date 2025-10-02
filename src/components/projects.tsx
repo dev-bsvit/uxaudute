@@ -331,7 +331,7 @@ export function Projects({ user, onProjectSelect }: ProjectsProps) {
                     <div className="flex items-center gap-2">
                       <BarChart3 className="w-4 h-4" />
                       <span className="font-medium">
-                        {t('projects.project.auditsLabel', { count: project.auditsCount || 0 })}
+                        {t('projects.project.auditsLabel', { count: String(project.auditsCount || 0) })}
                       </span>
                     </div>
                     <div className="flex items-center gap-2">
