@@ -63,20 +63,33 @@ function cleanJSONString(jsonString: string): string {
 }
 
 /**
- * Рекурсивно очищает объект от ключей и значений с одинарными кавычками
+ * Рекурсивно очищает объект от ключей и значений с неправильными кавычками и символами
  */
 function cleanQuotedKeys(obj: any): any {
   if (obj === null || obj === undefined) {
     return obj
   }
 
-  // Если это строка, убираем одинарные кавычки на границах
+  // Если это строка, очищаем её
   if (typeof obj === 'string') {
+    let cleaned = obj
+
     // Убираем "'value'" -> "value"
-    if (obj.startsWith("'") && obj.endsWith("'")) {
-      return obj.slice(1, -1)
+    if (cleaned.startsWith("'") && cleaned.endsWith("'")) {
+      cleaned = cleaned.slice(1, -1)
     }
-    return obj
+
+    // Убираем ": value" -> "value" (двоеточие с пробелом в начале)
+    if (cleaned.startsWith(": ")) {
+      cleaned = cleaned.slice(2)
+    }
+
+    // Убираем ":value" -> "value" (двоеточие в начале)
+    if (cleaned.startsWith(":")) {
+      cleaned = cleaned.slice(1).trim()
+    }
+
+    return cleaned
   }
 
   // Если это массив, рекурсивно очищаем каждый элемент
@@ -88,11 +101,27 @@ function cleanQuotedKeys(obj: any): any {
   if (typeof obj === 'object') {
     const cleaned: any = {}
     for (const key in obj) {
-      // Очищаем ключ от одинарных кавычек: "'key'" -> "key"
-      let cleanKey = key
-      if (key.startsWith("'") && key.endsWith("'")) {
-        cleanKey = key.slice(1, -1)
+      // Очищаем ключ от разных типов кавычек и символов
+      let cleanKey = key.trim()
+
+      // Убираем "'key'" -> "key"
+      if (cleanKey.startsWith("'") && cleanKey.endsWith("'")) {
+        cleanKey = cleanKey.slice(1, -1)
       }
+
+      // Убираем "$key$" -> "key" и "$key$ " -> "key"
+      if (cleanKey.startsWith("$") && cleanKey.includes("$")) {
+        cleanKey = cleanKey.replace(/\$/g, '').trim()
+      }
+
+      // Убираем лишние пробелы
+      cleanKey = cleanKey.trim()
+
+      // Пропускаем странные ключи вроде "}", ":", "]", ", "
+      if (cleanKey.length === 0 || [':', '}', ']', ',', '|', '}:'].includes(cleanKey)) {
+        continue
+      }
+
       // Рекурсивно очищаем значение
       cleaned[cleanKey] = cleanQuotedKeys(obj[key])
     }
