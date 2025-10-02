@@ -24,8 +24,6 @@
 ⚠️ ТИПИЧНЫЕ ОШИБКИ - НЕ ДОПУСКАЙ:
 - ❌ НЕПРАВИЛЬНО: "'metadata'": { ... } или "{metadata}": { ... }
 - ✅ ПРАВИЛЬНО: "metadata": { ... }
-- ❌ НЕПРАВИЛЬНО: "'selfCheck'": { ... }
-- ✅ ПРАВИЛЬНО: "selfCheck": { ... }
 - ❌ НЕПРАВИЛЬНО: "element": "'Кнопка'"
 - ✅ ПРАВИЛЬНО: "element": "Кнопка"
 - ❌ НЕПРАВИЛЬНО: "confidence": "85"
@@ -203,31 +201,6 @@
       "result": "[Эффект...]"
     }
   ],
-  "selfCheck": {
-    "checklist": {
-      "coversAllElements": true,
-      "noContradictions": true,
-      "principlesJustified": true,
-      "actionClarity": true
-    },
-    "varietyCheck": {
-      "passed": true,
-      "description": "Рекомендации разнообразны и не повторяют одни и те же принципы",
-      "principleVariety": ["Visibility", "Error Prevention", "Recognition"],
-      "issueTypes": ["visual", "functional", "content"]
-    },
-    "confidence": {
-      "analysis": 85,
-      "survey": 82,
-      "recommendations": 88
-    },
-    "confidenceVariation": {
-      "min": 70,
-      "max": 90,
-      "average": 82,
-      "explanation": "Confidence варьируется в зависимости от источника данных"
-    }
-  },
   "metadata": {
     "timestamp": "2024-01-01T12:00:00Z",
     "version": "1.0",
@@ -244,13 +217,11 @@
 "{metadata}": {"{model}": "gpt-4o"}
 "'element'": "'Кнопка оплаты'",
 "{element}": "{Кнопка оплаты}"
-"'selfCheck'": {"'checklist'": {"'actionClarity'": "true"}}
 ```
 
 ✅ **ПРАВИЛЬНО - ВАЛИДНЫЙ JSON:**
 ```json
 "metadata": {"model": "gpt-4o"}
-"selfCheck": {"checklist": {"actionClarity": true}}
 "element": "Кнопка оплаты"
 ```
 

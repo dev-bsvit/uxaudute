@@ -24,8 +24,6 @@ Static screenshot (required) + context and target audience when available. If co
 ⚠️ COMMON ERRORS TO AVOID:
 - ❌ WRONG: "'metadata'": { ... } or "{metadata}": { ... }
 - ✅ CORRECT: "metadata": { ... }
-- ❌ WRONG: "'selfCheck'": { ... }
-- ✅ CORRECT: "selfCheck": { ... }
 - ❌ WRONG: "element": "'Button'"
 - ✅ CORRECT: "element": "Button"
 - ❌ WRONG: "confidence": "85"
@@ -218,31 +216,6 @@ RULES:
       "result": "[Effect...]"
     }
   ],
-  "selfCheck": {
-    "checklist": {
-      "coversAllElements": true,
-      "noContradictions": true,
-      "principlesJustified": true,
-      "actionClarity": true
-    },
-    "varietyCheck": {
-      "passed": true,
-      "description": "Recommendations are diverse and don't repeat the same principles",
-      "principleVariety": ["Visibility", "Error Prevention", "Recognition", "Message Clarity", "Help Users"],
-      "issueTypes": ["visual", "functional", "content", "navigation"]
-    },
-    "confidence": {
-      "analysis": 85,
-      "survey": 82,
-      "recommendations": 88
-    },
-    "confidenceVariation": {
-      "min": 70,
-      "max": 90,
-      "average": 82,
-      "explanation": "Confidence varies depending on data source and analysis complexity"
-    }
-  },
   "metadata": {
     "timestamp": "2024-01-01T12:00:00Z",
     "version": "1.0",
@@ -396,25 +369,12 @@ RULES:
 }
 ```
 
-**CORRECT metadata and selfCheck format:**
+**CORRECT metadata format:**
 ```json
 "metadata": {
   "model": "gpt-4o",
   "version": "1.0",
   "timestamp": "2024-01-01T12:00:00Z"
-},
-"selfCheck": {
-  "checklist": {
-    "actionClarity": true,
-    "noContradictions": true,
-    "coversAllElements": true,
-    "principlesJustified": true
-  },
-  "confidence": {
-    "survey": 82,
-    "analysis": 85,
-    "recommendations": 88
-  }
 }
 ```
 
@@ -459,23 +419,6 @@ RULES:
 ```
 
 **REMEMBER:** These examples show the STRUCTURE and LEVEL OF DETAIL required. Your actual problems must come from analyzing the screenshot provided by the user!
-
-**CORRECT selfCheck format:**
-```json
-"selfCheck": {
-  "checklist": {
-    "actionClarity": true,
-    "noContradictions": true,
-    "coversAllElements": true,
-    "principlesJustified": true
-  },
-  "confidence": {
-    "survey": 83,
-    "analysis": 85,
-    "recommendations": 88
-  }
-}
-```
 
 **CRITICAL INSTRUCTIONS FOR problemsAndSolutions:**
 

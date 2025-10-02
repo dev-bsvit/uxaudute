@@ -63,11 +63,6 @@ export function AnalysisResultDisplay({
       actionMotivation: notLoadedLabel
     },
     problemsAndSolutions: analysis.problemsAndSolutions || [],
-    selfCheck: analysis.selfCheck || { 
-      checklist: {}, 
-      varietyCheck: {}, 
-      confidence: { analysis: 0 } 
-    },
     annotations: analysis.annotations || '',
     metadata: analysis.metadata || { version: '1.0', model: unknownLabel, timestamp: new Date().toISOString() }
   }
@@ -372,55 +367,6 @@ export function AnalysisResultDisplay({
                 <p>{t('analysis-results.problemsAndSolutions.noProblemsFound')}</p>
               </div>
             )}
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Self-Check */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            ✅ {t('analysis-results.selfCheck.title')}
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div>
-              <h4 className="font-medium text-gray-900 mb-3">{t('analysis-results.selfCheck.checklist')}</h4>
-              <div className="space-y-2">
-                {safeAnalysis.selfCheck?.checklist && Object.entries(safeAnalysis.selfCheck.checklist).map(([key, value]: [string, any]) => (
-                  <div key={key} className="flex items-center gap-2">
-                    <span className={value ? 'text-green-500' : 'text-red-500'}>
-                      {value ? '✅' : '❌'}
-                    </span>
-                    <span className="text-sm text-gray-700">
-                      {key === 'coversAllElements' && t('analysis-results.selfCheck.coversAllElements')}
-                      {key === 'noContradictions' && t('analysis-results.selfCheck.noContradictions')}
-                      {key === 'principlesJustified' && t('analysis-results.selfCheck.principlesJustified')}
-                      {key === 'actionClarity' && t('analysis-results.selfCheck.actionClarity')}
-                    </span>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            <div>
-              <h4 className="font-medium text-gray-900 mb-3">{t('analysis-results.selfCheck.confidenceByBlocks')}</h4>
-              <div className="space-y-2">
-                {safeAnalysis.selfCheck?.confidence && Object.entries(safeAnalysis.selfCheck.confidence).map(([key, value]: [string, any]) => (
-                  <div key={key} className="flex items-center justify-between">
-                    <span className="text-sm text-gray-700">
-                      {key === 'analysis' && t('analysis-results.screenDescription.title')}
-                      {key === 'survey' && t('analysis-results.selfCheck.survey')}
-                      {key === 'recommendations' && t('analysis-results.selfCheck.recommendations')}
-                    </span>
-                    <span className={`font-medium ${getConfidenceColor(Number(value))}`}>
-                      {value}%
-                    </span>
-                  </div>
-                ))}
-              </div>
-            </div>
           </div>
         </CardContent>
       </Card>
