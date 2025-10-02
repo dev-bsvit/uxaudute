@@ -75,19 +75,20 @@ export async function POST(request: NextRequest) {
 
 Сгенерируй бизнес аналитику на основе этих данных.`
 
-    // Отправляем запрос к OpenAI
+    // Отправляем запрос к OpenAI с требованием JSON
     const completion = await openai.chat.completions.create({
       model: "gpt-4o",
       messages: [
         {
           role: "system",
-          content: "Ты - Senior Product Analyst. Генерируй бизнес аналитику в JSON формате."
+          content: "You are a Senior Product Analyst and Growth expert. You MUST respond ONLY with valid JSON format. No markdown, no explanations, no additional text - ONLY JSON."
         },
         {
           role: "user",
           content: fullPrompt
         }
       ],
+      response_format: { type: "json_object" },
       temperature: 0.7,
       max_tokens: 4000
     })
@@ -97,24 +98,21 @@ export async function POST(request: NextRequest) {
       throw new Error('No response from OpenAI')
     }
 
-    // Парсим JSON ответ
+    // Парсим JSON ответ (теперь это чистый JSON благодаря response_format)
     let businessAnalyticsData: BusinessAnalyticsResponse
     try {
-      // Ищем JSON в ответе (может быть обернут в markdown)
-      const jsonMatch = responseText.match(/```json\n([\s\S]*?)\n```/) || 
-                       responseText.match(/\{[\s\S]*\}/)
-      
-      if (jsonMatch) {
-        businessAnalyticsData = JSON.parse(jsonMatch[1] || jsonMatch[0])
-      } else {
-        throw new Error('No JSON found in response')
+      businessAnalyticsData = JSON.parse(responseText)
+
+      // Валидация обязательных полей
+      if (!businessAnalyticsData.industry_analysis || !businessAnalyticsData.metadata) {
+        throw new Error('Missing required fields in response')
       }
     } catch (parseError) {
       console.error('JSON parse error:', parseError)
       console.error('Response text:', responseText)
-      return NextResponse.json({ 
+      return NextResponse.json({
         error: 'Failed to parse business analytics response',
-        details: responseText 
+        details: responseText
       }, { status: 500 })
     }
 
