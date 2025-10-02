@@ -64,9 +64,10 @@ export default function AuditPage() {
       console.log('📋 Keys before cleaning:', Object.keys(audit.result_data || {}))
 
       // Показываем problemsAndSolutions до очистки
-      if (audit.result_data?.problemsAndSolutions) {
+      const resultData = audit.result_data as any
+      if (resultData?.problemsAndSolutions) {
         console.log('🔍 problemsAndSolutions BEFORE cleaning:')
-        audit.result_data.problemsAndSolutions.forEach((p: any, i: number) => {
+        resultData.problemsAndSolutions.forEach((p: any, i: number) => {
           console.log(`  Problem #${i} keys:`, Object.keys(p))
         })
       }
