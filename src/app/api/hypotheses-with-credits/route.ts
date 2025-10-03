@@ -72,8 +72,18 @@ export async function POST(request: NextRequest) {
       }, { status: 400 })
     }
 
-    // Определяем языковой контекст
-    const languageContext = await LanguageManager.determineAnalysisLanguage(request)
+    // Определяем языковой контекст из данных аудита
+    const auditLanguage = audit.input_data?.language || 'ru'
+    console.log('🌐 Audit language from input_data:', auditLanguage)
+
+    const languageContext = {
+      requestLanguage: auditLanguage,
+      detectedLanguage: auditLanguage,
+      promptLanguage: auditLanguage,
+      responseLanguage: auditLanguage,
+      isConsistent: true,
+      source: 'user-preference' as const
+    }
     LanguageManager.logLanguageContext(languageContext, 'Hypotheses API')
 
     // Загружаем промт для гипотез с учетом языка
