@@ -3,8 +3,8 @@ import { openai } from '@/lib/openai'
 import { supabase } from '@/lib/supabase'
 import { ABTestResponse } from '@/lib/analysis-types'
 import { checkCreditsForAudit, deductCreditsForAudit } from '@/lib/credits'
-import fs from 'fs'
-import path from 'path'
+import { LanguageManager } from '@/lib/language-manager'
+import { PromptType } from '@/lib/i18n/types'
 
 export async function POST(request: NextRequest) {
   try {
@@ -72,9 +72,43 @@ export async function POST(request: NextRequest) {
       }, { status: 400 })
     }
 
-    // Загружаем промт для AB тестов
-    const promptPath = path.join(process.cwd(), 'prompts', 'ab-test-prompt.md')
-    const abTestPrompt = fs.readFileSync(promptPath, 'utf-8')
+    // Определяем языковой контекст из данных аудита
+    let auditLanguage = audit.input_data?.language
+
+    // Если язык не сохранен, определяем по содержимому result_data
+    if (!auditLanguage && audit.result_data) {
+      const resultText = JSON.stringify(audit.result_data)
+      // Проверяем есть ли кириллица в данных
+      const hasCyrillic = /[а-яА-ЯёЁ]/.test(resultText)
+      auditLanguage = hasCyrillic ? 'ru' : 'en'
+      console.log('🌐 Language auto-detected from result_data:', auditLanguage, hasCyrillic)
+    }
+
+    // Fallback на русский если язык всё ещё не определен
+    auditLanguage = auditLanguage || 'ru'
+    console.log('🌐 Final audit language:', auditLanguage)
+
+    const languageContext = {
+      requestLanguage: auditLanguage,
+      detectedLanguage: auditLanguage,
+      promptLanguage: auditLanguage,
+      responseLanguage: auditLanguage,
+      isConsistent: true,
+      source: 'user-preference' as const
+    }
+    LanguageManager.logLanguageContext(languageContext, 'AB Test API')
+
+    // Загружаем промт для AB тестов с учетом языка
+    let abTestPrompt = await LanguageManager.loadPromptForLanguage(
+      PromptType.AB_TEST,
+      languageContext
+    )
+
+    // Принудительно устанавливаем язык ответа
+    abTestPrompt = LanguageManager.enforceResponseLanguage(
+      abTestPrompt,
+      languageContext.responseLanguage
+    )
 
     // Подготавливаем данные для промта
     const auditData = {
@@ -97,13 +131,18 @@ export async function POST(request: NextRequest) {
 
 Сгенерируй AB тесты на основе этих данных.`
 
+    // Формируем system message с учетом языка
+    const languageInstruction = languageContext.responseLanguage === 'en'
+      ? 'CRITICAL: You MUST respond in ENGLISH ONLY. DO NOT use Russian, Ukrainian, or any other language. All problems, hypotheses, solutions, tasks, metrics, risks, assumptions, and next steps MUST be in English.'
+      : 'КРИТИЧНО: Ты ДОЛЖЕН отвечать ТОЛЬКО на русском языке. НЕ используй английский или другие языки.'
+
     // Отправляем запрос к OpenAI
     const completion = await openai.chat.completions.create({
       model: "gpt-4o",
       messages: [
         {
           role: "system",
-          content: "Ты - Senior UI/UX & CRO консультант. Генерируй AB тесты в JSON формате."
+          content: `You are a Senior UI/UX & CRO consultant. Generate AB tests in JSON format. ${languageInstruction}`
         },
         {
           role: "user",
