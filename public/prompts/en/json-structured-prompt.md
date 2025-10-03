@@ -191,9 +191,9 @@ RULES:
     {
       "title": "[SPECIFIC PROBLEM NAME from real element on screenshot]",
       "impact": "high",
-      "why": "[3-5 sentences: WHY this is a problem for THIS specific screen. Include: (1) Current state description with specifics from screen (colors, sizes, positioning), (2) Reference to UX research/principle (Nielsen, WCAG, eye-tracking, A/B tests), (3) Percentage impact on user behavior (e.g. '60% of users miss'), (4) Business consequences (impact on conversion, bounces, support). DO NOT copy this example - analyze the REAL screenshot!]",
-      "fix": "[3-5 sentences: HOW to fix with technical details. Include: (1) Specific values (#HEX colors, px sizes, WCAG ratios), (2) CSS properties and animations (transform, transition, shadow), (3) Technical solutions (regex, aria-live, event handlers), (4) Responsiveness (desktop/mobile differences), (5) Edge cases (loading states, errors). Be maximally specific with code!]",
-      "result": "[1-2 sentences: Expected result with numeric ranges (25-30%) AND timeframes (first 2 weeks, within a month). Base on similar industry cases.]"
+      "why": "[3-5 sentences: WHY this is a problem for THIS specific screen. Include: (1) Current state description with specifics from screen (colors, sizes, positioning), (2) Reference to UX research/principle (Nielsen, eye-tracking, A/B tests), (3) Percentage impact on user behavior (e.g. '60% of users miss'), (4) Business consequences (impact on conversion, bounces, support). DO NOT copy this example - analyze the REAL screenshot!]",
+      "fix": "[3-5 sentences: HOW to fix with technical details. Include: (1) Specific values (#HEX colors, px sizes, font sizes), (2) CSS properties and animations (transform, transition, shadow), (3) Technical solutions (regex, aria-live, event handlers), (4) Responsiveness (desktop/mobile differences), (5) Edge cases (loading states, errors). Be maximally specific with code!]",
+      "result": "[1-2 sentences: Expected result with REALISTIC numeric ranges (0.5-3% for minor fixes, 10-15% ONLY for critical problems) AND timeframes (first 2 weeks, within a month). Base on similar industry cases.]"
     },
     {
       "title": "[DIFFERENT problem - DON'T repeat contrast/buttons, find DIFFERENT issues]",
@@ -251,13 +251,18 @@ RULES:
 
 3. **⚠️ CRITICALLY IMPORTANT - ANALYZE ONLY THE REAL SCREENSHOT:**
 
-   **FORBIDDEN TEMPLATE PHRASES (DO NOT USE!):**
-   - ❌ "Low CTA button visibility" - if button is BRIGHT and CONTRASTED
-   - ❌ "Increase button contrast" - if button is already blue on white background
-   - ❌ "Button not highlighted enough" - if it spans full width and has vibrant color
-   - ❌ "Small button size" - if button is large and prominent
+   **FORBIDDEN TEMPLATE PHRASES (NEVER USE!):**
+   - ❌ "Low CTA button visibility" / "Button not highlighted enough" / "'Continue' button not visually prominent"
+   - ❌ "Increase button contrast" / "Change button background to more contrasted (#000000)"
+   - ❌ "Small button size" / "Increase button size to 48px height"
    - ❌ "Poor text readability" - if font is black on white, 14px+
+   - ❌ Any mentions of WCAG, contrast ratios if it's NOT an accessibility issue
    - ❌ Any problems with elements that are ALREADY well implemented!
+
+   **⚠️ ESPECIALLY DANGEROUS PATTERNS - DON'T COPY THIS:**
+   - ❌ "This violates Fitts' Law, reducing interaction speed by 20%"
+   - ❌ "Conversion increase of 15-20% within first month" - TOO optimistic!
+   - ❌ Any promises of conversion improvement over 5% WITHOUT critical problem!
 
    **MANDATORY RULES:**
    - ❌ ABSOLUTELY FORBIDDEN to copy or reuse examples from the prompt
@@ -483,8 +488,8 @@ RULES:
    - Accessibility (contrast, aria, keyboard navigation)
 5. **Write DETAILED, VALUABLE responses**:
    - `why`: 3-5 sentences with research data, percentages, user behavior patterns
-   - `fix`: 3-5 sentences with specific metrics (EXAMPLES of metrics: #10B981 colors, 48px sizes, WCAG 4.5:1 ratios - but use REAL values from the screen!)
-   - `result`: Include number ranges (25-30%) AND timeframes (first 2 weeks)
-6. **Include real UX research references**: Nielsen studies, WCAG guidelines, eye-tracking data, A/B test results
+   - `fix`: 3-5 sentences with specific metrics (EXAMPLES of metrics: #10B981 colors, 48px sizes, 16px fonts - but use REAL values from the screen!)
+   - `result`: **REALISTIC EXPECTATIONS** - by default specify 0.5-3% conversion improvement for minor UX fixes. ONLY for CRITICAL problems (broken buttons, complete user flow blockage, missing feedback) you can specify 10-15%. Always include timeframes (first 2 weeks, within a month)
+6. **Include real UX research references**: Nielsen studies, eye-tracking data, A/B test results (avoid WCAG mentions unless it's an accessibility issue)
 
 **FINAL REMINDER: Your response must be VALID JSON that can be parsed by JSON.parse(). Use only double quotes for strings, no single quotes, no curly braces around field names. Test your JSON syntax before responding.**
