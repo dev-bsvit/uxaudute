@@ -39,8 +39,20 @@ export async function POST(request: NextRequest) {
     }
 
     // Определяем языковой контекст из данных аудита
-    const auditLanguage = audit.input_data?.language || 'ru'
-    console.log('🌐 Audit language from input_data:', auditLanguage)
+    let auditLanguage = audit.input_data?.language
+
+    // Если язык не сохранен, определяем по содержимому result_data
+    if (!auditLanguage && audit.result_data) {
+      const resultText = JSON.stringify(audit.result_data)
+      // Проверяем есть ли кириллица в данных
+      const hasCyrillic = /[а-яА-ЯёЁ]/.test(resultText)
+      auditLanguage = hasCyrillic ? 'ru' : 'en'
+      console.log('🌐 Language auto-detected from result_data:', auditLanguage, hasCyrillic)
+    }
+
+    // Fallback на русский если язык всё ещё не определен
+    auditLanguage = auditLanguage || 'ru'
+    console.log('🌐 Final audit language:', auditLanguage)
 
     const languageContext = {
       requestLanguage: auditLanguage,
