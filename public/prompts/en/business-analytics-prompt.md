@@ -94,14 +94,14 @@ For each of top-3 hypotheses add:
       "priority_rank": 1,
       "expected_outcome": "Expected result in % (conservative estimate)",
       "is_top_3": true,
-      "user_story": "As [role], I want [goal], so that [benefit]",
-      "ux_patterns": "Pattern examples or links to best-in-class solutions",
+      "user_story": "As [role], I want [goal], so that [benefit] (ENGLISH ONLY)",
+      "ux_patterns": "Pattern examples or links to best-in-class solutions (ENGLISH ONLY)",
       "test_plan": {
         "method": "A/B test|usability test|prototype test",
-        "duration": "2-4 weeks",
-        "sample_size": "Minimum 1000 users",
-        "delta_metrics": ["Conversion Rate +15-20%", "Bounce Rate -10%"],
-        "success_criteria": "Test success criteria"
+        "duration": "2-4 weeks (ENGLISH: weeks, NOT дней/недели)",
+        "sample_size": "Minimum 1000 users (ENGLISH ONLY)",
+        "delta_metrics": ["Conversion Rate +15-20%", "Bounce Rate -10% (ENGLISH ONLY)"],
+        "success_criteria": "Test success criteria (ENGLISH ONLY)"
       }
     }
   ],
@@ -131,9 +131,9 @@ For each of top-3 hypotheses add:
     }
   ],
   "next_steps": [
-    "First step - implement hypothesis #1",
-    "Second step - run test",
-    "Third step - scale successful changes"
+    "First step - implement hypothesis #1 (ENGLISH ONLY, NOT 'Первый шаг')",
+    "Second step - run test (ENGLISH ONLY, NOT 'Второй шаг')",
+    "Third step - scale successful changes (ENGLISH ONLY, NOT 'Третий шаг')"
   ],
   "summary_table": {
     "total_hypotheses": 10,
@@ -166,8 +166,12 @@ For each of top-3 hypotheses add:
 - All metrics must match the industry
 - Reference real research and best practices
 
-**⚠️ FINAL REMINDER: Your entire response MUST be in English. Check every field before submitting:**
+**⚠️ FINAL REMINDER: Your entire response MUST be in English. Check EVERY field before submitting:**
 - ✅ "Improve checkout flow clarity" (correct)
-- ❌ "Улучшить понятность процесса оформления заказа" (WRONG - this is Russian!)
-- ✅ "Add trust indicators on payment page" (correct)
-- ❌ "Добавить индикаторы доверия на странице оплаты" (WRONG - this is Russian!)
+- ❌ "Улучшить понятность процесса оформления заказ" (WRONG - this is Russian!)
+- ✅ "2-4 weeks" (correct)
+- ❌ "2 недели" or "14 дней" (WRONG - this is Russian!)
+- ✅ "First step - implement hypothesis" (correct)
+- ❌ "Первый шаг - внедрить гипотезу" (WRONG - this is Russian!)
+- ✅ "As a user, I want to understand fees" (correct)
+- ❌ "Как пользователь, я хочу понимать сборы" (WRONG - this is Russian!)
