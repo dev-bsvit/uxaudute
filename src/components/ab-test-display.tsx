@@ -87,7 +87,7 @@ export const ABTestDisplay: React.FC<ABTestDisplayProps> = ({
         <div>
           <h2 className="text-2xl font-bold text-slate-900">{t('analysis.abTest.title')}</h2>
           <p className="text-slate-600">
-            {t('analysis.abTest.generatedCount', { count: data.ab_tests.length.toString() })}
+            {t('analysis.abTest.generatedCount', { count: (data.ab_tests?.length || 0).toString() })}
           </p>
         </div>
 
@@ -132,7 +132,7 @@ export const ABTestDisplay: React.FC<ABTestDisplayProps> = ({
       </div>
 
       <div className="space-y-4">
-        {data.ab_tests.map((test, index) => {
+        {data.ab_tests?.map((test, index) => {
           const categoryLabel = (category: string) =>
             categoryLabels[category as keyof typeof categoryLabels] || category
 
