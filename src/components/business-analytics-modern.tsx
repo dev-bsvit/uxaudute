@@ -120,18 +120,30 @@ export const BusinessAnalyticsModern: React.FC<BusinessAnalyticsModernProps> = (
           <div className="grid md:grid-cols-3 gap-4">
             <div>
               <p className="text-sm text-gray-600 mb-1">{t('business.industry.identified')}</p>
-              <p className="text-lg font-semibold text-gray-900">{data.industry_analysis.identified_industry}</p>
+              <p className="text-lg font-semibold text-gray-900">
+                {typeof data.industry_analysis.identified_industry === 'object'
+                  ? JSON.stringify(data.industry_analysis.identified_industry)
+                  : data.industry_analysis.identified_industry}
+              </p>
             </div>
             {data.industry_analysis.key_metrics_framework && (
               <div>
                 <p className="text-sm text-gray-600 mb-1">{t('business.industry.framework')}</p>
-                <p className="text-lg font-semibold text-gray-900">{data.industry_analysis.key_metrics_framework}</p>
+                <p className="text-lg font-semibold text-gray-900">
+                  {typeof data.industry_analysis.key_metrics_framework === 'object'
+                    ? JSON.stringify(data.industry_analysis.key_metrics_framework)
+                    : data.industry_analysis.key_metrics_framework}
+                </p>
               </div>
             )}
             {data.industry_analysis.industry_benchmarks && (
               <div>
                 <p className="text-sm text-gray-600 mb-1">{t('business.industry.benchmarks')}</p>
-                <p className="text-sm text-gray-700">{data.industry_analysis.industry_benchmarks}</p>
+                <p className="text-sm text-gray-700">
+                  {typeof data.industry_analysis.industry_benchmarks === 'object'
+                    ? JSON.stringify(data.industry_analysis.industry_benchmarks)
+                    : data.industry_analysis.industry_benchmarks}
+                </p>
               </div>
             )}
           </div>
@@ -146,13 +158,17 @@ export const BusinessAnalyticsModern: React.FC<BusinessAnalyticsModernProps> = (
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm text-gray-600">{t('business.summary.totalHypotheses')}</p>
-                  <p className="text-2xl font-bold text-blue-600">{data.summary_table.total_hypotheses}</p>
+                  <p className="text-2xl font-bold text-blue-600">
+                    {typeof data.summary_table.total_hypotheses === 'object'
+                      ? JSON.stringify(data.summary_table.total_hypotheses)
+                      : data.summary_table.total_hypotheses}
+                  </p>
                 </div>
                 <Lightbulb className="w-8 h-8 text-blue-500 opacity-20" />
               </div>
             </CardContent>
           </Card>
-          
+
           <Card>
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
@@ -172,7 +188,11 @@ export const BusinessAnalyticsModern: React.FC<BusinessAnalyticsModernProps> = (
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm text-gray-600">{t('business.summary.conversionLift')}</p>
-                  <p className="text-2xl font-bold text-orange-600">{data.summary_table.expected_conversion_lift}</p>
+                  <p className="text-2xl font-bold text-orange-600">
+                    {typeof data.summary_table.expected_conversion_lift === 'object'
+                      ? JSON.stringify(data.summary_table.expected_conversion_lift)
+                      : data.summary_table.expected_conversion_lift}
+                  </p>
                 </div>
                 <ArrowUp className="w-8 h-8 text-orange-500 opacity-20" />
               </div>
@@ -184,7 +204,11 @@ export const BusinessAnalyticsModern: React.FC<BusinessAnalyticsModernProps> = (
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm text-gray-600">{t('business.summary.timeline')}</p>
-                  <p className="text-2xl font-bold text-purple-600">{data.summary_table.implementation_timeline}</p>
+                  <p className="text-2xl font-bold text-purple-600">
+                    {typeof data.summary_table.implementation_timeline === 'object'
+                      ? JSON.stringify(data.summary_table.implementation_timeline)
+                      : data.summary_table.implementation_timeline}
+                  </p>
                 </div>
                 <Target className="w-8 h-8 text-purple-500 opacity-20" />
               </div>
