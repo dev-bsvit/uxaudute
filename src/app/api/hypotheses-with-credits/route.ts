@@ -3,8 +3,8 @@ import { openai } from '@/lib/openai'
 import { supabase } from '@/lib/supabase'
 import { HypothesisResponse } from '@/lib/analysis-types'
 import { checkCreditsForAudit, deductCreditsForAudit } from '@/lib/credits'
-import fs from 'fs'
-import path from 'path'
+import { LanguageManager } from '@/lib/language-manager'
+import { PromptType } from '@/lib/i18n/types'
 
 export async function POST(request: NextRequest) {
   try {
@@ -72,9 +72,21 @@ export async function POST(request: NextRequest) {
       }, { status: 400 })
     }
 
-    // Загружаем промт для гипотез
-    const promptPath = path.join(process.cwd(), 'prompts', 'hypotheses-prompt.md')
-    const hypothesesPrompt = fs.readFileSync(promptPath, 'utf-8')
+    // Определяем языковой контекст
+    const languageContext = await LanguageManager.determineAnalysisLanguage(request)
+    LanguageManager.logLanguageContext(languageContext, 'Hypotheses API')
+
+    // Загружаем промт для гипотез с учетом языка
+    let hypothesesPrompt = await LanguageManager.loadPromptForLanguage(
+      PromptType.HYPOTHESES,
+      languageContext
+    )
+
+    // Принудительно устанавливаем язык ответа
+    hypothesesPrompt = LanguageManager.enforceResponseLanguage(
+      hypothesesPrompt,
+      languageContext.responseLanguage
+    )
 
     // Подготавливаем данные для промта
     const auditData = {
@@ -97,13 +109,18 @@ export async function POST(request: NextRequest) {
 
 Сгенерируй гипотезы на основе этих данных.`
 
+    // Формируем system message с учетом языка
+    const languageInstruction = languageContext.responseLanguage === 'en'
+      ? 'You MUST respond in ENGLISH ONLY. DO NOT use Russian, Ukrainian, or any other language. All text, descriptions, user stories, test plans, metrics, and assumptions MUST be in English.'
+      : 'Ты ДОЛЖЕН отвечать ТОЛЬКО на русском языке. НЕ используй английский или другие языки.'
+
     // Отправляем запрос к OpenAI
     const completion = await openai.chat.completions.create({
       model: "gpt-4o",
       messages: [
         {
           role: "system",
-          content: "Ты - Senior UX Researcher. Генерируй гипотезы в JSON формате."
+          content: `You are a Senior UX Researcher. Generate hypotheses in JSON format. ${languageInstruction}`
         },
         {
           role: "user",

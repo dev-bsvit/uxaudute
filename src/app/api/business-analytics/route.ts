@@ -75,13 +75,18 @@ export async function POST(request: NextRequest) {
 
 Сгенерируй бизнес аналитику на основе этих данных.`
 
+    // Формируем system message с учетом языка
+    const languageInstruction = languageContext.responseLanguage === 'en'
+      ? 'CRITICAL: You MUST respond in ENGLISH ONLY. DO NOT use Russian, Ukrainian, or any other language. All industry analysis, KPIs, hypotheses, user stories, test plans, barriers, risks, opportunities, and next steps MUST be in English. Write "weeks" NOT "недели", "days" NOT "дней", "First step" NOT "Первый шаг".'
+      : 'КРИТИЧНО: Ты ДОЛЖЕН отвечать ТОЛЬКО на русском языке. НЕ используй английский или другие языки.'
+
     // Отправляем запрос к OpenAI с требованием JSON
     const completion = await openai.chat.completions.create({
       model: "gpt-4o",
       messages: [
         {
           role: "system",
-          content: "You are a Senior Product Analyst and Growth expert. You MUST respond ONLY with valid JSON format. No markdown, no explanations, no additional text - ONLY JSON."
+          content: `You are a Senior Product Analyst and Growth expert. You MUST respond ONLY with valid JSON format. No markdown, no explanations, no additional text - ONLY JSON. ${languageInstruction}`
         },
         {
           role: "user",
