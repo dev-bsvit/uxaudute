@@ -217,11 +217,15 @@ export const BusinessAnalyticsModern: React.FC<BusinessAnalyticsModernProps> = (
                   {data.kpi_table.map((kpi, index) => (
                     <tr key={index} className="border-b last:border-0">
                       <td className="py-3 font-medium text-gray-900">{kpi.metric}</td>
-                      <td className="py-3 text-gray-700">{kpi.current_value}</td>
-                      <td className="py-3 text-gray-700">{kpi.industry_benchmark}</td>
+                      <td className="py-3 text-gray-700">
+                        {typeof kpi.current_value === 'object' ? JSON.stringify(kpi.current_value) : kpi.current_value}
+                      </td>
+                      <td className="py-3 text-gray-700">
+                        {typeof kpi.industry_benchmark === 'object' ? JSON.stringify(kpi.industry_benchmark) : kpi.industry_benchmark}
+                      </td>
                       <td className="py-3">
                         <Badge className="bg-green-100 text-green-800">
-                          {kpi.potential_improvement}
+                          {typeof kpi.potential_improvement === 'object' ? JSON.stringify(kpi.potential_improvement) : kpi.potential_improvement}
                         </Badge>
                       </td>
                     </tr>
