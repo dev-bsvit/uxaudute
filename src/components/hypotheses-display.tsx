@@ -87,7 +87,7 @@ export const HypothesesDisplay: React.FC<HypothesesDisplayProps> = ({
         <div>
           <h2 className="text-2xl font-bold text-slate-900">{t("hypotheses.title")}</h2>
           <p className="text-slate-600">
-            {t("hypotheses.generated", { count: data.hypotheses.length.toString() })}
+            {t("hypotheses.generated", { count: (data.hypotheses?.length || 0).toString() })}
           </p>
         </div>
         <div className="flex gap-2">
@@ -223,7 +223,7 @@ export const HypothesesDisplay: React.FC<HypothesesDisplayProps> = ({
 
       {/* Список гипотез */}
       <div className="space-y-4">
-        {data.hypotheses.map((hypothesis, index) => (
+        {data.hypotheses?.map((hypothesis, index) => (
           <Card key={hypothesis.id} className="overflow-hidden">
             <CardHeader className="pb-4">
               <div className="flex items-start justify-between">
