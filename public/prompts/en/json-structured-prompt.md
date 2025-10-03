@@ -250,15 +250,29 @@ RULES:
 2. **Use ONLY 5 new fields**: title, impact, why, fix, result
 
 3. **⚠️ CRITICALLY IMPORTANT - ANALYZE ONLY THE REAL SCREENSHOT:**
+
+   **FORBIDDEN TEMPLATE PHRASES (DO NOT USE!):**
+   - ❌ "Low CTA button visibility" - if button is BRIGHT and CONTRASTED
+   - ❌ "Increase button contrast" - if button is already blue on white background
+   - ❌ "Button not highlighted enough" - if it spans full width and has vibrant color
+   - ❌ "Small button size" - if button is large and prominent
+   - ❌ "Poor text readability" - if font is black on white, 14px+
+   - ❌ Any problems with elements that are ALREADY well implemented!
+
+   **MANDATORY RULES:**
    - ❌ ABSOLUTELY FORBIDDEN to copy or reuse examples from the prompt
-   - ❌ FORBIDDEN generic phrases like "Low CTA button visibility", "Increase button contrast"
-   - ❌ FORBIDDEN to write about "contrast", "button size" if it's NOT a real problem on the screenshot
+   - ❌ FORBIDDEN to write about "contrast", "size", "visibility" if it's NOT a real problem
    - ❌ DO NOT use template solutions - each fix must be specific to THIS screen
+   - ✅ BEFORE writing a problem - LOOK at the screenshot and VERIFY the problem REALLY exists
    - ✅ REQUIRED analyze REAL elements that are VISIBLE on the screenshot
-   - ✅ Name problems by SPECIFIC elements: "Button 'Pay' [specific issue]"
-   - ✅ If a button is well highlighted and contrasted - DO NOT write about it as a problem!
+   - ✅ Name problems by SPECIFIC elements: "Fee warning poorly visible"
+   - ✅ If element is well done (bright button, clear text) - DO NOT write about it as a problem!
    - ✅ Each problem must be UNIQUE and based on visual analysis of THIS screenshot
    - ✅ Examples in prompt are STRUCTURE templates, NOT content to copy
+
+   **CORRECT APPROACH (payment form example):**
+   - ❌ WRONG: "Button 'Pay' not highlighted enough" (button is blue, bright, full-width!)
+   - ✅ CORRECT: "Gray fee warning blends with background and may be ignored"
 
 4. **VARY PROBLEM TYPES** - don't repeat the same category 4 times:
    - Visual hierarchy (sizes, colors, positioning)
