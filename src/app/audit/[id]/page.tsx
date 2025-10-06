@@ -18,6 +18,7 @@ import { User } from '@supabase/supabase-js'
 import { ABTestResponse, HypothesisResponse, BusinessAnalyticsResponse } from '@/lib/analysis-types'
 import { safeParseJSON } from '@/lib/json-parser'
 import { safeAdaptAnalysisData } from '@/lib/analysis-data-adapter'
+import { useTranslation } from '@/hooks/use-translation'
 import Link from 'next/link'
 
 interface Audit {
@@ -40,6 +41,7 @@ export default function AuditPage() {
   const params = useParams()
   const router = useRouter()
   const auditId = params.id as string
+  const { t } = useTranslation()
 
   const [user, setUser] = useState<User | null>(null)
   const [audit, setAudit] = useState<Audit | null>(null)
@@ -54,6 +56,13 @@ export default function AuditPage() {
   const [publicUrl, setPublicUrl] = useState<string | null>(null)
   const [publicUrlLoading, setPublicUrlLoading] = useState(false)
   const [shareStatus, setShareStatus] = useState<'idle' | 'loading' | 'copied'>('idle')
+
+  const tabItems = [
+    { id: 'ux-analysis', label: t('analysis.tabs.uxAnalysis') },
+    { id: 'ab-test', label: t('analysis.tabs.abTests') },
+    { id: 'hypotheses', label: t('analysis.tabs.hypotheses') },
+    { id: 'analytics', label: t('analysis.tabs.analytics') }
+  ]
 
   // Функция обновления страницы
   const handleRefresh = () => {
@@ -395,12 +404,12 @@ export default function AuditPage() {
               {shareStatus === 'loading' ? (
                 <div className="flex items-center gap-2">
                   <div className="animate-spin rounded-full h-4 w-4 border-2 border-current border-t-transparent" />
-                  {publicUrl ? 'Копируем...' : 'Создание ссылки...'}
+                  {publicUrl ? t('analysis.share.copying') : t('analysis.share.creating')}
                 </div>
               ) : (
                 <>
                   <Share2 className="w-4 h-4" />
-                  {shareStatus === 'copied' ? 'Ссылка скопирована' : 'Поделиться'}
+                  {shareStatus === 'copied' ? t('analysis.share.copied') : t('analysis.share.share')}
                 </>
               )}
             </Button>
@@ -411,30 +420,15 @@ export default function AuditPage() {
         {audit.result_data ? (
           <Tabs defaultValue="ux-analysis" className="w-full">
             <TabsList className="grid w-full grid-cols-4 mb-6 bg-gray-100 h-16 relative z-10 p-1">
-              <TabsTrigger 
-                value="ux-analysis" 
-                className="h-14 text-sm font-medium data-[state=active]:bg-white data-[state=active]:shadow-sm"
-              >
-                UX Анализ
-              </TabsTrigger>
-              <TabsTrigger 
-                value="ab-test" 
-                className="h-14 text-sm font-medium data-[state=active]:bg-white data-[state=active]:shadow-sm"
-              >
-                AB тест
-              </TabsTrigger>
-              <TabsTrigger 
-                value="hypotheses" 
-                className="h-14 text-sm font-medium data-[state=active]:bg-white data-[state=active]:shadow-sm"
-              >
-                Гипотезы
-              </TabsTrigger>
-              <TabsTrigger 
-                value="analytics" 
-                className="h-14 text-sm font-medium data-[state=active]:bg-white data-[state=active]:shadow-sm"
-              >
-                Продуктовая аналитика
-              </TabsTrigger>
+              {tabItems.map((tab) => (
+                <TabsTrigger
+                  key={tab.id}
+                  value={tab.id}
+                  className="h-14 text-sm font-medium data-[state=active]:bg-white data-[state=active]:shadow-sm"
+                >
+                  {tab.label}
+                </TabsTrigger>
+              ))}
             </TabsList>
             
             <TabsContent value="ux-analysis">
@@ -497,9 +491,6 @@ export default function AuditPage() {
                 data={abTestData}
                 isLoading={abTestLoading}
                 onGenerate={audit?.status === 'completed' ? generateABTests : undefined}
-                onShare={createPublicLink}
-                publicUrl={publicUrl}
-                publicUrlLoading={publicUrlLoading}
               />
             </TabsContent>
             
@@ -508,9 +499,6 @@ export default function AuditPage() {
                 data={hypothesesData}
                 isLoading={hypothesesLoading}
                 onGenerate={audit?.status === 'completed' ? generateHypotheses : undefined}
-                onShare={createPublicLink}
-                publicUrl={publicUrl}
-                publicUrlLoading={publicUrlLoading}
               />
             </TabsContent>
             
@@ -519,9 +507,6 @@ export default function AuditPage() {
                 data={businessAnalyticsData}
                 isLoading={businessAnalyticsLoading}
                 onGenerate={audit?.status === 'completed' ? generateBusinessAnalytics : undefined}
-                onShare={createPublicLink}
-                publicUrl={publicUrl}
-                publicUrlLoading={publicUrlLoading}
               />
             </TabsContent>
           </Tabs>

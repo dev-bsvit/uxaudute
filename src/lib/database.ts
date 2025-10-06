@@ -267,6 +267,18 @@ export async function updateProject(projectId: string, updates: { name?: string;
   if (error) throw error
 }
 
+export async function updateAuditName(auditId: string, name: string): Promise<void> {
+  const { error } = await supabase
+    .from('audits')
+    .update({ name })
+    .eq('id', auditId)
+
+  if (error) {
+    console.error('Error updating audit name:', error)
+    throw new Error(`Database error: ${error.message}`)
+  }
+}
+
 export async function deleteAnnotations(auditId: string): Promise<void> {
   // Сначала проверяем права доступа через getAudit
   const audit = await getAudit(auditId)

@@ -15,20 +15,21 @@ import { Badge } from '@/components/ui/badge'
 import { User } from '@supabase/supabase-js'
 import { supabase } from '@/lib/supabase'
 import { StructuredAnalysisResponse } from '@/lib/analysis-types'
-import { 
-  getProject, 
-  getProjectAudits, 
-  createAudit, 
-  updateAuditResult, 
+import {
+  getProject,
+  getProjectAudits,
+  createAudit,
+  updateAuditResult,
   addAuditHistory,
   uploadScreenshotFromBase64,
   updateProjectContext,
-  updateProjectTargetAudience
+  updateProjectTargetAudience,
+  updateAuditName
 } from '@/lib/database'
 import { useTranslation } from '@/hooks/use-translation'
+import { useFormatters } from '@/hooks/use-formatters'
 import { 
   Plus, 
-  Trash2,
   ExternalLink,
   BarChart3,
   Eye
@@ -56,11 +57,27 @@ interface Audit {
   created_at: string
 }
 
+// Функция для обрезания длинного названия на основе screenType
+function truncateScreenType(screenType: string, maxWords: number = 3): string {
+  if (!screenType || screenType.trim() === '') {
+    return ''
+  }
+
+  const words = screenType.trim().split(/\s+/)
+  if (words.length <= maxWords) {
+    return screenType
+  }
+
+  return words.slice(0, maxWords).join(' ') + '...'
+}
+
 export default function ProjectDetailPage() {
   const params = useParams()
   const router = useRouter()
   const projectId = params.id as string
   const { t, currentLanguage } = useTranslation()
+  const { formatDateTime, formatDate } = useFormatters()
+  const unknownErrorMessage = t('common.unknown') || (currentLanguage === 'en' ? 'Unknown error' : 'Неизвестная ошибка')
 
   const [user, setUser] = useState<User | null>(null)
   const [project, setProject] = useState<Project | null>(null)
@@ -161,9 +178,15 @@ export default function ProjectDetailPage() {
         .join('\n\n---\n\n')
 
       // Создаем новый аудит с URL скриншота
+      const currentDateLabel = formatDate(new Date())
+      const fallbackAuditName = currentLanguage === 'en'
+        ? `Analysis ${currentDateLabel}`
+        : `Анализ ${currentDateLabel}`
+      const auditName = t('projects.detail.analysis.defaultName', { date: currentDateLabel }) || fallbackAuditName
+
       const audit = await createAudit(
         projectId,
-        `Анализ ${new Date().toLocaleDateString('ru-RU')}`,
+        auditName,
         'research',
         {
           url: data.url,
@@ -209,7 +232,16 @@ export default function ProjectDetailPage() {
           try {
             const errorData = await response.json()
             console.log('❌ Недостаточно кредитов:', errorData)
-            alert(`Недостаточно кредитов для проведения аудита!\nТребуется: ${errorData.required_credits || 2} кредитов\nДоступно: ${errorData.current_balance || 0} кредитов\n\nПополните баланс кредитов для продолжения.`)
+            const requiredCredits = String(errorData.required_credits ?? 2)
+            const availableCredits = String(errorData.current_balance ?? 0)
+            const insufficientCreditsMessage = t('projects.detail.alerts.insufficientCredits', {
+              required: requiredCredits,
+              available: availableCredits
+            }) || (currentLanguage === 'en'
+              ? `Not enough credits to run the audit!\nRequired: ${requiredCredits} credits\nAvailable: ${availableCredits} credits\n\nPlease top up your credit balance to continue.`
+              : `Недостаточно кредитов для проведения аудита!\nТребуется: ${requiredCredits} кредитов\nДоступно: ${availableCredits} кредитов\n\nПополните баланс кредитов для продолжения.`)
+
+            alert(insufficientCreditsMessage)
             setIsAnalyzing(false)
             setLoading(false)
             return
@@ -247,8 +279,30 @@ export default function ProjectDetailPage() {
       }
 
       const responseData = await response.json()
-      
+
       if (responseData.success) {
+        // Попытка обновить название аудита на основе screenType
+        try {
+          const analysisData = responseData.data
+          if (analysisData && typeof analysisData === 'object') {
+            // Извлекаем screenType из результата
+            const screenType = analysisData.screenDescription?.screenType ||
+                               analysisData.interface_analysis?.screen_type ||
+                               null
+
+            if (screenType && typeof screenType === 'string' && screenType.trim() !== '') {
+              const newAuditName = truncateScreenType(screenType)
+              console.log('Обновляем название аудита:', newAuditName)
+              await updateAuditName(audit.id, newAuditName)
+            } else {
+              console.log('screenType не найден в результате анализа')
+            }
+          }
+        } catch (nameUpdateError) {
+          console.error('Ошибка обновления названия аудита:', nameUpdateError)
+          // Не прерываем работу, продолжаем с исходным названием
+        }
+
         // Перенаправляем на страницу аудита
         window.location.href = `/audit/${audit.id}`
         return
@@ -276,7 +330,11 @@ export default function ProjectDetailPage() {
 
     } catch (error) {
       console.error('Error creating audit:', error)
-      alert(`Ошибка при создании аудита: ${error instanceof Error ? error.message : 'Неизвестная ошибка'}`)
+      const errorMessage = error instanceof Error && error.message ? error.message : unknownErrorMessage
+      const createAuditErrorMessage = t('projects.detail.alerts.createAuditError', { error: errorMessage }) || (currentLanguage === 'en'
+        ? `Error creating audit: ${errorMessage}`
+        : `Ошибка при создании аудита: ${errorMessage}`)
+      alert(createAuditErrorMessage)
     } finally {
       setIsAnalyzing(false)
       setPendingUploadData(null)
@@ -330,7 +388,10 @@ export default function ProjectDetailPage() {
       setHasAnyChanges(false)
     } catch (error) {
       console.error('Error updating project data:', error)
-      alert('Ошибка при обновлении данных проекта')
+      const updateErrorMessage = t('projects.detail.alerts.updateProjectError') || (currentLanguage === 'en'
+        ? 'Error updating project data'
+        : 'Ошибка при обновлении данных проекта')
+      alert(updateErrorMessage)
     } finally {
       setIsUpdating(false)
     }
@@ -383,7 +444,11 @@ export default function ProjectDetailPage() {
 
     } catch (error) {
       console.error('Error performing action:', error)
-      alert(`Ошибка при выполнении действия: ${error instanceof Error ? error.message : 'Неизвестная ошибка'}`)
+      const errorMessage = error instanceof Error && error.message ? error.message : unknownErrorMessage
+      const actionErrorMessage = t('projects.detail.alerts.actionError', { error: errorMessage }) || (currentLanguage === 'en'
+        ? `Error performing action: ${errorMessage}`
+        : `Ошибка при выполнении действия: ${errorMessage}`)
+      alert(actionErrorMessage)
     } finally {
       setIsAnalyzing(false)
     }
@@ -394,7 +459,10 @@ export default function ProjectDetailPage() {
     setCurrentAudit(audit)
     
     // Пытаемся распарсить JSON результат, если не получается - используем как строку
-    let analysisResult = audit.result_data?.analysis_result || 'Результат анализа не найден'
+    const noResultMessage = t('projects.detail.analysis.noResult') || (currentLanguage === 'en'
+      ? 'Analysis result not found'
+      : 'Результат анализа не найден')
+    let analysisResult = audit.result_data?.analysis_result || noResultMessage
     try {
       if (typeof analysisResult === 'string') {
         const parsed = JSON.parse(analysisResult)
@@ -419,22 +487,25 @@ export default function ProjectDetailPage() {
 
 
 
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('ru-RU', {
-      day: 'numeric',
-      month: 'short',
-      year: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
-    })
-  }
-
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'completed': return 'bg-green-100 text-green-800'
       case 'in_progress': return 'bg-blue-100 text-blue-800'
       case 'failed': return 'bg-red-100 text-red-800'
       default: return 'bg-gray-100 text-gray-800'
+    }
+  }
+
+  const getStatusLabel = (status: string) => {
+    switch (status) {
+      case 'completed':
+        return t('projects.detail.history.status.completed') || (currentLanguage === 'en' ? 'Completed' : 'Завершен')
+      case 'in_progress':
+        return t('projects.detail.history.status.in_progress') || (currentLanguage === 'en' ? 'In progress' : 'В процессе')
+      case 'failed':
+        return t('projects.detail.history.status.failed') || (currentLanguage === 'en' ? 'Error' : 'Ошибка')
+      default:
+        return t('projects.detail.history.status.draft') || (currentLanguage === 'en' ? 'Draft' : 'Черновик')
     }
   }
 
@@ -450,7 +521,9 @@ export default function ProjectDetailPage() {
     return (
       <div className="min-h-screen bg-gray-100 flex items-center justify-center">
         <div className="text-center py-12 bg-white rounded-2xl shadow-lg p-8">
-          <h2 className="text-2xl font-bold text-slate-900 mb-4">Проект не найден</h2>
+          <h2 className="text-2xl font-bold text-slate-900 mb-4">
+            {t('projects.detail.notFoundTitle') || (currentLanguage === 'en' ? 'Project not found' : 'Проект не найден')}
+          </h2>
           <Link href="/projects">
             <BackArrow />
           </Link>
@@ -474,7 +547,9 @@ export default function ProjectDetailPage() {
                 <p className="text-slate-600 mt-1">{project.description}</p>
               )}
               <p className="text-sm text-slate-500 mt-1">
-                Создан {formatDate(project.created_at)}
+                {t('projects.detail.createdAt', { date: formatDateTime(project.created_at) }) || (currentLanguage === 'en'
+                  ? `Created ${formatDateTime(project.created_at)}`
+                  : `Создан ${formatDateTime(project.created_at)}`)}
               </p>
             </div>
           </div>
@@ -484,7 +559,7 @@ export default function ProjectDetailPage() {
             className="flex items-center gap-2"
           >
             <Plus className="w-4 h-4" />
-            Новый аудит
+            {t('projects.detail.newAudit') || (currentLanguage === 'en' ? 'New audit' : 'Новый аудит')}
           </Button>
         </div>
 
@@ -497,7 +572,9 @@ export default function ProjectDetailPage() {
             {showCreateForm && (
               <Card>
                 <CardHeader>
-                  <CardTitle>Создать новый аудит</CardTitle>
+                  <CardTitle>
+                    {t('projects.detail.createAudit.title') || (currentLanguage === 'en' ? 'Create new audit' : 'Создать новый аудит')}
+                  </CardTitle>
                 </CardHeader>
                 <CardContent>
                   <UploadForm
@@ -509,7 +586,7 @@ export default function ProjectDetailPage() {
                       variant="outline"
                       onClick={() => setShowCreateForm(false)}
                     >
-                      Отмена
+                      {t('common.cancel') || (currentLanguage === 'en' ? 'Cancel' : 'Отмена')}
                     </Button>
                   </div>
                 </CardContent>
@@ -521,18 +598,20 @@ export default function ProjectDetailPage() {
               {/* Левая колонка - Список аудитов */}
               <Card>
                 <CardHeader>
-                  <CardTitle>История аудитов</CardTitle>
+                  <CardTitle>
+                    {t('projects.detail.history.title') || (currentLanguage === 'en' ? 'Audit history' : 'История аудитов')}
+                  </CardTitle>
                 </CardHeader>
                 <CardContent>
                   {audits.length === 0 ? (
                     <div className="text-center py-8">
                       <BarChart3 className="w-12 h-12 text-slate-400 mx-auto mb-4" />
                       <p className="text-slate-600 mb-4">
-                        В этом проекте пока нет аудитов
+                        {t('projects.detail.history.empty') || (currentLanguage === 'en' ? 'There are no audits in this project yet' : 'В этом проекте пока нет аудитов')}
                       </p>
                       <Button onClick={() => setShowCreateForm(true)}>
                         <Plus className="w-4 h-4 mr-2" />
-                        Создать первый аудит
+                        {t('projects.detail.history.emptyAction') || (currentLanguage === 'en' ? 'Create first audit' : 'Создать первый аудит')}
                       </Button>
                     </div>
                   ) : (
@@ -546,21 +625,21 @@ export default function ProjectDetailPage() {
                             <div className="flex items-center gap-3 mb-2">
                               <h3 className="font-medium text-slate-900">{audit.name}</h3>
                               <Badge className={getStatusColor(audit.status)}>
-                                {audit.status === 'completed' ? 'Завершен' : 
-                                 audit.status === 'in_progress' ? 'В процессе' : 
-                                 audit.status === 'failed' ? 'Ошибка' : 'Черновик'}
+                                {getStatusLabel(audit.status)}
                               </Badge>
                             </div>
                             <p className="text-sm text-slate-600">
-                              {formatDate(audit.created_at)}
+                              {formatDateTime(audit.created_at)}
                               {audit.input_data?.url && (
                                 <span className="ml-4 inline-flex items-center gap-1">
                                   <ExternalLink className="w-3 h-3" />
-                                  URL анализ
+                                  {t('projects.detail.history.urlTag') || (currentLanguage === 'en' ? 'URL analysis' : 'URL анализ')}
                                 </span>
                               )}
                               {audit.input_data?.hasScreenshot && (
-                                <span className="ml-4">📸 Скриншот</span>
+                                <span className="ml-4">
+                                  {t('projects.detail.history.screenshotTag') || '📸 Скриншот'}
+                                </span>
                               )}
                             </p>
                           </div>
@@ -571,7 +650,7 @@ export default function ProjectDetailPage() {
                                 variant="outline"
                               >
                                 <Eye className="w-4 h-4 mr-2" />
-                                Просмотр
+                                {t('common.view') || (currentLanguage === 'en' ? 'View' : 'Просмотр')}
                               </Button>
                             </Link>
                           </div>
@@ -585,19 +664,25 @@ export default function ProjectDetailPage() {
               {/* Правая колонка - Контекст проекта и Целевая аудитория */}
               <Card>
                 <CardHeader>
-                  <CardTitle>Контекст проекта и Целевая аудитория</CardTitle>
+                  <CardTitle>
+                    {t('projects.detail.context.title') || (currentLanguage === 'en' ? 'Project context and target audience' : 'Контекст проекта и Целевая аудитория')}
+                  </CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-6">
                     {/* Контекст проекта */}
                     <div className="space-y-3">
-                      <h4 className="text-sm font-medium text-gray-700">Контекст проекта</h4>
+                      <h4 className="text-sm font-medium text-gray-700">
+                        {t('projects.detail.context.projectLabel') || (currentLanguage === 'en' ? 'Project context' : 'Контекст проекта')}
+                      </h4>
                       <textarea
                         value={editContext}
                         onChange={handleContextChange}
                         className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
                         rows={4}
-                        placeholder="Например: Мобильное приложение для заказа еды. Основные функции: каталог, корзина, оплата, история заказов..."
+                        placeholder={t('projects.detail.context.projectPlaceholder') || (currentLanguage === 'en'
+                          ? 'Example: Mobile app for food ordering. Main features: catalog, cart, payment, order history...'
+                          : 'Например: Мобильное приложение для заказа еды. Основные функции: каталог, корзина, оплата, история заказов...')}
                       />
                     </div>
 
@@ -606,19 +691,25 @@ export default function ProjectDetailPage() {
 
                     {/* Целевая аудитория */}
                     <div className="space-y-3">
-                      <h4 className="text-sm font-medium text-gray-700">Целевая аудитория</h4>
+                      <h4 className="text-sm font-medium text-gray-700">
+                        {t('projects.detail.context.audienceLabel') || (currentLanguage === 'en' ? 'Target audience' : 'Целевая аудитория')}
+                      </h4>
                       <textarea
                         value={editTargetAudience}
                         onChange={handleTargetAudienceChange}
                         className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
                         rows={4}
-                        placeholder="Например: Молодые люди 18-35 лет, активные пользователи смартфонов, ценят удобство и скорость, готовы платить за качественный сервис..."
+                        placeholder={t('projects.detail.context.audiencePlaceholder') || (currentLanguage === 'en'
+                          ? 'Example: Young people aged 18-35, active smartphone users who value convenience and speed and are willing to pay for quality service...'
+                          : 'Например: Молодые люди 18-35 лет, активные пользователи смартфонов, ценят удобство и скорость, готовы платить за качественный сервис...')}
                       />
                     </div>
 
                     {/* Общая подсказка */}
                     <p className="text-sm text-slate-500">
-                      Эта информация поможет AI дать более точные рекомендации при анализе
+                      {t('projects.detail.context.note') || (currentLanguage === 'en'
+                        ? 'This information will help the AI provide more accurate recommendations during analysis'
+                        : 'Эта информация поможет AI дать более точные рекомендации при анализе')}
                     </p>
 
                     {/* Единые кнопки управления */}
@@ -632,7 +723,7 @@ export default function ProjectDetailPage() {
                         {isUpdating ? (
                           <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent"></div>
                         ) : null}
-                        Сохранить
+                        {t('common.save') || (currentLanguage === 'en' ? 'Save' : 'Сохранить')}
                       </Button>
                       {hasAnyChanges && (
                         <Button
@@ -641,7 +732,7 @@ export default function ProjectDetailPage() {
                           onClick={handleCancelAll}
                           disabled={isUpdating}
                         >
-                          Отмена
+                          {t('common.cancel') || (currentLanguage === 'en' ? 'Cancel' : 'Отмена')}
                         </Button>
                       )}
                     </div>
