@@ -2,10 +2,7 @@ import React from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { 
-  BarChart3, TrendingUp, Target, Zap, AlertCircle, 
-  Lightbulb, Share2, RefreshCw, ArrowUp, ArrowDown 
-} from 'lucide-react'
+import { BarChart3, TrendingUp, Target, Zap, AlertCircle, Lightbulb, RefreshCw, ArrowUp } from 'lucide-react'
 import { BusinessAnalyticsResponse } from '@/lib/analysis-types'
 import { useTranslation } from '@/hooks/use-translation'
 
@@ -13,18 +10,12 @@ interface BusinessAnalyticsModernProps {
   data: BusinessAnalyticsResponse | null
   isLoading?: boolean
   onGenerate?: () => void
-  onShare?: () => void
-  publicUrl?: string | null
-  publicUrlLoading?: boolean
 }
 
 export const BusinessAnalyticsModern: React.FC<BusinessAnalyticsModernProps> = ({
   data,
   isLoading = false,
-  onGenerate,
-  onShare,
-  publicUrl,
-  publicUrlLoading = false
+  onGenerate
 }) => {
   const { t } = useTranslation()
 
@@ -34,7 +25,7 @@ export const BusinessAnalyticsModern: React.FC<BusinessAnalyticsModernProps> = (
         <CardContent className="p-8">
           <div className="flex items-center justify-center">
             <RefreshCw className="w-6 h-6 animate-spin mr-2" />
-            <span>{t('business.loading')}</span>
+            <span>{t('analysis.business.loading')}</span>
           </div>
         </CardContent>
       </Card>
@@ -49,12 +40,12 @@ export const BusinessAnalyticsModern: React.FC<BusinessAnalyticsModernProps> = (
             <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center">
               <BarChart3 className="w-8 h-8 text-blue-600" />
             </div>
-            <h3 className="text-lg font-semibold">{t('business.notGenerated')}</h3>
-            <p className="text-gray-600 max-w-md">{t('business.notGeneratedDesc')}</p>
+            <h3 className="text-lg font-semibold">{t('analysis.business.empty.title')}</h3>
+            <p className="text-gray-600 max-w-md">{t('analysis.business.empty.description')}</p>
             {onGenerate && (
               <Button onClick={onGenerate} className="w-full max-w-xs">
                 <BarChart3 className="w-4 h-4 mr-2" />
-                {t('business.generateButton')}
+                {t('analysis.business.empty.action')}
               </Button>
             )}
           </div>
@@ -74,38 +65,12 @@ export const BusinessAnalyticsModern: React.FC<BusinessAnalyticsModernProps> = (
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-3xl font-bold text-gray-900 flex items-center gap-3">
-            <BarChart3 className="w-8 h-8 text-blue-600" />
-            {t('business.title')}
-          </h2>
-          <p className="text-gray-600 mt-1">{t('business.subtitle')}</p>
-        </div>
-        <div className="flex gap-2">
-          {onShare && (
-            !publicUrl ? (
-              <Button 
-                variant="outline" 
-                size="sm" 
-                onClick={onShare}
-                disabled={publicUrlLoading}
-              >
-                <Share2 className="w-4 h-4 mr-2" />
-                {publicUrlLoading ? t('business.creating') : t('business.share')}
-              </Button>
-            ) : (
-              <Button 
-                variant="outline" 
-                size="sm" 
-                onClick={() => navigator.clipboard.writeText(publicUrl)}
-              >
-                <Share2 className="w-4 h-4 mr-2" />
-                {t('business.copyLink')}
-              </Button>
-            )
-          )}
-        </div>
+      <div>
+        <h2 className="text-3xl font-bold text-gray-900 flex items-center gap-3">
+          <BarChart3 className="w-8 h-8 text-blue-600" />
+          {t('analysis.business.title')}
+        </h2>
+        <p className="text-gray-600 mt-1">{t('analysis.business.subtitle')}</p>
       </div>
 
       {/* Industry Analysis */}
@@ -113,13 +78,13 @@ export const BusinessAnalyticsModern: React.FC<BusinessAnalyticsModernProps> = (
         <CardHeader className="bg-gradient-to-r from-blue-50 to-indigo-50">
           <CardTitle className="flex items-center gap-2">
             <Target className="w-5 h-5" />
-            {t('business.industry.title')}
+            {t('analysis.business.industry.title')}
           </CardTitle>
         </CardHeader>
         <CardContent className="pt-6">
           <div className="grid md:grid-cols-3 gap-4">
             <div>
-              <p className="text-sm text-gray-600 mb-1">{t('business.industry.identified')}</p>
+              <p className="text-sm text-gray-600 mb-1">{t('analysis.business.industry.identified')}</p>
               <p className="text-lg font-semibold text-gray-900">
                 {typeof data.industry_analysis.identified_industry === 'object'
                   ? JSON.stringify(data.industry_analysis.identified_industry)
@@ -128,7 +93,7 @@ export const BusinessAnalyticsModern: React.FC<BusinessAnalyticsModernProps> = (
             </div>
             {data.industry_analysis.key_metrics_framework && (
               <div>
-                <p className="text-sm text-gray-600 mb-1">{t('business.industry.framework')}</p>
+                <p className="text-sm text-gray-600 mb-1">{t('analysis.business.industry.framework')}</p>
                 <p className="text-lg font-semibold text-gray-900">
                   {typeof data.industry_analysis.key_metrics_framework === 'object'
                     ? JSON.stringify(data.industry_analysis.key_metrics_framework)
@@ -138,7 +103,7 @@ export const BusinessAnalyticsModern: React.FC<BusinessAnalyticsModernProps> = (
             )}
             {data.industry_analysis.industry_benchmarks && (
               <div>
-                <p className="text-sm text-gray-600 mb-1">{t('business.industry.benchmarks')}</p>
+                <p className="text-sm text-gray-600 mb-1">{t('analysis.business.industry.benchmarks')}</p>
                 <p className="text-sm text-gray-700">
                   {typeof data.industry_analysis.industry_benchmarks === 'object'
                     ? JSON.stringify(data.industry_analysis.industry_benchmarks)
@@ -157,7 +122,7 @@ export const BusinessAnalyticsModern: React.FC<BusinessAnalyticsModernProps> = (
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-600">{t('business.summary.totalHypotheses')}</p>
+                  <p className="text-sm text-gray-600">{t('analysis.business.summary.totalHypotheses')}</p>
                   <p className="text-2xl font-bold text-blue-600">
                     {typeof data.summary_table.total_hypotheses === 'object'
                       ? JSON.stringify(data.summary_table.total_hypotheses)
@@ -173,7 +138,7 @@ export const BusinessAnalyticsModern: React.FC<BusinessAnalyticsModernProps> = (
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-600">Top ICE Score</p>
+                  <p className="text-sm text-gray-600">{t('analysis.business.summary.topIce')}</p>
                   <p className="text-2xl font-bold text-green-600">
                     {data.summary_table.top_3_ice_scores[0]?.toFixed(1) || 'N/A'}
                   </p>
@@ -187,7 +152,7 @@ export const BusinessAnalyticsModern: React.FC<BusinessAnalyticsModernProps> = (
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-600">{t('business.summary.conversionLift')}</p>
+                  <p className="text-sm text-gray-600">{t('analysis.business.summary.conversionLift')}</p>
                   <p className="text-2xl font-bold text-orange-600">
                     {typeof data.summary_table.expected_conversion_lift === 'object'
                       ? JSON.stringify(data.summary_table.expected_conversion_lift)
@@ -203,7 +168,7 @@ export const BusinessAnalyticsModern: React.FC<BusinessAnalyticsModernProps> = (
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-600">{t('business.summary.timeline')}</p>
+                  <p className="text-sm text-gray-600">{t('analysis.business.summary.timeline')}</p>
                   <p className="text-2xl font-bold text-purple-600">
                     {typeof data.summary_table.implementation_timeline === 'object'
                       ? JSON.stringify(data.summary_table.implementation_timeline)
@@ -223,7 +188,7 @@ export const BusinessAnalyticsModern: React.FC<BusinessAnalyticsModernProps> = (
           <CardHeader className="bg-gradient-to-r from-green-50 to-emerald-50">
             <CardTitle className="flex items-center gap-2">
               <TrendingUp className="w-5 h-5" />
-              {t('business.kpi.title')}
+              {t('analysis.business.kpi.title')}
             </CardTitle>
           </CardHeader>
           <CardContent className="pt-6">
@@ -231,10 +196,10 @@ export const BusinessAnalyticsModern: React.FC<BusinessAnalyticsModernProps> = (
               <table className="w-full">
                 <thead>
                   <tr className="border-b text-left">
-                    <th className="pb-3 font-semibold text-gray-700">{t('business.kpi.metric')}</th>
-                    <th className="pb-3 font-semibold text-gray-700">{t('business.kpi.current')}</th>
-                    <th className="pb-3 font-semibold text-gray-700">{t('business.kpi.benchmark')}</th>
-                    <th className="pb-3 font-semibold text-gray-700">{t('business.kpi.improvement')}</th>
+                    <th className="pb-3 font-semibold text-gray-700">{t('analysis.business.kpi.metric')}</th>
+                    <th className="pb-3 font-semibold text-gray-700">{t('analysis.business.kpi.current')}</th>
+                    <th className="pb-3 font-semibold text-gray-700">{t('analysis.business.kpi.benchmark')}</th>
+                    <th className="pb-3 font-semibold text-gray-700">{t('analysis.business.kpi.improvement')}</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -267,7 +232,7 @@ export const BusinessAnalyticsModern: React.FC<BusinessAnalyticsModernProps> = (
           <CardHeader className="bg-gradient-to-r from-yellow-50 to-amber-50">
             <CardTitle className="flex items-center gap-2">
               <Lightbulb className="w-5 h-5" />
-              {t('business.hypotheses.title')}
+              {t('analysis.business.hypotheses.title')}
             </CardTitle>
           </CardHeader>
           <CardContent className="pt-6">
@@ -388,7 +353,7 @@ export const BusinessAnalyticsModern: React.FC<BusinessAnalyticsModernProps> = (
             <CardHeader className="bg-gradient-to-r from-red-50 to-orange-50">
               <CardTitle className="flex items-center gap-2 text-lg">
                 <AlertCircle className="w-5 h-5" />
-                {t('business.barriers.title')}
+                {t('analysis.business.barriers.title')}
               </CardTitle>
             </CardHeader>
             <CardContent className="pt-4">
@@ -418,7 +383,7 @@ export const BusinessAnalyticsModern: React.FC<BusinessAnalyticsModernProps> = (
             <CardHeader className="bg-gradient-to-r from-orange-50 to-yellow-50">
               <CardTitle className="flex items-center gap-2 text-lg">
                 <AlertCircle className="w-5 h-5" />
-                {t('business.risks.title')}
+                {t('analysis.business.risks.title')}
               </CardTitle>
             </CardHeader>
             <CardContent className="pt-4">
@@ -446,7 +411,7 @@ export const BusinessAnalyticsModern: React.FC<BusinessAnalyticsModernProps> = (
           <CardHeader className="bg-gradient-to-r from-green-50 to-teal-50">
             <CardTitle className="flex items-center gap-2">
               <Zap className="w-5 h-5" />
-              {t('business.opportunities.title')}
+              {t('analysis.business.opportunities.title')}
             </CardTitle>
           </CardHeader>
           <CardContent className="pt-4">
@@ -477,7 +442,7 @@ export const BusinessAnalyticsModern: React.FC<BusinessAnalyticsModernProps> = (
           <CardHeader className="bg-gradient-to-r from-purple-50 to-pink-50">
             <CardTitle className="flex items-center gap-2">
               <Target className="w-5 h-5" />
-              {t('business.nextSteps.title')}
+              {t('analysis.business.nextSteps.title')}
             </CardTitle>
           </CardHeader>
           <CardContent className="pt-4">

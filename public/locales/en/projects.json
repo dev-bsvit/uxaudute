@@ -53,5 +53,44 @@
     "updateError": "Project update error",
     "deleteError": "Project deletion error",
     "loadError": "Projects loading error"
+  },
+  "detail": {
+    "notFoundTitle": "Project not found",
+    "createdAt": "Created {date}",
+    "newAudit": "New audit",
+    "analysis": {
+      "defaultName": "Analysis {date}",
+      "noResult": "Analysis result not found"
+    },
+    "createAudit": {
+      "title": "Create new audit"
+    },
+    "history": {
+      "title": "Audit history",
+      "empty": "There are no audits in this project yet",
+      "emptyAction": "Create first audit",
+      "status": {
+        "completed": "Completed",
+        "in_progress": "In progress",
+        "failed": "Error",
+        "draft": "Draft"
+      },
+      "urlTag": "URL analysis",
+      "screenshotTag": "📸 Screenshot"
+    },
+    "context": {
+      "title": "Project context and target audience",
+      "projectLabel": "Project context",
+      "projectPlaceholder": "Example: Mobile app for food ordering. Main features: catalog, cart, payment, order history...",
+      "audienceLabel": "Target audience",
+      "audiencePlaceholder": "Example: Young people aged 18-35, active smartphone users who value convenience and speed, ready to pay for quality service...",
+      "note": "This information will help the AI provide more accurate recommendations during analysis"
+    },
+    "alerts": {
+      "insufficientCredits": "Not enough credits to run the audit!\nRequired: {required} credits\nAvailable: {available} credits\n\nPlease top up your credit balance to continue.",
+      "createAuditError": "Error creating audit: {error}",
+      "updateProjectError": "Error updating project data",
+      "actionError": "Error performing action: {error}"
+    }
   }
 }

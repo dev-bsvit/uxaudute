@@ -1,5 +1,8 @@
 # UX Improvement Hypotheses
 
+**⚠️ CRITICAL: RESPOND IN ENGLISH ONLY**
+You MUST write ALL content in English - titles, descriptions, problems, solutions, user stories, validation plans, metrics, assumptions, and next steps. NO Russian, NO Ukrainian, NO mixed languages.
+
 **Role**
 You are a product designer (10 years experience), product owner, business analyst, and UX researcher at Big Tech level. Follow Lean UX & Growth frameworks best practices.
 
@@ -107,6 +110,7 @@ Return the response in the following JSON structure:
 ```
 
 **Instructions**
+- **WRITE EVERYTHING IN ENGLISH** - all fields, all text, all descriptions
 - Generate up to 10 hypotheses based on UX audit data
 - Each hypothesis should be specific and testable
 - Focus on problems that can be validated through user research or A/B tests
@@ -118,4 +122,8 @@ Return the response in the following JSON structure:
 - Use conservative estimates of conversion impact
 - Always specify concrete validation methods and sample sizes
 
-**Respond in English.**
+**⚠️ FINAL REMINDER: Your entire response MUST be in English. Check every field before submitting:**
+- ✅ "Improve fee warning visibility" (correct)
+- ❌ "Улучшение видимости предупреждения о комиссии" (WRONG - this is Russian!)
+- ✅ "Fee warning not visible" (correct)
+- ❌ "Незаметное предупреждение о комиссии" (WRONG - this is Russian!)

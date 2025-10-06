@@ -21,16 +21,16 @@ export function HeroSection() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setIsLoading(true)
-    
+
     try {
       if (activeTab === 'url' && url) {
         // Сохраняем данные для модального окна
         setAnalysisData({ url })
         setIsAnalyzing(true)
-        // Сохраняем URL в localStorage и перенаправляем
+        // Сохраняем URL в localStorage и перенаправляем на projects
         localStorage.setItem('pendingAnalysis', JSON.stringify({ type: 'url', data: url }))
         setTimeout(() => {
-          window.location.href = '/dashboard'
+          window.location.href = '/projects'
         }, 2000) // Даем время показать модальное окно
       } else if (activeTab === 'upload' && file) {
         // Конвертируем файл в base64
@@ -40,16 +40,16 @@ export function HeroSection() {
           // Сохраняем данные для модального окна
           setAnalysisData({ screenshot: base64String })
           setIsAnalyzing(true)
-          // Сохраняем в localStorage и перенаправляем
+          // Сохраняем в localStorage и перенаправляем на projects
           localStorage.setItem('pendingAnalysis', JSON.stringify({ type: 'screenshot', data: base64String }))
           setTimeout(() => {
-            window.location.href = '/dashboard'
+            window.location.href = '/projects'
           }, 2000) // Даем время показать модальное окно
         }
         reader.readAsDataURL(file)
       } else {
-        // Если ничего не загружено, перенаправляем на авторизацию
-        window.location.href = '/dashboard'
+        // Если ничего не загружено, перенаправляем на projects
+        window.location.href = '/projects'
       }
     } catch (error) {
       console.error('Error:', error)

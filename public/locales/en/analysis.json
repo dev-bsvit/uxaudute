@@ -172,6 +172,12 @@
     "submitting": "Analyzing...",
     "skip": "Skip"
   },
+  "share": {
+    "share": "Share",
+    "creating": "Creating link...",
+    "copying": "Copying...",
+    "copied": "Link copied"
+  },
   "abTest": {
     "title": "A/B tests",
     "generatedCount": "Generated {{count}} tests",
@@ -225,5 +231,91 @@
       "significance": "Significance level: {{alpha}}"
     },
     "testTitle": "Test #{{index}}: {{title}}"
+  },
+  "tabs": {
+    "uxAnalysis": "UX analysis",
+    "abTests": "A/B tests",
+    "hypotheses": "Hypotheses",
+    "analytics": "Business analytics"
+  },
+  "business": {
+    "title": "Business analytics",
+    "subtitle": "Analysis of business metrics and conversion opportunities",
+    "loading": "Generating business analytics...",
+    "empty": {
+      "title": "Business analytics not generated",
+      "description": "Click the button below to generate business analytics based on the UX analysis",
+      "action": "Generate business analytics"
+    },
+    "labels": {
+      "high": "High",
+      "medium": "Medium",
+      "low": "Low",
+      "priorityHigh": "High priority",
+      "priorityMedium": "Medium priority",
+      "priorityLow": "Low priority",
+      "notAvailable": "N/A",
+      "businessConsequences": "Business consequences:",
+      "probability": "Probability:",
+      "mitigation": "Mitigation",
+      "potentialImpact": "Potential impact:",
+      "implementation": "How to implement:",
+      "businessCost": "Business cost:",
+      "solution": "Solution:",
+      "businessImpact": "Business impact:",
+      "recommendation": "Recommendation"
+    },
+    "industry": {
+      "title": "Industry analysis",
+      "identified": "Industry",
+      "framework": "Metrics framework",
+      "benchmarks": "Benchmarks"
+    },
+    "summary": {
+      "totalHypotheses": "Total hypotheses",
+      "topIce": "Top ICE score",
+      "conversionLift": "Conversion lift",
+      "timeline": "Timeline"
+    },
+    "kpi": {
+      "title": "KPI table",
+      "metric": "Metric",
+      "current": "Current",
+      "benchmark": "Benchmark",
+      "improvement": "Potential"
+    },
+    "hypotheses": {
+      "title": "Growth hypotheses"
+    },
+    "barriers": {
+      "title": "Conversion barriers"
+    },
+    "risks": {
+      "title": "Business risks"
+    },
+    "opportunities": {
+      "title": "Missed opportunities"
+    },
+    "nextSteps": {
+      "title": "Next steps"
+    },
+    "sections": {
+      "funnel": {
+        "title": "Conversion funnel"
+      },
+      "revenue": {
+        "title": "Revenue impact",
+        "current": "Current revenue",
+        "potential": "Potential increase",
+        "cost": "Cost of issues"
+      },
+      "userInsights": "User behavior insights",
+      "assumptions": "Assumptions"
+    },
+    "stats": {
+      "traffic": "Traffic: {{traffic}}",
+      "duration": "Duration: {{days}} days",
+      "significance": "Significance level: {{alpha}}"
+    }
   }
 }

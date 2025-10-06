@@ -32,16 +32,9 @@ export function SidebarDemo({ children, user }: SidebarDemoProps) {
   const links = [
     {
       label: tWithFallback("components.sidebar.home", "Home"),
-      href: "/",
+      href: "/home",
       icon: (
         <IconHome className="h-5 w-5 shrink-0 text-white" />
-      ),
-    },
-    {
-      label: tWithFallback("components.sidebar.quickAnalysis", "Quick Analysis"),
-      href: "/dashboard",
-      icon: (
-        <IconChartBar className="h-5 w-5 shrink-0 text-white" />
       ),
     },
     {

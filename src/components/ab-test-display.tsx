@@ -3,25 +3,19 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { ABTestResponse } from '@/lib/analysis-types'
-import { Download, RefreshCw, Share2 } from 'lucide-react'
+import { RefreshCw } from 'lucide-react'
 import { useTranslation } from '@/hooks/use-translation'
 
 interface ABTestDisplayProps {
   data: ABTestResponse | null
   isLoading?: boolean
   onGenerate?: () => void
-  onShare?: () => void
-  publicUrl?: string | null
-  publicUrlLoading?: boolean
 }
 
 export const ABTestDisplay: React.FC<ABTestDisplayProps> = ({
   data,
   isLoading = false,
-  onGenerate,
-  onShare,
-  publicUrl,
-  publicUrlLoading = false
+  onGenerate
 }) => {
   const { t } = useTranslation()
 
@@ -83,52 +77,11 @@ export const ABTestDisplay: React.FC<ABTestDisplayProps> = ({
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-2xl font-bold text-slate-900">{t('analysis.abTest.title')}</h2>
-          <p className="text-slate-600">
-            {t('analysis.abTest.generatedCount', { count: (data.ab_tests?.length || 0).toString() })}
-          </p>
-        </div>
-
-        <div className="flex gap-2">
-          {onShare && (
-            !publicUrl ? (
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={onShare}
-                disabled={publicUrlLoading}
-              >
-                <Share2 className="w-4 h-4 mr-2" />
-                {publicUrlLoading
-                  ? t('analysis.abTest.actions.creatingLink')
-                  : t('analysis.abTest.actions.share')}
-              </Button>
-            ) : (
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => navigator.clipboard.writeText(publicUrl)}
-              >
-                <Share2 className="w-4 h-4 mr-2" />
-                {t('analysis.abTest.actions.copyLink')}
-              </Button>
-            )
-          )}
-
-          <Button variant="outline" size="sm">
-            <Download className="w-4 h-4 mr-2" />
-            {t('analysis.abTest.actions.export')}
-          </Button>
-
-          {onGenerate && (
-            <Button onClick={onGenerate} size="sm">
-              <RefreshCw className="w-4 h-4 mr-2" />
-              {t('analysis.abTest.actions.refresh')}
-            </Button>
-          )}
-        </div>
+      <div>
+        <h2 className="text-2xl font-bold text-slate-900">{t('analysis.abTest.title')}</h2>
+        <p className="text-slate-600">
+          {t('analysis.abTest.generatedCount', { count: (data.ab_tests?.length || 0).toString() })}
+        </p>
       </div>
 
       <div className="space-y-4">

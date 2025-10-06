@@ -172,6 +172,12 @@
     "submitting": "Анализируем...",
     "skip": "Пропустить"
   },
+  "share": {
+    "share": "Поделиться",
+    "creating": "Создание ссылки...",
+    "copying": "Копируем...",
+    "copied": "Ссылка скопирована"
+  },
   "abTest": {
     "title": "A/B тесты",
     "generatedCount": "Сгенерировано {{count}} тестов",
@@ -225,5 +231,91 @@
       "significance": "Уровень значимости: {{alpha}}"
     },
     "testTitle": "Тест №{{index}}: {{title}}"
+  },
+  "tabs": {
+    "uxAnalysis": "UX анализ",
+    "abTests": "A/B тест",
+    "hypotheses": "Гипотезы",
+    "analytics": "Бизнес-аналитика"
+  },
+  "business": {
+    "title": "Бизнес-аналитика",
+    "subtitle": "Анализ бизнес-метрик и конверсионных возможностей",
+    "loading": "Генерируем бизнес-аналитику...",
+    "empty": {
+      "title": "Бизнес-аналитика не сгенерирована",
+      "description": "Нажмите кнопку ниже, чтобы сгенерировать бизнес-аналитику на основе результатов UX-анализа",
+      "action": "Получить бизнес-аналитику"
+    },
+    "labels": {
+      "high": "Высокий",
+      "medium": "Средний",
+      "low": "Низкий",
+      "priorityHigh": "Высокий приоритет",
+      "priorityMedium": "Средний приоритет",
+      "priorityLow": "Низкий приоритет",
+      "notAvailable": "N/A",
+      "businessConsequences": "Бизнес-последствия:",
+      "probability": "Вероятность:",
+      "mitigation": "Рекомендации по снижению",
+      "potentialImpact": "Потенциальное влияние:",
+      "implementation": "Как реализовать:",
+      "businessCost": "Бизнес-стоимость:",
+      "solution": "Решение:",
+      "businessImpact": "Бизнес-влияние:",
+      "recommendation": "Рекомендация"
+    },
+    "industry": {
+      "title": "Анализ индустрии",
+      "identified": "Индустрия",
+      "framework": "Методология метрик",
+      "benchmarks": "Бенчмарки"
+    },
+    "summary": {
+      "totalHypotheses": "Всего гипотез",
+      "topIce": "Топовый ICE",
+      "conversionLift": "Рост конверсии",
+      "timeline": "Сроки"
+    },
+    "kpi": {
+      "title": "Таблица KPI",
+      "metric": "Метрика",
+      "current": "Текущее",
+      "benchmark": "Бенчмарк",
+      "improvement": "Потенциал"
+    },
+    "hypotheses": {
+      "title": "Гипотезы роста"
+    },
+    "barriers": {
+      "title": "Барьеры конверсии"
+    },
+    "risks": {
+      "title": "Бизнес-риски"
+    },
+    "opportunities": {
+      "title": "Упущенные возможности"
+    },
+    "nextSteps": {
+      "title": "Следующие шаги"
+    },
+    "sections": {
+      "funnel": {
+        "title": "Конверсионная воронка"
+      },
+      "revenue": {
+        "title": "Влияние на выручку",
+        "current": "Текущие показатели",
+        "potential": "Потенциальный рост",
+        "cost": "Стоимость проблем"
+      },
+      "userInsights": "Инсайты поведения пользователей",
+      "assumptions": "Предположения"
+    },
+    "stats": {
+      "traffic": "Трафик: {{traffic}}",
+      "duration": "Длительность: {{days}} дней",
+      "significance": "Уровень значимости: {{alpha}}"
+    }
   }
 }
