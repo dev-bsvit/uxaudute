@@ -102,7 +102,7 @@ export function HeroSection() {
 
       // Сохраняем данные для автозапуска анализа на странице аудита
       localStorage.setItem('pendingAuditAnalysis', JSON.stringify({
-        type: activeTab,
+        type: activeTab === 'url' ? 'url' : 'screenshot',
         data: activeTab === 'url' ? urlData : screenshotData,
         auditId: audit.id,
         autoStart: true

@@ -357,10 +357,13 @@ export default function AuditPage() {
 
       if (!response.ok) {
         console.error('❌ Ошибка анализа:', response.status, response.statusText)
+        const errorData = await response.json().catch(() => ({}))
+        console.error('❌ Детали ошибки:', errorData)
         setIsAnalyzing(false)
         if (response.status === 402) {
-          const errorData = await response.json()
           alert(`Недостаточно кредитов!\nТребуется: ${errorData.required_credits || 2}\nДоступно: ${errorData.current_balance || 0}`)
+        } else if (response.status === 400) {
+          alert(`Ошибка запроса: ${errorData.error || 'Проверьте данные'}`)
         }
         return
       }
