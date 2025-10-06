@@ -41,7 +41,7 @@ export default function AuditPage() {
   const params = useParams()
   const router = useRouter()
   const auditId = params.id as string
-  const { t } = useTranslation()
+  const { t, currentLanguage, isLoading } = useTranslation()
 
   const [user, setUser] = useState<User | null>(null)
   const [audit, setAudit] = useState<Audit | null>(null)
@@ -57,12 +57,19 @@ export default function AuditPage() {
   const [publicUrlLoading, setPublicUrlLoading] = useState(false)
   const [shareStatus, setShareStatus] = useState<'idle' | 'loading' | 'copied'>('idle')
 
-  const tabItems = useMemo(() => [
-    { id: 'ux-analysis', label: t('analysis.tabs.uxAnalysis') },
-    { id: 'ab-test', label: t('analysis.tabs.abTests') },
-    { id: 'hypotheses', label: t('analysis.tabs.hypotheses') },
-    { id: 'analytics', label: t('analysis.tabs.analytics') }
-  ], [t])
+  const tabItems = useMemo(() => {
+    // Fallback значения на время загрузки переводов
+    const fallbacks = currentLanguage === 'en'
+      ? ['UX Analysis', 'A/B Tests', 'Hypotheses', 'Business Analytics']
+      : ['UX анализ', 'A/B тест', 'Гипотезы', 'Бизнес-аналитика']
+
+    return [
+      { id: 'ux-analysis', label: t('analysis.tabs.uxAnalysis') || fallbacks[0] },
+      { id: 'ab-test', label: t('analysis.tabs.abTests') || fallbacks[1] },
+      { id: 'hypotheses', label: t('analysis.tabs.hypotheses') || fallbacks[2] },
+      { id: 'analytics', label: t('analysis.tabs.analytics') || fallbacks[3] }
+    ]
+  }, [t, currentLanguage, isLoading])
 
   // Функция обновления страницы
   const handleRefresh = () => {
