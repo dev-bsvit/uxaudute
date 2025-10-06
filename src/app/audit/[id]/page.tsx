@@ -8,6 +8,7 @@ import { HypothesesDisplay } from '@/components/hypotheses-display'
 import { BusinessAnalyticsModern } from '@/components/business-analytics-modern'
 import { AuditDebugPanel } from '@/components/audit-debug-panel'
 import { SidebarDemo } from '@/components/sidebar-demo'
+import { AnalysisModal } from '@/components/analysis-modal'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
@@ -56,6 +57,8 @@ export default function AuditPage() {
   const [publicUrl, setPublicUrl] = useState<string | null>(null)
   const [publicUrlLoading, setPublicUrlLoading] = useState(false)
   const [shareStatus, setShareStatus] = useState<'idle' | 'loading' | 'copied'>('idle')
+  const [isAnalyzing, setIsAnalyzing] = useState(false)
+  const [analysisData, setAnalysisData] = useState<{ screenshot?: string, url?: string } | null>(null)
 
   const tabItems = useMemo(() => {
     // Fallback значения на время загрузки переводов
@@ -326,6 +329,15 @@ export default function AuditPage() {
       // Очищаем localStorage
       localStorage.removeItem('pendingAuditAnalysis')
 
+      // Показываем модальное окно с анимацией загрузки
+      if (data.autoStart) {
+        setAnalysisData({
+          screenshot: data.type === 'screenshot' ? data.data : undefined,
+          url: data.type === 'url' ? data.data : undefined
+        })
+        setIsAnalyzing(true)
+      }
+
       // Запускаем анализ автоматически
       console.log('🚀 Автозапуск анализа для аудита', audit.id)
 
@@ -345,6 +357,7 @@ export default function AuditPage() {
 
       if (!response.ok) {
         console.error('❌ Ошибка анализа:', response.status, response.statusText)
+        setIsAnalyzing(false)
         if (response.status === 402) {
           const errorData = await response.json()
           alert(`Недостаточно кредитов!\nТребуется: ${errorData.required_credits || 2}\nДоступно: ${errorData.current_balance || 0}`)
@@ -358,9 +371,13 @@ export default function AuditPage() {
       // Перезагружаем аудит для отображения результата
       await loadAudit()
 
+      // Скрываем модальное окно
+      setIsAnalyzing(false)
+
     } catch (error) {
       console.error('❌ Ошибка checkPendingAuditAnalysis:', error)
       localStorage.removeItem('pendingAuditAnalysis')
+      setIsAnalyzing(false)
     }
   }
 
@@ -600,6 +617,15 @@ export default function AuditPage() {
         {/* Debug Panel */}
         <AuditDebugPanel auditId={auditId} auditData={audit} />
       </div>
+
+      {/* Модальное окно прогресса анализа */}
+      <AnalysisModal
+        isOpen={isAnalyzing}
+        onClose={() => setIsAnalyzing(false)}
+        screenshot={analysisData?.screenshot}
+        url={analysisData?.url}
+        canClose={false}
+      />
     </SidebarDemo>
   )
 }

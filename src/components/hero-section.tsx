@@ -4,55 +4,119 @@ import { useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { RainbowButton } from '@/components/ui/rainbow-button'
 import { ImageUpload } from '@/components/ui/image-upload'
-import { AnalysisModal } from '@/components/analysis-modal'
 import Link from 'next/link'
 import { ArrowRight, Upload, Link as LinkIcon } from 'lucide-react'
 import { useTranslation } from '@/hooks/use-translation'
+import { useFormatters } from '@/hooks/use-formatters'
+import { supabase } from '@/lib/supabase'
+import { createProject, createAudit, uploadScreenshotFromBase64 } from '@/lib/database'
 
 export function HeroSection() {
   const [url, setUrl] = useState('')
   const [file, setFile] = useState<File | null>(null)
   const [activeTab, setActiveTab] = useState<'url' | 'upload'>('upload')
   const [isLoading, setIsLoading] = useState(false)
-  const [isAnalyzing, setIsAnalyzing] = useState(false)
-  const [analysisData, setAnalysisData] = useState<{url?: string; screenshot?: string} | null>(null)
-  const { t } = useTranslation()
+  const { t, currentLanguage } = useTranslation()
+  const { formatDate } = useFormatters()
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setIsLoading(true)
 
     try {
+      // Проверяем авторизацию
+      const { data: { user } } = await supabase.auth.getUser()
+
+      if (!user) {
+        // Если пользователь не авторизован, сохраняем данные и редирект на projects для авторизации
+        if (activeTab === 'url' && url) {
+          localStorage.setItem('pendingAnalysis', JSON.stringify({ type: 'url', data: url }))
+        } else if (activeTab === 'upload' && file) {
+          const reader = new FileReader()
+          reader.onload = () => {
+            const base64String = reader.result as string
+            localStorage.setItem('pendingAnalysis', JSON.stringify({ type: 'screenshot', data: base64String }))
+            window.location.href = '/projects'
+          }
+          reader.readAsDataURL(file)
+          return
+        }
+        window.location.href = '/projects'
+        return
+      }
+
+      // Пользователь авторизован - создаем проект и аудит синхронно
+      console.log('🚀 Начинаем создание проекта и аудита...')
+
+      // Создаем проект
+      const projectName = currentLanguage === 'en'
+        ? `Quick Analysis ${formatDate(new Date())}`
+        : `Быстрый анализ ${formatDate(new Date())}`
+
+      const project = await createProject(
+        projectName,
+        currentLanguage === 'en' ? 'Analysis from landing' : 'Анализ с лендинга'
+      )
+      console.log('✅ Проект создан:', project.id)
+
+      // Подготавливаем данные для аудита
+      let screenshotUrl = null
+      let screenshotData = null
+      let urlData = null
+
       if (activeTab === 'url' && url) {
-        // Сохраняем данные для модального окна
-        setAnalysisData({ url })
-        setIsAnalyzing(true)
-        // Сохраняем URL в localStorage и перенаправляем на projects
-        localStorage.setItem('pendingAnalysis', JSON.stringify({ type: 'url', data: url }))
-        setTimeout(() => {
-          window.location.href = '/projects'
-        }, 2000) // Даем время показать модальное окно
+        urlData = url
       } else if (activeTab === 'upload' && file) {
         // Конвертируем файл в base64
-        const reader = new FileReader()
-        reader.onload = () => {
-          const base64String = reader.result as string
-          // Сохраняем данные для модального окна
-          setAnalysisData({ screenshot: base64String })
-          setIsAnalyzing(true)
-          // Сохраняем в localStorage и перенаправляем на projects
-          localStorage.setItem('pendingAnalysis', JSON.stringify({ type: 'screenshot', data: base64String }))
-          setTimeout(() => {
-            window.location.href = '/projects'
-          }, 2000) // Даем время показать модальное окно
-        }
-        reader.readAsDataURL(file)
-      } else {
-        // Если ничего не загружено, перенаправляем на projects
-        window.location.href = '/projects'
+        const base64String = await new Promise<string>((resolve) => {
+          const reader = new FileReader()
+          reader.onload = () => resolve(reader.result as string)
+          reader.readAsDataURL(file)
+        })
+        screenshotData = base64String
+
+        // Загружаем скриншот в Supabase Storage
+        screenshotUrl = await uploadScreenshotFromBase64(base64String, user.id)
+        console.log('✅ Скриншот загружен:', screenshotUrl)
       }
+
+      // Создаем аудит
+      const auditName = currentLanguage === 'en'
+        ? `Analysis ${formatDate(new Date())}`
+        : `Анализ ${formatDate(new Date())}`
+
+      const audit = await createAudit(
+        project.id,
+        auditName,
+        'research',
+        {
+          url: urlData,
+          hasScreenshot: !!screenshotData,
+          screenshotUrl: screenshotUrl,
+          timestamp: new Date().toISOString()
+        },
+        undefined,
+        currentLanguage
+      )
+      console.log('✅ Аудит создан:', audit.id)
+
+      // Сохраняем данные для автозапуска анализа на странице аудита
+      localStorage.setItem('pendingAuditAnalysis', JSON.stringify({
+        type: activeTab,
+        data: activeTab === 'url' ? urlData : screenshotData,
+        auditId: audit.id,
+        autoStart: true
+      }))
+
+      // Сразу редирект на страницу аудита
+      console.log('🔄 Редирект на /audit/' + audit.id)
+      window.location.href = `/audit/${audit.id}`
+
     } catch (error) {
       console.error('Error:', error)
+      alert(currentLanguage === 'en'
+        ? 'Error creating analysis. Please try again.'
+        : 'Ошибка создания анализа. Попробуйте еще раз.')
       setIsLoading(false)
     }
   }
@@ -186,14 +250,6 @@ export function HeroSection() {
         </div>
       </div>
 
-      {/* Модальное окно прогресса анализа */}
-      <AnalysisModal
-        isOpen={isAnalyzing}
-        onClose={() => setIsAnalyzing(false)}
-        screenshot={analysisData?.screenshot}
-        url={analysisData?.url}
-        canClose={true}
-      />
     </div>
   )
 }
