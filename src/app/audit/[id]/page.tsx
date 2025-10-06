@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import { AnalysisResultDisplay } from '@/components/analysis-result-display'
 import { ABTestDisplay } from '@/components/ab-test-display'
@@ -57,12 +57,12 @@ export default function AuditPage() {
   const [publicUrlLoading, setPublicUrlLoading] = useState(false)
   const [shareStatus, setShareStatus] = useState<'idle' | 'loading' | 'copied'>('idle')
 
-  const tabItems = [
+  const tabItems = useMemo(() => [
     { id: 'ux-analysis', label: t('analysis.tabs.uxAnalysis') },
     { id: 'ab-test', label: t('analysis.tabs.abTests') },
     { id: 'hypotheses', label: t('analysis.tabs.hypotheses') },
     { id: 'analytics', label: t('analysis.tabs.analytics') }
-  ]
+  ], [t])
 
   // Функция обновления страницы
   const handleRefresh = () => {
