@@ -8,7 +8,6 @@ import { HypothesesDisplay } from '@/components/hypotheses-display'
 import { BusinessAnalyticsModern } from '@/components/business-analytics-modern'
 import { AuditDebugPanel } from '@/components/audit-debug-panel'
 import { SidebarDemo } from '@/components/sidebar-demo'
-import { AnalysisModal } from '@/components/analysis-modal'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
@@ -58,7 +57,6 @@ export default function AuditPage() {
   const [publicUrlLoading, setPublicUrlLoading] = useState(false)
   const [shareStatus, setShareStatus] = useState<'idle' | 'loading' | 'copied'>('idle')
   const [isAnalyzing, setIsAnalyzing] = useState(false)
-  const [analysisData, setAnalysisData] = useState<{ screenshot?: string, url?: string } | null>(null)
 
   const tabItems = useMemo(() => {
     // Fallback значения на время загрузки переводов
@@ -329,12 +327,8 @@ export default function AuditPage() {
       // Очищаем localStorage
       localStorage.removeItem('pendingAuditAnalysis')
 
-      // Показываем модальное окно с анимацией загрузки
+      // Показываем fullscreen loading
       if (data.autoStart) {
-        setAnalysisData({
-          screenshot: data.type === 'screenshot' ? data.data : undefined,
-          url: data.type === 'url' ? data.data : undefined
-        })
         setIsAnalyzing(true)
       }
 
@@ -371,10 +365,42 @@ export default function AuditPage() {
       const result = await response.json()
       console.log('✅ Анализ завершен:', result)
 
+      // Обновляем название аудита на основе screenType
+      if (result.data) {
+        const analysisData = result.data
+        const screenType = analysisData.screenDescription?.screenType ||
+                          analysisData.interface_analysis?.screen_type || null
+
+        if (screenType && typeof screenType === 'string' && screenType.trim() !== '') {
+          // Ограничиваем название до 3 слов
+          const truncateScreenType = (text: string, maxWords: number = 3): string => {
+            if (!text || text.trim() === '') return ''
+            const words = text.trim().split(/\s+/)
+            if (words.length <= maxWords) return text
+            return words.slice(0, maxWords).join(' ') + '...'
+          }
+
+          const newAuditName = truncateScreenType(screenType)
+          console.log('🏷️ Обновляем название аудита:', newAuditName)
+
+          // Обновляем в базе
+          const { error: updateError } = await supabase
+            .from('audits')
+            .update({ name: newAuditName })
+            .eq('id', audit.id)
+
+          if (updateError) {
+            console.error('Ошибка обновления названия:', updateError)
+          } else {
+            console.log('✅ Название аудита обновлено')
+          }
+        }
+      }
+
       // Перезагружаем аудит для отображения результата
       await loadAudit()
 
-      // Скрываем модальное окно
+      // Скрываем fullscreen loading
       setIsAnalyzing(false)
 
     } catch (error) {
@@ -456,7 +482,7 @@ export default function AuditPage() {
           <p className="text-slate-600 mb-6">
             {error || 'Аудит с указанным ID не существует'}
           </p>
-          <Link href="/dashboard">
+          <Link href="/home">
             <BackArrow />
           </Link>
         </div>
@@ -466,22 +492,44 @@ export default function AuditPage() {
 
   return (
     <SidebarDemo user={user}>
-      <div className="space-y-8">
-        {/* Навигация */}
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <Link href={audit?.project_id ? `/projects/${audit.project_id}` : '/dashboard'}>
-              <BackArrow />
-            </Link>
-            <div>
-              <h1 className="text-3xl font-bold text-slate-900">{audit.name}</h1>
-              <p className="text-sm text-slate-600">
-                Создан: {new Date(audit.created_at).toLocaleDateString('ru-RU')}
-              </p>
+      {/* Fullscreen loading state во время анализа */}
+      {isAnalyzing ? (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-white">
+          <div className="text-center max-w-md px-6">
+            <div className="relative w-24 h-24 mx-auto mb-8">
+              <div className="absolute inset-0 rounded-full border-4 border-blue-100"></div>
+              <div className="absolute inset-0 rounded-full border-4 border-blue-500 border-t-transparent animate-spin"></div>
+            </div>
+            <h2 className="text-2xl font-bold text-slate-900 mb-3">
+              Анализируем интерфейс
+            </h2>
+            <p className="text-slate-600 mb-6">
+              Пожалуйста, подождите. Это займет 30-60 секунд
+            </p>
+            <div className="space-y-2 text-sm text-slate-500">
+              <p>🔍 Изучаем элементы интерфейса</p>
+              <p>📊 Анализируем UX-метрики</p>
+              <p>💡 Формируем рекомендации</p>
             </div>
           </div>
-          
-          <div className="flex items-center gap-3">
+        </div>
+      ) : (
+        <div className="space-y-8">
+          {/* Навигация */}
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              <Link href={audit?.project_id ? `/projects/${audit.project_id}` : '/home'}>
+                <BackArrow />
+              </Link>
+              <div>
+                <h1 className="text-3xl font-bold text-slate-900">{audit.name}</h1>
+                <p className="text-sm text-slate-600">
+                  Создан: {new Date(audit.created_at).toLocaleDateString('ru-RU')}
+                </p>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-3">
             {/* Кнопка публичного доступа */}
             <Button
               variant="outline"
@@ -617,18 +665,10 @@ export default function AuditPage() {
           </Card>
         )}
 
-        {/* Debug Panel */}
-        <AuditDebugPanel auditId={auditId} auditData={audit} />
-      </div>
-
-      {/* Модальное окно прогресса анализа */}
-      <AnalysisModal
-        isOpen={isAnalyzing}
-        onClose={() => setIsAnalyzing(false)}
-        screenshot={analysisData?.screenshot}
-        url={analysisData?.url}
-        canClose={false}
-      />
+          {/* Debug Panel */}
+          <AuditDebugPanel auditId={auditId} auditData={audit} />
+        </div>
+      )}
     </SidebarDemo>
   )
 }

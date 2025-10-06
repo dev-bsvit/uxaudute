@@ -19,9 +19,9 @@ export function Layout({ children, title = 'UX Audit', transparentHeader = false
   const [user, setUser] = useState<SupabaseUser | null>(null)
   const [showUserMenu, setShowUserMenu] = useState(false)
   
-  // Навигация с Dashboard для быстрого анализа
+  // Навигация
   const navigation = [
-    { name: 'Быстрый анализ', href: '/dashboard', current: pathname === '/dashboard' },
+    { name: 'Главная', href: '/home', current: pathname === '/home' },
     { name: 'Мои проекты', href: '/projects', current: pathname.startsWith('/projects') },
   ]
 
@@ -136,12 +136,12 @@ export function Layout({ children, title = 'UX Audit', transparentHeader = false
                       </div>
                       
                       <Link
-                        href="/dashboard"
+                        href="/home"
                         className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
                         onClick={() => setShowUserMenu(false)}
                       >
-                        <span>🎯</span>
-                        Быстрый анализ
+                        <span>🏠</span>
+                        Главная
                       </Link>
                       
                       <Link
@@ -173,7 +173,7 @@ export function Layout({ children, title = 'UX Audit', transparentHeader = false
                   )}
                 </div>
               ) : (
-                <Link href="/dashboard">
+                <Link href="/home">
                   <Button size="sm" className="bg-blue-600 hover:bg-blue-700 text-white">
                     Войти
                   </Button>
