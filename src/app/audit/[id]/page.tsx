@@ -302,6 +302,68 @@ export default function AuditPage() {
     }
   }, [auditId, user])
 
+  // Проверяем pending audit analysis из localStorage
+  useEffect(() => {
+    if (audit && user) {
+      checkPendingAuditAnalysis()
+    }
+  }, [audit, user])
+
+  const checkPendingAuditAnalysis = async () => {
+    const pendingData = localStorage.getItem('pendingAuditAnalysis')
+    if (!pendingData || !audit) return
+
+    try {
+      const data = JSON.parse(pendingData)
+      console.log('🔍 Обнаружен pendingAuditAnalysis:', data)
+
+      // Проверяем что это наш аудит
+      if (data.auditId !== audit.id) {
+        console.log('⚠️ pendingAuditAnalysis для другого аудита, пропускаем')
+        return
+      }
+
+      // Очищаем localStorage
+      localStorage.removeItem('pendingAuditAnalysis')
+
+      // Запускаем анализ автоматически
+      console.log('🚀 Автозапуск анализа для аудита', audit.id)
+
+      const response = await fetch('/api/research-with-credits', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${(await supabase.auth.getSession()).data.session?.access_token}`
+        },
+        body: JSON.stringify({
+          url: data.type === 'url' ? data.data : undefined,
+          screenshot: data.type === 'screenshot' ? data.data : undefined,
+          auditId: audit.id,
+          language: currentLanguage
+        })
+      })
+
+      if (!response.ok) {
+        console.error('❌ Ошибка анализа:', response.status, response.statusText)
+        if (response.status === 402) {
+          const errorData = await response.json()
+          alert(`Недостаточно кредитов!\nТребуется: ${errorData.required_credits || 2}\nДоступно: ${errorData.current_balance || 0}`)
+        }
+        return
+      }
+
+      const result = await response.json()
+      console.log('✅ Анализ завершен:', result)
+
+      // Перезагружаем аудит для отображения результата
+      await loadAudit()
+
+    } catch (error) {
+      console.error('❌ Ошибка checkPendingAuditAnalysis:', error)
+      localStorage.removeItem('pendingAuditAnalysis')
+    }
+  }
+
   const loadAudit = async () => {
     try {
       setLoading(true)
