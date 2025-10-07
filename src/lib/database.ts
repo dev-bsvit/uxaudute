@@ -429,6 +429,12 @@ export async function signInWithEmail(email: string, password: string) {
 }
 
 export async function signUpWithEmail(email: string, password: string, fullName: string) {
+  // Проверяем есть ли pendingAnalysis
+  const hasPendingAnalysis = localStorage.getItem('pendingAnalysis')
+  const redirectUrl = hasPendingAnalysis
+    ? `${window.location.origin}/projects`
+    : `${window.location.origin}/home`
+
   const { data, error } = await supabase.auth.signUp({
     email,
     password,
@@ -436,24 +442,30 @@ export async function signUpWithEmail(email: string, password: string, fullName:
       data: {
         full_name: fullName
       },
-      emailRedirectTo: `${window.location.origin}/home`
+      emailRedirectTo: redirectUrl
     }
   })
   if (error) throw error
-  
+
   // Если регистрация успешна и есть пользователь, создаем начальный баланс
   if (data.user) {
     await ensureUserHasInitialBalance(data.user.id)
   }
-  
+
   return data
 }
 
 export async function signInWithGoogle() {
+  // Проверяем есть ли pendingAnalysis - если есть, редиректим на /projects для обработки
+  const hasPendingAnalysis = localStorage.getItem('pendingAnalysis')
+  const redirectUrl = hasPendingAnalysis
+    ? `${window.location.origin}/projects`
+    : `${window.location.origin}/home`
+
   const { data, error } = await supabase.auth.signInWithOAuth({
     provider: 'google',
     options: {
-      redirectTo: `${window.location.origin}/home`
+      redirectTo: redirectUrl
     }
   })
   if (error) throw error

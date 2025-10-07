@@ -23,16 +23,48 @@ export default function ProjectsPage() {
   const router = useRouter()
 
   useEffect(() => {
-    // Проверяем текущего пользователя
-    supabase.auth.getUser().then(({ data: { user } }) => {
+    // Проверяем текущего пользователя и баланс
+    supabase.auth.getUser().then(async ({ data: { user } }) => {
       setUser(user)
       setLoading(false)
+
+      // Проверяем и создаем начальный баланс для нового пользователя
+      if (user) {
+        try {
+          const response = await fetch('/api/ensure-user-balance', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ userId: user.id })
+          })
+          if (response.ok) {
+            console.log('✅ Баланс проверен/создан для нового пользователя')
+          }
+        } catch (error) {
+          console.error('Ошибка проверки баланса:', error)
+        }
+      }
     })
 
     // Слушаем изменения аутентификации
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
       setUser(session?.user ?? null)
       setLoading(false)
+
+      // При входе проверяем баланс
+      if (session?.user) {
+        try {
+          const response = await fetch('/api/ensure-user-balance', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ userId: session.user.id })
+          })
+          if (response.ok) {
+            console.log('✅ Баланс проверен/создан при входе')
+          }
+        } catch (error) {
+          console.error('Ошибка проверки баланса:', error)
+        }
+      }
     })
 
     return () => subscription.unsubscribe()

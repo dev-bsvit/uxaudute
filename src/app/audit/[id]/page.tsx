@@ -354,11 +354,21 @@ export default function AuditPage() {
         const errorData = await response.json().catch(() => ({}))
         console.error('❌ Детали ошибки:', errorData)
         setIsAnalyzing(false)
+
+        // Обновляем статус аудита на failed
+        await supabase
+          .from('audits')
+          .update({ status: 'failed' })
+          .eq('id', audit.id)
+
         if (response.status === 402) {
           alert(`Недостаточно кредитов!\nТребуется: ${errorData.required_credits || 2}\nДоступно: ${errorData.current_balance || 0}`)
         } else if (response.status === 400) {
           alert(`Ошибка запроса: ${errorData.error || 'Проверьте данные'}`)
         }
+
+        // Перезагружаем аудит чтобы показать ошибку
+        await loadAudit()
         return
       }
 
@@ -647,6 +657,26 @@ export default function AuditPage() {
               />
             </TabsContent>
           </Tabs>
+        ) : audit.status === 'failed' ? (
+          <Card className="border-red-200">
+            <CardContent className="text-center py-12">
+              <div className="text-red-500 text-5xl mb-4">⚠️</div>
+              <h3 className="text-lg font-semibold text-slate-900 mb-2">
+                Ошибка анализа
+              </h3>
+              <p className="text-slate-600 mb-4">
+                Анализ не удалось выполнить. Возможно, недостаточно кредитов.
+              </p>
+              <div className="flex gap-2 justify-center">
+                <Button onClick={() => router.push('/credits')} variant="default">
+                  Пополнить кредиты
+                </Button>
+                <Button onClick={() => router.push(`/projects/${audit.project_id}`)} variant="outline">
+                  Вернуться к проекту
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
         ) : (
           <Card>
             <CardContent className="text-center py-12">
