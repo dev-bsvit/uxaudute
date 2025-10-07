@@ -95,27 +95,10 @@ export class LanguageInitializer {
         }
       }
 
-      // 4. Предзагружаем промпты
+      // 4. Пропускаем предзагрузку промптов на лендинге (они загружаются по требованию)
+      // Это ускоряет загрузку лендинга на 10+ секунд
       let promptsLoaded = false
-      try {
-        await promptService.preloadPrompts(detectionResult.language)
-        promptsLoaded = true
-        console.log('📝 Prompts loaded for:', detectionResult.language)
-      } catch (error) {
-        errors.push(`Failed to load prompts: ${error}`)
-        console.warn('⚠️ Failed to load prompts for:', detectionResult.language)
-      }
-
-      // 5. Предзагружаем fallback промпты если нужно
-      if (detectionResult.language !== FALLBACK_LANGUAGE) {
-        try {
-          await promptService.preloadPrompts(FALLBACK_LANGUAGE)
-          console.log('📝 Fallback prompts loaded for:', FALLBACK_LANGUAGE)
-        } catch (error) {
-          errors.push(`Failed to load fallback prompts: ${error}`)
-          console.warn('⚠️ Failed to load fallback prompts')
-        }
-      }
+      console.log('⏩ Skipping prompts preload for faster landing page')
 
       // 6. Синхронизируем настройки пользователя
       let userPreferenceSynced = false
