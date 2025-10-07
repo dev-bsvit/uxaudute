@@ -59,9 +59,11 @@ export function Auth({ onAuthChange }: AuthProps) {
       onAuthChange?.(signedInUser)
       setEmail('')
       setPassword('')
+
+      // Редиректим на /auth/callback для плавного перехода
+      window.location.href = '/auth/callback'
     } catch (error: any) {
       setError(error.message)
-    } finally {
       setAuthLoading(false)
     }
   }

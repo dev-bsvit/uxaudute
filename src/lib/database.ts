@@ -429,12 +429,7 @@ export async function signInWithEmail(email: string, password: string) {
 }
 
 export async function signUpWithEmail(email: string, password: string, fullName: string) {
-  // Проверяем есть ли pendingAnalysis
-  const hasPendingAnalysis = localStorage.getItem('pendingAnalysis')
-  const redirectUrl = hasPendingAnalysis
-    ? `${window.location.origin}/projects`
-    : `${window.location.origin}/home`
-
+  // Всегда редиректим на /auth/callback - там определится куда дальше
   const { data, error } = await supabase.auth.signUp({
     email,
     password,
@@ -442,7 +437,7 @@ export async function signUpWithEmail(email: string, password: string, fullName:
       data: {
         full_name: fullName
       },
-      emailRedirectTo: redirectUrl
+      emailRedirectTo: `${window.location.origin}/auth/callback`
     }
   })
   if (error) throw error
@@ -456,16 +451,11 @@ export async function signUpWithEmail(email: string, password: string, fullName:
 }
 
 export async function signInWithGoogle() {
-  // Проверяем есть ли pendingAnalysis - если есть, редиректим на /projects для обработки
-  const hasPendingAnalysis = localStorage.getItem('pendingAnalysis')
-  const redirectUrl = hasPendingAnalysis
-    ? `${window.location.origin}/projects`
-    : `${window.location.origin}/home`
-
+  // Всегда редиректим на /auth/callback - там определится куда дальше
   const { data, error } = await supabase.auth.signInWithOAuth({
     provider: 'google',
     options: {
-      redirectTo: redirectUrl
+      redirectTo: `${window.location.origin}/auth/callback`
     }
   })
   if (error) throw error
