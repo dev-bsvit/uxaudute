@@ -93,7 +93,8 @@ export default function ProjectsPage() {
       localStorage.setItem('pendingAuditAnalysis', JSON.stringify({
         type: data.type,
         data: data.data,
-        auditId: audit.id
+        auditId: audit.id,
+        autoStart: true
       }))
 
       // Очищаем pendingAnalysis

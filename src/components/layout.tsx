@@ -173,7 +173,7 @@ export function Layout({ children, title = 'UX Audit', transparentHeader = false
                   )}
                 </div>
               ) : (
-                <Link href="/home">
+                <Link href="/projects">
                   <Button size="sm" className="bg-blue-600 hover:bg-blue-700 text-white">
                     Войти
                   </Button>
