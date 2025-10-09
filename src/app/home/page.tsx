@@ -7,10 +7,11 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Button } from '@/components/ui/button'
 import { User } from '@supabase/supabase-js'
 import { supabase } from '@/lib/supabase'
-import { getUserProjects, getProjectAudits, getUserRecentAudits, createProject } from '@/lib/database'
+import { getUserProjects, getProjectAuditsForPreview, createProject } from '@/lib/database'
 import { useTranslation } from '@/hooks/use-translation'
 import { useFormatters } from '@/hooks/use-formatters'
 import Link from 'next/link'
+import { ProjectCard } from '@/components/project-card'
 import {
   BarChart3,
   TestTube2,
@@ -18,11 +19,8 @@ import {
   TrendingUp,
   Plus,
   FolderOpen,
-  Calendar,
   ChevronRight,
-  Sparkles,
-  Edit,
-  FileText
+  Sparkles
 } from 'lucide-react'
 
 interface Project {
@@ -31,16 +29,7 @@ interface Project {
   description: string | null
   created_at: string
   auditsCount?: number
-}
-
-interface Audit {
-  id: string
-  project_id: string
-  name: string
-  type: string
-  status: string
-  input_data: Record<string, unknown> | null
-  created_at: string
+  screenshots?: string[]
 }
 
 interface ResearchCard {
@@ -58,7 +47,6 @@ export default function HomePage() {
   const { formatDate } = useFormatters()
   const [user, setUser] = useState<User | null>(null)
   const [projects, setProjects] = useState<Project[]>([])
-  const [recentAudits, setRecentAudits] = useState<Audit[]>([])
   const [loading, setLoading] = useState(true)
   const [creating, setCreating] = useState(false)
 
@@ -85,25 +73,35 @@ export default function HomePage() {
 
   const loadProjects = async () => {
     try {
-      const [userProjects, audits] = await Promise.all([
-        getUserProjects(),
-        getUserRecentAudits(4)
-      ])
+      const userProjects = await getUserProjects()
 
-      // Загружаем количество аудитов для каждого проекта
+      // Загружаем данные для каждого проекта параллельно (оптимизированный запрос)
       const projectsWithCounts = await Promise.all(
         userProjects.map(async (project) => {
-          const audits = await getProjectAudits(project.id)
+          const { count, audits } = await getProjectAuditsForPreview(project.id)
+
+          // Извлекаем скриншоты из аудитов (максимум 4)
+          const screenshots: string[] = []
+          for (const audit of audits) {
+            if (screenshots.length >= 4) break
+
+            const inputData = audit.input_data as { screenshot?: string; screenshotUrl?: string } | null
+            const screenshotUrl = inputData?.screenshotUrl || inputData?.screenshot
+            if (screenshotUrl) {
+              screenshots.push(screenshotUrl)
+            }
+          }
+
           return {
             ...project,
-            auditsCount: audits.length
+            auditsCount: count,
+            screenshots
           }
         })
       )
 
       // Берем только последние 5 проектов
       setProjects(projectsWithCounts.slice(0, 5))
-      setRecentAudits(audits)
     } catch (error) {
       console.error('Error loading projects:', error)
     }
@@ -254,112 +252,17 @@ export default function HomePage() {
               </CardContent>
             </Card>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {projects.map((project) => (
-                <Link key={project.id} href={`/projects/${project.id}`}>
-                  <Card className="hover:shadow-lg transition-shadow cursor-pointer">
-                    <CardHeader>
-                      <CardTitle className="flex items-center gap-2">
-                        <FolderOpen className="w-5 h-5 text-blue-500" />
-                        {project.name}
-                      </CardTitle>
-                      {project.description && (
-                        <CardDescription>{project.description}</CardDescription>
-                      )}
-                    </CardHeader>
-                    <CardContent>
-                      <div className="flex items-center justify-between text-sm text-slate-600">
-                        <div className="flex items-center gap-1">
-                          <Calendar className="w-4 h-4" />
-                          {formatDate(project.created_at)}
-                        </div>
-                        <div className="flex items-center gap-1">
-                          <BarChart3 className="w-4 h-4" />
-                          {project.auditsCount || 0} {currentLanguage === 'en' ? 'audits' : 'аудитов'}
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                </Link>
+                <ProjectCard
+                  key={project.id}
+                  project={project}
+                  formatDate={formatDate}
+                />
               ))}
             </div>
           )}
         </div>
-
-        {/* Последние аудиты */}
-        {recentAudits.length > 0 && (
-          <div className="space-y-4">
-            <div className="flex items-center justify-between">
-              <h2 className="text-2xl font-semibold text-slate-900">
-                {currentLanguage === 'en' ? 'Recent Audits' : 'Последние аудиты'}
-              </h2>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {recentAudits.map((audit) => {
-                const inputData = audit.input_data as { screenshot?: string; screenshotUrl?: string } | null
-                const screenshotUrl = inputData?.screenshotUrl || inputData?.screenshot
-
-                return (
-                  <Link key={audit.id} href={`/audits/${audit.id}`}>
-                    <div className="relative rounded-2xl h-[170px] bg-[#F5F5F5] hover:shadow-lg transition-shadow cursor-pointer">
-                      <div className="flex h-full gap-4 p-4">
-                        {/* Левая колонка - информация */}
-                        <div className="flex-1 flex flex-col justify-between min-w-0">
-                          {/* Название */}
-                          <div>
-                            <h3 className="font-semibold text-slate-900 line-clamp-2 break-words">
-                              {audit.name}
-                            </h3>
-                            <p className="text-sm text-slate-600 mt-1 line-clamp-2">
-                              {audit.type === 'ux-analysis' && (currentLanguage === 'en' ? 'UX Analysis' : 'UX анализ')}
-                              {audit.type === 'ab-test' && (currentLanguage === 'en' ? 'A/B Testing' : 'A/B тестирование')}
-                              {audit.type === 'hypotheses' && (currentLanguage === 'en' ? 'Hypotheses' : 'Гипотезы')}
-                              {audit.type === 'business-analytics' && (currentLanguage === 'en' ? 'Business Analytics' : 'Бизнес-аналитика')}
-                            </p>
-                          </div>
-
-                          {/* Нижняя информация */}
-                          <div className="flex items-center gap-2 text-sm text-slate-600">
-                            <Edit className="w-3 h-3" />
-                            <span>{formatDate(audit.created_at)}</span>
-                            <span className={`ml-2 px-2 py-0.5 rounded text-xs ${
-                              audit.status === 'completed' ? 'bg-green-100 text-green-700' :
-                              audit.status === 'in_progress' ? 'bg-blue-100 text-blue-700' :
-                              'bg-gray-100 text-gray-700'
-                            }`}>
-                              {audit.status === 'completed' && (currentLanguage === 'en' ? 'Completed' : 'Завершен')}
-                              {audit.status === 'in_progress' && (currentLanguage === 'en' ? 'In Progress' : 'В процессе')}
-                              {audit.status === 'failed' && (currentLanguage === 'en' ? 'Failed' : 'Ошибка')}
-                            </span>
-                          </div>
-                        </div>
-
-                        {/* Правая колонка - скриншот */}
-                        <div className="flex-shrink-0 w-[120px]">
-                          {screenshotUrl ? (
-                            <div className="w-full h-full rounded-lg overflow-hidden bg-white">
-                              <img
-                                src={screenshotUrl}
-                                alt="Screenshot"
-                                className="w-full h-full object-cover"
-                                loading="lazy"
-                              />
-                            </div>
-                          ) : (
-                            <div className="w-full h-full rounded-lg bg-white flex items-center justify-center">
-                              <FileText className="w-8 h-8 text-slate-300" />
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-                  </Link>
-                )
-              })}
-            </div>
-          </div>
-        )}
 
         {/* Типы исследований */}
         <div className="space-y-4">
