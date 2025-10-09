@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { createProject, getUserProjects, getProjectAudits, updateProject, deleteProject } from '@/lib/database'
+import { createProject, getUserProjects, getProjectAudits, getProjectAuditsForPreview, updateProject, deleteProject } from '@/lib/database'
 import { User } from '@supabase/supabase-js'
 import { Plus, FolderOpen, Calendar, BarChart3, Edit, Trash2, MoreVertical } from 'lucide-react'
 import Link from 'next/link'
@@ -98,12 +98,12 @@ export function Projects({ user, onProjectSelect }: ProjectsProps) {
     try {
       const userProjects = await getUserProjects()
 
-      // Загружаем количество аудитов и скриншоты для каждого проекта
+      // Загружаем данные для каждого проекта параллельно (оптимизированный запрос)
       const projectsWithCounts = await Promise.all(
         userProjects.map(async (project) => {
-          const audits = await getProjectAudits(project.id)
+          const { count, audits } = await getProjectAuditsForPreview(project.id)
 
-          // Извлекаем скриншоты из input_data аудитов (максимум 4)
+          // Извлекаем скриншоты из аудитов (максимум 4)
           const screenshots: string[] = []
           for (const audit of audits) {
             if (screenshots.length >= 4) break
@@ -117,7 +117,7 @@ export function Projects({ user, onProjectSelect }: ProjectsProps) {
 
           return {
             ...project,
-            auditsCount: audits.length,
+            auditsCount: count,
             screenshots
           }
         })
@@ -203,8 +203,41 @@ export function Projects({ user, onProjectSelect }: ProjectsProps) {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center p-8">
-        <div className="animate-spin rounded-full h-8 w-8 border-2 border-blue-500 border-t-transparent"></div>
+      <div className="space-y-8">
+        <div className="flex items-center justify-between">
+          <div>
+            <div className="h-8 w-64 bg-gray-200 rounded animate-pulse mb-2"></div>
+            <div className="h-5 w-96 bg-gray-100 rounded animate-pulse"></div>
+          </div>
+          <div className="h-12 w-40 bg-gray-200 rounded-lg animate-pulse"></div>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {[1, 2, 3, 4, 5, 6].map((i) => (
+            <div key={i} className="rounded-2xl overflow-hidden h-[170px] bg-[#F5F5F5] animate-pulse">
+              <div className="flex h-full gap-4 p-4">
+                <div className="flex-1 flex flex-col justify-between">
+                  <div className="space-y-2">
+                    <div className="h-6 w-3/4 bg-gray-300 rounded"></div>
+                    <div className="h-4 w-full bg-gray-200 rounded"></div>
+                    <div className="h-4 w-2/3 bg-gray-200 rounded"></div>
+                  </div>
+                  <div className="flex gap-3">
+                    <div className="h-4 w-24 bg-gray-300 rounded"></div>
+                    <div className="h-4 w-20 bg-gray-300 rounded"></div>
+                  </div>
+                </div>
+                <div className="flex-shrink-0">
+                  <div className="grid grid-cols-2 gap-2">
+                    {[1, 2, 3, 4].map((j) => (
+                      <div key={j} className="w-[58px] h-[58px] bg-white rounded-lg"></div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
       </div>
     )
   }
