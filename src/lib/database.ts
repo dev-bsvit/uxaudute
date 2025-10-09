@@ -157,7 +157,7 @@ export async function getProjectAudits(projectId: string): Promise<Audit[]> {
 }
 
 // Оптимизированная функция для получения только скриншотов (для превью карточек)
-export async function getProjectAuditsForPreview(projectId: string): Promise<{count: number, audits: Audit[]}> {
+export async function getProjectAuditsForPreview(projectId: string): Promise<{count: number, audits: Array<{id: string, input_data: Record<string, unknown> | null}>}> {
   const [countResult, auditsResult] = await Promise.all([
     supabase
       .from('audits')
@@ -183,7 +183,7 @@ export async function getProjectAuditsForPreview(projectId: string): Promise<{co
 
   return {
     count: countResult.count || 0,
-    audits: auditsResult.data || []
+    audits: (auditsResult.data || []) as Array<{id: string, input_data: Record<string, unknown> | null}>
   }
 }
 
