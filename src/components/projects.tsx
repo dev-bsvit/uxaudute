@@ -108,14 +108,12 @@ export function Projects({ user, onProjectSelect }: ProjectsProps) {
           for (const audit of audits) {
             if (screenshots.length >= 4) break
 
-            const inputData = audit.input_data as { screenshot?: string } | null
-            console.log('Audit input_data:', inputData)
-            if (inputData?.screenshot) {
-              screenshots.push(inputData.screenshot)
-              console.log('Added screenshot:', inputData.screenshot)
+            const inputData = audit.input_data as { screenshot?: string; screenshotUrl?: string } | null
+            const screenshotUrl = inputData?.screenshotUrl || inputData?.screenshot
+            if (screenshotUrl) {
+              screenshots.push(screenshotUrl)
             }
           }
-          console.log('Project screenshots:', project.name, screenshots)
 
           return {
             ...project,
