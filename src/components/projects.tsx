@@ -7,6 +7,7 @@ import { createProject, getUserProjects, getProjectAudits, updateProject, delete
 import { User } from '@supabase/supabase-js'
 import { Plus, FolderOpen, Calendar, BarChart3, Edit, Trash2, MoreVertical } from 'lucide-react'
 import Link from 'next/link'
+import { useRouter, useSearchParams } from 'next/navigation'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -39,6 +40,7 @@ interface Project {
   description: string | null
   created_at: string
   auditsCount?: number
+  screenshots?: string[]
 }
 
 export function Projects({ user, onProjectSelect }: ProjectsProps) {
@@ -54,26 +56,72 @@ export function Projects({ user, onProjectSelect }: ProjectsProps) {
   const [editDescription, setEditDescription] = useState('')
   const [showDeleteDialog, setShowDeleteDialog] = useState(false)
   const [projectToDelete, setProjectToDelete] = useState<Project | null>(null)
+  const router = useRouter()
+  const searchParams = useSearchParams()
+  const shouldOpenCreateForm = searchParams?.get('create') === '1'
 
   useEffect(() => {
     loadProjects()
   }, [])
 
+  useEffect(() => {
+    if (shouldOpenCreateForm) {
+      setShowCreateForm(true)
+    }
+  }, [shouldOpenCreateForm])
+
+  const updateCreateQuery = (value: '1' | null) => {
+    const params = new URLSearchParams(searchParams?.toString() || '')
+    if (value) {
+      params.set('create', value)
+    } else {
+      params.delete('create')
+    }
+    const queryString = params.toString()
+    router.replace(queryString ? `/projects?${queryString}` : '/projects', { scroll: false })
+  }
+
+  const openCreateForm = () => {
+    setShowCreateForm(true)
+    if (!shouldOpenCreateForm) {
+      updateCreateQuery('1')
+    }
+  }
+
+  const closeCreateForm = () => {
+    setShowCreateForm(false)
+    setNewProject({ name: '', description: '', context: '' })
+    updateCreateQuery(null)
+  }
+
   const loadProjects = async () => {
     try {
       const userProjects = await getUserProjects()
-      
-      // Загружаем количество аудитов для каждого проекта
+
+      // Загружаем количество аудитов и скриншоты для каждого проекта
       const projectsWithCounts = await Promise.all(
         userProjects.map(async (project) => {
           const audits = await getProjectAudits(project.id)
+
+          // Извлекаем скриншоты из input_data аудитов (максимум 4)
+          const screenshots: string[] = []
+          for (const audit of audits) {
+            if (screenshots.length >= 4) break
+
+            const inputData = audit.input_data as { screenshot?: string } | null
+            if (inputData?.screenshot) {
+              screenshots.push(inputData.screenshot)
+            }
+          }
+
           return {
             ...project,
-            auditsCount: audits.length
+            auditsCount: audits.length,
+            screenshots
           }
         })
       )
-      
+
       setProjects(projectsWithCounts)
     } catch (error) {
       console.error('Error loading projects:', error)
@@ -93,8 +141,7 @@ export function Projects({ user, onProjectSelect }: ProjectsProps) {
         newProject.description || undefined,
         newProject.context || undefined
       )
-      setNewProject({ name: '', description: '', context: '' })
-      setShowCreateForm(false)
+      closeCreateForm()
       await loadProjects()
     } catch (error) {
       console.error('Error creating project:', error)
@@ -169,7 +216,7 @@ export function Projects({ user, onProjectSelect }: ProjectsProps) {
           <p className="text-slate-600">{t('projects.management.description')}</p>
         </div>
         <Button
-          onClick={() => setShowCreateForm(true)}
+          onClick={openCreateForm}
           className="flex items-center gap-2 bg-black hover:bg-gray-800 text-white px-6 py-3 rounded-lg font-medium"
         >
           <Plus className="w-4 h-4" />
@@ -248,10 +295,7 @@ export function Projects({ user, onProjectSelect }: ProjectsProps) {
               <Button
                 type="button"
                 variant="outline"
-                onClick={() => {
-                  setShowCreateForm(false)
-                  setNewProject({ name: '', description: '', context: '' })
-                }}
+                onClick={closeCreateForm}
                 className="px-6 py-3 rounded-lg font-medium border-2 border-gray-200 hover:border-gray-300"
               >
                 {t('projects.createProject.cancel')}
@@ -283,66 +327,112 @@ export function Projects({ user, onProjectSelect }: ProjectsProps) {
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {projects.map((project) => (
-            <div key={project.id} className="bg-white rounded-2xl border border-gray-200 shadow-lg hover:shadow-xl transition-all duration-300 group">
-              <div className="p-6">
-                <div className="flex items-start justify-between mb-4">
-                  <div className="flex-1">
-                    <Link href={`/projects/${project.id}`} className="block">
-                      <h3 className="text-xl font-bold text-slate-900 mb-2 group-hover:text-blue-600 transition-colors">
-                        {project.name}
-                      </h3>
-                      {project.description && (
-                        <p className="text-slate-600 line-clamp-2 leading-relaxed">
-                          {project.description}
-                        </p>
-                      )}
-                    </Link>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <div className="w-10 h-10 bg-blue-50 rounded-lg flex items-center justify-center flex-shrink-0">
-                      <FolderOpen className="w-5 h-5 text-blue-500" />
+          {projects.map((project) => {
+            // Создаём массив из 4 элементов для сетки
+            const screenshotSlots = Array.from({ length: 4 }, (_, i) =>
+              project.screenshots?.[i] || null
+            )
+
+            return (
+              <div
+                key={project.id}
+                className="relative rounded-2xl transition-all duration-300 group overflow-hidden h-[170px] bg-[#F5F5F5]"
+              >
+                <Link href={`/projects/${project.id}`} className="block h-full">
+                  <div className="flex h-full gap-4 p-4">
+                    {/* Левая колонка - контент */}
+                    <div className="flex-1 flex flex-col justify-between min-w-0">
+                      <div className="space-y-2">
+                        <h3 className="text-lg font-bold text-slate-900 line-clamp-2 group-hover:text-blue-600 transition-colors">
+                          {project.name}
+                        </h3>
+                        {project.description && (
+                          <p className="text-sm text-slate-600 line-clamp-2">
+                            {project.description}
+                          </p>
+                        )}
+                      </div>
+
+                      {/* Низ: карандаш + дата + количество */}
+                      <div className="flex items-center gap-3 text-xs text-slate-500 whitespace-nowrap">
+                        <div className="flex items-center gap-1.5">
+                          <Edit className="w-3.5 h-3.5 flex-shrink-0" />
+                          <span className="truncate">{formatDate(project.created_at)}</span>
+                        </div>
+                        <div className="flex items-center gap-1.5">
+                          <BarChart3 className="w-3.5 h-3.5 flex-shrink-0" />
+                          <span className="truncate">
+                            {project.auditsCount || 0} {project.auditsCount === 1 ? 'аудит' : project.auditsCount && project.auditsCount < 5 ? 'аудита' : 'аудитов'}
+                          </span>
+                        </div>
+                      </div>
                     </div>
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
-                          <MoreVertical className="h-4 w-4" />
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end">
-                        <DropdownMenuItem onClick={() => handleEditProject(project)}>
-                          <Edit className="mr-2 h-4 w-4" />
-                          {t('projects.project.rename')}
-                        </DropdownMenuItem>
-                        <DropdownMenuItem 
-                          onClick={() => handleDeleteClick(project)}
-                          className="text-red-600"
-                        >
-                          <Trash2 className="mr-2 h-4 w-4" />
-                          {t('projects.project.delete')}
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  </div>
-                </div>
-                
-                <Link href={`/projects/${project.id}`}>
-                  <div className="flex items-center justify-between text-sm text-slate-500 pt-4 border-t border-gray-100">
-                    <div className="flex items-center gap-2">
-                      <BarChart3 className="w-4 h-4" />
-                      <span className="font-medium">
-                        {t('projects.project.auditsLabel', { count: String(project.auditsCount || 0) })}
-                      </span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <Calendar className="w-4 h-4" />
-                      <span>{formatDate(project.created_at)}</span>
+
+                    {/* Правая колонка - сетка 2x2 */}
+                    <div className="flex-shrink-0">
+                      <div className="grid grid-cols-2 gap-2">
+                        {screenshotSlots.map((screenshot, index) => (
+                          <div
+                            key={index}
+                            className="w-[58px] h-[58px] rounded-lg overflow-hidden bg-white"
+                          >
+                            {screenshot && (
+                              <img
+                                src={screenshot}
+                                alt={`Audit ${index + 1}`}
+                                className="w-full h-full object-cover"
+                                loading="lazy"
+                              />
+                            )}
+                          </div>
+                        ))}
+                      </div>
                     </div>
                   </div>
                 </Link>
+
+                {/* Меню действий */}
+                <div className="absolute top-2 right-2 z-10">
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="h-8 w-8 p-0 bg-white/80 hover:bg-white"
+                        onClick={(e) => {
+                          e.preventDefault()
+                          e.stopPropagation()
+                        }}
+                      >
+                        <MoreVertical className="h-4 w-4" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                      <DropdownMenuItem
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          handleEditProject(project)
+                        }}
+                      >
+                        <Edit className="mr-2 h-4 w-4" />
+                        {t('projects.project.rename')}
+                      </DropdownMenuItem>
+                      <DropdownMenuItem
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          handleDeleteClick(project)
+                        }}
+                        className="text-red-600"
+                      >
+                        <Trash2 className="mr-2 h-4 w-4" />
+                        {t('projects.project.delete')}
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </div>
               </div>
-            </div>
-          ))}
+            )
+          })}
         </div>
       )}
 
