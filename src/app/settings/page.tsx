@@ -4,8 +4,7 @@ import { useState, useEffect } from 'react';
 import { User } from '@supabase/supabase-js';
 import { supabase } from '@/lib/supabase';
 import { SidebarDemo } from '@/components/sidebar-demo';
-import { PageHeader } from '@/components/ui/page-header';
-import { PageContent } from '@/components/ui/page-content';
+import { PageHeader } from '@/components/page-header';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -14,15 +13,16 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Switch } from '@/components/ui/switch';
 import { Separator } from '@/components/ui/separator';
 import { Badge } from '@/components/ui/badge';
-import { 
-  User as UserIcon, 
-  Bell, 
-  Shield, 
-  Palette, 
+import {
+  User as UserIcon,
+  Bell,
+  Shield,
+  Palette,
   Globe,
   Save,
   AlertCircle,
-  CheckCircle
+  CheckCircle,
+  Settings as SettingsIcon
 } from 'lucide-react';
 import { LanguageSelectorDetailed } from '@/components/language-selector';
 import { useTranslation } from '@/hooks/use-translation';
@@ -158,17 +158,18 @@ export default function SettingsPage() {
 
   return (
     <SidebarDemo user={user}>
-      <PageContent maxWidth="4xl">
-        <div className="space-y-8">
-          <div className="flex items-center justify-between">
-            <PageHeader 
-              title={t('settings.title')}
-              description={t('settings.subtitle')}
-            />
-            <Badge variant="outline" className="text-sm">
-              {t('settings.version', { version: '1.0' })}
-            </Badge>
-          </div>
+      <div className="space-y-8">
+        <PageHeader
+          breadcrumbs={[
+            { label: 'Главная', href: '/home' },
+            { label: t('settings.title') }
+          ]}
+          icon={<SettingsIcon className="w-5 h-5 text-slate-700" />}
+          title={t('settings.title')}
+          subtitle={t('settings.subtitle')}
+        />
+
+        <div className="px-8 space-y-8">
 
           {message && (
             <div className={`flex items-center gap-2 p-4 rounded-lg ${
@@ -461,7 +462,8 @@ export default function SettingsPage() {
             </TabsContent>
           </Tabs>
         </div>
-      </PageContent>
+        </div>
+      </div>
     </SidebarDemo>
   );
 }

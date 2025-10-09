@@ -4,9 +4,6 @@ import { useState, useEffect } from 'react'
 import { SidebarDemo } from '@/components/sidebar-demo'
 import { Projects } from '@/components/projects'
 import { Auth } from '@/components/auth'
-import { PageHeader } from '@/components/ui/page-header'
-import { PageContent } from '@/components/ui/page-content'
-import { Section } from '@/components/ui/section'
 import { User } from '@supabase/supabase-js'
 import { supabase } from '@/lib/supabase'
 import { useRouter } from 'next/navigation'
@@ -176,18 +173,7 @@ export default function ProjectsPage() {
 
   return (
     <SidebarDemo user={user}>
-      <PageContent maxWidth="7xl">
-        <div className="space-y-8">
-          <PageHeader 
-            title={t('projects.title')}
-            description={t('projects.description')}
-          />
-          
-          <Section>
-            <Projects user={user} />
-          </Section>
-        </div>
-      </PageContent>
+      <Projects user={user} />
     </SidebarDemo>
   )
 }

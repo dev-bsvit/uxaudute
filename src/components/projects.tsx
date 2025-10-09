@@ -247,6 +247,10 @@ export function Projects({ user, onProjectSelect }: ProjectsProps) {
   return (
     <div className="space-y-8">
       <PageHeader
+        breadcrumbs={[
+          { label: 'Главная', href: '/home' },
+          { label: t('projects.management.title') }
+        ]}
         title={t('projects.management.title')}
         subtitle={t('projects.management.description')}
         primaryButton={{

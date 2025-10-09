@@ -36,6 +36,8 @@ import {
 } from 'lucide-react'
 import { BackArrow } from '@/components/icons/back-arrow'
 import { type ActionType } from '@/lib/utils'
+import { PageHeader } from '@/components/page-header'
+import { FolderOpen } from 'lucide-react'
 
 interface Project {
   id: string
@@ -534,34 +536,31 @@ export default function ProjectDetailPage() {
 
   return (
     <SidebarDemo user={user}>
-      <div className="p-8 space-y-6">
+      <div className="space-y-6">
         {/* Хедер проекта */}
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <Link href="/projects">
-              <BackArrow />
-            </Link>
-            <div>
-              <h1 className="text-3xl font-bold text-slate-900">{project.name}</h1>
-              {project.description && (
-                <p className="text-slate-600 mt-1">{project.description}</p>
-              )}
-              <p className="text-sm text-slate-500 mt-1">
-                {t('projects.detail.createdAt', { date: formatDateTime(project.created_at) }) || (currentLanguage === 'en'
-                  ? `Created ${formatDateTime(project.created_at)}`
-                  : `Создан ${formatDateTime(project.created_at)}`)}
-              </p>
-            </div>
-          </div>
-          
-          <Button
-            onClick={() => setShowCreateForm(true)}
-            className="flex items-center gap-2"
-          >
-            <Plus className="w-4 h-4" />
-            {t('projects.detail.newAudit') || (currentLanguage === 'en' ? 'New audit' : 'Новый аудит')}
-          </Button>
-        </div>
+        <PageHeader
+          breadcrumbs={[
+            { label: 'Главная', href: '/home' },
+            { label: 'Мои проекты', href: '/projects' },
+            { label: project.name }
+          ]}
+          icon={<FolderOpen className="w-5 h-5 text-slate-700" />}
+          title={project.name}
+          subtitle={
+            project.description
+              ? project.description
+              : (t('projects.detail.createdAt', { date: formatDate(project.created_at) }) ||
+                  (currentLanguage === 'en'
+                    ? `Created ${formatDate(project.created_at)}`
+                    : `Создан ${formatDate(project.created_at)}`))
+          }
+          primaryButton={{
+            label: t('projects.detail.newAudit') || (currentLanguage === 'en' ? 'New audit' : 'Новый аудит'),
+            onClick: () => setShowCreateForm(true)
+          }}
+        />
+
+        <div className="px-8 space-y-6">
 
         {/* Статистика убрана - отображается только в разделе "Мои проекты" */}
 
@@ -776,6 +775,7 @@ export default function ProjectDetailPage() {
           canClose={false}
         />
 
+        </div>
       </div>
     </SidebarDemo>
   )

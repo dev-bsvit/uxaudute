@@ -205,6 +205,9 @@ export default function HomePage() {
       <div className="space-y-8">
         {/* Заголовок */}
         <PageHeader
+          breadcrumbs={[
+            { label: currentLanguage === 'en' ? 'Home' : 'Главная' }
+          ]}
           title={currentLanguage === 'en' ? 'Welcome Back!' : 'Привет Богдан'}
           subtitle={
             currentLanguage === 'en'

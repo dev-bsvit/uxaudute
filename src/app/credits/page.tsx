@@ -2,8 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { SidebarDemo } from '@/components/sidebar-demo'
-import { PageHeader } from '@/components/ui/page-header'
-import { PageContent } from '@/components/ui/page-content'
+import { PageHeader } from '@/components/page-header'
 import CreditsBalance from '@/components/CreditsBalance'
 import CreditsPurchase from '@/components/CreditsPurchase'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
@@ -78,12 +77,18 @@ export default function CreditsPage() {
 
   return (
     <SidebarDemo user={user}>
-      <PageContent maxWidth="7xl">
-        <div className="space-y-8">
-          <PageHeader 
-            title={t('components.creditsPage.title')}
-            description={t('components.creditsPage.description')}
-          />
+      <div className="space-y-8">
+        <PageHeader
+          breadcrumbs={[
+            { label: 'Главная', href: '/home' },
+            { label: t('components.creditsPage.title') }
+          ]}
+          icon={<CreditCard className="w-5 h-5 text-slate-700" />}
+          title={t('components.creditsPage.title')}
+          subtitle={t('components.creditsPage.description')}
+        />
+
+        <div className="px-8 space-y-8">
           
           {/* Баланс кредитов */}
           <Card>
@@ -186,7 +191,8 @@ export default function CreditsPage() {
             </div>
           </div>
         </div>
-      </PageContent>
+        </div>
+      </div>
     </SidebarDemo>
   )
 }
