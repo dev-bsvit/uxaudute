@@ -191,7 +191,6 @@ export default function CreditsPage() {
             </div>
           </div>
         </div>
-        </div>
       </div>
     </SidebarDemo>
   )
