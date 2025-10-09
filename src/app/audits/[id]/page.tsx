@@ -15,7 +15,9 @@ import { cleanQuotedKeys } from '@/lib/json-parser'
 import Link from 'next/link'
 import { useParams, useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
-import { getAudit } from '@/lib/database'
+import { getAudit, getProject } from '@/lib/database'
+import { PageHeader } from '@/components/page-header'
+import { FileText } from 'lucide-react'
 
 interface AuditData {
   id: string
@@ -38,6 +40,7 @@ export default function AuditPage() {
   const auditId = params.id as string
   const [activeTab, setActiveTab] = useState<'result' | 'collected' | 'expert'>('result')
   const [auditData, setAuditData] = useState<AuditData | null>(null)
+  const [projectName, setProjectName] = useState<string>('')
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
@@ -53,6 +56,14 @@ export default function AuditPage() {
       if (!audit) {
         setError('Аудит не найден')
         return
+      }
+
+      // Загружаем данные проекта для breadcrumbs
+      if (audit.project_id) {
+        const project = await getProject(audit.project_id)
+        if (project) {
+          setProjectName(project.name)
+        }
       }
 
       console.log('Аудит загружен:', audit)
@@ -192,30 +203,20 @@ export default function AuditPage() {
     <Layout title={`Аудит: ${auditData.name}`}>
       <div className="space-y-6">
         {/* Навигация назад и действия */}
-        <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-4">
-            <div>
-              <h1 className="text-2xl font-bold text-gray-900">
-                {auditData.name}
-              </h1>
-              <p className="text-gray-600">
-                {auditData.type} • {new Date(auditData.created_at).toLocaleDateString('ru-RU')}
-              </p>
-            </div>
-          </div>
-          
-          <div className="flex space-x-2">
-            <Button variant="outline" size="sm" onClick={handleShare}>
-              <Share className="w-4 h-4 mr-2" />
-              Поделиться
-            </Button>
-            <Button variant="outline" size="sm" onClick={handleExport}>
-              <Download className="w-4 h-4 mr-2" />
-              Экспорт
-            </Button>
-          </div>
-        </div>
+        <PageHeader
+          breadcrumbs={[
+            { label: 'Мои проекты', href: '/projects' },
+            { label: projectName || 'Проект', href: `/projects/${auditData.project_id}` },
+            { label: auditData.name }
+          ]}
+          icon={<FileText className="w-5 h-5 text-slate-700" />}
+          title={auditData.name}
+          subtitle={`Создан: ${new Date(auditData.created_at).toLocaleDateString('ru-RU')}`}
+          showShareButton
+          onShare={handleShare}
+        />
 
+        <div className="px-8 space-y-6">
         {/* Табы */}
         <div className="border-b border-gray-200">
           <nav className="-mb-px flex space-x-8">
@@ -293,6 +294,7 @@ export default function AuditPage() {
 
         {/* Панель действий */}
         <ActionPanel onAction={handleAction} />
+        </div>
       </div>
     </Layout>
   )

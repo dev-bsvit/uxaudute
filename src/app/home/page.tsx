@@ -12,6 +12,7 @@ import { useTranslation } from '@/hooks/use-translation'
 import { useFormatters } from '@/hooks/use-formatters'
 import Link from 'next/link'
 import { ProjectCard } from '@/components/project-card'
+import { PageHeader } from '@/components/page-header'
 import {
   BarChart3,
   TestTube2,
@@ -201,26 +202,23 @@ export default function HomePage() {
 
   return (
     <SidebarDemo user={user}>
-      <div className="p-8 space-y-8">
+      <div className="space-y-8">
         {/* Заголовок */}
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-3xl font-bold text-slate-900">
-              {currentLanguage === 'en' ? 'Welcome Back!' : 'Добро пожаловать!'}
-            </h1>
-            <p className="text-slate-600 mt-1">
-              {currentLanguage === 'en'
-                ? 'Overview of your research and projects'
-                : 'Обзор ваших исследований и проектов'}
-            </p>
-          </div>
-          <Button onClick={handleCreateProject} disabled={creating} className="flex items-center gap-2">
-            <Plus className="w-4 h-4" />
-            {creating
-              ? (currentLanguage === 'en' ? 'Creating...' : 'Создание...')
-              : (currentLanguage === 'en' ? 'New Project' : 'Новый проект')}
-          </Button>
-        </div>
+        <PageHeader
+          title={currentLanguage === 'en' ? 'Welcome Back!' : 'Привет Богдан'}
+          subtitle={
+            currentLanguage === 'en'
+              ? 'Overview of your research and projects'
+              : 'Обзор ваших исследований и проектов'
+          }
+          primaryButton={{
+            label: currentLanguage === 'en' ? 'New Project' : 'Создать аудит',
+            onClick: handleCreateProject,
+            disabled: creating
+          }}
+        />
+
+        <div className="px-8 space-y-8">
 
         {/* Последние проекты */}
         <div className="space-y-4">
@@ -302,6 +300,7 @@ export default function HomePage() {
               </Card>
             ))}
           </div>
+        </div>
         </div>
       </div>
     </SidebarDemo>

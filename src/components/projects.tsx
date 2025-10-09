@@ -9,6 +9,7 @@ import { Plus, FolderOpen, Calendar, BarChart3, Edit, Trash2, MoreVertical } fro
 import Link from 'next/link'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { ProjectCard } from '@/components/project-card'
+import { PageHeader } from '@/components/page-header'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -245,20 +246,16 @@ export function Projects({ user, onProjectSelect }: ProjectsProps) {
 
   return (
     <div className="space-y-8">
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-2xl font-bold text-slate-900">{t('projects.management.title')}</h2>
-          <p className="text-slate-600">{t('projects.management.description')}</p>
-        </div>
-        <Button
-          onClick={openCreateForm}
-          className="flex items-center gap-2 bg-black hover:bg-gray-800 text-white px-6 py-3 rounded-lg font-medium"
-        >
-          <Plus className="w-4 h-4" />
-          {t('projects.newProject')}
-        </Button>
-      </div>
+      <PageHeader
+        title={t('projects.management.title')}
+        subtitle={t('projects.management.description')}
+        primaryButton={{
+          label: t('projects.newProject'),
+          onClick: openCreateForm
+        }}
+      />
 
+      <div className="px-8 space-y-8">
       {/* Форма создания проекта */}
       {showCreateForm && (
         <div className="bg-white rounded-2xl border border-gray-200 shadow-lg p-8">
@@ -442,6 +439,7 @@ export function Projects({ user, onProjectSelect }: ProjectsProps) {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+      </div>
     </div>
   )
 }
