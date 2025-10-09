@@ -187,6 +187,28 @@ export async function getProjectAuditsForPreview(projectId: string): Promise<{co
   }
 }
 
+// Получить последние аудиты пользователя
+export async function getUserRecentAudits(limit: number = 4): Promise<Audit[]> {
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) {
+    return []
+  }
+
+  const { data, error } = await supabase
+    .from('audits')
+    .select('*')
+    .eq('user_id', user.id)
+    .order('created_at', { ascending: false })
+    .limit(limit)
+
+  if (error) {
+    console.error('Error getting recent audits:', error)
+    return []
+  }
+
+  return data || []
+}
+
 // Audits functions
 export async function createAudit(
   projectId: string,
