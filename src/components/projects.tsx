@@ -109,10 +109,13 @@ export function Projects({ user, onProjectSelect }: ProjectsProps) {
             if (screenshots.length >= 4) break
 
             const inputData = audit.input_data as { screenshot?: string } | null
+            console.log('Audit input_data:', inputData)
             if (inputData?.screenshot) {
               screenshots.push(inputData.screenshot)
+              console.log('Added screenshot:', inputData.screenshot)
             }
           }
+          console.log('Project screenshots:', project.name, screenshots)
 
           return {
             ...project,
@@ -390,46 +393,6 @@ export function Projects({ user, onProjectSelect }: ProjectsProps) {
                     </div>
                   </div>
                 </Link>
-
-                {/* Меню действий */}
-                <div className="absolute top-2 right-2 z-10">
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        className="h-8 w-8 p-0 bg-white/80 hover:bg-white"
-                        onClick={(e) => {
-                          e.preventDefault()
-                          e.stopPropagation()
-                        }}
-                      >
-                        <MoreVertical className="h-4 w-4" />
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                      <DropdownMenuItem
-                        onClick={(e) => {
-                          e.stopPropagation()
-                          handleEditProject(project)
-                        }}
-                      >
-                        <Edit className="mr-2 h-4 w-4" />
-                        {t('projects.project.rename')}
-                      </DropdownMenuItem>
-                      <DropdownMenuItem
-                        onClick={(e) => {
-                          e.stopPropagation()
-                          handleDeleteClick(project)
-                        }}
-                        className="text-red-600"
-                      >
-                        <Trash2 className="mr-2 h-4 w-4" />
-                        {t('projects.project.delete')}
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                </div>
               </div>
             )
           })}
