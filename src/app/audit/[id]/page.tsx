@@ -492,9 +492,7 @@ export default function AuditPage() {
           <p className="text-slate-600 mb-6">
             {error || 'Аудит с указанным ID не существует'}
           </p>
-          <Link href="/home">
-            <BackArrow />
-          </Link>
+          <BackArrow onClick={() => router.push('/home')} />
         </div>
       </div>
     )
@@ -528,9 +526,7 @@ export default function AuditPage() {
           {/* Навигация */}
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
-              <Link href={audit?.project_id ? `/projects/${audit.project_id}` : '/home'}>
-                <BackArrow />
-              </Link>
+              <BackArrow onClick={() => router.push(audit?.project_id ? `/projects/${audit.project_id}` : '/home')} />
               <div>
                 <h1 className="text-3xl font-bold text-slate-900">{audit.name}</h1>
                 <p className="text-sm text-slate-600">

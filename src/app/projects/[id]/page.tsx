@@ -526,9 +526,7 @@ export default function ProjectDetailPage() {
           <h2 className="text-2xl font-bold text-slate-900 mb-4">
             {t('projects.detail.notFoundTitle') || (currentLanguage === 'en' ? 'Project not found' : 'Проект не найден')}
           </h2>
-          <Link href="/projects">
-            <BackArrow />
-          </Link>
+          <BackArrow onClick={() => router.push('/projects')} />
         </div>
       </div>
     )
