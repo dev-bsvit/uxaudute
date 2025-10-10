@@ -1,5 +1,6 @@
 import { ChevronRight, Share2 } from 'lucide-react'
 import Link from 'next/link'
+import { BackArrow } from '@/components/icons/back-arrow'
 
 interface Breadcrumb {
   label: string
@@ -18,6 +19,8 @@ interface PageHeaderProps {
     onClick: () => void
     disabled?: boolean
   }
+  showBackButton?: boolean
+  onBack?: () => void
 }
 
 export function PageHeader({
@@ -27,13 +30,17 @@ export function PageHeader({
   subtitle,
   showShareButton,
   onShare,
-  primaryButton
+  primaryButton,
+  showBackButton,
+  onBack
 }: PageHeaderProps) {
   return (
     <div className="w-full flex flex-col gap-6 p-5">
       {/* Breadcrumbs */}
       {breadcrumbs && breadcrumbs.length > 0 && (
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-4">
+          {showBackButton && onBack && <BackArrow onClick={onBack} />}
+          <div className="flex items-center gap-2">
           {breadcrumbs.map((crumb, index) => {
             const isLast = index === breadcrumbs.length - 1
             const content = (
@@ -62,6 +69,7 @@ export function PageHeader({
               </div>
             )
           })}
+          </div>
         </div>
       )}
 

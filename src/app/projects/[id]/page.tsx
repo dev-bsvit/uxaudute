@@ -552,6 +552,8 @@ export default function ProjectDetailPage() {
                     ? `Created ${formatDate(project.created_at)}`
                     : `Создан ${formatDate(project.created_at)}`))
           }
+          showBackButton={true}
+          onBack={() => router.push('/projects')}
           primaryButton={{
             label: t('projects.detail.newAudit') || (currentLanguage === 'en' ? 'New audit' : 'Новый аудит'),
             onClick: () => setShowCreateForm(true)
