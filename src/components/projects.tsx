@@ -3,19 +3,12 @@
 import { useState, useEffect } from 'react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { createProject, getUserProjects, getProjectAudits, getProjectAuditsForPreview, updateProject, deleteProject } from '@/lib/database'
+import { createProject, getUserProjects, getProjectAuditsForPreview, updateProject, deleteProject } from '@/lib/database'
 import { User } from '@supabase/supabase-js'
-import { Plus, FolderOpen, Calendar, BarChart3, Edit, Trash2, MoreVertical } from 'lucide-react'
-import Link from 'next/link'
+import { Plus, FolderOpen } from 'lucide-react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { ProjectCard } from '@/components/project-card'
 import { PageHeader } from '@/components/page-header'
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
 import {
   AlertDialog,
   AlertDialogAction,
@@ -46,7 +39,7 @@ interface Project {
 }
 
 export function Projects({ user, onProjectSelect }: ProjectsProps) {
-  const { t } = useTranslation()
+  const { t, tWithFallback, currentLanguage } = useTranslation()
   const { formatDate } = useFormatters()
   const [projects, setProjects] = useState<Project[]>([])
   const [loading, setLoading] = useState(true)
@@ -368,6 +361,18 @@ export function Projects({ user, onProjectSelect }: ProjectsProps) {
               key={project.id}
               project={project}
               formatDate={formatProjectDate}
+              onEdit={() => handleEditProject(project)}
+              onDelete={() => handleDeleteClick(project)}
+              menuLabels={{
+                edit: tWithFallback(
+                  'projects.actions.edit',
+                  currentLanguage === 'en' ? 'Edit project' : 'Редактировать проект'
+                ),
+                delete: tWithFallback(
+                  'projects.actions.delete',
+                  currentLanguage === 'en' ? 'Delete project' : 'Удалить проект'
+                )
+              }}
             />
           ))}
         </div>

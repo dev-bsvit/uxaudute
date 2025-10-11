@@ -7,7 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Button } from '@/components/ui/button'
 import { User } from '@supabase/supabase-js'
 import { supabase } from '@/lib/supabase'
-import { getUserProjects, getProjectAuditsForPreview, createProject } from '@/lib/database'
+import { getUserProjects, getProjectAuditsForPreview, createProject, deleteProject } from '@/lib/database'
 import { useTranslation } from '@/hooks/use-translation'
 import { useFormatters } from '@/hooks/use-formatters'
 import Link from 'next/link'
@@ -50,6 +50,7 @@ export default function HomePage() {
   const [projects, setProjects] = useState<Project[]>([])
   const [loading, setLoading] = useState(true)
   const [creating, setCreating] = useState(false)
+  const [deletingProjectId, setDeletingProjectId] = useState<string | null>(null)
 
   useEffect(() => {
     checkAuth()
@@ -122,6 +123,37 @@ export default function HomePage() {
       alert(currentLanguage === 'en' ? 'Error creating project' : 'Ошибка создания проекта')
     } finally {
       setCreating(false)
+    }
+  }
+
+  const handleEditProject = (project: Project) => {
+    router.push(`/projects/${project.id}`)
+  }
+
+  const handleDeleteProject = async (project: Project) => {
+    if (deletingProjectId && deletingProjectId !== project.id) {
+      return
+    }
+
+    const confirmMessage =
+      currentLanguage === 'en'
+        ? 'Delete this project? All related audits will also be removed.'
+        : 'Удалить этот проект? Все связанные аудиты тоже будут удалены.'
+
+    const confirmed = window.confirm(confirmMessage)
+    if (!confirmed) {
+      return
+    }
+
+    try {
+      setDeletingProjectId(project.id)
+      await deleteProject(project.id)
+      await loadProjects()
+    } catch (error) {
+      console.error('Error deleting project:', error)
+      alert(currentLanguage === 'en' ? 'Error deleting project' : 'Ошибка удаления проекта')
+    } finally {
+      setDeletingProjectId(null)
     }
   }
 
@@ -259,6 +291,12 @@ export default function HomePage() {
                   key={project.id}
                   project={project}
                   formatDate={formatDate}
+                  onEdit={() => handleEditProject(project)}
+                  onDelete={() => handleDeleteProject(project)}
+                  menuLabels={{
+                    edit: currentLanguage === 'en' ? 'Edit project' : 'Редактировать проект',
+                    delete: currentLanguage === 'en' ? 'Delete project' : 'Удалить проект'
+                  }}
                 />
               ))}
             </div>
