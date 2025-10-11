@@ -13,6 +13,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/componen
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Share2, RefreshCw } from 'lucide-react'
 import { BackArrow } from '@/components/icons/back-arrow'
+import { PageHeader } from '@/components/page-header'
 import { supabase } from '@/lib/supabase'
 import { User } from '@supabase/supabase-js'
 import { ABTestResponse, HypothesisResponse, BusinessAnalyticsResponse } from '@/lib/analysis-types'
@@ -523,41 +524,21 @@ export default function AuditPage() {
         </div>
       ) : (
         <div className="space-y-8">
-          {/* Навигация */}
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <BackArrow onClick={() => router.push(audit?.project_id ? `/projects/${audit.project_id}` : '/home')} />
-              <div>
-                <h1 className="text-3xl font-bold text-slate-900">{audit.name}</h1>
-                <p className="text-sm text-slate-600">
-                  Создан: {new Date(audit.created_at).toLocaleDateString('ru-RU')}
-                </p>
-              </div>
-            </div>
-
-            <div className="flex items-center gap-3">
-            {/* Кнопка публичного доступа */}
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={handleShareClick}
-              disabled={publicUrlLoading || shareStatus === 'loading'}
-              className={`flex items-center gap-2 ${shareStatus === 'copied' ? 'text-green-600 border-green-200 bg-green-50 hover:bg-green-100' : ''}`}
-            >
-              {shareStatus === 'loading' ? (
-                <div className="flex items-center gap-2">
-                  <div className="animate-spin rounded-full h-4 w-4 border-2 border-current border-t-transparent" />
-                  {publicUrl ? t('analysis.share.copying') : t('analysis.share.creating')}
-                </div>
-              ) : (
-                <>
-                  <Share2 className="w-4 h-4" />
-                  {shareStatus === 'copied' ? t('analysis.share.copied') : t('analysis.share.share')}
-                </>
-              )}
-            </Button>
-          </div>
-        </div>
+          {/* Хедер аудита */}
+          <PageHeader
+            breadcrumbs={[
+              { label: 'Главная', href: '/home' },
+              { label: 'Мои проекты', href: '/projects' },
+              ...(audit.project_id ? [{ label: audit.projects?.name || 'Проект', href: `/projects/${audit.project_id}` }] : []),
+              { label: audit.name }
+            ]}
+            title={audit.name}
+            subtitle={`Создан: ${new Date(audit.created_at).toLocaleDateString('ru-RU')}`}
+            showBackButton={true}
+            onBack={() => router.push(audit?.project_id ? `/projects/${audit.project_id}` : '/home')}
+            showShareButton={true}
+            onShare={handleShareClick}
+          />
 
         {/* Результаты анализа */}
         {audit.result_data ? (

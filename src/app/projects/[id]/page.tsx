@@ -542,7 +542,6 @@ export default function ProjectDetailPage() {
             { label: 'Мои проекты', href: '/projects' },
             { label: project.name }
           ]}
-          icon={<FolderOpen className="w-5 h-5 text-slate-700" />}
           title={project.name}
           subtitle={
             project.description
