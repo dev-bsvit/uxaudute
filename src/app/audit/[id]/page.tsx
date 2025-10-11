@@ -538,6 +538,7 @@ export default function AuditPage() {
             onBack={() => router.push(audit?.project_id ? `/projects/${audit.project_id}` : '/home')}
             showShareButton={true}
             onShare={handleShareClick}
+            shareButtonLabel={currentLanguage === 'en' ? 'Share' : 'Поделиться'}
           />
 
         {/* Результаты анализа */}

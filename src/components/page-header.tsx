@@ -14,6 +14,7 @@ interface PageHeaderProps {
   subtitle?: string
   showShareButton?: boolean
   onShare?: () => void
+  shareButtonLabel?: string
   primaryButton?: {
     label: string
     onClick: () => void
@@ -30,10 +31,13 @@ export function PageHeader({
   subtitle,
   showShareButton,
   onShare,
+  shareButtonLabel,
   primaryButton,
   showBackButton,
   onBack
 }: PageHeaderProps) {
+  const computedShareLabel = shareButtonLabel || 'Share'
+
   return (
     <div className="w-full flex flex-col gap-6 p-5">
       {/* Breadcrumbs */}
@@ -103,9 +107,15 @@ export function PageHeader({
           {showShareButton && onShare && (
             <button
               onClick={onShare}
-              className="w-[50px] h-[50px] rounded-[44px] bg-[#EEF2FA] flex items-center justify-center hover:bg-[#e0e8f5] transition-colors"
+              className="px-6 py-4 bg-[#0058FC] rounded-[44px] hover:bg-[#0047d1] transition-colors flex items-center gap-2"
             >
-              <Share2 className="w-4 h-4 text-[rgba(23,26,36,0.64)]" />
+              <Share2 className="w-4 h-4 text-white" />
+              <span
+                className="text-base font-medium leading-[17.6px] text-white"
+                style={{ fontFamily: 'Inter Display' }}
+              >
+                {computedShareLabel}
+              </span>
             </button>
           )}
           {primaryButton && (
