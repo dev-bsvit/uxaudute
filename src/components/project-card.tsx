@@ -2,13 +2,7 @@
 
 import { useRouter } from 'next/navigation'
 import type { KeyboardEvent, MouseEvent } from 'react'
-import { BarChart3, Edit, MoreVertical, Trash2 } from 'lucide-react'
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger
-} from '@/components/ui/dropdown-menu'
+import { BarChart3, MoreVertical } from 'lucide-react'
 
 interface ProjectSummary {
   id: string
@@ -23,10 +17,9 @@ interface ProjectCardProps {
   project: ProjectSummary
   formatDate: (dateString: string) => string
   onEdit?: (project: ProjectSummary) => void
-  onDelete?: (project: ProjectSummary) => void
+  onOpenSettings?: (project: ProjectSummary) => void
   menuLabels?: {
-    edit?: string
-    delete?: string
+    settings?: string
   }
 }
 
@@ -34,7 +27,7 @@ export function ProjectCard({
   project,
   formatDate,
   onEdit,
-  onDelete,
+  onOpenSettings,
   menuLabels
 }: ProjectCardProps) {
   // Создаём массив из 4 элементов для сетки
@@ -42,10 +35,8 @@ export function ProjectCard({
     project.screenshots?.[i] || null
   )
 
-  const hasMenuActions = Boolean(onEdit || onDelete)
-  const editLabel = menuLabels?.edit || 'Edit'
-  const deleteLabel = menuLabels?.delete || 'Delete'
-  const triggerLabel = menuLabels?.edit || menuLabels?.delete || 'Actions'
+  const hasMenuActions = Boolean(onOpenSettings || onEdit)
+  const settingsLabel = menuLabels?.settings || 'Project actions'
   const router = useRouter()
 
   const handleNavigate = () => {
@@ -67,15 +58,13 @@ export function ProjectCard({
     }
   }
 
-  const handleEditSelect = () => {
+  const handleSettingsOpen = () => {
+    if (onOpenSettings) {
+      onOpenSettings(project)
+      return
+    }
     if (onEdit) {
       onEdit(project)
-    }
-  }
-
-  const handleDeleteSelect = () => {
-    if (onDelete) {
-      onDelete(project)
     }
   }
 
@@ -105,51 +94,19 @@ export function ProjectCard({
           <div className="flex items-center justify-between text-xs text-slate-500 whitespace-nowrap">
             <div className="flex items-center gap-1.5 min-w-0">
               {hasMenuActions && (
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <button
-                      type="button"
-                      className="flex h-8 w-8 items-center justify-center rounded-full text-slate-500 transition-colors hover:bg-white hover:text-slate-700"
-                      onClick={(event) => event.stopPropagation()}
-                      onPointerDown={(event) => event.stopPropagation()}
-                      onKeyDown={(event) => {
-                        if (event.key === 'Enter' || event.key === ' ') {
-                          event.stopPropagation()
-                        }
-                      }}
-                      data-card-interactive="true"
-                      aria-label={triggerLabel}
-                      aria-haspopup="menu"
-                    >
-                      <MoreVertical className="w-4 h-4" />
-                    </button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent
-                    align="start"
-                    side="top"
-                    sideOffset={8}
-                    className="w-44"
-                  >
-                    {onEdit && (
-                      <DropdownMenuItem
-                        className="flex items-center gap-2 text-sm"
-                        onSelect={handleEditSelect}
-                      >
-                        <Edit className="w-4 h-4" />
-                        {editLabel}
-                      </DropdownMenuItem>
-                    )}
-                    {onDelete && (
-                      <DropdownMenuItem
-                        className="flex items-center gap-2 text-sm text-red-600 focus:text-red-600"
-                        onSelect={handleDeleteSelect}
-                      >
-                        <Trash2 className="w-4 h-4" />
-                        {deleteLabel}
-                      </DropdownMenuItem>
-                    )}
-                  </DropdownMenuContent>
-                </DropdownMenu>
+                <button
+                  type="button"
+                  className="flex h-8 w-8 items-center justify-center rounded-full text-slate-500 transition-colors hover:bg-white hover:text-slate-700"
+                  onClick={(event) => {
+                    event.stopPropagation()
+                    handleSettingsOpen()
+                  }}
+                  onPointerDown={(event) => event.stopPropagation()}
+                  data-card-interactive="true"
+                  aria-label={settingsLabel}
+                >
+                  <MoreVertical className="w-4 h-4" />
+                </button>
               )}
               <span className="truncate">{formatDate(project.created_at)}</span>
             </div>

@@ -1,18 +1,30 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, type FormEvent } from 'react'
 import { useRouter } from 'next/navigation'
 import { SidebarDemo } from '@/components/sidebar-demo'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { User } from '@supabase/supabase-js'
 import { supabase } from '@/lib/supabase'
-import { getUserProjects, getProjectAuditsForPreview, createProject, deleteProject } from '@/lib/database'
+import { getUserProjects, getProjectAuditsForPreview, createProject, deleteProject, updateProject } from '@/lib/database'
 import { useTranslation } from '@/hooks/use-translation'
 import { useFormatters } from '@/hooks/use-formatters'
 import Link from 'next/link'
 import { ProjectCard } from '@/components/project-card'
 import { PageHeader } from '@/components/page-header'
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
 import {
   BarChart3,
   TestTube2,
@@ -50,7 +62,13 @@ export default function HomePage() {
   const [projects, setProjects] = useState<Project[]>([])
   const [loading, setLoading] = useState(true)
   const [creating, setCreating] = useState(false)
-  const [deletingProjectId, setDeletingProjectId] = useState<string | null>(null)
+  const [settingsProject, setSettingsProject] = useState<Project | null>(null)
+  const [settingsName, setSettingsName] = useState('')
+  const [settingsDescription, setSettingsDescription] = useState('')
+  const [isSavingSettings, setIsSavingSettings] = useState(false)
+  const [isDeletingProject, setIsDeletingProject] = useState(false)
+  const [deleteTargetProject, setDeleteTargetProject] = useState<Project | null>(null)
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false)
 
   useEffect(() => {
     checkAuth()
@@ -127,33 +145,58 @@ export default function HomePage() {
   }
 
   const handleEditProject = (project: Project) => {
-    router.push(`/projects/${project.id}`)
+    setSettingsProject(project)
+    setSettingsName(project.name)
+    setSettingsDescription(project.description || '')
   }
 
-  const handleDeleteProject = async (project: Project) => {
-    if (deletingProjectId && deletingProjectId !== project.id) {
-      return
-    }
+  const handleCloseProjectSettings = () => {
+    setSettingsProject(null)
+    setSettingsName('')
+    setSettingsDescription('')
+  }
 
-    const confirmMessage =
-      currentLanguage === 'en'
-        ? 'Delete this project? All related audits will also be removed.'
-        : 'Удалить этот проект? Все связанные аудиты тоже будут удалены.'
-
-    const confirmed = window.confirm(confirmMessage)
-    if (!confirmed) {
+  const handleSaveProjectSettings = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault()
+    if (!settingsProject || !settingsName.trim()) {
       return
     }
 
     try {
-      setDeletingProjectId(project.id)
-      await deleteProject(project.id)
+      setIsSavingSettings(true)
+      await updateProject(settingsProject.id, {
+        name: settingsName.trim(),
+        description: settingsDescription.trim() || undefined
+      })
       await loadProjects()
+      handleCloseProjectSettings()
+    } catch (error) {
+      console.error('Error updating project:', error)
+      alert(currentLanguage === 'en' ? 'Error updating project' : 'Ошибка обновления проекта')
+    } finally {
+      setIsSavingSettings(false)
+    }
+  }
+
+  const handleDeleteProjectRequest = (project: Project) => {
+    setDeleteTargetProject(project)
+    setShowDeleteDialog(true)
+  }
+
+  const handleConfirmProjectDelete = async () => {
+    if (!deleteTargetProject) return
+
+    try {
+      setIsDeletingProject(true)
+      await deleteProject(deleteTargetProject.id)
+      await loadProjects()
+      setShowDeleteDialog(false)
+      setDeleteTargetProject(null)
     } catch (error) {
       console.error('Error deleting project:', error)
       alert(currentLanguage === 'en' ? 'Error deleting project' : 'Ошибка удаления проекта')
     } finally {
-      setDeletingProjectId(null)
+      setIsDeletingProject(false)
     }
   }
 
@@ -291,17 +334,129 @@ export default function HomePage() {
                   key={project.id}
                   project={project}
                   formatDate={formatDate}
-                  onEdit={() => handleEditProject(project)}
-                  onDelete={() => handleDeleteProject(project)}
+                  onOpenSettings={() => handleEditProject(project)}
                   menuLabels={{
-                    edit: currentLanguage === 'en' ? 'Edit project' : 'Редактировать проект',
-                    delete: currentLanguage === 'en' ? 'Delete project' : 'Удалить проект'
+                    settings: currentLanguage === 'en' ? 'Project settings' : 'Настройки проекта'
                   }}
                 />
-              ))}
+            ))}
+          </div>
+        )}
+      </div>
+
+        {/* Модалка настроек проекта */}
+        {settingsProject && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+            <div className="bg-white rounded-2xl p-8 w-full max-w-md mx-4">
+              <h2 className="text-2xl font-bold text-slate-900 mb-6">
+                {currentLanguage === 'en' ? 'Project settings' : 'Настройки проекта'}
+              </h2>
+              <form onSubmit={handleSaveProjectSettings} className="space-y-6">
+                <div>
+                  <Label htmlFor="settingsName" className="block text-sm font-medium text-slate-700 mb-2">
+                    {currentLanguage === 'en' ? 'Project name' : 'Название проекта'}
+                  </Label>
+                  <Input
+                    id="settingsName"
+                    value={settingsName}
+                    onChange={(event) => setSettingsName(event.target.value)}
+                    placeholder={currentLanguage === 'en' ? 'Enter project name' : 'Введите название проекта'}
+                    required
+                    disabled={isSavingSettings}
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="settingsDescription" className="block text-sm font-medium text-slate-700 mb-2">
+                    {currentLanguage === 'en' ? 'Description' : 'Описание'}
+                  </Label>
+                  <textarea
+                    id="settingsDescription"
+                    value={settingsDescription}
+                    onChange={(event) => setSettingsDescription(event.target.value)}
+                    className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+                    rows={4}
+                    placeholder={currentLanguage === 'en' ? 'Describe the project' : 'Опишите проект'}
+                    disabled={isSavingSettings}
+                  />
+                </div>
+                <div className="flex flex-col gap-4">
+                  <div className="flex gap-4">
+                    <Button type="submit" className="flex-1" disabled={isSavingSettings}>
+                      {isSavingSettings
+                        ? currentLanguage === 'en'
+                          ? 'Saving...'
+                          : 'Сохранение...'
+                        : currentLanguage === 'en'
+                        ? 'Save'
+                        : 'Сохранить'}
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={handleCloseProjectSettings}
+                      className="flex-1"
+                      disabled={isSavingSettings}
+                    >
+                      {currentLanguage === 'en' ? 'Cancel' : 'Отмена'}
+                    </Button>
+                  </div>
+                  <Button
+                    type="button"
+                    variant="destructive"
+                    onClick={() => {
+                      handleDeleteProjectRequest(settingsProject)
+                      handleCloseProjectSettings()
+                    }}
+                  >
+                    {currentLanguage === 'en' ? 'Delete project' : 'Удалить проект'}
+                  </Button>
+                </div>
+              </form>
             </div>
-          )}
-        </div>
+          </div>
+        )}
+
+        {/* Диалог удаления проекта */}
+        <AlertDialog
+          open={showDeleteDialog}
+          onOpenChange={(open) => {
+            setShowDeleteDialog(open)
+            if (!open && !isDeletingProject) {
+              setDeleteTargetProject(null)
+            }
+          }}
+        >
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>
+                {currentLanguage === 'en' ? 'Delete project' : 'Удалить проект'}
+              </AlertDialogTitle>
+              <AlertDialogDescription>
+                {currentLanguage === 'en'
+                  ? 'This action cannot be undone. All related audits will be removed.'
+                  : 'Это действие нельзя отменить. Все связанные аудиты будут удалены.'}
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel disabled={isDeletingProject}>
+                {currentLanguage === 'en' ? 'Cancel' : 'Отмена'}
+              </AlertDialogCancel>
+              <AlertDialogAction
+                onClick={handleConfirmProjectDelete}
+                className="bg-red-600 hover:bg-red-700"
+                disabled={isDeletingProject}
+              >
+                {isDeletingProject
+                  ? currentLanguage === 'en'
+                    ? 'Deleting...'
+                    : 'Удаление...'
+                  : currentLanguage === 'en'
+                  ? 'Delete'
+                  : 'Удалить'}
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
 
         {/* Типы исследований */}
         <div className="space-y-4">

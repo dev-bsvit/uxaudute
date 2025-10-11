@@ -361,16 +361,11 @@ export function Projects({ user, onProjectSelect }: ProjectsProps) {
               key={project.id}
               project={project}
               formatDate={formatProjectDate}
-              onEdit={() => handleEditProject(project)}
-              onDelete={() => handleDeleteClick(project)}
+              onOpenSettings={() => handleEditProject(project)}
               menuLabels={{
-                edit: tWithFallback(
-                  'projects.actions.edit',
-                  currentLanguage === 'en' ? 'Edit project' : 'Редактировать проект'
-                ),
-                delete: tWithFallback(
-                  'projects.actions.delete',
-                  currentLanguage === 'en' ? 'Delete project' : 'Удалить проект'
+                settings: tWithFallback(
+                  'projects.actions.settings',
+                  currentLanguage === 'en' ? 'Project settings' : 'Настройки проекта'
                 )
               }}
             />
@@ -409,21 +404,41 @@ export function Projects({ user, onProjectSelect }: ProjectsProps) {
                   placeholder={t('projects.edit.descriptionPlaceholder')}
                 />
               </div>
-              <div className="flex gap-4">
-                <Button type="submit" className="flex-1">
-                  {t('projects.edit.save')}
-                </Button>
+              <div className="flex flex-col gap-4">
+                <div className="flex gap-4">
+                  <Button type="submit" className="flex-1">
+                    {t('projects.edit.save')}
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => {
+                      setEditingProject(null)
+                      setEditName('')
+                      setEditDescription('')
+                    }}
+                    className="flex-1"
+                  >
+                    {t('projects.edit.cancel')}
+                  </Button>
+                </div>
                 <Button
                   type="button"
-                  variant="outline"
+                  variant="destructive"
                   onClick={() => {
-                    setEditingProject(null)
-                    setEditName('')
-                    setEditDescription('')
+                    if (editingProject) {
+                      setShowDeleteDialog(true)
+                      setProjectToDelete(editingProject)
+                      setEditingProject(null)
+                      setEditName('')
+                      setEditDescription('')
+                    }
                   }}
-                  className="flex-1"
                 >
-                  {t('projects.edit.cancel')}
+                  {tWithFallback(
+                    'projects.edit.deleteButton',
+                    currentLanguage === 'en' ? 'Delete project' : 'Удалить проект'
+                  )}
                 </Button>
               </div>
             </form>
