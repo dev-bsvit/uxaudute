@@ -45,7 +45,7 @@ export function AnalysisResultDisplay({
 
   // Проверяем, что у нас есть минимально необходимая структура
   const safeAnalysis: StructuredAnalysisResponse = {
-    screenDescription: analysis.screenDescription || { screenType: unknownLabel, confidence: 0 },
+    screenDescription: analysis.screenDescription || { screenType: unknownLabel, confidence: 0, keyElements: [], confidenceReason: '' },
     uxSurvey: analysis.uxSurvey || { questions: [], overallConfidence: 0 },
     audience: analysis.audience || {
       targetAudience: notLoadedLabel,
@@ -124,16 +124,18 @@ export function AnalysisResultDisplay({
             </div>
           </div>
 
-          <div>
-            <h4 className="font-medium text-gray-900 mb-2">{t('analysis-results.screenDescription.keyElements')}</h4>
-            <div className="flex flex-wrap gap-2">
-              {safeAnalysis.screenDescription.keyElements.map((element: string, index: number) => (
-                <Badge key={index} variant="secondary">
-                  {element}
-                </Badge>
-              ))}
+          {safeAnalysis.screenDescription.keyElements && safeAnalysis.screenDescription.keyElements.length > 0 && (
+            <div>
+              <h4 className="font-medium text-gray-900 mb-2">{t('analysis-results.screenDescription.keyElements')}</h4>
+              <div className="flex flex-wrap gap-2">
+                {safeAnalysis.screenDescription.keyElements.map((element: string, index: number) => (
+                  <Badge key={index} variant="secondary">
+                    {element}
+                  </Badge>
+                ))}
+              </div>
             </div>
-          </div>
+          )}
 
           <div>
             <h4 className="font-medium text-gray-900 mb-2">{t('analysis-results.screenDescription.confidenceReason')}</h4>
@@ -175,21 +177,23 @@ export function AnalysisResultDisplay({
             </div>
 
             {/* Страхи */}
-            <div>
-              <h4 className="font-medium text-gray-900 mb-3">{t('analysis-results.audience.fears')}</h4>
-              <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
-                <ol className="space-y-2">
-                  {safeAnalysis.audience.fears.map((fear: string, index: number) => (
-                    <li key={index} className="flex items-start gap-2">
-                      <span className="flex-shrink-0 w-6 h-6 bg-yellow-200 text-yellow-800 rounded-full flex items-center justify-center text-sm font-medium">
-                        {index + 1}
-                      </span>
-                      <span className="text-gray-700">{fear}</span>
-                    </li>
-                  ))}
-                </ol>
+            {safeAnalysis.audience.fears && safeAnalysis.audience.fears.length > 0 && (
+              <div>
+                <h4 className="font-medium text-gray-900 mb-3">{t('analysis-results.audience.fears')}</h4>
+                <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+                  <ol className="space-y-2">
+                    {safeAnalysis.audience.fears.map((fear: string, index: number) => (
+                      <li key={index} className="flex items-start gap-2">
+                        <span className="flex-shrink-0 w-6 h-6 bg-yellow-200 text-yellow-800 rounded-full flex items-center justify-center text-sm font-medium">
+                          {index + 1}
+                        </span>
+                        <span className="text-gray-700">{fear}</span>
+                      </li>
+                    ))}
+                  </ol>
+                </div>
               </div>
-            </div>
+            )}
           </CardContent>
         </Card>
       )}
@@ -233,11 +237,12 @@ export function AnalysisResultDisplay({
             </div>
 
             {/* Точки трения */}
-            <div>
-              <h4 className="font-medium text-gray-900 mb-3">{t('analysis-results.behavior.frictionPoints')}</h4>
-              <div className="bg-orange-50 border border-orange-200 rounded-lg p-4">
-                <ol className="space-y-2">
-                  {safeAnalysis.behavior.frictionPoints.map((frictionPoint: any, index: number) => (
+            {safeAnalysis.behavior.frictionPoints && safeAnalysis.behavior.frictionPoints.length > 0 && (
+              <div>
+                <h4 className="font-medium text-gray-900 mb-3">{t('analysis-results.behavior.frictionPoints')}</h4>
+                <div className="bg-orange-50 border border-orange-200 rounded-lg p-4">
+                  <ol className="space-y-2">
+                    {safeAnalysis.behavior.frictionPoints.map((frictionPoint: any, index: number) => (
                     <li key={index} className="flex items-start gap-2">
                       <span className="flex-shrink-0 w-6 h-6 bg-orange-200 text-orange-800 rounded-full flex items-center justify-center text-sm font-medium">
                         {index + 1}
@@ -253,10 +258,11 @@ export function AnalysisResultDisplay({
                         </span>
                       </div>
                     </li>
-                  ))}
-                </ol>
+                    ))}
+                  </ol>
+                </div>
               </div>
-            </div>
+            )}
 
             {/* Мотивация к действию */}
             <div>
