@@ -2,7 +2,7 @@
 
 import { useRouter } from 'next/navigation'
 import type { KeyboardEvent, MouseEvent } from 'react'
-import { BarChart3, MoreVertical } from 'lucide-react'
+import { BarChart3, Edit } from 'lucide-react'
 
 interface ProjectSummary {
   id: string
@@ -105,7 +105,7 @@ export function ProjectCard({
                   data-card-interactive="true"
                   aria-label={settingsLabel}
                 >
-                  <MoreVertical className="w-4 h-4" />
+                  <Edit className="w-4 h-4" />
                 </button>
               )}
               <span className="truncate">{formatDate(project.created_at)}</span>
