@@ -604,72 +604,96 @@ export default function ProjectDetailPage() {
               </Card>
             )}
 
-            {/* История аудитов на всю ширину */}
+            {/* Таблица аудитов */}
             <div className="w-full">
-              <Card>
-                <CardHeader>
-                  <CardTitle>
-                    {t('projects.detail.history.title') || (currentLanguage === 'en' ? 'Audit history' : 'История аудитов')}
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  {audits.length === 0 ? (
-                    <div className="text-center py-8">
-                      <BarChart3 className="w-12 h-12 text-slate-400 mx-auto mb-4" />
-                      <p className="text-slate-600 mb-4">
-                        {t('projects.detail.history.empty') || (currentLanguage === 'en' ? 'There are no audits in this project yet' : 'В этом проекте пока нет аудитов')}
-                      </p>
-                      <Button onClick={() => setShowCreateForm(true)}>
-                        <Plus className="w-4 h-4 mr-2" />
-                        {t('projects.detail.history.emptyAction') || (currentLanguage === 'en' ? 'Create first audit' : 'Создать первый аудит')}
-                      </Button>
-                    </div>
-                  ) : (
-                    <div className="space-y-4">
-                      {audits.map((audit) => (
-                        <div
-                          key={audit.id}
-                          className="flex items-center justify-between p-4 border rounded-lg hover:bg-slate-50 transition-colors"
-                        >
-                          <div className="flex-1">
-                            <div className="flex items-center gap-3 mb-2">
-                              <h3 className="font-medium text-slate-900">{audit.name}</h3>
-                              <Badge className={getStatusColor(audit.status)}>
-                                {getStatusLabel(audit.status)}
-                              </Badge>
-                            </div>
-                            <p className="text-sm text-slate-600">
-                              {formatDateTime(audit.created_at)}
-                              {audit.input_data?.url && (
-                                <span className="ml-4 inline-flex items-center gap-1">
-                                  <ExternalLink className="w-3 h-3" />
-                                  {t('projects.detail.history.urlTag') || (currentLanguage === 'en' ? 'URL analysis' : 'URL анализ')}
-                                </span>
-                              )}
-                              {audit.input_data?.hasScreenshot && (
-                                <span className="ml-4">
-                                  {t('projects.detail.history.screenshotTag') || '📸 Скриншот'}
-                                </span>
-                              )}
-                            </p>
+              {audits.length === 0 ? (
+                <div className="text-center py-8">
+                  <BarChart3 className="w-12 h-12 text-slate-400 mx-auto mb-4" />
+                  <p className="text-slate-600 mb-4">
+                    {t('projects.detail.history.empty') || (currentLanguage === 'en' ? 'There are no audits in this project yet' : 'В этом проекте пока нет аудитов')}
+                  </p>
+                  <Button onClick={() => setShowCreateForm(true)}>
+                    <Plus className="w-4 h-4 mr-2" />
+                    {t('projects.detail.history.emptyAction') || (currentLanguage === 'en' ? 'Create first audit' : 'Создать первый аудит')}
+                  </Button>
+                </div>
+              ) : (
+                <div className="w-full">
+                  {/* Заголовки таблицы */}
+                  <div className="grid grid-cols-[auto_200px_120px_120px_120px_80px] gap-4 px-4 py-3 text-sm font-medium text-slate-500">
+                    <div>{t('projects.detail.table.history') || 'История аудитов'}</div>
+                    <div>{t('projects.detail.table.date') || 'Дата'}</div>
+                    <div>{t('projects.detail.table.status') || 'Статус'}</div>
+                    <div>{t('projects.detail.table.audits') || 'Аудитов'}</div>
+                    <div>{t('projects.detail.table.context') || 'Контекст'}</div>
+                    <div>{t('projects.detail.table.actions') || 'Действие'}</div>
+                  </div>
+
+                  {/* Строки таблицы */}
+                  <div className="space-y-2">
+                    {audits.map((audit) => (
+                      <div
+                        key={audit.id}
+                        className="grid grid-cols-[auto_200px_120px_120px_120px_80px] gap-4 px-4 py-4 items-center bg-white hover:bg-slate-50 transition-colors rounded-lg"
+                      >
+                        {/* Превью + Название */}
+                        <div className="flex items-center gap-4">
+                          <div className="w-[80px] h-[60px] bg-slate-100 rounded-lg flex items-center justify-center overflow-hidden flex-shrink-0">
+                            {audit.input_data?.screenshotUrl || audit.result_data?.screenshot_url ? (
+                              <img
+                                src={audit.input_data?.screenshotUrl || audit.result_data?.screenshot_url}
+                                alt={audit.name}
+                                className="w-full h-full object-cover"
+                              />
+                            ) : (
+                              <Eye className="w-6 h-6 text-slate-400" />
+                            )}
                           </div>
-                          <div className="flex items-center gap-2">
-                            <Link href={`/audit/${audit.id}`}>
-                              <Button
-                                size="sm"
-                                variant="outline"
-                              >
-                                <Eye className="w-4 h-4 mr-2" />
-                                {t('common.view') || (currentLanguage === 'en' ? 'View' : 'Просмотр')}
-                              </Button>
-                            </Link>
-                          </div>
+                          <h3 className="font-medium text-slate-900">{audit.name}</h3>
                         </div>
-                      ))}
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
+
+                        {/* Дата */}
+                        <div className="text-sm text-slate-600">
+                          {formatDateTime(audit.created_at)}
+                        </div>
+
+                        {/* Статус */}
+                        <div>
+                          <Badge className={getStatusColor(audit.status)}>
+                            {getStatusLabel(audit.status)}
+                          </Badge>
+                        </div>
+
+                        {/* Аудитов (прогресс) */}
+                        <div className="flex items-center gap-2">
+                          <div className="w-12 h-2 bg-slate-200 rounded-full overflow-hidden">
+                            <div className="h-full bg-green-500" style={{ width: '20%' }}></div>
+                          </div>
+                          <span className="text-sm text-slate-600">1/5</span>
+                        </div>
+
+                        {/* Контекст */}
+                        <div className="text-sm text-slate-600 truncate">
+                          {audit.input_data?.url ? '🔗 URL' : '📱 Мобил...'}
+                        </div>
+
+                        {/* Действия */}
+                        <div className="flex items-center justify-center">
+                          <Link href={`/audit/${audit.id}`}>
+                            <button className="text-slate-400 hover:text-slate-600">
+                              <svg width="4" height="16" viewBox="0 0 4 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <circle cx="2" cy="2" r="2" fill="currentColor"/>
+                                <circle cx="2" cy="8" r="2" fill="currentColor"/>
+                                <circle cx="2" cy="14" r="2" fill="currentColor"/>
+                              </svg>
+                            </button>
+                          </Link>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
           </>
         ) : (
