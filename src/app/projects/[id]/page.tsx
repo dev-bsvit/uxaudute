@@ -563,11 +563,15 @@ export default function ProjectDetailPage() {
       console.log('hypotheses:', audit.result_data.hypotheses)
       console.log('business_analytics:', audit.result_data.business_analytics)
 
-      // 1. Основной аудит - проверяем что это объект или непустая строка
-      if (audit.result_data.analysis_result &&
-          (typeof audit.result_data.analysis_result === 'object'
-            ? Object.keys(audit.result_data.analysis_result).length > 0
-            : audit.result_data.analysis_result.toString().trim().length > 0)) {
+      // 1. Основной аудит - проверяем наличие любого из ключей базового аудита
+      const hasBaseAudit = audit.result_data.screenDescription ||
+                           audit.result_data.problemsAndSolutions ||
+                           audit.result_data.uxSurvey ||
+                           audit.result_data.behavior ||
+                           audit.result_data.audience ||
+                           audit.result_data.analysis_result
+
+      if (hasBaseAudit) {
         console.log('✅ Основной аудит засчитан')
         completedTypes++
       }
