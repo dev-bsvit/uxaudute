@@ -12,6 +12,13 @@ import { ContextForm } from '@/components/context-form'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle
+} from '@/components/ui/dialog'
 import { User } from '@supabase/supabase-js'
 import { supabase } from '@/lib/supabase'
 import { StructuredAnalysisResponse } from '@/lib/analysis-types'
@@ -28,11 +35,12 @@ import {
 } from '@/lib/database'
 import { useTranslation } from '@/hooks/use-translation'
 import { useFormatters } from '@/hooks/use-formatters'
-import { 
-  Plus, 
+import {
+  Plus,
   ExternalLink,
   BarChart3,
-  Eye
+  Eye,
+  Settings
 } from 'lucide-react'
 import { BackArrow } from '@/components/icons/back-arrow'
 import { type ActionType } from '@/lib/utils'
@@ -97,6 +105,7 @@ export default function ProjectDetailPage() {
   const [editTargetAudience, setEditTargetAudience] = useState('')
   const [isUpdating, setIsUpdating] = useState(false)
   const [hasAnyChanges, setHasAnyChanges] = useState(false)
+  const [showSettingsModal, setShowSettingsModal] = useState(false)
 
   useEffect(() => {
     checkAuthAndLoadProject()
@@ -553,6 +562,10 @@ export default function ProjectDetailPage() {
           }
           showBackButton={true}
           onBack={() => router.push('/projects')}
+          secondaryButton={{
+            icon: <Settings className="w-5 h-5 text-[#222222]" />,
+            onClick: () => setShowSettingsModal(true)
+          }}
           primaryButton={{
             label: t('projects.detail.newAudit') || (currentLanguage === 'en' ? 'New audit' : 'Новый аудит'),
             onClick: () => setShowCreateForm(true)
@@ -591,9 +604,8 @@ export default function ProjectDetailPage() {
               </Card>
             )}
 
-            {/* Двухколоночный макет: История аудитов (слева) + Контекст и Целевая аудитория (справа) */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              {/* Левая колонка - Список аудитов */}
+            {/* История аудитов на всю ширину */}
+            <div className="w-full">
               <Card>
                 <CardHeader>
                   <CardTitle>
@@ -658,85 +670,6 @@ export default function ProjectDetailPage() {
                   )}
                 </CardContent>
               </Card>
-
-              {/* Правая колонка - Контекст проекта и Целевая аудитория */}
-              <Card>
-                <CardHeader>
-                  <CardTitle>
-                    {t('projects.detail.context.title') || (currentLanguage === 'en' ? 'Project context and target audience' : 'Контекст проекта и Целевая аудитория')}
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-6">
-                    {/* Контекст проекта */}
-                    <div className="space-y-3">
-                      <h4 className="text-sm font-medium text-gray-700">
-                        {t('projects.detail.context.projectLabel') || (currentLanguage === 'en' ? 'Project context' : 'Контекст проекта')}
-                      </h4>
-                      <textarea
-                        value={editContext}
-                        onChange={handleContextChange}
-                        className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
-                        rows={4}
-                        placeholder={t('projects.detail.context.projectPlaceholder') || (currentLanguage === 'en'
-                          ? 'Example: Mobile app for food ordering. Main features: catalog, cart, payment, order history...'
-                          : 'Например: Мобильное приложение для заказа еды. Основные функции: каталог, корзина, оплата, история заказов...')}
-                      />
-                    </div>
-
-                    {/* Разделитель */}
-                    <div className="border-t border-gray-200"></div>
-
-                    {/* Целевая аудитория */}
-                    <div className="space-y-3">
-                      <h4 className="text-sm font-medium text-gray-700">
-                        {t('projects.detail.context.audienceLabel') || (currentLanguage === 'en' ? 'Target audience' : 'Целевая аудитория')}
-                      </h4>
-                      <textarea
-                        value={editTargetAudience}
-                        onChange={handleTargetAudienceChange}
-                        className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
-                        rows={4}
-                        placeholder={t('projects.detail.context.audiencePlaceholder') || (currentLanguage === 'en'
-                          ? 'Example: Young people aged 18-35, active smartphone users who value convenience and speed and are willing to pay for quality service...'
-                          : 'Например: Молодые люди 18-35 лет, активные пользователи смартфонов, ценят удобство и скорость, готовы платить за качественный сервис...')}
-                      />
-                    </div>
-
-                    {/* Общая подсказка */}
-                    <p className="text-sm text-slate-500">
-                      {t('projects.detail.context.note') || (currentLanguage === 'en'
-                        ? 'This information will help the AI provide more accurate recommendations during analysis'
-                        : 'Эта информация поможет AI дать более точные рекомендации при анализе')}
-                    </p>
-
-                    {/* Единые кнопки управления */}
-                    <div className="flex gap-2 pt-4">
-                      <Button
-                        onClick={handleSaveAll}
-                        disabled={!hasAnyChanges || isUpdating}
-                        size="sm"
-                        className="flex items-center gap-2"
-                      >
-                        {isUpdating ? (
-                          <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent"></div>
-                        ) : null}
-                        {t('common.save') || (currentLanguage === 'en' ? 'Save' : 'Сохранить')}
-                      </Button>
-                      {hasAnyChanges && (
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={handleCancelAll}
-                          disabled={isUpdating}
-                        >
-                          {t('common.cancel') || (currentLanguage === 'en' ? 'Cancel' : 'Отмена')}
-                        </Button>
-                      )}
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
             </div>
           </>
         ) : (
@@ -773,6 +706,95 @@ export default function ProjectDetailPage() {
           url={analysisUrl}
           canClose={false}
         />
+
+        {/* Модальное окно настроек проекта */}
+        <Dialog open={showSettingsModal} onOpenChange={setShowSettingsModal}>
+          <DialogContent className="max-w-2xl">
+            <DialogHeader>
+              <DialogTitle>
+                {t('projects.detail.settings.title') || (currentLanguage === 'en' ? 'Project settings' : 'Настройки проекта')}
+              </DialogTitle>
+              <DialogDescription>
+                {t('projects.detail.settings.description') || (currentLanguage === 'en'
+                  ? 'Edit project context and target audience'
+                  : 'Редактирование контекста проекта и целевой аудитории')}
+              </DialogDescription>
+            </DialogHeader>
+
+            <div className="space-y-6 py-4">
+              {/* Контекст проекта */}
+              <div className="space-y-3">
+                <h4 className="text-sm font-medium text-gray-700">
+                  {t('projects.detail.context.projectLabel') || (currentLanguage === 'en' ? 'Project context' : 'Контекст проекта')}
+                </h4>
+                <textarea
+                  value={editContext}
+                  onChange={handleContextChange}
+                  className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+                  rows={4}
+                  placeholder={t('projects.detail.context.projectPlaceholder') || (currentLanguage === 'en'
+                    ? 'Example: Mobile app for food ordering. Main features: catalog, cart, payment, order history...'
+                    : 'Например: Мобильное приложение для заказа еды. Основные функции: каталог, корзина, оплата, история заказов...')}
+                />
+              </div>
+
+              {/* Разделитель */}
+              <div className="border-t border-gray-200"></div>
+
+              {/* Целевая аудитория */}
+              <div className="space-y-3">
+                <h4 className="text-sm font-medium text-gray-700">
+                  {t('projects.detail.context.audienceLabel') || (currentLanguage === 'en' ? 'Target audience' : 'Целевая аудитория')}
+                </h4>
+                <textarea
+                  value={editTargetAudience}
+                  onChange={handleTargetAudienceChange}
+                  className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+                  rows={4}
+                  placeholder={t('projects.detail.context.audiencePlaceholder') || (currentLanguage === 'en'
+                    ? 'Example: Young people aged 18-35, active smartphone users who value convenience and speed and are willing to pay for quality service...'
+                    : 'Например: Молодые люди 18-35 лет, активные пользователи смартфонов, ценят удобство и скорость, готовы платить за качественный сервис...')}
+                />
+              </div>
+
+              {/* Общая подсказка */}
+              <p className="text-sm text-slate-500">
+                {t('projects.detail.context.note') || (currentLanguage === 'en'
+                  ? 'This information will help the AI provide more accurate recommendations during analysis'
+                  : 'Эта информация поможет AI дать более точные рекомендации при анализе')}
+              </p>
+
+              {/* Кнопки управления */}
+              <div className="flex gap-2 pt-4">
+                <Button
+                  onClick={() => {
+                    handleSaveAll()
+                    if (!isUpdating) setShowSettingsModal(false)
+                  }}
+                  disabled={!hasAnyChanges || isUpdating}
+                  size="sm"
+                  className="flex items-center gap-2"
+                >
+                  {isUpdating ? (
+                    <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent"></div>
+                  ) : null}
+                  {t('common.save') || (currentLanguage === 'en' ? 'Save' : 'Сохранить')}
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => {
+                    handleCancelAll()
+                    setShowSettingsModal(false)
+                  }}
+                  disabled={isUpdating}
+                >
+                  {t('common.cancel') || (currentLanguage === 'en' ? 'Cancel' : 'Отмена')}
+                </Button>
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
 
         </div>
       </div>

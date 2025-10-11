@@ -20,6 +20,10 @@ interface PageHeaderProps {
     onClick: () => void
     disabled?: boolean
   }
+  secondaryButton?: {
+    icon: React.ReactNode
+    onClick: () => void
+  }
   showBackButton?: boolean
   onBack?: () => void
 }
@@ -33,6 +37,7 @@ export function PageHeader({
   onShare,
   shareButtonLabel,
   primaryButton,
+  secondaryButton,
   showBackButton,
   onBack
 }: PageHeaderProps) {
@@ -116,6 +121,14 @@ export function PageHeader({
               >
                 {computedShareLabel}
               </span>
+            </button>
+          )}
+          {secondaryButton && (
+            <button
+              onClick={secondaryButton.onClick}
+              className="w-[50px] h-[50px] rounded-full bg-[#EEF2FA] flex items-center justify-center hover:bg-[#e0e8f5] transition-colors"
+            >
+              {secondaryButton.icon}
             </button>
           )}
           {primaryButton && (

@@ -44,7 +44,7 @@ export function Projects({ user, onProjectSelect }: ProjectsProps) {
   const [projects, setProjects] = useState<Project[]>([])
   const [loading, setLoading] = useState(true)
   const [showCreateForm, setShowCreateForm] = useState(false)
-  const [newProject, setNewProject] = useState({ name: '', description: '', context: '' })
+  const [newProject, setNewProject] = useState({ name: '', description: '', context: '', targetAudience: '' })
   const [creating, setCreating] = useState(false)
   const [editingProject, setEditingProject] = useState<Project | null>(null)
   const [editName, setEditName] = useState('')
@@ -85,7 +85,7 @@ export function Projects({ user, onProjectSelect }: ProjectsProps) {
 
   const closeCreateForm = () => {
     setShowCreateForm(false)
-    setNewProject({ name: '', description: '', context: '' })
+    setNewProject({ name: '', description: '', context: '', targetAudience: '' })
     updateCreateQuery(null)
   }
 
@@ -133,9 +133,10 @@ export function Projects({ user, onProjectSelect }: ProjectsProps) {
     setCreating(true)
     try {
       await createProject(
-        newProject.name, 
+        newProject.name,
         newProject.description || undefined,
-        newProject.context || undefined
+        newProject.context || undefined,
+        newProject.targetAudience || undefined
       )
       closeCreateForm()
       await loadProjects()
@@ -305,6 +306,27 @@ export function Projects({ user, onProjectSelect }: ProjectsProps) {
               />
               <p className="text-sm text-slate-500 mt-1">
                 {t('projects.createProject.contextNote')}
+              </p>
+            </div>
+
+            <div>
+              <label htmlFor="projectAudience" className="block text-sm font-medium text-slate-700 mb-2">
+                {t('projects.createProject.audienceLabel') || (currentLanguage === 'en' ? 'Target audience' : 'Аудитория')}
+              </label>
+              <textarea
+                id="projectAudience"
+                value={newProject.targetAudience}
+                onChange={(e) => setNewProject({ ...newProject, targetAudience: e.target.value })}
+                className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+                rows={4}
+                placeholder={t('projects.createProject.audiencePlaceholder') || (currentLanguage === 'en'
+                  ? 'Example: Young people aged 18-35, active smartphone users...'
+                  : 'Например: Молодые люди 18-35 лет, активные пользователи смартфонов...')}
+              />
+              <p className="text-sm text-slate-500 mt-1">
+                {t('projects.createProject.audienceNote') || (currentLanguage === 'en'
+                  ? 'Describe your target audience to help AI provide more relevant recommendations'
+                  : 'Опишите вашу целевую аудиторию, чтобы AI давал более релевантные рекомендации')}
               </p>
             </div>
 

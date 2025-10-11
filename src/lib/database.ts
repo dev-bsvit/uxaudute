@@ -9,7 +9,7 @@ type AuditInsert = Tables['audits']['Insert']
 type AuditHistory = Tables['audit_history']['Insert']
 
 // Projects functions
-export async function createProject(name: string, description?: string, context?: string) {
+export async function createProject(name: string, description?: string, context?: string, targetAudience?: string) {
   try {
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) throw new Error('User not authenticated')
@@ -19,7 +19,7 @@ export async function createProject(name: string, description?: string, context?
     // Убедимся, что пользователь существует в profiles
     await ensureUserProfile(user)
 
-    console.log('User profile ensured, creating project:', { name, description, context })
+    console.log('User profile ensured, creating project:', { name, description, context, targetAudience })
 
     const { data, error } = await supabase
       .from('projects')
@@ -27,7 +27,8 @@ export async function createProject(name: string, description?: string, context?
         user_id: user.id,
         name,
         description,
-        context
+        context,
+        target_audience: targetAudience
       })
       .select()
       .single()
