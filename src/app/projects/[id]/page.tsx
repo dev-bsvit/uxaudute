@@ -549,11 +549,31 @@ export default function ProjectDetailPage() {
     }
   }
 
-  // Функция для подсчёта уникальных типов аудитов
-  const getAuditProgress = () => {
-    const uniqueTypes = new Set(audits.map(audit => audit.type))
-    const completedTypes = uniqueTypes.size
+  // Функция для подсчёта выполненных типов анализов в аудите
+  const getAuditProgress = (audit: Audit) => {
+    let completedTypes = 0
     const totalTypes = 4 // Всего 4 типа: audit, abtest, hypothesis, analytics
+
+    // Проверяем наличие каждого типа анализа в result_data
+    if (audit.result_data) {
+      // 1. Основной аудит
+      if (audit.result_data.analysis_result) {
+        completedTypes++
+      }
+      // 2. A/B тесты
+      if (audit.result_data.ab_tests) {
+        completedTypes++
+      }
+      // 3. Гипотезы
+      if (audit.result_data.hypotheses) {
+        completedTypes++
+      }
+      // 4. Бизнес аналитика
+      if (audit.result_data.business_analytics) {
+        completedTypes++
+      }
+    }
+
     const percentage = (completedTypes / totalTypes) * 100
     return {
       completed: completedTypes,
@@ -710,9 +730,9 @@ export default function ProjectDetailPage() {
                           {/* Аудитов (прогресс) - динамический подсчёт */}
                           <div className="flex items-center gap-2">
                             <div className="w-12 h-2 bg-slate-200 rounded-full overflow-hidden">
-                              <div className="h-full bg-green-500" style={{ width: `${getAuditProgress().percentage}%` }}></div>
+                              <div className="h-full bg-green-500" style={{ width: `${getAuditProgress(audit).percentage}%` }}></div>
                             </div>
-                            <span className="text-sm text-slate-600">{getAuditProgress().completed}/{getAuditProgress().total}</span>
+                            <span className="text-sm text-slate-600">{getAuditProgress(audit).completed}/{getAuditProgress(audit).total}</span>
                           </div>
 
                           {/* Контекст */}
