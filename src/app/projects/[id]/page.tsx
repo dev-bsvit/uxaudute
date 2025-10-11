@@ -19,6 +19,12 @@ import {
   DialogHeader,
   DialogTitle
 } from '@/components/ui/dialog'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger
+} from '@/components/ui/dropdown-menu'
 import { User } from '@supabase/supabase-js'
 import { supabase } from '@/lib/supabase'
 import { StructuredAnalysisResponse } from '@/lib/analysis-types'
@@ -40,7 +46,10 @@ import {
   ExternalLink,
   BarChart3,
   Eye,
-  Settings
+  Settings,
+  Share2,
+  Trash2,
+  MoreVertical
 } from 'lucide-react'
 import { BackArrow } from '@/components/icons/back-arrow'
 import { type ActionType } from '@/lib/utils'
@@ -630,65 +639,92 @@ export default function ProjectDetailPage() {
                   </div>
 
                   {/* Строки таблицы */}
-                  <div className="space-y-2">
-                    {audits.map((audit) => (
-                      <div
-                        key={audit.id}
-                        className="grid grid-cols-[auto_200px_120px_120px_120px_80px] gap-4 px-4 py-4 items-center bg-white hover:bg-slate-50 transition-colors rounded-lg"
-                      >
-                        {/* Превью + Название */}
-                        <div className="flex items-center gap-4">
-                          <div className="w-[80px] h-[60px] bg-slate-100 rounded-lg flex items-center justify-center overflow-hidden flex-shrink-0">
-                            {audit.input_data?.screenshotUrl || audit.result_data?.screenshot_url ? (
-                              <img
-                                src={audit.input_data?.screenshotUrl || audit.result_data?.screenshot_url}
-                                alt={audit.name}
-                                className="w-full h-full object-cover"
-                              />
-                            ) : (
-                              <Eye className="w-6 h-6 text-slate-400" />
-                            )}
+                  <div className="space-y-0">
+                    {audits.map((audit, index) => (
+                      <div key={audit.id}>
+                        <div
+                          onClick={() => router.push(`/audit/${audit.id}`)}
+                          className="grid grid-cols-[auto_200px_120px_120px_120px_80px] gap-4 px-4 py-4 items-center bg-white hover:bg-slate-50 transition-colors rounded-lg cursor-pointer"
+                        >
+                          {/* Превью + Название */}
+                          <div className="flex items-center gap-4">
+                            <div className="w-[80px] h-[60px] bg-slate-100 rounded-lg flex items-center justify-center overflow-hidden flex-shrink-0">
+                              {audit.input_data?.screenshotUrl || audit.result_data?.screenshot_url ? (
+                                <img
+                                  src={audit.input_data?.screenshotUrl || audit.result_data?.screenshot_url}
+                                  alt={audit.name}
+                                  className="w-full h-full object-cover"
+                                />
+                              ) : (
+                                <Eye className="w-6 h-6 text-slate-400" />
+                              )}
+                            </div>
+                            <h3 className="font-medium text-slate-900">{audit.name}</h3>
                           </div>
-                          <h3 className="font-medium text-slate-900">{audit.name}</h3>
-                        </div>
 
-                        {/* Дата */}
-                        <div className="text-sm text-slate-600">
-                          {formatDateTime(audit.created_at)}
-                        </div>
-
-                        {/* Статус */}
-                        <div>
-                          <Badge className={getStatusColor(audit.status)}>
-                            {getStatusLabel(audit.status)}
-                          </Badge>
-                        </div>
-
-                        {/* Аудитов (прогресс) */}
-                        <div className="flex items-center gap-2">
-                          <div className="w-12 h-2 bg-slate-200 rounded-full overflow-hidden">
-                            <div className="h-full bg-green-500" style={{ width: '20%' }}></div>
+                          {/* Дата */}
+                          <div className="text-sm text-slate-600">
+                            {formatDateTime(audit.created_at)}
                           </div>
-                          <span className="text-sm text-slate-600">1/5</span>
-                        </div>
 
-                        {/* Контекст */}
-                        <div className="text-sm text-slate-600 truncate">
-                          {audit.input_data?.url ? '🔗 URL' : '📱 Мобил...'}
-                        </div>
+                          {/* Статус */}
+                          <div>
+                            <Badge className={getStatusColor(audit.status)}>
+                              {getStatusLabel(audit.status)}
+                            </Badge>
+                          </div>
 
-                        {/* Действия */}
-                        <div className="flex items-center justify-center">
-                          <Link href={`/audit/${audit.id}`}>
-                            <button className="text-slate-400 hover:text-slate-600">
-                              <svg width="4" height="16" viewBox="0 0 4 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <circle cx="2" cy="2" r="2" fill="currentColor"/>
-                                <circle cx="2" cy="8" r="2" fill="currentColor"/>
-                                <circle cx="2" cy="14" r="2" fill="currentColor"/>
-                              </svg>
-                            </button>
-                          </Link>
+                          {/* Аудитов (прогресс) - 1/4 */}
+                          <div className="flex items-center gap-2">
+                            <div className="w-12 h-2 bg-slate-200 rounded-full overflow-hidden">
+                              <div className="h-full bg-green-500" style={{ width: '25%' }}></div>
+                            </div>
+                            <span className="text-sm text-slate-600">1/4</span>
+                          </div>
+
+                          {/* Контекст */}
+                          <div className="text-sm text-slate-600 truncate">
+                            {audit.input_data?.url ? '🔗 URL' : '📱 Мобил...'}
+                          </div>
+
+                          {/* Действия - Dropdown меню */}
+                          <div className="flex items-center justify-center" onClick={(e) => e.stopPropagation()}>
+                            <DropdownMenu>
+                              <DropdownMenuTrigger asChild>
+                                <button className="text-slate-400 hover:text-slate-600">
+                                  <MoreVertical className="w-5 h-5" />
+                                </button>
+                              </DropdownMenuTrigger>
+                              <DropdownMenuContent align="end">
+                                <DropdownMenuItem
+                                  onClick={() => {
+                                    // TODO: Реализовать функцию поделиться
+                                    console.log('Share audit:', audit.id)
+                                  }}
+                                >
+                                  <Share2 className="w-4 h-4 mr-2" />
+                                  {t('common.share') || (currentLanguage === 'en' ? 'Share' : 'Поделиться')}
+                                </DropdownMenuItem>
+                                <DropdownMenuItem
+                                  onClick={() => {
+                                    // TODO: Реализовать функцию удаления
+                                    if (confirm(t('projects.detail.confirmDelete') || 'Удалить этот аудит?')) {
+                                      console.log('Delete audit:', audit.id)
+                                    }
+                                  }}
+                                  className="text-red-600 focus:text-red-600"
+                                >
+                                  <Trash2 className="w-4 h-4 mr-2" />
+                                  {t('common.delete') || (currentLanguage === 'en' ? 'Delete' : 'Удалить')}
+                                </DropdownMenuItem>
+                              </DropdownMenuContent>
+                            </DropdownMenu>
+                          </div>
                         </div>
+                        {/* Сепаратор */}
+                        {index < audits.length - 1 && (
+                          <div className="h-[1px] bg-[#EEF2FA]"></div>
+                        )}
                       </div>
                     ))}
                   </div>
