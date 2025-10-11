@@ -39,7 +39,7 @@ export function PageHeader({
   const computedShareLabel = shareButtonLabel || 'Share'
 
   return (
-    <div className="w-full flex flex-col gap-6 p-5">
+    <div className="w-full flex flex-col gap-3 pt-3 px-5 pb-5">
       {/* Breadcrumbs */}
       {breadcrumbs && breadcrumbs.length > 0 && (
         <div className="flex items-center gap-2">
