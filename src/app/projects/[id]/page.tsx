@@ -37,7 +37,8 @@ import {
   uploadScreenshotFromBase64,
   updateProjectContext,
   updateProjectTargetAudience,
-  updateAuditName
+  updateAuditName,
+  deleteAudit
 } from '@/lib/database'
 import { useTranslation } from '@/hooks/use-translation'
 import { useFormatters } from '@/hooks/use-formatters'
@@ -423,6 +424,25 @@ export default function ProjectDetailPage() {
     setHasAnyChanges(false)
   }
 
+  const handleDeleteAudit = async (auditId: string) => {
+    try {
+      await deleteAudit(auditId)
+      // Перезагружаем список аудитов после удаления
+      await loadProjectData()
+      const successMessage = t('projects.detail.alerts.deleteSuccess') || (currentLanguage === 'en'
+        ? 'Audit deleted successfully'
+        : 'Аудит успешно удалён')
+      alert(successMessage)
+    } catch (error) {
+      console.error('Error deleting audit:', error)
+      const errorMessage = error instanceof Error ? error.message : unknownErrorMessage
+      const deleteErrorMessage = t('projects.detail.alerts.deleteError', { error: errorMessage }) || (currentLanguage === 'en'
+        ? `Error deleting audit: ${errorMessage}`
+        : `Ошибка при удалении аудита: ${errorMessage}`)
+      alert(deleteErrorMessage)
+    }
+  }
+
   const handleAction = async (action: ActionType) => {
     if (!currentAudit || !result) return
 
@@ -526,6 +546,19 @@ export default function ProjectDetailPage() {
         return t('projects.detail.history.status.failed') || (currentLanguage === 'en' ? 'Error' : 'Ошибка')
       default:
         return t('projects.detail.history.status.draft') || (currentLanguage === 'en' ? 'Draft' : 'Черновик')
+    }
+  }
+
+  // Функция для подсчёта уникальных типов аудитов
+  const getAuditProgress = () => {
+    const uniqueTypes = new Set(audits.map(audit => audit.type))
+    const completedTypes = uniqueTypes.size
+    const totalTypes = 4 // Всего 4 типа: audit, abtest, hypothesis, analytics
+    const percentage = (completedTypes / totalTypes) * 100
+    return {
+      completed: completedTypes,
+      total: totalTypes,
+      percentage
     }
   }
 
@@ -674,12 +707,12 @@ export default function ProjectDetailPage() {
                             </Badge>
                           </div>
 
-                          {/* Аудитов (прогресс) - 1/4 */}
+                          {/* Аудитов (прогресс) - динамический подсчёт */}
                           <div className="flex items-center gap-2">
                             <div className="w-12 h-2 bg-slate-200 rounded-full overflow-hidden">
-                              <div className="h-full bg-green-500" style={{ width: '25%' }}></div>
+                              <div className="h-full bg-green-500" style={{ width: `${getAuditProgress().percentage}%` }}></div>
                             </div>
-                            <span className="text-sm text-slate-600">1/4</span>
+                            <span className="text-sm text-slate-600">{getAuditProgress().completed}/{getAuditProgress().total}</span>
                           </div>
 
                           {/* Контекст */}
@@ -706,10 +739,12 @@ export default function ProjectDetailPage() {
                                   {t('common.share') || (currentLanguage === 'en' ? 'Share' : 'Поделиться')}
                                 </DropdownMenuItem>
                                 <DropdownMenuItem
-                                  onClick={() => {
-                                    // TODO: Реализовать функцию удаления
-                                    if (confirm(t('projects.detail.confirmDelete') || 'Удалить этот аудит?')) {
-                                      console.log('Delete audit:', audit.id)
+                                  onClick={async () => {
+                                    const confirmMessage = t('projects.detail.confirmDelete') || (currentLanguage === 'en'
+                                      ? 'Delete this audit?'
+                                      : 'Удалить этот аудит?')
+                                    if (confirm(confirmMessage)) {
+                                      await handleDeleteAudit(audit.id)
                                     }
                                   }}
                                   className="text-red-600 focus:text-red-600"
