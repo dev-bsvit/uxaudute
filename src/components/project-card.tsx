@@ -20,7 +20,7 @@ export function ProjectCard({ project, formatDate }: ProjectCardProps) {
   )
 
   return (
-    <div className="relative rounded-2xl transition-all duration-300 group overflow-hidden h-[170px] bg-[#F5F5F5]">
+    <div className="relative rounded-2xl transition-all duration-300 group overflow-hidden h-[170px] bg-[#F5F5F5] w-full lg:w-[372px]">
       <Link href={`/projects/${project.id}`} className="block h-full">
         <div className="flex h-full gap-4 p-4">
           {/* Левая колонка - контент */}

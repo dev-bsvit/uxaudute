@@ -38,9 +38,7 @@ export function PageHeader({
     <div className="w-full flex flex-col gap-6 p-5">
       {/* Breadcrumbs */}
       {breadcrumbs && breadcrumbs.length > 0 && (
-        <div className="flex items-center gap-4">
-          {showBackButton && onBack && <BackArrow onClick={onBack} />}
-          <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2">
           {breadcrumbs.map((crumb, index) => {
             const isLast = index === breadcrumbs.length - 1
             const content = (
@@ -69,14 +67,14 @@ export function PageHeader({
               </div>
             )
           })}
-          </div>
         </div>
       )}
 
       {/* Main content */}
       <div className="flex items-center gap-4 w-full">
-        {/* Left side - Icon (optional) + Title + Subtitle */}
+        {/* Left side - Back Button + Icon (optional) + Title + Subtitle */}
         <div className="flex items-center gap-4 flex-1">
+          {showBackButton && onBack && <BackArrow onClick={onBack} />}
           {icon && (
             <div className="w-[50px] h-[50px] rounded-[44px] bg-[#EEF2FA] flex items-center justify-center">
               {icon}
