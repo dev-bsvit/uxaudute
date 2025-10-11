@@ -556,11 +556,19 @@ export default function ProjectDetailPage() {
 
     // Проверяем наличие каждого типа анализа в result_data
     if (audit.result_data) {
+      console.log(`🔍 Проверяем аудит ${audit.name}:`)
+      console.log('Все ключи в result_data:', Object.keys(audit.result_data))
+      console.log('analysis_result:', audit.result_data.analysis_result)
+      console.log('ab_tests:', audit.result_data.ab_tests)
+      console.log('hypotheses:', audit.result_data.hypotheses)
+      console.log('business_analytics:', audit.result_data.business_analytics)
+
       // 1. Основной аудит - проверяем что это объект или непустая строка
       if (audit.result_data.analysis_result &&
           (typeof audit.result_data.analysis_result === 'object'
             ? Object.keys(audit.result_data.analysis_result).length > 0
             : audit.result_data.analysis_result.toString().trim().length > 0)) {
+        console.log('✅ Основной аудит засчитан')
         completedTypes++
       }
       // 2. A/B тесты - проверяем что это массив или объект с данными
@@ -568,6 +576,7 @@ export default function ProjectDetailPage() {
           (Array.isArray(audit.result_data.ab_tests)
             ? audit.result_data.ab_tests.length > 0
             : typeof audit.result_data.ab_tests === 'object' && Object.keys(audit.result_data.ab_tests).length > 0)) {
+        console.log('✅ A/B тесты засчитаны')
         completedTypes++
       }
       // 3. Гипотезы - проверяем что это массив или объект с данными
@@ -575,14 +584,18 @@ export default function ProjectDetailPage() {
           (Array.isArray(audit.result_data.hypotheses)
             ? audit.result_data.hypotheses.length > 0
             : typeof audit.result_data.hypotheses === 'object' && Object.keys(audit.result_data.hypotheses).length > 0)) {
+        console.log('✅ Гипотезы засчитаны')
         completedTypes++
       }
       // 4. Бизнес аналитика - проверяем что это объект с данными
       if (audit.result_data.business_analytics &&
           typeof audit.result_data.business_analytics === 'object' &&
           Object.keys(audit.result_data.business_analytics).length > 0) {
+        console.log('✅ Бизнес аналитика засчитана')
         completedTypes++
       }
+
+      console.log(`📊 Итого: ${completedTypes}/4`)
     }
 
     const percentage = (completedTypes / totalTypes) * 100
