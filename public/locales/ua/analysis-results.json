@@ -1,0 +1,76 @@
+{
+  "title": "Результаты UX анализа",
+  "screenDescription": {
+    "title": "Описание экрана",
+    "screenType": "Тип экрана",
+    "userGoal": "Цель пользователя",
+    "keyElements": "Ключевые элементы",
+    "confidenceReason": "Обоснование уверенности",
+    "confidence": "Уверенность:"
+  },
+  "uxSurvey": {
+    "title": "UX-опрос",
+    "userScenarios": "Пользовательские сценарии"
+  },
+  "questions": "вопросов",
+  "mostLikely": "Наиболее вероятно",
+  "lessLikely": "Менее вероятно",
+  "audience": {
+    "title": "Аудитория",
+    "targetAudience": "Целевая аудитория",
+    "mainPain": "Основная боль",
+    "fears": "Страхи пользователей"
+  },
+  "behavior": {
+    "title": "Поведение",
+    "userScenarios": "Пользовательские сценарии",
+    "idealPath": "Идеальный путь:",
+    "typicalError": "Типичная ошибка:",
+    "alternativeWorkaround": "Альтернативный обход:",
+    "behavioralPatterns": "Поведенческие паттерны",
+    "frictionPoints": "Точки трения",
+    "actionMotivation": "Мотивация к действию",
+    "majorImpact": "Высокое влияние",
+    "minorImpact": "Низкое влияние"
+  },
+  "problemsAndSolutions": {
+    "title": "Проблемы и решения",
+    "element": "Элемент",
+    "problem": "Проблема:",
+    "principle": "Принцип:",
+    "consequence": "Последствие:",
+    "recommendation": "Рекомендация:",
+    "expectedEffect": "Ожидаемый эффект:",
+    "why": "Почему это проблема",
+    "fix": "Как исправить",
+    "result": "Ожидаемый результат",
+    "noProblemsFound": "Проблемы и решения не найдены",
+    "problems": "проблем",
+    "highPriority": "Высокий приоритет",
+    "mediumPriority": "Средний приоритет",
+    "lowPriority": "Низкий приоритет"
+  },
+  "selfCheck": {
+    "title": "Проверка качества анализа",
+    "checklist": "Чек-лист",
+    "confidenceByBlocks": "Уверенность по блокам",
+    "coversAllElements": "Покрыты все ключевые элементы",
+    "noContradictions": "Нет противоречивых рекомендаций",
+    "principlesJustified": "Каждая рекомендация обоснована принципом",
+    "actionClarity": "Проверена понятность целевого действия",
+    "survey": "Опрос",
+    "recommendations": "Рекомендации"
+  },
+  "metadata": {
+    "title": "Информация об анализе",
+    "version": "Версия:",
+    "model": "Модель:",
+    "time": "Время:"
+  },
+  "interface": {
+    "analyzedInterface": "Анализируемый интерфейс",
+    "analyzedUrl": "Анализируемый URL",
+    "annotationEditor": "Редактор аннотаций открывается автоматически. Добавьте комментарии и выделения к скриншоту",
+    "analysisDate": "Анализ от {{date}}"
+  }
+}

@@ -52,6 +52,12 @@ export const SUPPORTED_LANGUAGES: Language[] = [
     name: 'English',
     nativeName: 'English',
     flag: '🇺🇸'
+  },
+  {
+    code: 'ua',
+    name: 'Ukrainian',
+    nativeName: 'Українська',
+    flag: '🇺🇦'
   }
 ]
 

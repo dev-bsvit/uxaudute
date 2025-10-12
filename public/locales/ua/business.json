@@ -1,0 +1,67 @@
+{
+  "title": "Продуктовая аналитика",
+  "subtitle": "Growth-метрики и приоритизация улучшений",
+  "loading": "Генерируем аналитику...",
+  "notGenerated": "Аналитика не сгенерирована",
+  "notGeneratedDesc": "Получите приоритизированные рекомендации на основе ICE/RICE фреймворка",
+  "generateButton": "Получить аналитику",
+  "share": "Поделиться",
+  "creating": "Создание...",
+  "copyLink": "Копировать ссылку",
+  "industry": {
+    "title": "Анализ индустрии",
+    "identified": "Индустрия",
+    "framework": "Фреймворк метрик",
+    "benchmarks": "Бенчмарки"
+  },
+  "kpi": {
+    "title": "Таблица KPI",
+    "metric": "Метрика",
+    "current": "Текущее",
+    "benchmark": "Бенчмарк",
+    "improvement": "Потенциал"
+  },
+  "hypotheses": {
+    "title": "Гипотезы роста",
+    "rank": "Ранг",
+    "hypothesis": "Гипотеза",
+    "ice": "ICE",
+    "rice": "RICE",
+    "impact": "Impact",
+    "confidence": "Confidence",
+    "effort": "Effort",
+    "reach": "Reach",
+    "outcome": "Ожидаемый результат",
+    "userStory": "User Story",
+    "patterns": "UX-паттерны",
+    "testPlan": "План теста",
+    "method": "Метод",
+    "duration": "Длительность",
+    "sampleSize": "Выборка",
+    "metrics": "Δ-метрики"
+  },
+  "painPoints": {
+    "title": "Болевые точки",
+    "category": "Категория",
+    "stage": "Этап воронки",
+    "affected": "Затронуто пользователей"
+  },
+  "barriers": {
+    "title": "Барьеры конверсии"
+  },
+  "risks": {
+    "title": "Бизнес-риски"
+  },
+  "opportunities": {
+    "title": "Упущенные возможности"
+  },
+  "summary": {
+    "title": "Итоговая таблица",
+    "totalHypotheses": "Всего гипотез",
+    "conversionLift": "Рост конверсии",
+    "timeline": "Сроки"
+  },
+  "nextSteps": {
+    "title": "Следующие шаги"
+  }
+}
