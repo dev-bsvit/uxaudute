@@ -1,67 +1,67 @@
 {
-  "title": "Продуктовая аналитика",
-  "subtitle": "Growth-метрики и приоритизация улучшений",
-  "loading": "Генерируем аналитику...",
-  "notGenerated": "Аналитика не сгенерирована",
-  "notGeneratedDesc": "Получите приоритизированные рекомендации на основе ICE/RICE фреймворка",
-  "generateButton": "Получить аналитику",
-  "share": "Поделиться",
-  "creating": "Создание...",
-  "copyLink": "Копировать ссылку",
+  "title": "Продуктова аналітика",
+  "subtitle": "Growth-метрики та пріоритизація покращень",
+  "loading": "Генеруємо аналітику...",
+  "notGenerated": "Аналітика не згенерована",
+  "notGeneratedDesc": "Отримайте пріоритизовані рекомендації на основі ICE/RICE фреймворку",
+  "generateButton": "Отримати аналітику",
+  "share": "Поділитися",
+  "creating": "Створення...",
+  "copyLink": "Копіювати посилання",
   "industry": {
-    "title": "Анализ индустрии",
-    "identified": "Индустрия",
+    "title": "Аналіз індустрії",
+    "identified": "Індустрія",
     "framework": "Фреймворк метрик",
     "benchmarks": "Бенчмарки"
   },
   "kpi": {
-    "title": "Таблица KPI",
+    "title": "Таблиця KPI",
     "metric": "Метрика",
-    "current": "Текущее",
+    "current": "Поточне",
     "benchmark": "Бенчмарк",
-    "improvement": "Потенциал"
+    "improvement": "Потенціал"
   },
   "hypotheses": {
-    "title": "Гипотезы роста",
+    "title": "Гіпотези зростання",
     "rank": "Ранг",
-    "hypothesis": "Гипотеза",
+    "hypothesis": "Гіпотеза",
     "ice": "ICE",
     "rice": "RICE",
     "impact": "Impact",
     "confidence": "Confidence",
     "effort": "Effort",
     "reach": "Reach",
-    "outcome": "Ожидаемый результат",
+    "outcome": "Очікуваний результат",
     "userStory": "User Story",
-    "patterns": "UX-паттерны",
-    "testPlan": "План теста",
+    "patterns": "UX-патерни",
+    "testPlan": "План тесту",
     "method": "Метод",
-    "duration": "Длительность",
-    "sampleSize": "Выборка",
+    "duration": "Тривалість",
+    "sampleSize": "Вибірка",
     "metrics": "Δ-метрики"
   },
   "painPoints": {
-    "title": "Болевые точки",
-    "category": "Категория",
-    "stage": "Этап воронки",
-    "affected": "Затронуто пользователей"
+    "title": "Больові точки",
+    "category": "Категорія",
+    "stage": "Етап воронки",
+    "affected": "Зачеплено користувачів"
   },
   "barriers": {
-    "title": "Барьеры конверсии"
+    "title": "Бар'єри конверсії"
   },
   "risks": {
-    "title": "Бизнес-риски"
+    "title": "Бізнес-ризики"
   },
   "opportunities": {
-    "title": "Упущенные возможности"
+    "title": "Упущені можливості"
   },
   "summary": {
-    "title": "Итоговая таблица",
-    "totalHypotheses": "Всего гипотез",
-    "conversionLift": "Рост конверсии",
-    "timeline": "Сроки"
+    "title": "Підсумкова таблиця",
+    "totalHypotheses": "Всього гіпотез",
+    "conversionLift": "Зростання конверсії",
+    "timeline": "Терміни"
   },
   "nextSteps": {
-    "title": "Следующие шаги"
+    "title": "Наступні кроки"
   }
 }

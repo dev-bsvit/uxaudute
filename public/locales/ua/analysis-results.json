@@ -1,76 +1,76 @@
 {
-  "title": "Результаты UX анализа",
+  "title": "Результати UX аналізу",
   "screenDescription": {
-    "title": "Описание экрана",
-    "screenType": "Тип экрана",
-    "userGoal": "Цель пользователя",
-    "keyElements": "Ключевые элементы",
-    "confidenceReason": "Обоснование уверенности",
-    "confidence": "Уверенность:"
+    "title": "Опис екрану",
+    "screenType": "Тип екрану",
+    "userGoal": "Мета користувача",
+    "keyElements": "Ключові елементи",
+    "confidenceReason": "Обґрунтування впевненості",
+    "confidence": "Впевненість:"
   },
   "uxSurvey": {
-    "title": "UX-опрос",
-    "userScenarios": "Пользовательские сценарии"
+    "title": "UX-опитування",
+    "userScenarios": "Користувацькі сценарії"
   },
-  "questions": "вопросов",
-  "mostLikely": "Наиболее вероятно",
-  "lessLikely": "Менее вероятно",
+  "questions": "питань",
+  "mostLikely": "Найбільш ймовірно",
+  "lessLikely": "Менш ймовірно",
   "audience": {
-    "title": "Аудитория",
-    "targetAudience": "Целевая аудитория",
-    "mainPain": "Основная боль",
-    "fears": "Страхи пользователей"
+    "title": "Аудиторія",
+    "targetAudience": "Цільова аудиторія",
+    "mainPain": "Основний біль",
+    "fears": "Страхи користувачів"
   },
   "behavior": {
-    "title": "Поведение",
-    "userScenarios": "Пользовательские сценарии",
-    "idealPath": "Идеальный путь:",
-    "typicalError": "Типичная ошибка:",
-    "alternativeWorkaround": "Альтернативный обход:",
-    "behavioralPatterns": "Поведенческие паттерны",
-    "frictionPoints": "Точки трения",
-    "actionMotivation": "Мотивация к действию",
-    "majorImpact": "Высокое влияние",
-    "minorImpact": "Низкое влияние"
+    "title": "Поведінка",
+    "userScenarios": "Користувацькі сценарії",
+    "idealPath": "Ідеальний шлях:",
+    "typicalError": "Типова помилка:",
+    "alternativeWorkaround": "Альтернативний обхід:",
+    "behavioralPatterns": "Поведінкові патерни",
+    "frictionPoints": "Точки тертя",
+    "actionMotivation": "Мотивація до дії",
+    "majorImpact": "Високий вплив",
+    "minorImpact": "Низький вплив"
   },
   "problemsAndSolutions": {
-    "title": "Проблемы и решения",
-    "element": "Элемент",
+    "title": "Проблеми та рішення",
+    "element": "Елемент",
     "problem": "Проблема:",
     "principle": "Принцип:",
-    "consequence": "Последствие:",
-    "recommendation": "Рекомендация:",
-    "expectedEffect": "Ожидаемый эффект:",
-    "why": "Почему это проблема",
-    "fix": "Как исправить",
-    "result": "Ожидаемый результат",
-    "noProblemsFound": "Проблемы и решения не найдены",
+    "consequence": "Наслідок:",
+    "recommendation": "Рекомендація:",
+    "expectedEffect": "Очікуваний ефект:",
+    "why": "Чому це проблема",
+    "fix": "Як виправити",
+    "result": "Очікуваний результат",
+    "noProblemsFound": "Проблеми та рішення не знайдені",
     "problems": "проблем",
-    "highPriority": "Высокий приоритет",
-    "mediumPriority": "Средний приоритет",
-    "lowPriority": "Низкий приоритет"
+    "highPriority": "Високий пріоритет",
+    "mediumPriority": "Середній пріоритет",
+    "lowPriority": "Низький пріоритет"
   },
   "selfCheck": {
-    "title": "Проверка качества анализа",
+    "title": "Перевірка якості аналізу",
     "checklist": "Чек-лист",
-    "confidenceByBlocks": "Уверенность по блокам",
-    "coversAllElements": "Покрыты все ключевые элементы",
-    "noContradictions": "Нет противоречивых рекомендаций",
-    "principlesJustified": "Каждая рекомендация обоснована принципом",
-    "actionClarity": "Проверена понятность целевого действия",
-    "survey": "Опрос",
-    "recommendations": "Рекомендации"
+    "confidenceByBlocks": "Впевненість за блоками",
+    "coversAllElements": "Охоплені всі ключові елементи",
+    "noContradictions": "Немає суперечливих рекомендацій",
+    "principlesJustified": "Кожна рекомендація обґрунтована принципом",
+    "actionClarity": "Перевірена зрозумілість цільової дії",
+    "survey": "Опитування",
+    "recommendations": "Рекомендації"
   },
   "metadata": {
-    "title": "Информация об анализе",
-    "version": "Версия:",
+    "title": "Інформація про аналіз",
+    "version": "Версія:",
     "model": "Модель:",
-    "time": "Время:"
+    "time": "Час:"
   },
   "interface": {
-    "analyzedInterface": "Анализируемый интерфейс",
-    "analyzedUrl": "Анализируемый URL",
-    "annotationEditor": "Редактор аннотаций открывается автоматически. Добавьте комментарии и выделения к скриншоту",
-    "analysisDate": "Анализ от {{date}}"
+    "analyzedInterface": "Аналізований інтерфейс",
+    "analyzedUrl": "Аналізований URL",
+    "annotationEditor": "Редактор анотацій відкривається автоматично. Додайте коментарі та виділення до скріншота",
+    "analysisDate": "Аналіз від {{date}}"
   }
 }
