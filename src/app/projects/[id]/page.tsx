@@ -364,73 +364,125 @@ export default function ProjectDetailPage() {
 
         // Запускаем дополнительные анализы если они выбраны
         const types = auditTypes || selectedAuditTypes
-        const additionalAnalyses: Promise<void>[] = []
+        console.log('🔍 Проверяем выбранные типы анализа:', types)
+
+        const additionalAnalyses: Promise<any>[] = []
+        const session = await supabase.auth.getSession()
+        const token = session.data.session?.access_token
 
         if (types.abTest) {
-          console.log('🔍 Запускаем AB тест анализ...')
+          console.log('✅ AB тест выбран, добавляем в очередь')
           additionalAnalyses.push(
             fetch('/api/ab-test', {
               method: 'POST',
               headers: {
                 'Content-Type': 'application/json',
-                'Authorization': `Bearer ${(await supabase.auth.getSession()).data.session?.access_token}`
+                'Authorization': `Bearer ${token}`
               },
               body: JSON.stringify({
                 auditId: audit.id,
                 language: currentLanguage
               })
-            }).then(res => {
-              if (res.ok) console.log('✅ AB тест завершен')
-              else console.error('❌ Ошибка AB теста:', res.statusText)
+            }).then(async res => {
+              if (res.ok) {
+                const data = await res.json()
+                console.log('✅ AB тест завершен успешно:', data)
+                return data
+              } else {
+                const error = await res.text()
+                console.error('❌ Ошибка AB теста:', res.status, error)
+                throw new Error(`AB test failed: ${error}`)
+              }
+            }).catch(err => {
+              console.error('❌ Критическая ошибка AB теста:', err)
+              throw err
             })
           )
+        } else {
+          console.log('⚠️ AB тест НЕ выбран')
         }
 
         if (types.hypotheses) {
-          console.log('🔍 Запускаем генерацию гипотез...')
+          console.log('✅ Гипотезы выбраны, добавляем в очередь')
           additionalAnalyses.push(
             fetch('/api/hypotheses', {
               method: 'POST',
               headers: {
                 'Content-Type': 'application/json',
-                'Authorization': `Bearer ${(await supabase.auth.getSession()).data.session?.access_token}`
+                'Authorization': `Bearer ${token}`
               },
               body: JSON.stringify({
                 auditId: audit.id,
                 language: currentLanguage
               })
-            }).then(res => {
-              if (res.ok) console.log('✅ Гипотезы созданы')
-              else console.error('❌ Ошибка создания гипотез:', res.statusText)
+            }).then(async res => {
+              if (res.ok) {
+                const data = await res.json()
+                console.log('✅ Гипотезы созданы успешно:', data)
+                return data
+              } else {
+                const error = await res.text()
+                console.error('❌ Ошибка создания гипотез:', res.status, error)
+                throw new Error(`Hypotheses failed: ${error}`)
+              }
+            }).catch(err => {
+              console.error('❌ Критическая ошибка гипотез:', err)
+              throw err
             })
           )
+        } else {
+          console.log('⚠️ Гипотезы НЕ выбраны')
         }
 
         if (types.businessAnalytics) {
-          console.log('🔍 Запускаем бизнес-аналитику...')
+          console.log('✅ Бизнес-аналитика выбрана, добавляем в очередь')
           additionalAnalyses.push(
             fetch('/api/business-analytics', {
               method: 'POST',
               headers: {
                 'Content-Type': 'application/json',
-                'Authorization': `Bearer ${(await supabase.auth.getSession()).data.session?.access_token}`
+                'Authorization': `Bearer ${token}`
               },
               body: JSON.stringify({
                 auditId: audit.id,
                 language: currentLanguage
               })
-            }).then(res => {
-              if (res.ok) console.log('✅ Бизнес-аналитика завершена')
-              else console.error('❌ Ошибка бизнес-аналитики:', res.statusText)
+            }).then(async res => {
+              if (res.ok) {
+                const data = await res.json()
+                console.log('✅ Бизнес-аналитика завершена успешно:', data)
+                return data
+              } else {
+                const error = await res.text()
+                console.error('❌ Ошибка бизнес-аналитики:', res.status, error)
+                throw new Error(`Business analytics failed: ${error}`)
+              }
+            }).catch(err => {
+              console.error('❌ Критическая ошибка бизнес-аналитики:', err)
+              throw err
             })
           )
+        } else {
+          console.log('⚠️ Бизнес-аналитика НЕ выбрана')
         }
 
         // Запускаем все дополнительные анализы параллельно
         if (additionalAnalyses.length > 0) {
-          console.log(`🔍 Запускаем ${additionalAnalyses.length} дополнительных анализа...`)
-          await Promise.all(additionalAnalyses)
-          console.log('✅ Все дополнительные анализы завершены')
+          console.log(`🔍 Запускаем ${additionalAnalyses.length} дополнительных анализа параллельно...`)
+          try {
+            const results = await Promise.allSettled(additionalAnalyses)
+            console.log('✅ Все дополнительные анализы завершены:', results)
+
+            // Проверяем результаты
+            const failed = results.filter(r => r.status === 'rejected')
+            if (failed.length > 0) {
+              console.error(`⚠️ ${failed.length} анализов завершились с ошибкой:`, failed)
+            }
+          } catch (err) {
+            console.error('❌ Ошибка при выполнении дополнительных анализов:', err)
+          }
+        } else {
+          console.log('⚠️ Нет дополнительных анализов для запуска')
         }
 
         // Перенаправляем на страницу аудита
@@ -783,15 +835,21 @@ export default function ProjectDetailPage() {
               <div className="w-full bg-white rounded-2xl p-8">
                 <form onSubmit={(e) => {
                   e.preventDefault()
+                  console.log('🔍 Отправка формы с выбранными типами:', selectedAuditTypes)
+                  // Combine context and target audience
+                  const combinedContext = [auditContext, targetAudience]
+                    .filter(Boolean)
+                    .join('\n\n---\n\n')
+
                   // Handle form submission based on active tab
                   if (activeTab === 'screenshot' && auditScreenshot) {
                     const reader = new FileReader()
                     reader.onload = () => {
-                      handleCreateAudit({ screenshot: reader.result as string, context: auditContext })
+                      handleCreateAudit({ screenshot: reader.result as string, context: combinedContext })
                     }
                     reader.readAsDataURL(auditScreenshot)
                   } else if (activeTab === 'url' && auditUrl) {
-                    handleCreateAudit({ url: auditUrl, context: auditContext })
+                    handleCreateAudit({ url: auditUrl, context: combinedContext })
                   }
                 }}>
                   <div className="grid grid-cols-2 gap-8">
