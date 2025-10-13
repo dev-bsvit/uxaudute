@@ -132,7 +132,6 @@ export default function ProjectDetailPage() {
   const [auditScreenshot, setAuditScreenshot] = useState<File | null>(null)
   const [auditContext, setAuditContext] = useState('')
   const [targetAudience, setTargetAudience] = useState('')
-  const [isTargetAudienceEnabled, setIsTargetAudienceEnabled] = useState(true)
   const [selectedAuditTypes, setSelectedAuditTypes] = useState({
     uxAnalysis: true,
     abTest: false,
@@ -878,7 +877,7 @@ export default function ProjectDetailPage() {
                     if (auditContext?.trim()) {
                       contextSections.push(auditContext.trim())
                     }
-                    if (isTargetAudienceEnabled && targetAudience?.trim()) {
+                    if (targetAudience?.trim()) {
                       contextSections.push(targetAudience.trim())
                     }
                     const combinedContext = contextSections.join('\n\n---\n\n')
@@ -898,10 +897,10 @@ export default function ProjectDetailPage() {
                   }}
                   className="space-y-8"
                 >
-                  <div className="grid grid-cols-3 gap-2 rounded-2xl border border-[#E2EAFE] bg-[#EEF2FF] p-1">
+                  <div className="grid h-16 w-full grid-cols-3 items-center justify-center rounded-lg bg-gray-100 p-1 text-muted-foreground">
                     <button
                       type="button"
-                      className={`w-full rounded-xl py-3 text-sm font-medium transition-all duration-200 ${
+                      className={`w-full rounded-md py-3 text-sm font-medium transition-all duration-200 ${
                         activeTab === 'screenshot'
                           ? 'bg-white text-blue-600 shadow-sm'
                           : 'text-slate-600 hover:text-slate-800'
@@ -912,7 +911,7 @@ export default function ProjectDetailPage() {
                     </button>
                     <button
                       type="button"
-                      className={`w-full rounded-xl py-3 text-sm font-medium transition-all duration-200 ${
+                      className={`w-full rounded-md py-3 text-sm font-medium transition-all duration-200 ${
                         activeTab === 'url'
                           ? 'bg-white text-blue-600 shadow-sm'
                           : 'text-slate-600 hover:text-slate-800'
@@ -923,14 +922,14 @@ export default function ProjectDetailPage() {
                     </button>
                     <button
                       type="button"
-                      className="w-full cursor-not-allowed rounded-xl py-3 text-sm font-medium text-slate-400"
+                      className="w-full cursor-not-allowed rounded-md py-3 text-sm font-medium text-slate-400"
                       disabled
                     >
                       Figma Frime
                     </button>
                   </div>
 
-                  <div className="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)]">
+                  <div className="grid grid-cols-1 gap-6 md:grid-cols-2 md:items-start">
                     {/* Left Column */}
                     <div className="space-y-6">
                       {activeTab === 'screenshot' && (
@@ -994,23 +993,21 @@ export default function ProjectDetailPage() {
                         </h4>
 
                         <div className="space-y-3">
-                          <div className="flex items-center justify-between rounded-2xl border border-[#E4E6F2] bg-white px-4 py-3">
+                          <div className="flex items-center justify-between bg-transparent px-1 py-1">
                             <div className="flex items-center gap-2 text-slate-900">
                               <span className="font-medium">
                                 {currentLanguage === 'en' ? 'UX Analysis' : 'UX Анализ'}{' '}
                                 <span className="text-red-500">*</span>
                               </span>
-                              <Info className="h-4 w-4 text-slate-400" />
                             </div>
                             <Switch checked disabled className="data-[state=checked]:bg-[#0058FC]" />
                           </div>
 
-                          <div className="flex items-center justify-between rounded-2xl border border-[#E4E6F2] bg-white px-4 py-3">
+                          <div className="flex items-center justify-between bg-transparent px-1 py-1">
                             <div className="flex items-center gap-2 text-slate-900">
                               <span className="font-medium">
                                 {currentLanguage === 'en' ? 'A/B Test' : 'A/B тест'}
                               </span>
-                              <Info className="h-4 w-4 text-slate-400" />
                             </div>
                             <Switch
                               checked={selectedAuditTypes.abTest}
@@ -1024,12 +1021,11 @@ export default function ProjectDetailPage() {
                             />
                           </div>
 
-                          <div className="flex items-center justify-between rounded-2xl border border-[#E4E6F2] bg-white px-4 py-3">
+                          <div className="flex items-center justify-between bg-transparent px-1 py-1">
                             <div className="flex items-center gap-2 text-slate-900">
                               <span className="font-medium">
                                 {currentLanguage === 'en' ? 'Hypotheses' : 'Гипотезы'}
                               </span>
-                              <Info className="h-4 w-4 text-slate-400" />
                             </div>
                             <Switch
                               checked={selectedAuditTypes.hypotheses}
@@ -1043,14 +1039,13 @@ export default function ProjectDetailPage() {
                             />
                           </div>
 
-                          <div className="flex items-center justify-between rounded-2xl border border-[#E4E6F2] bg-white px-4 py-3">
+                          <div className="flex items-center justify-between bg-transparent px-1 py-1">
                             <div className="flex items-center gap-2 text-slate-900">
                               <span className="font-medium">
                                 {currentLanguage === 'en'
                                   ? 'Product analytics'
                                   : 'Продуктовая аналитика'}
                               </span>
-                              <Info className="h-4 w-4 text-slate-400" />
                             </div>
                             <Switch
                               checked={selectedAuditTypes.businessAnalytics}
@@ -1105,83 +1100,34 @@ export default function ProjectDetailPage() {
                       </div>
 
                       <div className="space-y-2">
-                        <div className="flex items-center justify-between gap-3">
-                          <label
-                            htmlFor="targetAudience"
-                            className="text-sm font-medium text-slate-900"
-                          >
-                            {currentLanguage === 'en'
-                              ? 'Target audience'
-                              : 'Целевая аудитория'}{' '}
-                            <span className="text-slate-400">
-                              {currentLanguage === 'en' ? '(optional)' : '(необязательно)'}
-                            </span>
-                          </label>
-                          <Switch
-                            checked={isTargetAudienceEnabled}
-                            onCheckedChange={(checked) => {
-                              setIsTargetAudienceEnabled(checked)
-                              if (!checked) {
-                                setTargetAudience('')
-                              }
-                            }}
-                            className="data-[state=checked]:bg-[#0058FC]"
-                          />
-                        </div>
-
-                        {isTargetAudienceEnabled && (
-                          <>
-                            <textarea
-                              id="targetAudience"
-                              value={targetAudience}
-                              onChange={(e) => setTargetAudience(e.target.value)}
-                              className="w-full resize-none rounded-2xl border border-[#E4E6F2] px-4 py-3 text-sm focus:border-[#0058FC] focus:outline-none focus:ring-2 focus:ring-[#C9D8FF]"
-                              rows={6}
-                              placeholder={
-                                currentLanguage === 'en'
-                                  ? 'For example: Mobile users aged 18-35 who value speed and convenience...'
-                                  : 'Например: Молодые люди 18-35 лет, активные пользователи смартфонов...'
-                              }
-                            />
-                            <p className="text-xs text-slate-500">
-                              {currentLanguage === 'en'
-                                ? 'This helps AI tailor recommendations to the right audience.'
-                                : 'Эта информация поможет AI дать более точные рекомендации при анализе.'}
-                            </p>
-                          </>
-                        )}
-                      </div>
-
-                      <div className="space-y-3 pt-2">
-                        <Button
-                          type="submit"
-                          disabled={isSubmitDisabled}
-                          size="lg"
-                          className="w-full rounded-2xl bg-[#0058FC] text-base font-semibold hover:bg-[#0047d1]"
+                        <label
+                          htmlFor="targetAudience"
+                          className="block text-sm font-medium text-slate-900"
                         >
-                          {isAnalyzing ? (
-                            <>
-                              <div className="mr-3 h-5 w-5 animate-spin rounded-full border-2 border-white border-t-transparent"></div>
-                              {currentLanguage === 'en'
-                                ? 'Starting analysis...'
-                                : 'Запускаем анализ...'}
-                            </>
-                          ) : (
-                            <>
-                              <Sparkles className="mr-3 h-5 w-5" />
-                              {submitButtonLabel}
-                            </>
-                          )}
-                        </Button>
-
-                        <Button
-                          type="button"
-                          variant="outline"
-                          onClick={() => setShowCreateForm(false)}
-                          className="w-full rounded-2xl"
-                        >
-                          {t('common.cancel') || (currentLanguage === 'en' ? 'Cancel' : 'Отмена')}
-                        </Button>
+                          {currentLanguage === 'en'
+                            ? 'Target audience'
+                            : 'Целевая аудитория'}{' '}
+                          <span className="text-slate-400">
+                            {currentLanguage === 'en' ? '(optional)' : '(необязательно)'}
+                          </span>
+                        </label>
+                        <textarea
+                          id="targetAudience"
+                          value={targetAudience}
+                          onChange={(e) => setTargetAudience(e.target.value)}
+                          className="w-full resize-none rounded-2xl border border-[#E4E6F2] px-4 py-3 text-sm focus:border-[#0058FC] focus:outline-none focus:ring-2 focus:ring-[#C9D8FF]"
+                          rows={6}
+                          placeholder={
+                            currentLanguage === 'en'
+                              ? 'For example: Mobile users aged 18-35 who value speed and convenience...'
+                              : 'Например: Молодые люди 18-35 лет, активные пользователи смартфонов...'
+                          }
+                        />
+                        <p className="text-xs text-slate-500">
+                          {currentLanguage === 'en'
+                            ? 'This helps AI tailor recommendations to the right audience.'
+                            : 'Эта информация поможет AI дать более точные рекомендации при анализе.'}
+                        </p>
                       </div>
                     </div>
                   </div>
