@@ -27,35 +27,44 @@ export interface CreditsDeductResult {
  */
 export async function checkCreditsForAudit(
   userId: string,
-  auditType: 'research' | 'ab_test' | 'business' | 'hypotheses'
+  auditType: 'research' | 'ab_test' | 'business' | 'hypotheses',
+  customCredits?: number // Опциональный параметр для кастомного количества кредитов
 ): Promise<CreditsCheckResult> {
   try {
-    console.log('🔍 checkCreditsForAudit: userId=', userId, 'auditType=', auditType)
-    
-    // Получаем стоимость аудита
-    console.log('🔍 Получаем стоимость аудита из audit_credits...')
-    const { data: auditCost, error: costError } = await supabaseClient
-      .from('audit_credits')
-      .select('credits_cost')
-      .eq('audit_type', auditType)
-      .eq('is_active', true)
-      .single()
+    console.log('🔍 checkCreditsForAudit: userId=', userId, 'auditType=', auditType, 'customCredits=', customCredits)
 
-    console.log('🔍 Результат запроса стоимости:', { auditCost, costError })
+    let requiredCredits: number
 
-    if (costError || !auditCost) {
-      console.error('❌ Error fetching audit cost:', costError)
-      return {
-        canProceed: false,
-        isTestAccount: false,
-        currentBalance: 0,
-        requiredCredits: 0,
-        message: 'Failed to get audit cost'
+    if (customCredits !== undefined) {
+      // Используем кастомное количество кредитов
+      requiredCredits = customCredits
+      console.log('🔍 Используем кастомное количество кредитов:', requiredCredits)
+    } else {
+      // Получаем стоимость аудита из таблицы
+      console.log('🔍 Получаем стоимость аудита из audit_credits...')
+      const { data: auditCost, error: costError } = await supabaseClient
+        .from('audit_credits')
+        .select('credits_cost')
+        .eq('audit_type', auditType)
+        .eq('is_active', true)
+        .single()
+
+      console.log('🔍 Результат запроса стоимости:', { auditCost, costError })
+
+      if (costError || !auditCost) {
+        console.error('❌ Error fetching audit cost:', costError)
+        return {
+          canProceed: false,
+          isTestAccount: false,
+          currentBalance: 0,
+          requiredCredits: 0,
+          message: 'Failed to get audit cost'
+        }
       }
-    }
 
-    const requiredCredits = auditCost.credits_cost
-    console.log('🔍 Требуется кредитов:', requiredCredits)
+      requiredCredits = auditCost.credits_cost
+      console.log('🔍 Требуется кредитов:', requiredCredits)
+    }
 
     // Проверяем, является ли пользователь тестовым
     console.log('🔍 Проверяем профиль пользователя...')
@@ -140,28 +149,37 @@ export async function deductCreditsForAudit(
   userId: string,
   auditType: 'research' | 'ab_test' | 'business' | 'hypotheses',
   auditId: string,
-  description: string
+  description: string,
+  customCredits?: number // Опциональный параметр для кастомного количества кредитов
 ): Promise<CreditsDeductResult> {
   try {
-    // Получаем стоимость аудита
-    const { data: auditCost, error: costError } = await supabaseClient
-      .from('audit_credits')
-      .select('credits_cost')
-      .eq('audit_type', auditType)
-      .eq('is_active', true)
-      .single()
+    let requiredCredits: number
 
-    if (costError || !auditCost) {
-      console.error('Error fetching audit cost:', costError)
-      return {
-        success: false,
-        deducted: false,
-        isTestAccount: false,
-        message: 'Failed to get audit cost'
+    if (customCredits !== undefined) {
+      // Используем кастомное количество кредитов
+      requiredCredits = customCredits
+      console.log('🔍 Списываем кастомное количество кредитов:', requiredCredits)
+    } else {
+      // Получаем стоимость аудита из таблицы
+      const { data: auditCost, error: costError } = await supabaseClient
+        .from('audit_credits')
+        .select('credits_cost')
+        .eq('audit_type', auditType)
+        .eq('is_active', true)
+        .single()
+
+      if (costError || !auditCost) {
+        console.error('Error fetching audit cost:', costError)
+        return {
+          success: false,
+          deducted: false,
+          isTestAccount: false,
+          message: 'Failed to get audit cost'
+        }
       }
-    }
 
-    const requiredCredits = auditCost.credits_cost
+      requiredCredits = auditCost.credits_cost
+    }
 
     // Проверяем, является ли пользователь тестовым
     const { data: profile } = await supabaseClient

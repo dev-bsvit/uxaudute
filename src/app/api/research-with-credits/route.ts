@@ -17,7 +17,8 @@ export async function POST(request: NextRequest) {
       provider = 'openai',
       openrouterModel = 'sonoma',
       auditId,
-      language = FALLBACK_LANGUAGE
+      language = FALLBACK_LANGUAGE,
+      requiredCredits = 2 // По умолчанию 2 кредита за базовый UX анализ
     } = await request.json()
 
     console.log('Параметры запроса:', {
@@ -27,7 +28,8 @@ export async function POST(request: NextRequest) {
       provider,
       openrouterModel,
       auditId,
-      language
+      language,
+      requiredCredits
     })
 
     if (!url && !screenshot) {
@@ -53,9 +55,9 @@ export async function POST(request: NextRequest) {
 
     // Проверяем кредиты перед запуском аудита
     console.log('🔍 Проверяем кредиты для пользователя:', user.id)
-    console.log('🔍 Тип аудита: research')
-    
-    const creditsCheck = await checkCreditsForAudit(user.id, 'research')
+    console.log('🔍 Тип аудита: research, требуется кредитов:', requiredCredits)
+
+    const creditsCheck = await checkCreditsForAudit(user.id, 'research', requiredCredits)
     console.log('🔍 Результат проверки кредитов:', JSON.stringify(creditsCheck, null, 2))
     
     if (!creditsCheck.canProceed) {
@@ -189,12 +191,13 @@ export async function POST(request: NextRequest) {
 
     // Списываем кредиты после успешного выполнения аудита
     if (auditId) {
-      console.log('Списываем кредиты за аудит:', auditId)
+      console.log('Списываем кредиты за аудит:', auditId, 'количество:', requiredCredits)
       const deductResult = await deductCreditsForAudit(
         user.id,
         'research',
         auditId,
-        `UX Research audit: ${url || 'screenshot analysis'}`
+        `UX Research audit: ${url || 'screenshot analysis'}`,
+        requiredCredits
       )
 
       if (!deductResult.success) {

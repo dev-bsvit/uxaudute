@@ -189,11 +189,15 @@ export default function ProjectDetailPage() {
     setUploadedScreenshot(data.screenshot || null)
     setAnalysisUrl(data.url || null)
 
-    // Сразу запускаем анализ с контекстом
-    await handleContextSubmit(data.context || '', data)
+    // Сразу запускаем анализ с контекстом и выбранными типами
+    await handleContextSubmit(data.context || '', data, selectedAuditTypes)
   }
 
-  const handleContextSubmit = async (context: string, uploadData?: { url?: string; screenshot?: string; provider?: string; openrouterModel?: string }) => {
+  const handleContextSubmit = async (
+    context: string,
+    uploadData?: { url?: string; screenshot?: string; provider?: string; openrouterModel?: string },
+    auditTypes?: typeof selectedAuditTypes
+  ) => {
     if (!user || !project) return
 
     const data = uploadData || pendingUploadData
@@ -204,7 +208,7 @@ export default function ProjectDetailPage() {
 
     try {
       let screenshotUrl: string | null = null
-      
+
       // Загружаем скриншот в Supabase Storage если он есть
       if (data.screenshot) {
         console.log('Uploading screenshot to Supabase Storage...')
@@ -243,19 +247,30 @@ export default function ProjectDetailPage() {
       setCurrentAudit(audit)
       setShowCreateForm(false)
 
+      // Вычисляем требуемые кредиты на основе выбранных типов
+      const types = auditTypes || selectedAuditTypes
+      const requiredCredits = 2 +
+        (types.abTest ? 1 : 0) +
+        (types.hypotheses ? 1 : 0) +
+        (types.businessAnalytics ? 1 : 0)
+
+      console.log('🔍 Выбранные типы анализа:', types)
+      console.log('🔍 Требуется кредитов:', requiredCredits)
+
       // Используем API с проверкой кредитов
       console.log('🔍 Отправляем запрос на анализ через /api/research-with-credits')
       console.log('🔍 Данные запроса:', {
         url: data.url,
         hasScreenshot: !!data.screenshot,
         auditId: audit.id,
-        context: combinedContext?.substring(0, 100) + '...'
+        context: combinedContext?.substring(0, 100) + '...',
+        requiredCredits
       })
-      
-      // Отправляем запрос на анализ
+
+      // Отправляем запрос на анализ с указанием требуемых кредитов
       const response = await fetch('/api/research-with-credits', {
         method: 'POST',
-        headers: { 
+        headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${(await supabase.auth.getSession()).data.session?.access_token}`
         },
@@ -263,7 +278,8 @@ export default function ProjectDetailPage() {
           ...data,
           auditId: audit.id,
           context: combinedContext,
-          language: currentLanguage
+          language: currentLanguage,
+          requiredCredits // Передаём требуемое количество кредитов
         })
       })
       
@@ -344,6 +360,77 @@ export default function ProjectDetailPage() {
         } catch (nameUpdateError) {
           console.error('Ошибка обновления названия аудита:', nameUpdateError)
           // Не прерываем работу, продолжаем с исходным названием
+        }
+
+        // Запускаем дополнительные анализы если они выбраны
+        const types = auditTypes || selectedAuditTypes
+        const additionalAnalyses: Promise<void>[] = []
+
+        if (types.abTest) {
+          console.log('🔍 Запускаем AB тест анализ...')
+          additionalAnalyses.push(
+            fetch('/api/ab-test', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${(await supabase.auth.getSession()).data.session?.access_token}`
+              },
+              body: JSON.stringify({
+                auditId: audit.id,
+                language: currentLanguage
+              })
+            }).then(res => {
+              if (res.ok) console.log('✅ AB тест завершен')
+              else console.error('❌ Ошибка AB теста:', res.statusText)
+            })
+          )
+        }
+
+        if (types.hypotheses) {
+          console.log('🔍 Запускаем генерацию гипотез...')
+          additionalAnalyses.push(
+            fetch('/api/hypotheses', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${(await supabase.auth.getSession()).data.session?.access_token}`
+              },
+              body: JSON.stringify({
+                auditId: audit.id,
+                language: currentLanguage
+              })
+            }).then(res => {
+              if (res.ok) console.log('✅ Гипотезы созданы')
+              else console.error('❌ Ошибка создания гипотез:', res.statusText)
+            })
+          )
+        }
+
+        if (types.businessAnalytics) {
+          console.log('🔍 Запускаем бизнес-аналитику...')
+          additionalAnalyses.push(
+            fetch('/api/business-analytics', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${(await supabase.auth.getSession()).data.session?.access_token}`
+              },
+              body: JSON.stringify({
+                auditId: audit.id,
+                language: currentLanguage
+              })
+            }).then(res => {
+              if (res.ok) console.log('✅ Бизнес-аналитика завершена')
+              else console.error('❌ Ошибка бизнес-аналитики:', res.statusText)
+            })
+          )
+        }
+
+        // Запускаем все дополнительные анализы параллельно
+        if (additionalAnalyses.length > 0) {
+          console.log(`🔍 Запускаем ${additionalAnalyses.length} дополнительных анализа...`)
+          await Promise.all(additionalAnalyses)
+          console.log('✅ Все дополнительные анализы завершены')
         }
 
         // Перенаправляем на страницу аудита
