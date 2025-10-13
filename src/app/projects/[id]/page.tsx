@@ -12,6 +12,8 @@ import { ContextForm } from '@/components/context-form'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
+import { ImageUpload } from '@/components/ui/image-upload'
+import { Switch } from '@/components/ui/switch'
 import {
   Dialog,
   DialogContent,
@@ -50,7 +52,14 @@ import {
   Settings,
   Share2,
   Trash2,
-  MoreVertical
+  MoreVertical,
+  FileImage,
+  Link as LinkIcon,
+  Upload,
+  Sparkles,
+  TestTube2,
+  Lightbulb,
+  TrendingUp
 } from 'lucide-react'
 import { BackArrow } from '@/components/icons/back-arrow'
 import { type ActionType } from '@/lib/utils'
@@ -116,6 +125,19 @@ export default function ProjectDetailPage() {
   const [isUpdating, setIsUpdating] = useState(false)
   const [hasAnyChanges, setHasAnyChanges] = useState(false)
   const [showSettingsModal, setShowSettingsModal] = useState(false)
+
+  // New audit form state
+  const [activeTab, setActiveTab] = useState<'screenshot' | 'url' | 'figma'>('screenshot')
+  const [auditUrl, setAuditUrl] = useState('')
+  const [auditScreenshot, setAuditScreenshot] = useState<File | null>(null)
+  const [auditContext, setAuditContext] = useState('')
+  const [targetAudience, setTargetAudience] = useState('')
+  const [selectedAuditTypes, setSelectedAuditTypes] = useState({
+    uxAnalysis: true,
+    abTest: false,
+    hypotheses: false,
+    businessAnalytics: false
+  })
 
   useEffect(() => {
     checkAuthAndLoadProject()
@@ -671,27 +693,240 @@ export default function ProjectDetailPage() {
           <>
             {/* Форма создания аудита */}
             {showCreateForm && (
-              <Card>
-                <CardHeader>
-                  <CardTitle>
-                    {t('projects.detail.createAudit.title') || (currentLanguage === 'en' ? 'Create new audit' : 'Создать новый аудит')}
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <UploadForm
-                    onSubmit={handleCreateAudit}
-                    isLoading={isAnalyzing}
-                  />
-                  <div className="mt-4 flex justify-end">
-                    <Button
-                      variant="outline"
-                      onClick={() => setShowCreateForm(false)}
-                    >
-                      {t('common.cancel') || (currentLanguage === 'en' ? 'Cancel' : 'Отмена')}
-                    </Button>
+              <div className="w-full bg-white rounded-2xl p-8">
+                <form onSubmit={(e) => {
+                  e.preventDefault()
+                  // Handle form submission based on active tab
+                  if (activeTab === 'screenshot' && auditScreenshot) {
+                    const reader = new FileReader()
+                    reader.onload = () => {
+                      handleCreateAudit({ screenshot: reader.result as string, context: auditContext })
+                    }
+                    reader.readAsDataURL(auditScreenshot)
+                  } else if (activeTab === 'url' && auditUrl) {
+                    handleCreateAudit({ url: auditUrl, context: auditContext })
+                  }
+                }}>
+                  <div className="grid grid-cols-2 gap-8">
+                    {/* Left Column - Screenshot/Tabs/Toggles/Credits */}
+                    <div className="space-y-6">
+                      {/* Tabs */}
+                      <div className="flex p-1 bg-slate-100 rounded-xl">
+                        <button
+                          type="button"
+                          className={`flex-1 py-3 px-4 text-center rounded-lg font-medium transition-all duration-200 ${
+                            activeTab === 'screenshot'
+                              ? 'bg-white shadow-sm text-blue-600'
+                              : 'text-slate-600 hover:text-slate-800'
+                          }`}
+                          onClick={() => setActiveTab('screenshot')}
+                        >
+                          <FileImage className="w-5 h-5 inline mr-2" />
+                          Скриншот
+                        </button>
+                        <button
+                          type="button"
+                          className={`flex-1 py-3 px-4 text-center rounded-lg font-medium transition-all duration-200 ${
+                            activeTab === 'url'
+                              ? 'bg-white shadow-sm text-blue-600'
+                              : 'text-slate-600 hover:text-slate-800'
+                          }`}
+                          onClick={() => setActiveTab('url')}
+                        >
+                          <LinkIcon className="w-5 h-5 inline mr-2" />
+                          URL сайта
+                        </button>
+                        <button
+                          type="button"
+                          className="flex-1 py-3 px-4 text-center rounded-lg font-medium text-slate-400 cursor-not-allowed"
+                          disabled
+                        >
+                          <Upload className="w-5 h-5 inline mr-2" />
+                          Figma Frime
+                        </button>
+                      </div>
+
+                      {/* Tab Content */}
+                      {activeTab === 'screenshot' && (
+                        <div className="space-y-3">
+                          <ImageUpload
+                            onImageSelect={(file) => setAuditScreenshot(file)}
+                            maxSize={10 * 1024 * 1024}
+                            acceptedTypes={['image/jpeg', 'image/png', 'image/gif', 'image/webp']}
+                            className="w-full"
+                          />
+                        </div>
+                      )}
+
+                      {activeTab === 'url' && (
+                        <div className="space-y-3">
+                          <label htmlFor="auditUrl" className="block text-sm font-medium text-slate-700">
+                            URL сайта
+                          </label>
+                          <div className="relative">
+                            <input
+                              id="auditUrl"
+                              type="url"
+                              value={auditUrl}
+                              onChange={(e) => setAuditUrl(e.target.value)}
+                              placeholder="https://example.com"
+                              className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+                            />
+                            <LinkIcon className="absolute right-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-slate-400" />
+                          </div>
+                        </div>
+                      )}
+
+                      {activeTab === 'figma' && (
+                        <div className="text-center py-12 text-slate-500">
+                          Эта функция скоро будет доступна
+                        </div>
+                      )}
+
+                      {/* Audit Type Selection */}
+                      <div className="space-y-4">
+                        <h4 className="text-sm font-medium text-slate-700">
+                          Какой тип аудита провести
+                        </h4>
+
+                        <div className="space-y-3">
+                          {/* UX Analysis - Always enabled */}
+                          <div className="flex items-center justify-between p-4 bg-blue-50 border-2 border-blue-200 rounded-xl">
+                            <div className="flex items-center gap-3">
+                              <BarChart3 className="w-5 h-5 text-blue-600" />
+                              <div>
+                                <div className="flex items-center gap-2">
+                                  <span className="font-medium text-slate-900">UX Анализ</span>
+                                  <span className="text-xs text-slate-500">(базовый)</span>
+                                </div>
+                              </div>
+                            </div>
+                            <Switch
+                              checked={true}
+                              disabled
+                              className="data-[state=checked]:bg-blue-600"
+                            />
+                          </div>
+
+                          {/* AB Test */}
+                          <div className="flex items-center justify-between p-4 bg-white border-2 border-gray-200 rounded-xl hover:border-blue-300 transition-colors">
+                            <div className="flex items-center gap-3">
+                              <TestTube2 className="w-5 h-5 text-purple-600" />
+                              <span className="font-medium text-slate-900">АВ тест</span>
+                            </div>
+                            <Switch
+                              checked={selectedAuditTypes.abTest}
+                              onCheckedChange={() => setSelectedAuditTypes(prev => ({ ...prev, abTest: !prev.abTest }))}
+                            />
+                          </div>
+
+                          {/* Hypotheses */}
+                          <div className="flex items-center justify-between p-4 bg-white border-2 border-gray-200 rounded-xl hover:border-blue-300 transition-colors">
+                            <div className="flex items-center gap-3">
+                              <Lightbulb className="w-5 h-5 text-yellow-600" />
+                              <span className="font-medium text-slate-900">Гіпотези</span>
+                            </div>
+                            <Switch
+                              checked={selectedAuditTypes.hypotheses}
+                              onCheckedChange={() => setSelectedAuditTypes(prev => ({ ...prev, hypotheses: !prev.hypotheses }))}
+                            />
+                          </div>
+
+                          {/* Business Analytics */}
+                          <div className="flex items-center justify-between p-4 bg-white border-2 border-gray-200 rounded-xl hover:border-blue-300 transition-colors">
+                            <div className="flex items-center gap-3">
+                              <TrendingUp className="w-5 h-5 text-green-600" />
+                              <span className="font-medium text-slate-900">Продуктовая аналитика</span>
+                            </div>
+                            <Switch
+                              checked={selectedAuditTypes.businessAnalytics}
+                              onCheckedChange={() => setSelectedAuditTypes(prev => ({ ...prev, businessAnalytics: !prev.businessAnalytics }))}
+                            />
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Credit Count */}
+                      <div className="flex items-center justify-between p-4 bg-slate-50 rounded-xl">
+                        <span className="text-sm font-medium text-slate-700">
+                          Стоимость аудита:
+                        </span>
+                        <span className="text-lg font-bold text-blue-600">
+                          {2 + (selectedAuditTypes.abTest ? 1 : 0) + (selectedAuditTypes.hypotheses ? 1 : 0) + (selectedAuditTypes.businessAnalytics ? 1 : 0)} кредита
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Right Column - Forms */}
+                    <div className="space-y-6">
+                      {/* Context Field */}
+                      <div className="space-y-2">
+                        <label htmlFor="auditContext" className="block text-sm font-medium text-slate-700">
+                          Контекст аудита (необязательно)
+                        </label>
+                        <textarea
+                          id="auditContext"
+                          value={auditContext}
+                          onChange={(e) => setAuditContext(e.target.value)}
+                          className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 resize-none"
+                          rows={6}
+                          placeholder="Например: Главный экран приложения для заказа еды..."
+                        />
+                      </div>
+
+                      {/* Target Audience Field */}
+                      <div className="space-y-2">
+                        <label htmlFor="targetAudience" className="block text-sm font-medium text-slate-700">
+                          Целевая аудитория (необязательно)
+                        </label>
+                        <textarea
+                          id="targetAudience"
+                          value={targetAudience}
+                          onChange={(e) => setTargetAudience(e.target.value)}
+                          className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 resize-none"
+                          rows={6}
+                          placeholder="Например: Молодые люди 18-35 лет, активные пользователи смартфонов..."
+                        />
+                      </div>
+
+                      {/* Submit Button */}
+                      <Button
+                        type="submit"
+                        disabled={
+                          isAnalyzing ||
+                          (activeTab === 'screenshot' && !auditScreenshot) ||
+                          (activeTab === 'url' && !auditUrl) ||
+                          activeTab === 'figma'
+                        }
+                        size="lg"
+                        className="w-full text-lg font-bold bg-blue-600 hover:bg-blue-700"
+                      >
+                        {isAnalyzing ? (
+                          <>
+                            <div className="animate-spin rounded-full h-5 w-5 border-2 border-white border-t-transparent mr-3"></div>
+                            Создание аудита...
+                          </>
+                        ) : (
+                          <>
+                            <Sparkles className="w-5 h-5 mr-3" />
+                            Создать аудит
+                          </>
+                        )}
+                      </Button>
+
+                      {/* Cancel Button */}
+                      <Button
+                        type="button"
+                        variant="outline"
+                        onClick={() => setShowCreateForm(false)}
+                        className="w-full"
+                      >
+                        {t('common.cancel') || (currentLanguage === 'en' ? 'Cancel' : 'Отмена')}
+                      </Button>
+                    </div>
                   </div>
-                </CardContent>
-              </Card>
+                </form>
+              </div>
             )}
 
             {/* Таблица аудитов */}
