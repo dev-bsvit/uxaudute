@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { SidebarDemo } from '@/components/sidebar-demo'
@@ -53,13 +53,13 @@ import {
   Share2,
   Trash2,
   MoreVertical,
-  FileImage,
   Link as LinkIcon,
   Upload,
   Sparkles,
   TestTube2,
   Lightbulb,
-  TrendingUp
+  TrendingUp,
+  Info
 } from 'lucide-react'
 import { BackArrow } from '@/components/icons/back-arrow'
 import { type ActionType } from '@/lib/utils'
@@ -132,12 +132,14 @@ export default function ProjectDetailPage() {
   const [auditScreenshot, setAuditScreenshot] = useState<File | null>(null)
   const [auditContext, setAuditContext] = useState('')
   const [targetAudience, setTargetAudience] = useState('')
+  const [isTargetAudienceEnabled, setIsTargetAudienceEnabled] = useState(true)
   const [selectedAuditTypes, setSelectedAuditTypes] = useState({
     uxAnalysis: true,
     abTest: false,
     hypotheses: false,
     businessAnalytics: false
   })
+  const createAuditFormRef = useRef<HTMLFormElement>(null)
 
   useEffect(() => {
     checkAuthAndLoadProject()
@@ -792,6 +794,29 @@ export default function ProjectDetailPage() {
     )
   }
 
+  const additionalCredits =
+    (selectedAuditTypes.abTest ? 1 : 0) +
+    (selectedAuditTypes.hypotheses ? 1 : 0) +
+    (selectedAuditTypes.businessAnalytics ? 1 : 0)
+  const totalCredits = 2 + additionalCredits
+  const submitButtonLabel =
+    currentLanguage === 'en' ? 'Start analysis' : 'Начать анализ'
+  const isSubmitDisabled =
+    isAnalyzing ||
+    (activeTab === 'screenshot' && !auditScreenshot) ||
+    (activeTab === 'url' && !auditUrl) ||
+    activeTab === 'figma'
+  const creditsLabel =
+    currentLanguage === 'en'
+      ? `${totalCredits} ${totalCredits === 1 ? 'credit' : 'credits'}`
+      : `${totalCredits} ${
+          totalCredits % 10 === 1 && totalCredits % 100 !== 11
+            ? 'кредит'
+            : [2, 3, 4].includes(totalCredits % 10) && ![12, 13, 14].includes(totalCredits % 100)
+            ? 'кредита'
+            : 'кредитов'
+        }`
+
   return (
     <SidebarDemo user={user}>
       <div className="space-y-6">
@@ -817,10 +842,20 @@ export default function ProjectDetailPage() {
             icon: <Settings className="w-5 h-5 text-[#222222]" />,
             onClick: () => setShowSettingsModal(true)
           }}
-          primaryButton={{
-            label: t('projects.detail.newAudit') || (currentLanguage === 'en' ? 'New audit' : 'Новый аудит'),
-            onClick: () => setShowCreateForm(true)
-          }}
+          primaryButton={
+            showCreateForm
+              ? {
+                  label: submitButtonLabel,
+                  onClick: () => createAuditFormRef.current?.requestSubmit(),
+                  disabled: isSubmitDisabled
+                }
+              : {
+                  label:
+                    t('projects.detail.newAudit') ||
+                    (currentLanguage === 'en' ? 'New audit' : 'Новый аудит'),
+                  onClick: () => setShowCreateForm(true)
+                }
+          }
         />
 
         <div className="px-8 space-y-6">
@@ -832,81 +867,102 @@ export default function ProjectDetailPage() {
           <>
             {/* Форма создания аудита */}
             {showCreateForm && (
-              <div className="w-full bg-white rounded-2xl p-8">
-                <form onSubmit={(e) => {
-                  e.preventDefault()
-                  console.log('🔍 Отправка формы с выбранными типами:', selectedAuditTypes)
-                  // Combine context and target audience
-                  const combinedContext = [auditContext, targetAudience]
-                    .filter(Boolean)
-                    .join('\n\n---\n\n')
+              <div className="w-full rounded-2xl bg-white p-8">
+                <form
+                  ref={createAuditFormRef}
+                  onSubmit={(e) => {
+                    e.preventDefault()
+                    console.log('🔍 Отправка формы с выбранными типами:', selectedAuditTypes)
 
-                  // Handle form submission based on active tab
-                  if (activeTab === 'screenshot' && auditScreenshot) {
-                    const reader = new FileReader()
-                    reader.onload = () => {
-                      handleCreateAudit({ screenshot: reader.result as string, context: combinedContext })
+                    const contextSections: string[] = []
+                    if (auditContext?.trim()) {
+                      contextSections.push(auditContext.trim())
                     }
-                    reader.readAsDataURL(auditScreenshot)
-                  } else if (activeTab === 'url' && auditUrl) {
-                    handleCreateAudit({ url: auditUrl, context: combinedContext })
-                  }
-                }}>
-                  <div className="grid grid-cols-2 gap-8">
-                    {/* Left Column - Screenshot/Tabs/Toggles/Credits */}
-                    <div className="space-y-6">
-                      {/* Tabs */}
-                      <div className="flex p-1 bg-slate-100 rounded-xl">
-                        <button
-                          type="button"
-                          className={`flex-1 py-3 px-4 text-center rounded-lg font-medium transition-all duration-200 ${
-                            activeTab === 'screenshot'
-                              ? 'bg-white shadow-sm text-blue-600'
-                              : 'text-slate-600 hover:text-slate-800'
-                          }`}
-                          onClick={() => setActiveTab('screenshot')}
-                        >
-                          <FileImage className="w-5 h-5 inline mr-2" />
-                          Скриншот
-                        </button>
-                        <button
-                          type="button"
-                          className={`flex-1 py-3 px-4 text-center rounded-lg font-medium transition-all duration-200 ${
-                            activeTab === 'url'
-                              ? 'bg-white shadow-sm text-blue-600'
-                              : 'text-slate-600 hover:text-slate-800'
-                          }`}
-                          onClick={() => setActiveTab('url')}
-                        >
-                          <LinkIcon className="w-5 h-5 inline mr-2" />
-                          URL сайта
-                        </button>
-                        <button
-                          type="button"
-                          className="flex-1 py-3 px-4 text-center rounded-lg font-medium text-slate-400 cursor-not-allowed"
-                          disabled
-                        >
-                          <Upload className="w-5 h-5 inline mr-2" />
-                          Figma Frime
-                        </button>
-                      </div>
+                    if (isTargetAudienceEnabled && targetAudience?.trim()) {
+                      contextSections.push(targetAudience.trim())
+                    }
+                    const combinedContext = contextSections.join('\n\n---\n\n')
 
-                      {/* Tab Content */}
+                    if (activeTab === 'screenshot' && auditScreenshot) {
+                      const reader = new FileReader()
+                      reader.onload = () => {
+                        handleCreateAudit({
+                          screenshot: reader.result as string,
+                          context: combinedContext
+                        })
+                      }
+                      reader.readAsDataURL(auditScreenshot)
+                    } else if (activeTab === 'url' && auditUrl) {
+                      handleCreateAudit({ url: auditUrl, context: combinedContext })
+                    }
+                  }}
+                  className="space-y-8"
+                >
+                  <div className="grid grid-cols-3 gap-2 rounded-2xl border border-[#E2EAFE] bg-[#EEF2FF] p-1">
+                    <button
+                      type="button"
+                      className={`w-full rounded-xl py-3 text-sm font-medium transition-all duration-200 ${
+                        activeTab === 'screenshot'
+                          ? 'bg-white text-blue-600 shadow-sm'
+                          : 'text-slate-600 hover:text-slate-800'
+                      }`}
+                      onClick={() => setActiveTab('screenshot')}
+                    >
+                      {currentLanguage === 'en' ? 'Screenshot' : 'Скриншот'}
+                    </button>
+                    <button
+                      type="button"
+                      className={`w-full rounded-xl py-3 text-sm font-medium transition-all duration-200 ${
+                        activeTab === 'url'
+                          ? 'bg-white text-blue-600 shadow-sm'
+                          : 'text-slate-600 hover:text-slate-800'
+                      }`}
+                      onClick={() => setActiveTab('url')}
+                    >
+                      {currentLanguage === 'en' ? 'Website URL' : 'URL сайта'}
+                    </button>
+                    <button
+                      type="button"
+                      className="w-full cursor-not-allowed rounded-xl py-3 text-sm font-medium text-slate-400"
+                      disabled
+                    >
+                      Figma Frime
+                    </button>
+                  </div>
+
+                  <div className="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)]">
+                    {/* Left Column */}
+                    <div className="space-y-6">
                       {activeTab === 'screenshot' && (
                         <div className="space-y-3">
+                          <div className="flex items-center gap-2 text-sm font-medium text-slate-900">
+                            {currentLanguage === 'en'
+                              ? 'Upload screenshot'
+                              : 'Загрузите изображение'}{' '}
+                            <span className="text-red-500">*</span>
+                          </div>
                           <ImageUpload
                             onImageSelect={(file) => setAuditScreenshot(file)}
                             maxSize={10 * 1024 * 1024}
                             acceptedTypes={['image/jpeg', 'image/png', 'image/gif', 'image/webp']}
-                            className="w-full"
+                            className="w-full [&>div]:min-h-[240px] [&>div]:rounded-3xl [&>div]:border-[#DDE3FF] [&>div]:bg-white"
                           />
+                          <p className="text-xs text-slate-500">
+                            {currentLanguage === 'en'
+                              ? 'PNG, JPG, GIF, WebP up to 10MB'
+                              : 'PNG, JPG, GIF, WebP до 10 MB'}
+                          </p>
                         </div>
                       )}
 
                       {activeTab === 'url' && (
                         <div className="space-y-3">
-                          <label htmlFor="auditUrl" className="block text-sm font-medium text-slate-700">
-                            URL сайта
+                          <label
+                            htmlFor="auditUrl"
+                            className="block text-sm font-medium text-slate-900"
+                          >
+                            {currentLanguage === 'en' ? 'Website URL' : 'URL сайта'}{' '}
+                            <span className="text-red-500">*</span>
                           </label>
                           <div className="relative">
                             <input
@@ -915,159 +971,218 @@ export default function ProjectDetailPage() {
                               value={auditUrl}
                               onChange={(e) => setAuditUrl(e.target.value)}
                               placeholder="https://example.com"
-                              className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+                              className="w-full rounded-2xl border border-[#E4E6F2] px-4 py-3 text-sm focus:border-[#0058FC] focus:outline-none focus:ring-2 focus:ring-[#C9D8FF]"
                             />
-                            <LinkIcon className="absolute right-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-slate-400" />
+                            <LinkIcon className="absolute right-4 top-1/2 h-5 w-5 -translate-y-1/2 text-slate-400" />
                           </div>
                         </div>
                       )}
 
                       {activeTab === 'figma' && (
-                        <div className="text-center py-12 text-slate-500">
-                          Эта функция скоро будет доступна
+                        <div className="rounded-2xl border border-dashed border-[#E4E6F2] py-12 text-center text-slate-500">
+                          {currentLanguage === 'en'
+                            ? 'This option will be available soon'
+                            : 'Эта функция скоро будет доступна'}
                         </div>
                       )}
 
-                      {/* Audit Type Selection */}
                       <div className="space-y-4">
-                        <h4 className="text-sm font-medium text-slate-700">
-                          Какой тип аудита провести
+                        <h4 className="text-sm font-medium text-slate-900">
+                          {currentLanguage === 'en'
+                            ? 'Which analysis to run'
+                            : 'Какой тип аудита провести'}
                         </h4>
 
                         <div className="space-y-3">
-                          {/* UX Analysis - Always enabled */}
-                          <div className="flex items-center justify-between p-4 bg-blue-50 border-2 border-blue-200 rounded-xl">
-                            <div className="flex items-center gap-3">
-                              <BarChart3 className="w-5 h-5 text-blue-600" />
-                              <div>
-                                <div className="flex items-center gap-2">
-                                  <span className="font-medium text-slate-900">UX Анализ</span>
-                                  <span className="text-xs text-slate-500">(базовый)</span>
-                                </div>
-                              </div>
+                          <div className="flex items-center justify-between rounded-2xl border border-[#E4E6F2] bg-white px-4 py-3">
+                            <div className="flex items-center gap-2 text-slate-900">
+                              <span className="font-medium">
+                                {currentLanguage === 'en' ? 'UX Analysis' : 'UX Анализ'}{' '}
+                                <span className="text-red-500">*</span>
+                              </span>
+                              <Info className="h-4 w-4 text-slate-400" />
                             </div>
-                            <Switch
-                              checked={true}
-                              disabled
-                              className="data-[state=checked]:bg-blue-600"
-                            />
+                            <Switch checked disabled className="data-[state=checked]:bg-[#0058FC]" />
                           </div>
 
-                          {/* AB Test */}
-                          <div className="flex items-center justify-between p-4 bg-white border-2 border-gray-200 rounded-xl hover:border-blue-300 transition-colors">
-                            <div className="flex items-center gap-3">
-                              <TestTube2 className="w-5 h-5 text-purple-600" />
-                              <span className="font-medium text-slate-900">АВ тест</span>
+                          <div className="flex items-center justify-between rounded-2xl border border-[#E4E6F2] bg-white px-4 py-3">
+                            <div className="flex items-center gap-2 text-slate-900">
+                              <span className="font-medium">
+                                {currentLanguage === 'en' ? 'A/B Test' : 'A/B тест'}
+                              </span>
+                              <Info className="h-4 w-4 text-slate-400" />
                             </div>
                             <Switch
                               checked={selectedAuditTypes.abTest}
-                              onCheckedChange={() => setSelectedAuditTypes(prev => ({ ...prev, abTest: !prev.abTest }))}
+                              onCheckedChange={() =>
+                                setSelectedAuditTypes((prev) => ({
+                                  ...prev,
+                                  abTest: !prev.abTest
+                                }))
+                              }
+                              className="data-[state=checked]:bg-[#0058FC]"
                             />
                           </div>
 
-                          {/* Hypotheses */}
-                          <div className="flex items-center justify-between p-4 bg-white border-2 border-gray-200 rounded-xl hover:border-blue-300 transition-colors">
-                            <div className="flex items-center gap-3">
-                              <Lightbulb className="w-5 h-5 text-yellow-600" />
-                              <span className="font-medium text-slate-900">Гіпотези</span>
+                          <div className="flex items-center justify-between rounded-2xl border border-[#E4E6F2] bg-white px-4 py-3">
+                            <div className="flex items-center gap-2 text-slate-900">
+                              <span className="font-medium">
+                                {currentLanguage === 'en' ? 'Hypotheses' : 'Гипотезы'}
+                              </span>
+                              <Info className="h-4 w-4 text-slate-400" />
                             </div>
                             <Switch
                               checked={selectedAuditTypes.hypotheses}
-                              onCheckedChange={() => setSelectedAuditTypes(prev => ({ ...prev, hypotheses: !prev.hypotheses }))}
+                              onCheckedChange={() =>
+                                setSelectedAuditTypes((prev) => ({
+                                  ...prev,
+                                  hypotheses: !prev.hypotheses
+                                }))
+                              }
+                              className="data-[state=checked]:bg-[#0058FC]"
                             />
                           </div>
 
-                          {/* Business Analytics */}
-                          <div className="flex items-center justify-between p-4 bg-white border-2 border-gray-200 rounded-xl hover:border-blue-300 transition-colors">
-                            <div className="flex items-center gap-3">
-                              <TrendingUp className="w-5 h-5 text-green-600" />
-                              <span className="font-medium text-slate-900">Продуктовая аналитика</span>
+                          <div className="flex items-center justify-between rounded-2xl border border-[#E4E6F2] bg-white px-4 py-3">
+                            <div className="flex items-center gap-2 text-slate-900">
+                              <span className="font-medium">
+                                {currentLanguage === 'en'
+                                  ? 'Product analytics'
+                                  : 'Продуктовая аналитика'}
+                              </span>
+                              <Info className="h-4 w-4 text-slate-400" />
                             </div>
                             <Switch
                               checked={selectedAuditTypes.businessAnalytics}
-                              onCheckedChange={() => setSelectedAuditTypes(prev => ({ ...prev, businessAnalytics: !prev.businessAnalytics }))}
+                              onCheckedChange={() =>
+                                setSelectedAuditTypes((prev) => ({
+                                  ...prev,
+                                  businessAnalytics: !prev.businessAnalytics
+                                }))
+                              }
+                              className="data-[state=checked]:bg-[#0058FC]"
                             />
                           </div>
                         </div>
                       </div>
 
-                      {/* Credit Count */}
-                      <div className="flex items-center justify-between p-4 bg-slate-50 rounded-xl">
-                        <span className="text-sm font-medium text-slate-700">
-                          Стоимость аудита:
-                        </span>
-                        <span className="text-lg font-bold text-blue-600">
-                          {2 + (selectedAuditTypes.abTest ? 1 : 0) + (selectedAuditTypes.hypotheses ? 1 : 0) + (selectedAuditTypes.businessAnalytics ? 1 : 0)} кредита
-                        </span>
-                      </div>
+                      <p className="text-base font-semibold text-slate-900">
+                        {creditsLabel}
+                      </p>
                     </div>
 
-                    {/* Right Column - Forms */}
+                    {/* Right Column */}
                     <div className="space-y-6">
-                      {/* Context Field */}
                       <div className="space-y-2">
-                        <label htmlFor="auditContext" className="block text-sm font-medium text-slate-700">
-                          Контекст аудита (необязательно)
+                        <label
+                          htmlFor="auditContext"
+                          className="block text-sm font-medium text-slate-900"
+                        >
+                          {currentLanguage === 'en'
+                            ? 'Context for analysis'
+                            : 'Контекст для анализа'}{' '}
+                          <span className="text-slate-400">
+                            {currentLanguage === 'en' ? '(optional)' : '(необязательно)'}
+                          </span>
                         </label>
                         <textarea
                           id="auditContext"
                           value={auditContext}
                           onChange={(e) => setAuditContext(e.target.value)}
-                          className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 resize-none"
+                          className="w-full resize-none rounded-2xl border border-[#E4E6F2] px-4 py-3 text-sm focus:border-[#0058FC] focus:outline-none focus:ring-2 focus:ring-[#C9D8FF]"
                           rows={6}
-                          placeholder="Например: Главный экран приложения для заказа еды..."
+                          placeholder={
+                            currentLanguage === 'en'
+                              ? 'For example: Main screen of a food delivery app...'
+                              : 'Например: Это мобильное приложение для заказа еды...'
+                          }
                         />
+                        <p className="text-xs text-slate-500">
+                          {currentLanguage === 'en'
+                            ? 'The more context you provide, the more accurate the insights will be.'
+                            : 'Чем больше контекста вы предоставите, тем точнее будет анализ.'}
+                        </p>
                       </div>
 
-                      {/* Target Audience Field */}
                       <div className="space-y-2">
-                        <label htmlFor="targetAudience" className="block text-sm font-medium text-slate-700">
-                          Целевая аудитория (необязательно)
-                        </label>
-                        <textarea
-                          id="targetAudience"
-                          value={targetAudience}
-                          onChange={(e) => setTargetAudience(e.target.value)}
-                          className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 resize-none"
-                          rows={6}
-                          placeholder="Например: Молодые люди 18-35 лет, активные пользователи смартфонов..."
-                        />
-                      </div>
+                        <div className="flex items-center justify-between gap-3">
+                          <label
+                            htmlFor="targetAudience"
+                            className="text-sm font-medium text-slate-900"
+                          >
+                            {currentLanguage === 'en'
+                              ? 'Target audience'
+                              : 'Целевая аудитория'}{' '}
+                            <span className="text-slate-400">
+                              {currentLanguage === 'en' ? '(optional)' : '(необязательно)'}
+                            </span>
+                          </label>
+                          <Switch
+                            checked={isTargetAudienceEnabled}
+                            onCheckedChange={(checked) => {
+                              setIsTargetAudienceEnabled(checked)
+                              if (!checked) {
+                                setTargetAudience('')
+                              }
+                            }}
+                            className="data-[state=checked]:bg-[#0058FC]"
+                          />
+                        </div>
 
-                      {/* Submit Button */}
-                      <Button
-                        type="submit"
-                        disabled={
-                          isAnalyzing ||
-                          (activeTab === 'screenshot' && !auditScreenshot) ||
-                          (activeTab === 'url' && !auditUrl) ||
-                          activeTab === 'figma'
-                        }
-                        size="lg"
-                        className="w-full text-lg font-bold bg-blue-600 hover:bg-blue-700"
-                      >
-                        {isAnalyzing ? (
+                        {isTargetAudienceEnabled && (
                           <>
-                            <div className="animate-spin rounded-full h-5 w-5 border-2 border-white border-t-transparent mr-3"></div>
-                            Создание аудита...
-                          </>
-                        ) : (
-                          <>
-                            <Sparkles className="w-5 h-5 mr-3" />
-                            Создать аудит
+                            <textarea
+                              id="targetAudience"
+                              value={targetAudience}
+                              onChange={(e) => setTargetAudience(e.target.value)}
+                              className="w-full resize-none rounded-2xl border border-[#E4E6F2] px-4 py-3 text-sm focus:border-[#0058FC] focus:outline-none focus:ring-2 focus:ring-[#C9D8FF]"
+                              rows={6}
+                              placeholder={
+                                currentLanguage === 'en'
+                                  ? 'For example: Mobile users aged 18-35 who value speed and convenience...'
+                                  : 'Например: Молодые люди 18-35 лет, активные пользователи смартфонов...'
+                              }
+                            />
+                            <p className="text-xs text-slate-500">
+                              {currentLanguage === 'en'
+                                ? 'This helps AI tailor recommendations to the right audience.'
+                                : 'Эта информация поможет AI дать более точные рекомендации при анализе.'}
+                            </p>
                           </>
                         )}
-                      </Button>
+                      </div>
 
-                      {/* Cancel Button */}
-                      <Button
-                        type="button"
-                        variant="outline"
-                        onClick={() => setShowCreateForm(false)}
-                        className="w-full"
-                      >
-                        {t('common.cancel') || (currentLanguage === 'en' ? 'Cancel' : 'Отмена')}
-                      </Button>
+                      <div className="space-y-3 pt-2">
+                        <Button
+                          type="submit"
+                          disabled={isSubmitDisabled}
+                          size="lg"
+                          className="w-full rounded-2xl bg-[#0058FC] text-base font-semibold hover:bg-[#0047d1]"
+                        >
+                          {isAnalyzing ? (
+                            <>
+                              <div className="mr-3 h-5 w-5 animate-spin rounded-full border-2 border-white border-t-transparent"></div>
+                              {currentLanguage === 'en'
+                                ? 'Starting analysis...'
+                                : 'Запускаем анализ...'}
+                            </>
+                          ) : (
+                            <>
+                              <Sparkles className="mr-3 h-5 w-5" />
+                              {submitButtonLabel}
+                            </>
+                          )}
+                        </Button>
+
+                        <Button
+                          type="button"
+                          variant="outline"
+                          onClick={() => setShowCreateForm(false)}
+                          className="w-full rounded-2xl"
+                        >
+                          {t('common.cancel') || (currentLanguage === 'en' ? 'Cancel' : 'Отмена')}
+                        </Button>
+                      </div>
                     </div>
                   </div>
                 </form>
