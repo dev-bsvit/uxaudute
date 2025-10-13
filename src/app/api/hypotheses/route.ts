@@ -4,7 +4,6 @@ import { supabase } from '@/lib/supabase'
 import { HypothesisResponse } from '@/lib/analysis-types'
 import { LanguageManager } from '@/lib/language-manager'
 import { PromptType } from '@/lib/i18n/types'
-import { ResponseQualityAnalyzer } from '@/lib/quality-metrics'
 
 export async function POST(request: NextRequest) {
   try {
@@ -33,24 +32,38 @@ export async function POST(request: NextRequest) {
 
     // Проверяем, что основной аудит завершен
     if (audit.status !== 'completed' || !audit.result_data) {
-      return NextResponse.json({ 
-        error: 'Main audit must be completed first' 
+      return NextResponse.json({
+        error: 'Main audit must be completed first'
       }, { status: 400 })
     }
 
-    // Определяем языковой контекст
-    const languageContext = await LanguageManager.determineAnalysisLanguage(request)
-    LanguageManager.logLanguageContext(languageContext, 'Hypotheses API')
+    // Определяем язык из данных аудита
+    let auditLanguage = audit.input_data?.language
+    if (!auditLanguage && audit.result_data) {
+      const resultText = JSON.stringify(audit.result_data)
+      const hasCyrillic = /[а-яА-ЯёЁїіє]/.test(resultText)
+      auditLanguage = hasCyrillic ? 'ru' : 'en'
+    }
+    auditLanguage = auditLanguage || 'ru'
+
+    const languageContext = {
+      requestLanguage: auditLanguage,
+      detectedLanguage: auditLanguage,
+      promptLanguage: auditLanguage,
+      responseLanguage: auditLanguage,
+      isConsistent: true,
+      source: 'user-preference' as const
+    }
 
     // Загружаем промт для гипотез с учетом языка
     let hypothesesPrompt = await LanguageManager.loadPromptForLanguage(
-      PromptType.HYPOTHESES, 
+      PromptType.HYPOTHESES,
       languageContext
     )
-    
+
     // Принудительно устанавливаем язык ответа
     hypothesesPrompt = LanguageManager.enforceResponseLanguage(
-      hypothesesPrompt, 
+      hypothesesPrompt,
       languageContext.responseLanguage
     )
 
@@ -63,17 +76,59 @@ export async function POST(request: NextRequest) {
       analysisResult: audit.result_data
     }
 
+    // Мультиязычные метки для данных
+    const dataLabels = {
+      ru: {
+        title: '**Данные для анализа:**',
+        image: 'Изображение',
+        context: 'Контекст аудита',
+        projectContext: 'Контекст проекта',
+        targetAudience: 'Целевая аудитория',
+        analysisResult: 'Результат UX анализа',
+        instruction: 'Сгенерируй гипотезы на основе этих данных.'
+      },
+      en: {
+        title: '**Analysis Data:**',
+        image: 'Image',
+        context: 'Audit Context',
+        projectContext: 'Project Context',
+        targetAudience: 'Target Audience',
+        analysisResult: 'UX Analysis Result',
+        instruction: 'Generate hypotheses based on this data.'
+      },
+      ua: {
+        title: '**Дані для аналізу:**',
+        image: 'Зображення',
+        context: 'Контекст аудиту',
+        projectContext: 'Контекст проєкту',
+        targetAudience: 'Цільова аудиторія',
+        analysisResult: 'Результат UX аналізу',
+        instruction: 'Згенеруй гіпотези на основі цих даних.'
+      }
+    }
+
+    const labels = dataLabels[auditLanguage as keyof typeof dataLabels] || dataLabels.ru
+
     // Формируем промт с данными аудита
     const fullPrompt = `${hypothesesPrompt}
 
-**Данные для анализа:**
-- Изображение: ${auditData.imageUrl}
-- Контекст аудита: ${auditData.context}
-- Контекст проекта: ${auditData.projectContext}
-- Целевая аудитория: ${auditData.targetAudience}
-- Результат UX анализа: ${JSON.stringify(auditData.analysisResult, null, 2)}
+${labels.title}
+- ${labels.image}: ${auditData.imageUrl}
+- ${labels.context}: ${auditData.context}
+- ${labels.projectContext}: ${auditData.projectContext}
+- ${labels.targetAudience}: ${auditData.targetAudience}
+- ${labels.analysisResult}: ${JSON.stringify(auditData.analysisResult, null, 2)}
 
-Сгенерируй гипотезы на основе этих данных.`
+${labels.instruction}`
+
+    // Мультиязычные system messages
+    const systemMessages = {
+      ru: "Ты - Senior UX Researcher. Генерируй гипотезы в JSON формате.",
+      en: "You are a Senior UX Researcher. Generate hypotheses in JSON format.",
+      ua: "Ти - Senior UX Researcher. Генеруй гіпотези в JSON форматі."
+    }
+
+    const systemMessage = systemMessages[auditLanguage as keyof typeof systemMessages] || systemMessages.ru
 
     // Отправляем запрос к OpenAI
     const completion = await openai.chat.completions.create({
@@ -81,7 +136,7 @@ export async function POST(request: NextRequest) {
       messages: [
         {
           role: "system",
-          content: "Ты - Senior UX Researcher. Генерируй гипотезы в JSON формате."
+          content: systemMessage
         },
         {
           role: "user",

@@ -86,16 +86,48 @@ export async function POST(request: NextRequest) {
     }
 
     // Формируем промт с данными аудита
+    const dataLabels = {
+      ru: {
+        title: '**Данные для анализа:**',
+        image: 'Изображение',
+        context: 'Контекст аудита',
+        projectContext: 'Контекст проекта',
+        targetAudience: 'Целевая аудитория',
+        analysisResult: 'Результат UX анализа',
+        instruction: 'Сгенерируй бизнес аналитику на основе этих данных.'
+      },
+      en: {
+        title: '**Analysis Data:**',
+        image: 'Image',
+        context: 'Audit Context',
+        projectContext: 'Project Context',
+        targetAudience: 'Target Audience',
+        analysisResult: 'UX Analysis Result',
+        instruction: 'Generate business analytics based on this data.'
+      },
+      ua: {
+        title: '**Дані для аналізу:**',
+        image: 'Зображення',
+        context: 'Контекст аудиту',
+        projectContext: 'Контекст проєкту',
+        targetAudience: 'Цільова аудиторія',
+        analysisResult: 'Результат UX аналізу',
+        instruction: 'Згенеруй бізнес-аналітику на основі цих даних.'
+      }
+    }
+
+    const labels = dataLabels[auditLanguage as keyof typeof dataLabels] || dataLabels.ru
+
     const fullPrompt = `${businessAnalyticsPrompt}
 
-**Данные для анализа:**
-- Изображение: ${auditData.imageUrl}
-- Контекст аудита: ${auditData.context}
-- Контекст проекта: ${auditData.projectContext}
-- Целевая аудитория: ${auditData.targetAudience}
-- Результат UX анализа: ${JSON.stringify(auditData.analysisResult, null, 2)}
+${labels.title}
+- ${labels.image}: ${auditData.imageUrl}
+- ${labels.context}: ${auditData.context}
+- ${labels.projectContext}: ${auditData.projectContext}
+- ${labels.targetAudience}: ${auditData.targetAudience}
+- ${labels.analysisResult}: ${JSON.stringify(auditData.analysisResult, null, 2)}
 
-Сгенерируй бизнес аналитику на основе этих данных.`
+${labels.instruction}`
 
     // Формируем system message с учетом языка
     const languageInstruction = languageContext.responseLanguage === 'en'
