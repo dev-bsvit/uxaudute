@@ -167,6 +167,7 @@ export default function SettingsPage() {
           icon={<SettingsIcon className="w-5 h-5 text-slate-700" />}
           title={t('settings.title')}
           subtitle={t('settings.subtitle')}
+          onBack={() => window.history.back()}
         />
 
         <div className="px-8 space-y-8">
