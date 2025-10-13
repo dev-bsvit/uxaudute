@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, type FormEvent } from 'react'
+import { useState, useEffect, type FormEvent, type MouseEvent as ReactMouseEvent } from 'react'
 import { useRouter } from 'next/navigation'
 import { SidebarDemo } from '@/components/sidebar-demo'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
@@ -89,6 +89,52 @@ export default function HomePage() {
     } finally {
       setLoading(false)
     }
+  }
+
+  const handleProjectsDragScroll = (event: ReactMouseEvent<HTMLDivElement>) => {
+    if (event.button !== 0) return
+    const container = event.currentTarget
+    event.preventDefault()
+
+    const startX = event.pageX
+    const initialScrollLeft = container.scrollLeft
+    let hasDragged = false
+
+    container.dataset.dragging = 'false'
+    container.classList.remove('cursor-grab')
+    container.classList.add('cursor-grabbing')
+    const previousScrollBehavior = container.style.scrollBehavior
+    container.style.scrollBehavior = 'auto'
+
+    const handleMouseMove = (moveEvent: MouseEvent) => {
+      const walk = moveEvent.pageX - startX
+      if (!hasDragged && Math.abs(walk) > 3) {
+        hasDragged = true
+        container.dataset.dragging = 'true'
+      }
+      container.scrollLeft = initialScrollLeft - walk
+    }
+
+    const handleMouseUp = () => {
+      container.classList.remove('cursor-grabbing')
+      container.classList.add('cursor-grab')
+      container.style.scrollBehavior = previousScrollBehavior
+      container.dataset.dragging = 'false'
+
+      window.removeEventListener('mousemove', handleMouseMove)
+      window.removeEventListener('mouseup', handleMouseUp)
+
+      if (hasDragged) {
+        const preventClick = (clickEvent: MouseEvent) => {
+          clickEvent.stopPropagation()
+          clickEvent.preventDefault()
+        }
+        container.addEventListener('click', preventClick, { capture: true, once: true })
+      }
+    }
+
+    window.addEventListener('mousemove', handleMouseMove)
+    window.addEventListener('mouseup', handleMouseUp)
   }
 
   const loadProjects = async () => {
@@ -328,20 +374,32 @@ export default function HomePage() {
               </CardContent>
             </Card>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {projects.map((project) => (
-                <ProjectCard
-                  key={project.id}
-                  project={project}
-                  formatDate={formatDate}
-                  onOpenSettings={() => handleEditProject(project)}
-                  menuLabels={{
-                    settings: currentLanguage === 'en' ? 'Project settings' : 'Настройки проекта'
-                  }}
-                />
-            ))}
-          </div>
-        )}
+            <div className="relative">
+              <div
+                data-projects-scroll
+                className="flex w-full gap-4 overflow-x-auto pb-4 pr-6 scroll-smooth snap-x snap-mandatory cursor-grab"
+                style={{ scrollbarWidth: 'thin' }}
+                onMouseDown={handleProjectsDragScroll}
+              >
+                {projects.map((project) => (
+                  <div
+                    key={project.id}
+                    className="snap-start flex-none w-[372px] max-w-[90vw]"
+                    data-project-card-wrapper
+                  >
+                    <ProjectCard
+                      project={project}
+                      formatDate={formatDate}
+                      onOpenSettings={() => handleEditProject(project)}
+                      menuLabels={{
+                        settings: currentLanguage === 'en' ? 'Project settings' : 'Настройки проекта'
+                      }}
+                    />
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
       </div>
 
         {/* Модалка настроек проекта */}

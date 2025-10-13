@@ -48,6 +48,10 @@ export function ProjectCard({
     if (target.closest('[data-card-interactive="true"]')) {
       return
     }
+    const scrollContainer = target.closest('[data-projects-scroll]') as HTMLElement | null
+    if (scrollContainer && scrollContainer.dataset.dragging === 'true') {
+      return
+    }
     handleNavigate()
   }
 
@@ -70,7 +74,7 @@ export function ProjectCard({
 
   return (
     <div
-      className="relative h-[170px] w-full cursor-pointer rounded-2xl bg-[#F5F5F5] transition-all duration-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 focus-visible:ring-offset-[#F5F5F5] group lg:w-[372px]"
+      className="relative h-[170px] w-full cursor-pointer rounded-2xl bg-[#F5F5F5] transition-all duration-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 focus-visible:ring-offset-[#F5F5F5] group"
       role="link"
       tabIndex={0}
       onClick={handleCardClick}
