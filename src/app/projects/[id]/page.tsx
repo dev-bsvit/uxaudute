@@ -479,16 +479,26 @@ export default function ProjectDetailPage() {
             if (failed.length > 0) {
               console.error(`⚠️ ${failed.length} анализов завершились с ошибкой:`, failed)
             }
+
+            const successful = results.filter(r => r.status === 'fulfilled')
+            console.log(`✅ Успешно завершено ${successful.length} из ${results.length} дополнительных анализов`)
+
+            // ВАЖНО: Перенаправляем ТОЛЬКО после завершения всех дополнительных анализов
+            console.log('🔍 Все дополнительные анализы завершены, перенаправляем на страницу результата...')
+            window.location.href = `/audit/${audit.id}`
+            return
           } catch (err) {
             console.error('❌ Ошибка при выполнении дополнительных анализов:', err)
+            // Даже при ошибке перенаправляем на страницу аудита
+            window.location.href = `/audit/${audit.id}`
+            return
           }
         } else {
           console.log('⚠️ Нет дополнительных анализов для запуска')
+          // Перенаправляем на страницу аудита
+          window.location.href = `/audit/${audit.id}`
+          return
         }
-
-        // Перенаправляем на страницу аудита
-        window.location.href = `/audit/${audit.id}`
-        return
       } else {
         // Fallback на текстовый формат
         const analysisResult = responseData.data || responseData.rawResponse
