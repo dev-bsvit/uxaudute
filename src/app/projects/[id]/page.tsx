@@ -363,18 +363,19 @@ export default function ProjectDetailPage() {
           // Не прерываем работу, продолжаем с исходным названием
         }
 
-        // Запускаем дополнительные анализы если они выбраны
+        // Запускаем дополнительные анализы ПОСЛЕДОВАТЕЛЬНО (не параллельно!)
+        // Это предотвращает race condition при сохранении в result_data
         const types = auditTypes || selectedAuditTypes
         console.log('🔍 Проверяем выбранные типы анализа:', types)
 
-        const additionalAnalyses: Promise<any>[] = []
         const session = await supabase.auth.getSession()
         const token = session.data.session?.access_token
 
-        if (types.abTest) {
-          console.log('✅ AB тест выбран, добавляем в очередь')
-          additionalAnalyses.push(
-            fetch('/api/ab-test', {
+        try {
+          // 1) AB тест (если выбран)
+          if (types.abTest) {
+            console.log('🚀 Запуск AB теста')
+            const abRes = await fetch('/api/ab-test', {
               method: 'POST',
               headers: {
                 'Content-Type': 'application/json',
@@ -384,29 +385,20 @@ export default function ProjectDetailPage() {
                 auditId: audit.id,
                 language: currentLanguage
               })
-            }).then(async res => {
-              if (res.ok) {
-                const data = await res.json()
-                console.log('✅ AB тест завершен успешно:', data)
-                return data
-              } else {
-                const error = await res.text()
-                console.error('❌ Ошибка AB теста:', res.status, error)
-                throw new Error(`AB test failed: ${error}`)
-              }
-            }).catch(err => {
-              console.error('❌ Критическая ошибка AB теста:', err)
-              throw err
             })
-          )
-        } else {
-          console.log('⚠️ AB тест НЕ выбран')
-        }
+            if (abRes.ok) {
+              const abData = await abRes.json()
+              console.log('✅ AB тест завершен успешно')
+            } else {
+              const error = await abRes.text()
+              console.error('❌ Ошибка AB теста:', abRes.status, error)
+            }
+          }
 
-        if (types.hypotheses) {
-          console.log('✅ Гипотезы выбраны, добавляем в очередь')
-          additionalAnalyses.push(
-            fetch('/api/hypotheses', {
+          // 2) Гипотезы (если выбраны)
+          if (types.hypotheses) {
+            console.log('🚀 Запуск гипотез')
+            const hypRes = await fetch('/api/hypotheses', {
               method: 'POST',
               headers: {
                 'Content-Type': 'application/json',
@@ -416,29 +408,20 @@ export default function ProjectDetailPage() {
                 auditId: audit.id,
                 language: currentLanguage
               })
-            }).then(async res => {
-              if (res.ok) {
-                const data = await res.json()
-                console.log('✅ Гипотезы созданы успешно:', data)
-                return data
-              } else {
-                const error = await res.text()
-                console.error('❌ Ошибка создания гипотез:', res.status, error)
-                throw new Error(`Hypotheses failed: ${error}`)
-              }
-            }).catch(err => {
-              console.error('❌ Критическая ошибка гипотез:', err)
-              throw err
             })
-          )
-        } else {
-          console.log('⚠️ Гипотезы НЕ выбраны')
-        }
+            if (hypRes.ok) {
+              const hypData = await hypRes.json()
+              console.log('✅ Гипотезы созданы успешно')
+            } else {
+              const error = await hypRes.text()
+              console.error('❌ Ошибка создания гипотез:', hypRes.status, error)
+            }
+          }
 
-        if (types.businessAnalytics) {
-          console.log('✅ Бизнес-аналитика выбрана, добавляем в очередь')
-          additionalAnalyses.push(
-            fetch('/api/business-analytics', {
+          // 3) Бизнес-аналитика (если выбрана)
+          if (types.businessAnalytics) {
+            console.log('🚀 Запуск бизнес-аналитики')
+            const bizRes = await fetch('/api/business-analytics', {
               method: 'POST',
               headers: {
                 'Content-Type': 'application/json',
@@ -448,97 +431,26 @@ export default function ProjectDetailPage() {
                 auditId: audit.id,
                 language: currentLanguage
               })
-            }).then(async res => {
-              if (res.ok) {
-                const data = await res.json()
-                console.log('✅ Бизнес-аналитика завершена успешно:', data)
-                return data
-              } else {
-                const error = await res.text()
-                console.error('❌ Ошибка бизнес-аналитики:', res.status, error)
-                throw new Error(`Business analytics failed: ${error}`)
-              }
-            }).catch(err => {
-              console.error('❌ Критическая ошибка бизнес-аналитики:', err)
-              throw err
             })
-          )
-        } else {
-          console.log('⚠️ Бизнес-аналитика НЕ выбрана')
-        }
-
-      // ПОСЛЕДОВАТЕЛЬНЫЙ запуск дополнительных анализов с кредитами
-      // Каждый шаг выполняется только если выбран соответствующий тип
-      try {
-        const session2 = await supabase.auth.getSession()
-        const token2 = session2.data.session?.access_token
-
-        // 1) A/B тест (если выбран)
-        if (types.abTest) {
-          console.log('🚀 Запуск AB теста (with credits)')
-          const abRes = await fetch('/api/ab-test-with-credits', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              'Authorization': `Bearer ${token2}`
-            },
-            body: JSON.stringify({ auditId: audit.id })
-          })
-          if (!abRes.ok) {
-            const errText = await abRes.text()
-            throw new Error(`AB test failed: ${abRes.status} ${errText}`)
+            if (bizRes.ok) {
+              const bizData = await bizRes.json()
+              console.log('✅ Бизнес-аналитика завершена успешно')
+            } else {
+              const error = await bizRes.text()
+              console.error('❌ Ошибка бизнес-аналитики:', bizRes.status, error)
+            }
           }
-          console.log('✅ AB тест завершен')
+
+          console.log('✅ Все дополнительные анализы завершены, перенаправляем на результат')
+          window.location.href = `/audit/${audit.id}`
+          return
+        } catch (err) {
+          console.error('❌ Ошибка при выполнении дополнительных анализов:', err)
+          // Даже при ошибке перенаправляем на результат
+          window.location.href = `/audit/${audit.id}`
+          return
         }
 
-        // 2) Гипотезы (если выбраны)
-        if (types.hypotheses) {
-          console.log('🚀 Запуск гипотез (with credits)')
-          const hypRes = await fetch('/api/hypotheses-with-credits', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              'Authorization': `Bearer ${token2}`
-            },
-            body: JSON.stringify({ auditId: audit.id })
-          })
-          if (!hypRes.ok) {
-            const errText = await hypRes.text()
-            throw new Error(`Hypotheses failed: ${hypRes.status} ${errText}`)
-          }
-          console.log('✅ Гипотезы завершены')
-        }
-
-        // 3) Бизнес-аналитика (если выбрана)
-        if (types.businessAnalytics) {
-          console.log('🚀 Запуск бизнес-аналитики (with credits)')
-          const bizRes = await fetch('/api/business-with-credits', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              'Authorization': `Bearer ${token2}`
-            },
-            body: JSON.stringify({
-              auditId: audit.id,
-              context: responseData?.data || responseData?.rawResponse || combinedContext
-            })
-          })
-          if (!bizRes.ok) {
-            const errText = await bizRes.text()
-            throw new Error(`Business analytics failed: ${bizRes.status} ${errText}`)
-          }
-          console.log('✅ Бизнес-аналитика завершена')
-        }
-
-        // Все шаги завершены — переходим к результату
-        window.location.href = `/audit/${audit.id}`
-        return
-      } catch (seqErr) {
-        console.error('❌ Ошибка последовательного запуска дополнительных анализов:', seqErr)
-        // Даже при ошибке показываем основной результат
-        window.location.href = `/audit/${audit.id}`
-        return
-      }
       } else {
         // Fallback на текстовый формат
         const analysisResult = responseData.data || responseData.rawResponse
