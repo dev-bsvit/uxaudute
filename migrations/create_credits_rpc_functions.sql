@@ -28,12 +28,13 @@ BEGIN
 END;
 $$;
 
--- Функция для списания кредитов
+-- Функция для списания кредитов (обновлено: добавлен параметр related_audit_id)
 CREATE OR REPLACE FUNCTION deduct_credits(
     user_uuid UUID,
     amount INTEGER,
     source TEXT DEFAULT 'audit',
-    description TEXT DEFAULT 'Credit deduction'
+    description TEXT DEFAULT 'Credit deduction',
+    related_audit_id UUID DEFAULT NULL
 )
 RETURNS BOOLEAN
 LANGUAGE plpgsql
@@ -48,53 +49,78 @@ BEGIN
     SELECT COALESCE(balance, 0) INTO current_balance
     FROM user_balances
     WHERE user_id = user_uuid;
-    
+
     -- Если пользователя нет, создаем запись с балансом 0
     IF current_balance IS NULL THEN
         INSERT INTO user_balances (user_id, balance, grace_limit_used)
         VALUES (user_uuid, 0, false)
         ON CONFLICT (user_id) DO NOTHING;
-        
+
         current_balance := 0;
     END IF;
-    
+
     -- Проверяем, достаточно ли кредитов
     IF current_balance < amount THEN
         RETURN FALSE;
     END IF;
-    
+
     -- Вычисляем новый баланс
     new_balance := current_balance - amount;
-    
+
     -- Обновляем баланс
     UPDATE user_balances
     SET balance = new_balance,
         updated_at = NOW()
     WHERE user_id = user_uuid;
-    
+
     -- Создаем транзакцию
     transaction_id := gen_random_uuid();
-    
-    INSERT INTO transactions (
-        id,
-        user_id,
-        type,
-        amount,
-        balance_after,
-        source,
-        description,
-        created_at
-    ) VALUES (
-        transaction_id,
-        user_uuid,
-        'debit',
-        -amount,
-        new_balance,
-        source,
-        description,
-        NOW()
-    );
-    
+
+    -- Создаем запись транзакции с related_audit_id (если указан)
+    IF related_audit_id IS NOT NULL THEN
+        INSERT INTO transactions (
+            id,
+            user_id,
+            type,
+            amount,
+            balance_after,
+            source,
+            description,
+            related_audit_id,
+            created_at
+        ) VALUES (
+            transaction_id,
+            user_uuid,
+            'debit',
+            -amount,
+            new_balance,
+            source,
+            description,
+            related_audit_id,
+            NOW()
+        );
+    ELSE
+        INSERT INTO transactions (
+            id,
+            user_id,
+            type,
+            amount,
+            balance_after,
+            source,
+            description,
+            created_at
+        ) VALUES (
+            transaction_id,
+            user_uuid,
+            'debit',
+            -amount,
+            new_balance,
+            source,
+            description,
+            NOW()
+        );
+    END IF;
+
     RETURN TRUE;
 END;
 $$;
@@ -194,7 +220,7 @@ $$;
 
 -- Предоставляем права на выполнение функций
 GRANT EXECUTE ON FUNCTION get_user_balance(UUID) TO authenticated;
-GRANT EXECUTE ON FUNCTION deduct_credits(UUID, INTEGER, TEXT, TEXT) TO authenticated;
+GRANT EXECUTE ON FUNCTION deduct_credits(UUID, INTEGER, TEXT, TEXT, UUID) TO authenticated;
 GRANT EXECUTE ON FUNCTION add_credits(UUID, INTEGER, TEXT, TEXT) TO authenticated;
 GRANT EXECUTE ON FUNCTION can_deduct_credits(UUID, INTEGER) TO authenticated;
 
