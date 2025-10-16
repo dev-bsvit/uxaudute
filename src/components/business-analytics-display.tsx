@@ -114,36 +114,38 @@ export const BusinessAnalyticsDisplay: React.FC<BusinessAnalyticsDisplayProps> =
         <p className="text-slate-600">{t('analysis.business.subtitle')}</p>
       </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <BarChart3 className="w-5 h-5" />
-            {t('analysis.business.sections.industry.title')}
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-4">
-            <div>
-              <h4 className="font-semibold text-slate-900 mb-2">
-                {t('analysis.business.sections.industry.industry')}
-              </h4>
-              <p className="text-slate-700">{data.industry_analysis.identified_industry}</p>
+      {data.industry_analysis && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <BarChart3 className="w-5 h-5" />
+              {t('analysis.business.sections.industry.title')}
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              <div>
+                <h4 className="font-semibold text-slate-900 mb-2">
+                  {t('analysis.business.sections.industry.industry')}
+                </h4>
+                <p className="text-slate-700">{data.industry_analysis.identified_industry}</p>
+              </div>
+              <div>
+                <h4 className="font-semibold text-slate-900 mb-2">
+                  {t('analysis.business.sections.industry.standards')}
+                </h4>
+                <p className="text-slate-700">{data.industry_analysis.industry_standards}</p>
+              </div>
+              <div>
+                <h4 className="font-semibold text-slate-900 mb-2">
+                  {t('analysis.business.sections.industry.context')}
+                </h4>
+                <p className="text-slate-700">{data.industry_analysis.market_context}</p>
+              </div>
             </div>
-            <div>
-              <h4 className="font-semibold text-slate-900 mb-2">
-                {t('analysis.business.sections.industry.standards')}
-              </h4>
-              <p className="text-slate-700">{data.industry_analysis.industry_standards}</p>
-            </div>
-            <div>
-              <h4 className="font-semibold text-slate-900 mb-2">
-                {t('analysis.business.sections.industry.context')}
-              </h4>
-              <p className="text-slate-700">{data.industry_analysis.market_context}</p>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
+          </CardContent>
+        </Card>
+      )}
 
       {data.business_metrics?.conversion_funnel && (
         <Card>
