@@ -40,39 +40,25 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: checkError.message }, { status: 500 })
     }
 
-    // Если баланса нет или он равен 0, создаем/обновляем начальный
-    if (!existingBalance || existingBalance.balance === 0) {
-      console.log('💰 Создаем/обновляем начальный баланс для пользователя:', userId)
-      
-      let balanceData, balanceError
-      
-      if (existingBalance) {
-        // Обновляем существующий баланс с 0 на 5
-        const result = await supabaseClient
-          .from('user_balances')
-          .update({ balance: 5 })
-          .eq('user_id', userId)
-          .select()
-        balanceData = result.data
-        balanceError = result.error
-      } else {
-        // Создаем новый баланс с 5 кредитами
-        const result = await supabaseClient
-          .from('user_balances')
-          .insert({
-            user_id: userId,
-            balance: 5,
-            grace_limit_used: false
-          })
-          .select()
-        balanceData = result.data
-        balanceError = result.error
-      }
+    // Если баланса НЕТ (новый пользователь), создаем начальный баланс
+    // НЕ поповнюємо якщо баланс просто = 0 (користувач витратив кредити)
+    if (!existingBalance) {
+      console.log('💰 Создаем начальный баланс для НОВОГО пользователя:', userId)
 
-      console.log('📊 Результат создания/обновления баланса:', { balanceData, balanceError })
+      // Создаем новый баланс с 5 кредитами
+      const { data: balanceData, error: balanceError } = await supabaseClient
+        .from('user_balances')
+        .insert({
+          user_id: userId,
+          balance: 5,
+          grace_limit_used: false
+        })
+        .select()
+
+      console.log('📊 Результат создания баланса:', { balanceData, balanceError })
 
       if (balanceError) {
-        console.error('❌ Ошибка создания/обновления начального баланса:', balanceError)
+        console.error('❌ Ошибка создания начального баланса:', balanceError)
         return NextResponse.json({ error: balanceError.message }, { status: 500 })
       }
 
