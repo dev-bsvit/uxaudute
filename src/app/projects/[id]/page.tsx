@@ -248,12 +248,15 @@ export default function ProjectDetailPage() {
       setCurrentAudit(audit)
       setShowCreateForm(false)
 
-      // Вычисляем требуемые кредиты для базового аудита (фиксированно 2)
+      // Вычисляем требуемые кредиты на основе выбранных типов
       const types = auditTypes || selectedAuditTypes
-      const requiredCredits = 2
+      const requiredCredits = 2 +
+        (types.abTest ? 1 : 0) +
+        (types.hypotheses ? 1 : 0) +
+        (types.businessAnalytics ? 1 : 0)
 
       console.log('🔍 Выбранные типы анализа:', types)
-      console.log('🔍 Требуется кредитов (только базовый аудит):', requiredCredits)
+      console.log('🔍 Требуется кредитов:', requiredCredits)
 
       // Используем API с проверкой кредитов
       console.log('🔍 Отправляем запрос на анализ через /api/research-with-credits')
