@@ -78,8 +78,15 @@ export async function POST(request: NextRequest) {
     const jsonPrompt = await loadJSONPrompt(language)
     console.log(`Промпт загружен для языка ${language}, длина:`, jsonPrompt.length)
 
+    console.log('🔍 Context передан:', {
+      hasContext: !!context,
+      contextLength: context?.length || 0,
+      contextPreview: context?.substring(0, 200) || 'нет'
+    })
+
     const finalPrompt = combineWithContext(jsonPrompt, context, language)
     console.log('Финальный промпт готов, длина:', finalPrompt.length)
+    console.log('🔍 Превью финального промпта (первые 500 символов):', finalPrompt.substring(0, 500))
 
     let analysisResult: AIResponse | null = null
 
