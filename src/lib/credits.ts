@@ -226,6 +226,14 @@ export async function deductCreditsForAudit(
     }
 
     // Используем функцию из базы данных для атомарного списания
+    console.log('🔍 Вызываем RPC deduct_credits с параметрами:', {
+      user_uuid: userId,
+      amount: requiredCredits,
+      source: 'audit',
+      description: description,
+      related_audit_id: auditId
+    })
+
     const { data: deducted, error } = await supabaseClient
       .rpc('deduct_credits', {
         user_uuid: userId,
@@ -235,24 +243,29 @@ export async function deductCreditsForAudit(
         related_audit_id: auditId
       })
 
+    console.log('🔍 Результат RPC deduct_credits:', { deducted, error })
+
     if (error) {
-      console.error('Error deducting credits:', error)
+      console.error('❌ Error deducting credits:', error)
       return {
         success: false,
         deducted: false,
         isTestAccount: false,
-        message: 'Failed to deduct credits'
+        message: `Failed to deduct credits: ${error.message || 'Unknown error'}`
       }
     }
 
     if (!deducted) {
+      console.error('❌ RPC deduct_credits вернула false (недостаточно кредитов)')
       return {
         success: false,
         deducted: false,
         isTestAccount: false,
-        message: 'Insufficient credits'
+        message: 'Insufficient credits (RPC returned false)'
       }
     }
+
+    console.log('✅ Кредиты успешно списаны через RPC')
 
     // Получаем обновленный баланс
     const { data: balance } = await supabaseClient
