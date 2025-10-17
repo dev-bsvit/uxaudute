@@ -147,7 +147,13 @@ export const executeAIRequest = async (
 
       console.log(`✅ Получен ответ от ${provider}`)
       console.log(`📊 Usage:`, completion.usage)
-      console.log(`📝 Content preview:`, completion.choices[0]?.message?.content?.substring(0, 200))
+      console.log(`📝 Choices length:`, completion.choices?.length)
+      console.log(`📝 First choice:`, JSON.stringify(completion.choices[0], null, 2))
+
+      const messageContent = completion.choices[0]?.message?.content
+      console.log(`📝 Message content type:`, typeof messageContent)
+      console.log(`📝 Message content length:`, messageContent?.length)
+      console.log(`📝 Content preview:`, messageContent?.substring(0, 200))
 
       // Проверяем на ошибки в ответе
       if (completion.error) {
@@ -161,7 +167,11 @@ export const executeAIRequest = async (
         }
       }
 
-      const content = completion.choices[0]?.message?.content || 'Нет ответа'
+      const content = messageContent || 'Нет ответа'
+
+      if (!messageContent) {
+        console.error(`⚠️ OpenAI вернул пустой content! Полный ответ:`, JSON.stringify(completion, null, 2))
+      }
 
       console.log(`✅ Успешно использован провайдер: ${provider}`)
 
