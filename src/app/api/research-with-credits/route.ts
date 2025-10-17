@@ -4,7 +4,7 @@ import { StructuredAnalysisResponse, isStructuredResponse } from '@/lib/analysis
 import { validateSurvey, analyzeSurveyResults } from '@/lib/survey-utils'
 import { supabase } from '@/lib/supabase'
 import { loadJSONPrompt, combineWithContext } from '@/lib/prompt-loader'
-import { checkCreditsForAudit, deductCreditsForAudit } from '@/lib/credits'
+import { checkCreditsForAudit, safeDeductCreditsForAudit } from '@/lib/credits'
 import { FALLBACK_LANGUAGE } from '@/lib/i18n'
 
 export async function POST(request: NextRequest) {
@@ -189,10 +189,10 @@ export async function POST(request: NextRequest) {
       console.warn('⚠️ auditId не предоставлен, результат не сохранен')
     }
 
-    // Списываем кредиты после успешного выполнения аудита
+    // Списываем кредиты после успешного сохранения аудита в БД
     if (auditId) {
-      console.log('Списываем кредиты за аудит:', auditId, 'количество:', requiredCredits)
-      const deductResult = await deductCreditsForAudit(
+      console.log('🔒 Безопасное списание кредитов за аудит:', auditId, 'количество:', requiredCredits)
+      const deductResult = await safeDeductCreditsForAudit(
         user.id,
         'research',
         auditId,
@@ -201,8 +201,19 @@ export async function POST(request: NextRequest) {
       )
 
       if (!deductResult.success) {
-        console.error('Ошибка списания кредитов:', deductResult)
-        // Не прерываем выполнение, так как аудит уже выполнен
+        console.error('❌ Ошибка списания кредитов:', deductResult)
+        // ВАЖНО: Если списание не удалось, возвращаем ошибку
+        // Аудит сохранён, но кредиты не списаны (флаг credits_deducted = false)
+        return NextResponse.json(
+          {
+            error: 'Credits deduction failed',
+            message: deductResult.message,
+            audit_id: auditId,
+            // Возвращаем данные аудита, чтобы пользователь мог повторить попытку
+            data: parsedResult as any
+          },
+          { status: 402 }
+        )
       } else {
         console.log('✅ Кредиты успешно списаны:', deductResult)
       }

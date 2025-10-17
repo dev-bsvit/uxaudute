@@ -281,6 +281,115 @@ export async function deductCreditsForAudit(
 }
 
 /**
+ * Безопасное списание кредитов с проверкой флага credits_deducted
+ * Предотвращает двойное списание
+ */
+export async function safeDeductCreditsForAudit(
+  userId: string,
+  auditType: 'research' | 'ab_test' | 'business' | 'hypotheses',
+  auditId: string,
+  description: string,
+  customCredits?: number
+): Promise<CreditsDeductResult> {
+  try {
+    console.log('🔒 safeDeductCreditsForAudit: начало', { userId, auditId, auditType })
+
+    // 1. Проверяем существование аудита и флаг credits_deducted
+    const { data: audit, error: auditError } = await supabaseClient
+      .from('audits')
+      .select('id, status, credits_deducted, credits_amount')
+      .eq('id', auditId)
+      .eq('user_id', userId)
+      .single()
+
+    if (auditError || !audit) {
+      console.error('❌ Аудит не найден:', auditError)
+      return {
+        success: false,
+        deducted: false,
+        isTestAccount: false,
+        message: 'Audit not found or access denied'
+      }
+    }
+
+    // 2. Проверяем, не были ли уже списаны кредиты
+    if (audit.credits_deducted) {
+      console.log('⚠️ Кредиты уже были списаны для этого аудита')
+      return {
+        success: true,
+        deducted: false,
+        isTestAccount: false,
+        message: 'Credits already deducted for this audit',
+        newBalance: await getUserBalance(userId)
+      }
+    }
+
+    // 3. Проверяем статус аудита (списываем только за completed)
+    if (audit.status !== 'completed') {
+      console.log('❌ Аудит не завершен, статус:', audit.status)
+      return {
+        success: false,
+        deducted: false,
+        isTestAccount: false,
+        message: `Cannot deduct credits for audit with status: ${audit.status}`
+      }
+    }
+
+    console.log('✅ Аудит прошел валидацию, списываем кредиты...')
+
+    // 4. Списываем кредиты используя существующую функцию
+    const deductResult = await deductCreditsForAudit(
+      userId,
+      auditType,
+      auditId,
+      description,
+      customCredits
+    )
+
+    if (!deductResult.success) {
+      console.error('❌ Не удалось списать кредиты:', deductResult.message)
+      return deductResult
+    }
+
+    console.log('✅ Кредиты списаны, обновляем флаг в audits...')
+
+    // 5. Обновляем флаг credits_deducted в таблице audits
+    const creditsAmount = customCredits || deductResult.newBalance || 2
+    const { error: updateError } = await supabaseClient
+      .from('audits')
+      .update({
+        credits_deducted: true,
+        credits_amount: creditsAmount,
+        credits_deducted_at: new Date().toISOString()
+      })
+      .eq('id', auditId)
+
+    if (updateError) {
+      console.error('⚠️ Не удалось обновить флаг credits_deducted:', updateError)
+      // Кредиты уже списаны, поэтому возвращаем success=true
+      // но предупреждаем об ошибке обновления флага
+    } else {
+      console.log('✅ Флаг credits_deducted обновлен успешно')
+    }
+
+    return {
+      ...deductResult,
+      success: true,
+      deducted: true
+    }
+
+  } catch (error) {
+    console.error('❌ Error in safeDeductCreditsForAudit:', error)
+    return {
+      success: false,
+      deducted: false,
+      isTestAccount: false,
+      message: 'Internal error during credits deduction'
+    }
+  }
+}
+
+/**
  * Получает баланс пользователя
  */
 export async function getUserBalance(userId: string): Promise<number> {
