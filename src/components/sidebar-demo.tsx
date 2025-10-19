@@ -257,7 +257,7 @@ const SidebarContent = ({
       <SidebarBrand />
 
       <div className="mt-6 flex-1 overflow-hidden px-3">
-        <div className="flex h-full flex-col gap-4 overflow-y-auto">
+        <div className="flex h-full flex-col gap-4 overflow-y-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
           <nav className="flex flex-col gap-2">
             {primaryNav.map((item) => (
               <SidebarItem
@@ -469,21 +469,19 @@ const LanguageSidebarItem = ({
         <SidebarItemContent
           icon={Globe}
           label={label}
-          badge={
-            open ? (
-              <span className="rounded-full bg-purple-100 px-2 py-1 text-xs font-medium text-purple-700">
-                {currentLanguage.toUpperCase()}
-              </span>
-            ) : null
-          }
           trailing={
             open ? (
-              <ChevronDown
-                className={cn(
-                  "h-4 w-4 text-gray-500 transition-transform",
-                  isExpanded ? "rotate-180" : "rotate-0"
-                )}
-              />
+              <>
+                <span className="rounded-full bg-purple-100 px-2 py-1 text-xs font-medium text-purple-700">
+                  {currentLanguage.toUpperCase()}
+                </span>
+                <ChevronDown
+                  className={cn(
+                    "h-4 w-4 text-gray-500 transition-transform",
+                    isExpanded ? "rotate-180" : "rotate-0"
+                  )}
+                />
+              </>
             ) : null
           }
           open={open}
