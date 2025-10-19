@@ -455,6 +455,16 @@ const LanguageSidebarItem = ({
     onClose();
   };
 
+  // Карта языков для коротких названий
+  const languageShortNames: Record<string, string> = {
+    'en': 'Eng',
+    'ru': 'Рус',
+    'ua': 'Укр',
+    'uk': 'Укр'
+  };
+
+  const shortName = languageShortNames[currentLanguage.toLowerCase()] || currentLanguage.toUpperCase();
+
   return (
     <div>
       <button
@@ -468,20 +478,15 @@ const LanguageSidebarItem = ({
       >
         <SidebarItemContent
           icon={Globe}
-          label={label}
+          label={shortName}
           trailing={
             open ? (
-              <>
-                <span className="rounded-full bg-purple-100 px-2 py-1 text-xs font-medium text-purple-700">
-                  {currentLanguage.toUpperCase()}
-                </span>
-                <ChevronDown
-                  className={cn(
-                    "h-4 w-4 text-gray-500 transition-transform",
-                    isExpanded ? "rotate-180" : "rotate-0"
-                  )}
-                />
-              </>
+              <ChevronDown
+                className={cn(
+                  "h-4 w-4 text-gray-500 transition-transform",
+                  isExpanded ? "rotate-180" : "rotate-0"
+                )}
+              />
             ) : null
           }
           open={open}
