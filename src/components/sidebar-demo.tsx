@@ -157,9 +157,9 @@ export function SidebarDemo({ children, user }: SidebarDemoProps) {
   );
 
   return (
-    <div className="flex min-h-screen w-full bg-[#F8F8F8] md:flex-row">
+    <div className="flex min-h-screen w-full bg-gray-50 md:flex-row">
       <Sidebar open={open} setOpen={setOpen}>
-        <SidebarBody className="border-r border-[#E4E4E7] bg-[#F8F8F8]">
+        <SidebarBody className="border-r border-gray-200 bg-white">
           <SidebarContent
             primaryNav={primaryNav}
             secondaryNav={secondaryNav}
@@ -199,7 +199,7 @@ const SidebarBrand = () => {
   return (
     <div
       className={cn(
-        "flex items-center px-1",
+        "flex items-center px-3 py-4",
         open ? "justify-start" : "justify-center"
       )}
     >
@@ -253,11 +253,11 @@ const SidebarContent = ({
   logoutLabel,
 }: SidebarContentProps) => {
   return (
-    <div className="flex h-full flex-col pb-[46px]">
+    <div className="flex h-full flex-col">
       <SidebarBrand />
 
-      <div className="mt-8 flex-1 overflow-hidden">
-        <div className="flex h-full flex-col gap-6 overflow-y-auto pr-1">
+      <div className="mt-6 flex-1 overflow-hidden px-3">
+        <div className="flex h-full flex-col gap-4 overflow-y-auto">
           <nav className="flex flex-col gap-2">
             {primaryNav.map((item) => (
               <SidebarItem
@@ -278,9 +278,9 @@ const SidebarContent = ({
             ))}
           </nav>
 
-          <div className="h-px bg-[#E4E4E7]" />
+          <div className="h-px bg-gray-200" />
 
-          <nav className="flex flex-col gap-2 pb-4">
+          <nav className="flex flex-col gap-2">
             {secondaryNav.map((item) => (
               <SidebarItem
                 key={item.key}
@@ -315,7 +315,7 @@ const SidebarContent = ({
         </div>
       </div>
 
-      <div className="mt-auto pt-6">
+      <div className="mt-auto border-t border-gray-200 p-3">
         <UserSummary user={user} fallbackLabel={userFallbackLabel} />
       </div>
     </div>
@@ -352,20 +352,20 @@ const SidebarItemContent = ({
   return (
     <div
       className={cn(
-        "relative flex h-14 items-center rounded-2xl text-sm transition-all",
-        open ? "w-full px-3" : "w-14 justify-center px-0",
+        "relative flex h-12 items-center rounded-xl text-sm transition-all",
+        open ? "w-full px-3" : "w-12 justify-center px-0",
         active
-          ? "bg-white text-[#121217] shadow-[0_8px_20px_-12px_rgba(18,18,23,0.35)]"
-          : "text-[#6F6F7A] hover:bg-white hover:text-[#121217]"
+          ? "bg-blue-50 text-blue-700"
+          : "text-gray-700 hover:bg-gray-100 hover:text-gray-900"
       )}
     >
       <div
         className={cn(
-          "flex h-10 w-10 items-center justify-center rounded-xl transition-colors",
-          active ? "text-[#121217]" : "text-[#6F6F7A]"
+          "flex h-9 w-9 items-center justify-center rounded-lg transition-colors",
+          active ? "text-blue-700" : "text-gray-600"
         )}
       >
-        <Icon className="h-5 w-5" strokeWidth={1.8} />
+        <Icon className="h-5 w-5" strokeWidth={2} />
       </div>
 
       {open && (
@@ -545,7 +545,7 @@ const QuickAddButton = ({ onClick, ariaLabel }: QuickAddButtonProps) => {
 
 const SidebarBadge = ({ children }: { children: ReactNode }) => {
   return (
-    <span className="flex min-w-[32px] items-center justify-center rounded-full bg-[#E7F7EE] px-2 py-1 text-xs font-semibold text-[#1F7A4D]">
+    <span className="flex min-w-[32px] items-center justify-center rounded-full bg-green-100 px-2 py-1 text-xs font-bold text-green-700">
       {children}
     </span>
   );
@@ -571,19 +571,19 @@ const UserSummary = ({
   return (
     <div
       className={cn(
-        "flex items-center gap-3 rounded-2xl bg-white shadow-sm transition-all",
-        open ? "px-3 py-3" : "h-14 w-14 justify-center p-0"
+        "flex items-center gap-3 rounded-xl transition-all",
+        open ? "px-2 py-2" : "h-12 w-12 justify-center p-0"
       )}
     >
-      <div className="flex h-10 w-10 min-h-[40px] min-w-[40px] shrink-0 items-center justify-center rounded-full bg-gradient-to-r from-[#2563EB] to-[#7C3AED] text-white">
+      <div className="flex h-9 w-9 min-h-[36px] min-w-[36px] shrink-0 items-center justify-center rounded-full bg-gradient-to-r from-blue-500 to-purple-600 text-sm font-semibold text-white">
         {displayName.slice(0, 2).toUpperCase()}
       </div>
       {open && (
-        <div className="min-w-0">
-          <p className="truncate text-sm font-semibold text-[#121217]">
+        <div className="min-w-0 flex-1">
+          <p className="truncate text-sm font-semibold text-gray-900">
             {displayName}
           </p>
-          <p className="truncate text-xs text-[#6F6F7A]">{user.email}</p>
+          <p className="truncate text-xs text-gray-500">{user.email}</p>
         </div>
       )}
     </div>
@@ -605,9 +605,9 @@ export const LogoIcon = () => {
   return (
     <Link
       href="/"
-      className="relative z-20 flex h-14 w-14 items-center justify-center rounded-2xl text-sm font-normal text-black"
+      className="relative z-20 flex h-12 w-12 items-center justify-center rounded-xl text-sm font-normal text-black"
     >
-      <img src="/Logo-mini-b.svg" alt="UX Audit" className="h-9 w-auto shrink-0" />
+      <img src="/Logo-mini-b.svg" alt="UX Audit" className="h-8 w-auto shrink-0" />
     </Link>
   );
 };
