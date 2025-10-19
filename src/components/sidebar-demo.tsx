@@ -370,11 +370,15 @@ const SidebarItemContent = ({
 
       {open && (
         <div className="ml-3 flex min-w-0 flex-1 items-center gap-3">
-          <span className="flex-1 truncate font-medium leading-none">
+          <span className="truncate font-medium leading-none">
             {label}
           </span>
-          {trailing ? <div>{trailing}</div> : null}
-          {badge ? <div>{badge}</div> : null}
+          {trailing || badge ? (
+            <div className="ml-auto flex items-center gap-2">
+              {badge}
+              {trailing}
+            </div>
+          ) : null}
         </div>
       )}
     </div>
