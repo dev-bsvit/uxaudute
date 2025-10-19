@@ -26,7 +26,6 @@ import {
   Plus,
   Settings2,
   Star,
-  Coins,
 } from "lucide-react";
 import { User } from "@supabase/supabase-js";
 import { signOut } from "@/lib/database";
@@ -115,6 +114,12 @@ export function SidebarDemo({ children, user }: SidebarDemoProps) {
   const secondaryNav = useMemo(
     () => [
       {
+        key: "credits",
+        label: tWithFallback("components.sidebar.credits", "Credits"),
+        href: "/credits",
+        icon: Star,
+      },
+      {
         key: "settings",
         label: tWithFallback("components.sidebar.settings", "Settings"),
         href: "/settings",
@@ -152,9 +157,9 @@ export function SidebarDemo({ children, user }: SidebarDemoProps) {
   );
 
   return (
-    <div className="flex min-h-screen w-full bg-gray-50 md:flex-row">
+    <div className="flex min-h-screen w-full bg-[#F8F8F8] md:flex-row">
       <Sidebar open={open} setOpen={setOpen}>
-        <SidebarBody className="border-r border-gray-200 bg-white">
+        <SidebarBody className="border-r border-[#E4E4E7] bg-[#F8F8F8]">
           <SidebarContent
             primaryNav={primaryNav}
             secondaryNav={secondaryNav}
@@ -180,7 +185,7 @@ export function SidebarDemo({ children, user }: SidebarDemoProps) {
       </Sidebar>
 
       <div className="flex flex-1">
-        <div className="flex h-full w-full flex-1 flex-col overflow-y-auto bg-gray-50">
+        <div className="flex h-full w-full flex-1 flex-col overflow-y-auto bg-white">
           <div className="h-full p-8">{children}</div>
         </div>
       </div>
@@ -194,7 +199,7 @@ const SidebarBrand = () => {
   return (
     <div
       className={cn(
-        "flex items-center px-4 py-4",
+        "flex items-center px-1",
         open ? "justify-start" : "justify-center"
       )}
     >
@@ -248,13 +253,12 @@ const SidebarContent = ({
   logoutLabel,
 }: SidebarContentProps) => {
   return (
-    <div className="flex h-full flex-col">
+    <div className="flex h-full flex-col pb-[46px]">
       <SidebarBrand />
 
-      <div className="flex-1 overflow-hidden px-3">
-        <div className="flex h-full flex-col gap-1 overflow-y-auto">
-          {/* Primary Navigation */}
-          <nav className="flex flex-col gap-1">
+      <div className="mt-8 flex-1 overflow-hidden">
+        <div className="flex h-full flex-col gap-6 overflow-y-auto pr-1">
+          <nav className="flex flex-col gap-2">
             {primaryNav.map((item) => (
               <SidebarItem
                 key={item.key}
@@ -274,14 +278,9 @@ const SidebarContent = ({
             ))}
           </nav>
 
-          {/* Credits Card */}
-          <CreditsCard balance={creditsBalance} />
+          <div className="h-px bg-[#E4E4E7]" />
 
-          {/* Divider */}
-          <div className="my-4 h-px bg-gray-200" />
-
-          {/* Secondary Navigation */}
-          <nav className="flex flex-col gap-1">
+          <nav className="flex flex-col gap-2 pb-4">
             {secondaryNav.map((item) => (
               <SidebarItem
                 key={item.key}
@@ -289,6 +288,15 @@ const SidebarContent = ({
                 icon={item.icon}
                 label={item.label}
                 active={isActive(item.href)}
+                badge={
+                  item.key === "credits"
+                    ? (
+                        <SidebarBadge>
+                          {creditsBalance !== null ? creditsBalance : "..."}
+                        </SidebarBadge>
+                      )
+                    : undefined
+                }
               />
             ))}
 
@@ -307,71 +315,10 @@ const SidebarContent = ({
         </div>
       </div>
 
-      {/* User Profile at Bottom */}
-      <div className="border-t border-gray-200 p-3">
+      <div className="mt-auto pt-6">
         <UserSummary user={user} fallbackLabel={userFallbackLabel} />
       </div>
     </div>
-  );
-};
-
-// NEW: Credits Card Component
-const CreditsCard = ({ balance }: { balance: number | null }) => {
-  const { open } = useSidebar();
-
-  if (!open) {
-    return (
-      <Link href="/credits" className="mt-4 flex justify-center">
-        <div className="relative flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-amber-400 to-orange-500 shadow-sm transition-all hover:shadow-md">
-          <Coins className="h-5 w-5 text-white" strokeWidth={2} />
-          {balance !== null && (
-            <span className="absolute -right-1 -top-1 flex h-5 w-5 items-center justify-center rounded-full bg-green-500 text-[10px] font-bold text-white">
-              {balance > 99 ? "99+" : balance}
-            </span>
-          )}
-        </div>
-      </Link>
-    );
-  }
-
-  return (
-    <Link href="/credits" className="mt-4 block">
-      <div className="group rounded-xl bg-gradient-to-br from-amber-50 to-orange-50 p-4 transition-all hover:from-amber-100 hover:to-orange-100 hover:shadow-sm">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-to-br from-amber-400 to-orange-500">
-              <Coins className="h-5 w-5 text-white" strokeWidth={2} />
-            </div>
-            <div>
-              <p className="text-xs font-medium text-gray-600">Credits</p>
-              <p className="text-2xl font-bold text-gray-900">
-                {balance !== null ? balance : "..."}
-              </p>
-            </div>
-          </div>
-          <svg
-            className="h-4 w-4 text-gray-400 opacity-0 transition-opacity group-hover:opacity-100"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M9 5l7 7-7 7"
-            />
-          </svg>
-        </div>
-        <p className="mt-2 text-xs text-gray-500">
-          {balance !== null && balance >= 10
-            ? "✓ Ready for audits"
-            : balance !== null && balance < 10
-            ? "⚠ Low balance"
-            : ""}
-        </p>
-      </div>
-    </Link>
   );
 };
 
@@ -405,26 +352,35 @@ const SidebarItemContent = ({
   return (
     <div
       className={cn(
-        "relative flex items-center rounded-lg text-sm font-medium transition-all",
-        open ? "h-11 w-full gap-3 px-3" : "h-11 w-11 justify-center",
+        "relative flex h-14 items-center rounded-2xl text-sm transition-all",
+        open ? "w-full px-3" : "w-14 justify-center px-0",
         active
-          ? "bg-blue-50 text-blue-700"
-          : "text-gray-700 hover:bg-gray-100 hover:text-gray-900"
+          ? "bg-white text-[#121217] shadow-[0_8px_20px_-12px_rgba(18,18,23,0.35)]"
+          : "text-[#6F6F7A] hover:bg-white hover:text-[#121217]"
       )}
     >
-      <Icon className="h-5 w-5 flex-shrink-0" strokeWidth={2} />
+      <div
+        className={cn(
+          "flex h-10 w-10 items-center justify-center rounded-xl transition-colors",
+          active ? "text-[#121217]" : "text-[#6F6F7A]"
+        )}
+      >
+        <Icon className="h-5 w-5" strokeWidth={1.8} />
+      </div>
 
       {open && (
-        <>
-          <span className="flex-1 truncate">{label}</span>
-          {trailing && <div className="flex-shrink-0">{trailing}</div>}
-          {badge && <div className="flex-shrink-0">{badge}</div>}
-        </>
+        <div className="ml-3 flex min-w-0 flex-1 items-center gap-3">
+          <span className="flex-1 truncate font-medium leading-none">
+            {label}
+          </span>
+          {trailing ? <div>{trailing}</div> : null}
+          {badge ? <div>{badge}</div> : null}
+        </div>
       )}
 
-      {!open && badge && (
+      {!open && badge ? (
         <div className="absolute -right-1 -top-1">{badge}</div>
-      )}
+      ) : null}
     </div>
   );
 };
@@ -454,7 +410,7 @@ const SidebarItem = ({
     return (
       <Link
         href={href}
-        className="block w-full"
+        className={cn(open ? "block w-full" : "flex w-full justify-center")}
         onClick={(event) => onClick?.(event)}
       >
         {content}
@@ -466,7 +422,7 @@ const SidebarItem = ({
     <button
       type="button"
       onClick={(event) => onClick?.(event)}
-      className="w-full"
+      className={cn(open ? "w-full" : "flex w-full justify-center")}
     >
       {content}
     </button>
@@ -518,7 +474,7 @@ const LanguageSidebarItem = ({
           icon={Globe}
           label={label}
           badge={
-            <span className="rounded-md bg-purple-100 px-2 py-0.5 text-xs font-semibold text-purple-700">
+            <span className="rounded-full bg-[#F4E8FF] px-2 py-1 text-xs font-medium text-[#7B3FE4]">
               {currentLanguage.toUpperCase()}
             </span>
           }
@@ -526,7 +482,7 @@ const LanguageSidebarItem = ({
             open ? (
               <ChevronDown
                 className={cn(
-                  "h-4 w-4 text-gray-500 transition-transform",
+                  "h-4 w-4 text-[#6F6F7A] transition-transform",
                   isExpanded ? "rotate-180" : "rotate-0"
                 )}
               />
@@ -536,8 +492,8 @@ const LanguageSidebarItem = ({
         />
       </button>
 
-      {open && isExpanded && (
-        <div className="mt-1 space-y-1 pl-11">
+      {open && isExpanded ? (
+        <div className="mt-2 space-y-1 pl-12 pr-2">
           {availableLanguages.map((language) => (
             <button
               key={language.code}
@@ -546,18 +502,20 @@ const LanguageSidebarItem = ({
               className={cn(
                 "w-full rounded-lg px-3 py-2 text-left text-sm transition-colors",
                 language.code === currentLanguage
-                  ? "bg-purple-50 font-medium text-purple-700"
-                  : "text-gray-600 hover:bg-gray-100 hover:text-gray-900"
+                  ? "bg-[#EEF2FF] text-[#1D1D26]"
+                  : "text-[#6F6F7A] hover:bg-white hover:text-[#121217]"
               )}
             >
-              <span className="block">{language.nativeName}</span>
-              <span className="text-xs uppercase text-gray-400">
+              <span className="block font-medium leading-none">
+                {language.nativeName}
+              </span>
+              <span className="text-xs uppercase text-[#A0A0AA]">
                 {language.code}
               </span>
             </button>
           ))}
         </div>
-      )}
+      ) : null}
     </div>
   );
 };
@@ -575,13 +533,21 @@ const QuickAddButton = ({ onClick, ariaLabel }: QuickAddButtonProps) => {
       type="button"
       onClick={onClick}
       className={cn(
-        "flex h-7 w-7 items-center justify-center rounded-md bg-blue-100 text-blue-700 transition-colors hover:bg-blue-200",
+        "flex h-8 w-8 items-center justify-center rounded-full border border-transparent bg-[#EEF2FF] text-[#4F46E5] transition-colors hover:bg-[#E0E7FF]",
         !open && "hidden"
       )}
       aria-label={ariaLabel}
     >
-      <Plus className="h-4 w-4" strokeWidth={2.5} />
+      <Plus className="h-4 w-4" strokeWidth={2} />
     </button>
+  );
+};
+
+const SidebarBadge = ({ children }: { children: ReactNode }) => {
+  return (
+    <span className="flex min-w-[32px] items-center justify-center rounded-full bg-[#E7F7EE] px-2 py-1 text-xs font-semibold text-[#1F7A4D]">
+      {children}
+    </span>
   );
 };
 
@@ -605,19 +571,19 @@ const UserSummary = ({
   return (
     <div
       className={cn(
-        "flex items-center gap-3 rounded-lg transition-all",
-        open ? "px-2 py-2" : "h-11 w-11 justify-center"
+        "flex items-center gap-3 rounded-2xl bg-white shadow-sm transition-all",
+        open ? "px-3 py-3" : "h-14 w-14 justify-center p-0"
       )}
     >
-      <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full bg-gradient-to-r from-blue-500 to-purple-600 text-sm font-semibold text-white">
+      <div className="flex h-10 w-10 min-h-[40px] min-w-[40px] shrink-0 items-center justify-center rounded-full bg-gradient-to-r from-[#2563EB] to-[#7C3AED] text-white">
         {displayName.slice(0, 2).toUpperCase()}
       </div>
       {open && (
-        <div className="min-w-0 flex-1">
-          <p className="truncate text-sm font-semibold text-gray-900">
+        <div className="min-w-0">
+          <p className="truncate text-sm font-semibold text-[#121217]">
             {displayName}
           </p>
-          <p className="truncate text-xs text-gray-500">{user.email}</p>
+          <p className="truncate text-xs text-[#6F6F7A]">{user.email}</p>
         </div>
       )}
     </div>
@@ -628,9 +594,9 @@ export const Logo = () => {
   return (
     <Link
       href="/"
-      className="flex items-center space-x-2 text-sm font-semibold"
+      className="relative z-20 flex items-center space-x-2 py-1 text-sm font-normal"
     >
-      <img src="/Logo-b.svg" alt="UX Audit" className="h-6 w-auto" />
+      <img src="/Logo-b.svg" alt="UX Audit" className="h-6 w-auto shrink-0" />
     </Link>
   );
 };
@@ -639,9 +605,9 @@ export const LogoIcon = () => {
   return (
     <Link
       href="/"
-      className="flex h-10 w-10 items-center justify-center rounded-lg"
+      className="relative z-20 flex h-14 w-14 items-center justify-center rounded-2xl text-sm font-normal text-black"
     >
-      <img src="/Logo-mini-b.svg" alt="UX Audit" className="h-8 w-auto" />
+      <img src="/Logo-mini-b.svg" alt="UX Audit" className="h-9 w-auto shrink-0" />
     </Link>
   );
 };
