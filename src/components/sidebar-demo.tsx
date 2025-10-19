@@ -352,8 +352,8 @@ const SidebarItemContent = ({
   return (
     <div
       className={cn(
-        "relative flex h-12 items-center rounded-xl text-sm transition-all",
-        open ? "w-full px-3" : "w-12 justify-center px-0",
+        "relative flex items-center rounded-xl text-sm transition-all",
+        open ? "h-12 w-full px-3" : "h-12 w-12 justify-center px-0",
         active
           ? "bg-blue-50 text-blue-700"
           : "text-gray-700 hover:bg-gray-100 hover:text-gray-900"
@@ -361,7 +361,7 @@ const SidebarItemContent = ({
     >
       <div
         className={cn(
-          "flex h-9 w-9 items-center justify-center rounded-lg transition-colors",
+          "flex h-9 w-9 items-center justify-center rounded-lg transition-colors flex-shrink-0",
           active ? "text-blue-700" : "text-gray-600"
         )}
       >
@@ -377,10 +377,6 @@ const SidebarItemContent = ({
           {badge ? <div>{badge}</div> : null}
         </div>
       )}
-
-      {!open && badge ? (
-        <div className="absolute -right-1 -top-1">{badge}</div>
-      ) : null}
     </div>
   );
 };
@@ -474,15 +470,17 @@ const LanguageSidebarItem = ({
           icon={Globe}
           label={label}
           badge={
-            <span className="rounded-full bg-[#F4E8FF] px-2 py-1 text-xs font-medium text-[#7B3FE4]">
-              {currentLanguage.toUpperCase()}
-            </span>
+            open ? (
+              <span className="rounded-full bg-purple-100 px-2 py-1 text-xs font-medium text-purple-700">
+                {currentLanguage.toUpperCase()}
+              </span>
+            ) : null
           }
           trailing={
             open ? (
               <ChevronDown
                 className={cn(
-                  "h-4 w-4 text-[#6F6F7A] transition-transform",
+                  "h-4 w-4 text-gray-500 transition-transform",
                   isExpanded ? "rotate-180" : "rotate-0"
                 )}
               />
