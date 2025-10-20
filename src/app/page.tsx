@@ -10,11 +10,12 @@ import { ArrowRight, Zap, Shield, BarChart3, Users } from 'lucide-react'
 import { createClient } from '@supabase/supabase-js'
 import { ensureUserHasInitialBalance } from '@/lib/database'
 import { useTranslation } from '@/hooks/use-translation'
+import ScrollStack, { ScrollStackItem } from '@/components/scroll-stack/ScrollStack'
 
 export default function HomePage() {
   // Версия 1.1.2 - исправлено отображение проблем и решений
   const [mounted, setMounted] = useState(false)
-  const { t } = useTranslation()
+  const { t, currentLanguage } = useTranslation()
   
   useEffect(() => {
     setMounted(true)
@@ -91,6 +92,39 @@ export default function HomePage() {
     }
   ]
 
+  const scrollStackSteps = [
+    {
+      heading:
+        currentLanguage === 'en'
+          ? 'Drop the latest interface'
+          : 'Загрузите актуальный интерфейс',
+      description:
+        currentLanguage === 'en'
+          ? 'Simply drag & drop a screenshot or paste a link. QuickUX prepares assets and highlights the main interaction zones automatically.'
+          : 'Просто перетащите скриншот или вставьте ссылку. QuickUX подготовит материалы и выделит ключевые зоны взаимодействия автоматически.',
+    },
+    {
+      heading:
+        currentLanguage === 'en'
+          ? 'Add the business context'
+          : 'Добавьте бизнес-контекст',
+      description:
+        currentLanguage === 'en'
+          ? 'Specify goals, target metrics or audience insights so AI analysis focuses on what really matters for your product.'
+          : 'Опишите цели, целевые метрики или нюансы аудитории, чтобы AI сфокусировался на том, что важно именно для вашего продукта.',
+    },
+    {
+      heading:
+        currentLanguage === 'en'
+          ? 'Run AI analysis and share'
+          : 'Запустите анализ и поделитесь',
+      description:
+        currentLanguage === 'en'
+          ? 'QuickUX benchmarks your UI against thousands of patterns, surfaces UX debt, drafts experiments and lets you share a live report with the team.'
+          : 'QuickUX сравнивает ваш интерфейс с тысячами паттернов, находит UX-долги, формирует гипотезы и позволяет делиться живым отчетом с командой.',
+    },
+  ]
+
   return (
     <Layout transparentHeader={true}>
       {/* Hero секция с градиентом на всю ширину */}
@@ -147,6 +181,48 @@ export default function HomePage() {
               </div>
             </div>
           </div>
+        </div>
+      </div>
+
+      {/* Section 3 */}
+      <div className="py-20">
+        <div className="max-w-6xl mx-auto px-6">
+          <div className="mb-12 space-y-4 text-center">
+            <span className="inline-flex items-center justify-center rounded-full bg-blue-50 px-4 py-1 text-sm font-semibold text-blue-600">
+              {currentLanguage === 'en' ? 'Section 3' : 'Секция 3'}
+            </span>
+            <h2 className="text-3xl font-bold text-slate-900 sm:text-4xl">
+              {currentLanguage === 'en'
+                ? 'From screenshot to action plan — in one flow'
+                : 'От скриншота до плана действий — за один поток'}
+            </h2>
+            <p className="mx-auto max-w-3xl text-base text-slate-600 sm:text-lg">
+              {currentLanguage === 'en'
+                ? 'QuickUX reduces manual discovery work: follow the flow once and rerun it every time you ship updates.'
+                : 'QuickUX сокращает ручной ресёрч: один раз пройдите по шагам и запускайте анализ заново при каждом обновлении интерфейса.'}
+            </p>
+          </div>
+
+          <ScrollStack className="max-h-[70vh] overflow-y-visible">
+            {scrollStackSteps.map((step, idx) => (
+              <ScrollStackItem key={step.heading}>
+                <div className="flex items-start justify-between pb-6 text-blue-600">
+                  <span className="text-sm font-semibold uppercase tracking-wide">
+                    {(currentLanguage === 'en' ? 'Step ' : 'Шаг ') + (idx + 1)}
+                  </span>
+                  <span className="flex h-10 w-10 items-center justify-center rounded-full bg-blue-50 text-base font-semibold">
+                    {(idx + 1).toString().padStart(2, '0')}
+                  </span>
+                </div>
+                <h3 className="mb-4 text-3xl font-semibold text-slate-900">
+                  {step.heading}
+                </h3>
+                <p className="text-base leading-relaxed text-slate-600">
+                  {step.description}
+                </p>
+              </ScrollStackItem>
+            ))}
+          </ScrollStack>
         </div>
       </div>
     </Layout>
