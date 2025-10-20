@@ -345,8 +345,8 @@ export default function HomePage() {
         <div className="space-y-8">
 
         {/* Последние проекты */}
-        <div className="space-y-4">
-          <div className="flex items-center justify-between">
+        <div>
+          <div className="flex items-center justify-between mb-6">
             <h2 className="text-2xl font-semibold text-slate-900">
               {currentLanguage === 'en' ? 'Recent Projects' : 'Последние проекты'}
             </h2>
@@ -374,17 +374,22 @@ export default function HomePage() {
               </CardContent>
             </Card>
           ) : (
-            <div className="overflow-x-auto -mx-8 px-8">
+            <div
+              className="overflow-x-auto scrollbar-hide -mx-8 px-8"
+              style={{
+                scrollbarWidth: 'none',
+                msOverflowStyle: 'none',
+              }}
+            >
               <div
                 data-projects-scroll
-                className="flex gap-4 pb-4 scroll-smooth cursor-grab"
-                style={{ scrollbarWidth: 'thin' }}
+                className="flex gap-4 w-max cursor-grab active:cursor-grabbing"
                 onMouseDown={handleProjectsDragScroll}
               >
                 {projects.map((project) => (
                   <div
                     key={project.id}
-                    className="flex-none w-[372px]"
+                    className="w-[372px] flex-shrink-0"
                     data-project-card-wrapper
                   >
                     <ProjectCard
