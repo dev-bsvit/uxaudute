@@ -342,11 +342,11 @@ export default function HomePage() {
           }}
         />
 
-        <div className="px-8 space-y-8">
+        <div className="space-y-8">
 
         {/* Последние проекты */}
         <div className="space-y-4">
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between px-8">
             <h2 className="text-2xl font-semibold text-slate-900">
               {currentLanguage === 'en' ? 'Recent Projects' : 'Последние проекты'}
             </h2>
@@ -359,8 +359,9 @@ export default function HomePage() {
           </div>
 
           {projects.length === 0 ? (
-            <Card>
-              <CardContent className="py-12 text-center">
+            <div className="px-8">
+              <Card>
+                <CardContent className="py-12 text-center">
                 <FolderOpen className="w-12 h-12 text-slate-400 mx-auto mb-4" />
                 <p className="text-slate-600 mb-4">
                   {currentLanguage === 'en'
@@ -373,11 +374,12 @@ export default function HomePage() {
                 </Button>
               </CardContent>
             </Card>
+            </div>
           ) : (
-            <div className="relative">
+            <div className="relative -mx-8">
               <div
                 data-projects-scroll
-                className="flex w-full gap-4 overflow-x-auto pb-4 pr-6 scroll-smooth snap-x snap-mandatory cursor-grab"
+                className="flex w-full gap-4 overflow-x-auto pb-4 px-8 scroll-smooth snap-x snap-mandatory cursor-grab"
                 style={{ scrollbarWidth: 'thin' }}
                 onMouseDown={handleProjectsDragScroll}
               >
