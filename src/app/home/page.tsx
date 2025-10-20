@@ -309,6 +309,61 @@ export default function HomePage() {
     }
   ]
 
+  const scrollStackContent = {
+    label: currentLanguage === 'en' ? 'Section 3' : 'Секция 3',
+    heading:
+      currentLanguage === 'en'
+        ? 'How QuickUX turns raw UI into actionable insights'
+        : 'Как QuickUX превращает интерфейс в готовые инсайты',
+    description:
+      currentLanguage === 'en'
+        ? 'Follow the workflow once — every new upload keeps the analysis and recommendations up to date.'
+        : 'Пройдите шаги один раз — дальше система будет обновлять анализ и рекомендации при каждом новом запуске.'
+  }
+
+  const scrollStackItems = [
+    {
+      title:
+        currentLanguage === 'en'
+          ? 'Drop the current screens'
+          : 'Загрузите актуальные экраны',
+      description:
+        currentLanguage === 'en'
+          ? 'Drag & drop a screenshot or paste a link — QuickUX normalises assets and prepares them for the audit.'
+          : 'Перетащите скриншот или вставьте ссылку — QuickUX подготовит материалы и выделит ключевые элементы интерфейса.',
+    },
+    {
+      title:
+        currentLanguage === 'en'
+          ? 'Add project context'
+          : 'Добавьте контекст проекта',
+      description:
+        currentLanguage === 'en'
+          ? 'Highlight business goals, target metrics and edge cases so the system understands what matters most.'
+          : 'Опишите бизнес-цели, ключевые метрики и нюансы аудитории — так система сфокусируется на самом важном.',
+    },
+    {
+      title:
+        currentLanguage === 'en'
+          ? 'Run the AI analysis'
+          : 'Запустите AI-анализ',
+      description:
+        currentLanguage === 'en'
+          ? 'QuickUX compares your UI to thousands of best practices, flags UX debt and drafts experiments automatically.'
+          : 'QuickUX сравнивает ваш интерфейс с тысячами лучших практик, находит UX-долги и предлагает гипотезы автоматически.',
+    },
+    {
+      title:
+        currentLanguage === 'en'
+          ? 'Share and iterate with the team'
+          : 'Делитесь и улучшайте вместе',
+      description:
+        currentLanguage === 'en'
+          ? 'Send a live link to stakeholders, capture decisions and rerun the audit the moment your UI changes.'
+          : 'Отправьте живую ссылку команде, фиксируйте решения и перезапускайте аудит сразу после обновления интерфейса.',
+    },
+  ]
+
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-100 flex items-center justify-center">
@@ -557,6 +612,52 @@ export default function HomePage() {
             ))}
           </div>
         </div>
+
+        {/* Секция 3 */}
+        <section id="section-3" className="px-6 sm:px-8">
+          <div className="mx-auto max-w-6xl py-16 sm:py-20">
+            <div className="flex flex-col gap-12 lg:grid lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)]">
+              <div className="space-y-6">
+                <span className="inline-flex items-center rounded-full bg-blue-50 px-4 py-1 text-sm font-semibold text-blue-600">
+                  {scrollStackContent.label}
+                </span>
+                <h2 className="text-3xl font-semibold text-slate-900 sm:text-4xl">
+                  {scrollStackContent.heading}
+                </h2>
+                <p className="text-base text-slate-600 sm:text-lg">
+                  {scrollStackContent.description}
+                </p>
+              </div>
+
+              <div className="relative">
+                <div className="relative flex flex-col gap-8 pb-32">
+                  {scrollStackItems.map((item, index) => (
+                    <article
+                      key={item.title}
+                      className="group sticky top-28 rounded-3xl border border-slate-200/70 bg-white/90 p-8 shadow-[0_24px_80px_rgba(15,23,42,0.08)] backdrop-blur transition-all duration-500 hover:-translate-y-1"
+                      style={{ zIndex: scrollStackItems.length - index }}
+                    >
+                      <div className="mb-6 flex items-center justify-between">
+                        <span className="text-sm font-semibold uppercase tracking-wide text-blue-600">
+                          {(currentLanguage === 'en' ? 'Step ' : 'Шаг ') + (index + 1)}
+                        </span>
+                        <span className="flex h-10 w-10 items-center justify-center rounded-full bg-blue-50 text-base font-semibold text-blue-600">
+                          {(index + 1).toString().padStart(2, '0')}
+                        </span>
+                      </div>
+                      <h3 className="mb-3 text-2xl font-semibold text-slate-900">
+                        {item.title}
+                      </h3>
+                      <p className="text-sm leading-relaxed text-slate-600 sm:text-base">
+                        {item.description}
+                      </p>
+                    </article>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
         </div>
       </div>
     </SidebarDemo>
