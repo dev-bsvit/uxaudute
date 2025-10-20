@@ -323,7 +323,7 @@ export default function HomePage() {
 
   return (
     <SidebarDemo user={user}>
-      <div className="space-y-8">
+      <div className="space-y-8 overflow-hidden">
         {/* Заголовок */}
         <PageHeader
           breadcrumbs={[
@@ -342,7 +342,7 @@ export default function HomePage() {
           }}
         />
 
-        <div className="space-y-8">
+        <div className="space-y-8 overflow-hidden">
 
         {/* Последние проекты */}
         <div className="space-y-4 overflow-hidden">
