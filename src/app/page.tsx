@@ -5,6 +5,7 @@ import { useEffect, useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { HeroSection } from '@/components/hero-section'
+import ScrollStack, { ScrollStackItem } from '@/components/scroll-stack/ScrollStack'
 import Link from 'next/link'
 import { ArrowRight, Zap, Shield, BarChart3, Users } from 'lucide-react'
 import { createClient } from '@supabase/supabase-js'
@@ -91,39 +92,6 @@ export default function HomePage() {
     }
   ]
 
-  const scrollStackSteps = [
-    {
-      heading:
-        currentLanguage === 'en'
-          ? 'Drop the latest interface'
-          : 'Загрузите актуальный интерфейс',
-      description:
-        currentLanguage === 'en'
-          ? 'Simply drag & drop a screenshot or paste a link. QuickUX prepares assets and highlights the main interaction zones automatically.'
-          : 'Просто перетащите скриншот или вставьте ссылку. QuickUX подготовит материалы и выделит ключевые зоны взаимодействия автоматически.',
-    },
-    {
-      heading:
-        currentLanguage === 'en'
-          ? 'Add the business context'
-          : 'Добавьте бизнес-контекст',
-      description:
-        currentLanguage === 'en'
-          ? 'Specify goals, target metrics or audience insights so AI analysis focuses on what really matters for your product.'
-          : 'Опишите цели, целевые метрики или нюансы аудитории, чтобы AI сфокусировался на том, что важно именно для вашего продукта.',
-    },
-    {
-      heading:
-        currentLanguage === 'en'
-          ? 'Run AI analysis and share'
-          : 'Запустите анализ и поделитесь',
-      description:
-        currentLanguage === 'en'
-          ? 'QuickUX benchmarks your UI against thousands of patterns, surfaces UX debt, drafts experiments and lets you share a live report with the team.'
-          : 'QuickUX сравнивает ваш интерфейс с тысячами паттернов, находит UX-долги, формирует гипотезы и позволяет делиться живым отчетом с командой.',
-    },
-  ]
-
   return (
     <Layout transparentHeader={true}>
       {/* Hero секция с градиентом на всю ширину */}
@@ -184,46 +152,28 @@ export default function HomePage() {
       </div>
 
       {/* Section 3 */}
-      <div className="py-20">
-        <div className="max-w-6xl mx-auto px-6">
-          <div className="mb-12 space-y-4 text-center">
-            <span className="inline-flex items-center justify-center rounded-full bg-blue-50 px-4 py-1 text-sm font-semibold text-blue-600">
-              {currentLanguage === 'en' ? 'Section 3' : 'Секция 3'}
-            </span>
-            <h2 className="text-3xl font-bold text-slate-900 sm:text-4xl">
-              {currentLanguage === 'en'
-                ? 'From screenshot to action plan — in one flow'
-                : 'От скриншота до плана действий — за один поток'}
+      <section className="relative overflow-hidden bg-[#050014] py-24 text-white">
+        <div className="pointer-events-none absolute inset-x-0 top-0 h-40 bg-gradient-to-b from-[#2d01ff33] to-transparent" />
+        <div className="pointer-events-none absolute inset-x-0 bottom-0 h-40 bg-gradient-to-t from-[#2d01ff33] to-transparent" />
+        <div className="relative mx-auto flex max-w-6xl flex-col gap-16 px-6">
+          <header className="space-y-4 text-center">
+            <h2 className="text-4xl font-bold tracking-tight sm:text-5xl">
+              Scroll Stack
             </h2>
-            <p className="mx-auto max-w-3xl text-base text-slate-600 sm:text-lg">
-              {currentLanguage === 'en'
-                ? 'QuickUX reduces manual discovery work: follow the flow once and rerun it every time you ship updates.'
-                : 'QuickUX сокращает ручной ресёрч: один раз пройдите по шагам и запускайте анализ заново при каждом обновлении интерфейса.'}
+            <p className="mx-auto max-w-2xl text-lg text-white/70">
+              A smooth stacked scroll effect brought straight from React Bits.
             </p>
-          </div>
+          </header>
 
-          <div className="space-y-8">
-            {scrollStackSteps.map((step, idx) => (
-              <div key={step.heading} className="bg-white rounded-2xl p-8 shadow-sm border border-gray-100">
-                <div className="flex items-start justify-between pb-6 text-blue-600">
-                  <span className="text-sm font-semibold uppercase tracking-wide">
-                    {(currentLanguage === 'en' ? 'Step ' : 'Шаг ') + (idx + 1)}
-                  </span>
-                  <span className="flex h-10 w-10 items-center justify-center rounded-full bg-blue-50 text-base font-semibold">
-                    {(idx + 1).toString().padStart(2, '0')}
-                  </span>
-                </div>
-                <h3 className="mb-4 text-3xl font-semibold text-slate-900">
-                  {step.heading}
-                </h3>
-                <p className="text-base leading-relaxed text-slate-600">
-                  {step.description}
-                </p>
-              </div>
+          <ScrollStack className="max-h-[70vh]" useWindowScroll>
+            {Array.from({ length: 5 }).map((_, idx) => (
+              <ScrollStackItem key={idx}>
+                <span>All on React Bits!</span>
+              </ScrollStackItem>
             ))}
-          </div>
+          </ScrollStack>
         </div>
-      </div>
+      </section>
     </Layout>
   )
 }
