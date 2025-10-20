@@ -5,7 +5,6 @@ import { useEffect, useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { HeroSection } from '@/components/hero-section'
-import ScrollStack, { ScrollStackItem } from '@/components/scroll-stack/ScrollStack'
 import Link from 'next/link'
 import { ArrowRight, Zap, Shield, BarChart3, Users } from 'lucide-react'
 import { createClient } from '@supabase/supabase-js'
@@ -151,29 +150,6 @@ export default function HomePage() {
         </div>
       </div>
 
-      {/* Section 3 */}
-      <section className="relative overflow-hidden bg-[#050014] py-24 text-white">
-        <div className="pointer-events-none absolute inset-x-0 top-0 h-40 bg-gradient-to-b from-[#2d01ff33] to-transparent" />
-        <div className="pointer-events-none absolute inset-x-0 bottom-0 h-40 bg-gradient-to-t from-[#2d01ff33] to-transparent" />
-        <div className="relative mx-auto flex max-w-6xl flex-col gap-16 px-6">
-          <header className="space-y-4 text-center">
-            <h2 className="text-4xl font-bold tracking-tight sm:text-5xl">
-              Scroll Stack
-            </h2>
-            <p className="mx-auto max-w-2xl text-lg text-white/70">
-              A smooth stacked scroll effect brought straight from React Bits.
-            </p>
-          </header>
-
-          <ScrollStack className="max-h-[70vh]" useWindowScroll>
-            {Array.from({ length: 5 }).map((_, idx) => (
-              <ScrollStackItem key={idx}>
-                <span>All on React Bits!</span>
-              </ScrollStackItem>
-            ))}
-          </ScrollStack>
-        </div>
-      </section>
-    </Layout>
+      {    </Layout>
   )
 }

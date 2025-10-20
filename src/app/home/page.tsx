@@ -342,10 +342,8 @@ export default function HomePage() {
           }}
         />
 
-        <div className="space-y-8">
-
-        {/* Последние проекты */}
-        <div>
+        {/* Горизонтальный скролл с проектами */}
+        <div className="w-full">
           <div className="flex items-center justify-between mb-6">
             <h2 className="text-2xl font-semibold text-slate-900">
               {currentLanguage === 'en' ? 'Recent Projects' : 'Последние проекты'}
@@ -358,49 +356,30 @@ export default function HomePage() {
             </Link>
           </div>
 
-          {projects.length === 0 ? (
-            <Card>
-              <CardContent className="py-12 text-center">
-                <FolderOpen className="w-12 h-12 text-slate-400 mx-auto mb-4" />
-                <p className="text-slate-600 mb-4">
-                  {currentLanguage === 'en'
-                    ? 'No projects yet. Create your first project to get started!'
-                    : 'Пока нет проектов. Создайте первый проект для начала работы!'}
-                </p>
-                <Button onClick={handleCreateProject} disabled={creating}>
-                  <Plus className="w-4 h-4 mr-2" />
-                  {currentLanguage === 'en' ? 'Create First Project' : 'Создать первый проект'}
-                </Button>
-              </CardContent>
-            </Card>
-          ) : (
-            <div className="relative -mx-8">
-              <div className="overflow-x-auto scrollbar-hide px-8">
-                <div
-                  data-projects-scroll
-                  className="flex gap-4 w-max cursor-grab active:cursor-grabbing"
-                  onMouseDown={handleProjectsDragScroll}
-                >
-                  {projects.map((project) => (
-                    <div
-                      key={project.id}
-                      className="w-[372px] flex-shrink-0"
-                      data-project-card-wrapper
-                    >
-                      <ProjectCard
-                      project={project}
-                      formatDate={formatDate}
-                      onOpenSettings={() => handleEditProject(project)}
-                      menuLabels={{
-                        settings: currentLanguage === 'en' ? 'Project settings' : 'Настройки проекта'
-                      }}
-                    />
-                  </div>
-                ))}
+          {/* Горизонтальный скролл контейнер */}
+          <div className="w-full overflow-x-auto scrollbar-hide">
+            <div className="flex gap-6 pb-4">
+              {/* Пустая карточка 1 */}
+              <div className="min-w-[320px] h-[200px] bg-gradient-to-br from-blue-50 to-indigo-100 rounded-xl border-2 border-dashed border-blue-300 flex items-center justify-center">
+                <p className="text-blue-600 font-medium">Карточка 1</p>
+              </div>
+
+              {/* Пустая карточка 2 */}
+              <div className="min-w-[320px] h-[200px] bg-gradient-to-br from-purple-50 to-pink-100 rounded-xl border-2 border-dashed border-purple-300 flex items-center justify-center">
+                <p className="text-purple-600 font-medium">Карточка 2</p>
+              </div>
+
+              {/* Пустая карточка 3 */}
+              <div className="min-w-[320px] h-[200px] bg-gradient-to-br from-green-50 to-emerald-100 rounded-xl border-2 border-dashed border-green-300 flex items-center justify-center">
+                <p className="text-green-600 font-medium">Карточка 3</p>
+              </div>
+
+              {/* Пустая карточка 4 */}
+              <div className="min-w-[320px] h-[200px] bg-gradient-to-br from-orange-50 to-red-100 rounded-xl border-2 border-dashed border-orange-300 flex items-center justify-center">
+                <p className="text-orange-600 font-medium">Карточка 4</p>
               </div>
             </div>
-            </div>
-          )}
+          </div>
         </div>
 
         {/* Модалка настроек проекта */}
