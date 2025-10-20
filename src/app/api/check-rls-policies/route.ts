@@ -10,15 +10,6 @@ export async function GET(request: NextRequest) {
       process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
     )
 
-    // Проверяем RLS политики для user_balances
-    const { data: rlsData, error: rlsError } = await supabaseClient
-      .rpc('get_rls_policies', { table_name: 'user_balances' })
-
-    if (rlsError) {
-      console.error('Error checking RLS policies:', rlsError)
-      return NextResponse.json({ error: 'Failed to check RLS policies', details: rlsError.message }, { status: 500 })
-    }
-
     // Проверяем доступ к user_balances с anon key
     const anonClient = createClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -40,12 +31,13 @@ export async function GET(request: NextRequest) {
       success: true,
       message: 'RLS policies check completed',
       results: {
-        rls_policies: rlsData || 'No RLS policies found',
         anon_access: {
+          success: !anonError,
           data: anonData,
           error: anonError?.message || null
         },
         service_access: {
+          success: !serviceError,
           data: serviceData,
           error: serviceError?.message || null
         }
