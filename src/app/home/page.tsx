@@ -345,7 +345,7 @@ export default function HomePage() {
         <div className="space-y-8">
 
         {/* Последние проекты */}
-        <div className="space-y-4">
+        <div className="space-y-4 overflow-hidden">
           <div className="flex items-center justify-between px-8">
             <h2 className="text-2xl font-semibold text-slate-900">
               {currentLanguage === 'en' ? 'Recent Projects' : 'Последние проекты'}
