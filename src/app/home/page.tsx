@@ -374,19 +374,20 @@ export default function HomePage() {
               </CardContent>
             </Card>
           ) : (
-            <div className="overflow-x-scroll scrollbar-hide">
-              <div
-                data-projects-scroll
-                className="inline-flex gap-4 cursor-grab active:cursor-grabbing"
-                onMouseDown={handleProjectsDragScroll}
-              >
-                {projects.map((project) => (
-                  <div
-                    key={project.id}
-                    className="w-[372px] flex-shrink-0"
-                    data-project-card-wrapper
-                  >
-                    <ProjectCard
+            <div className="relative -mx-8">
+              <div className="overflow-x-auto scrollbar-hide px-8">
+                <div
+                  data-projects-scroll
+                  className="flex gap-4 w-max cursor-grab active:cursor-grabbing"
+                  onMouseDown={handleProjectsDragScroll}
+                >
+                  {projects.map((project) => (
+                    <div
+                      key={project.id}
+                      className="w-[372px] flex-shrink-0"
+                      data-project-card-wrapper
+                    >
+                      <ProjectCard
                       project={project}
                       formatDate={formatDate}
                       onOpenSettings={() => handleEditProject(project)}
@@ -397,6 +398,7 @@ export default function HomePage() {
                   </div>
                 ))}
               </div>
+            </div>
             </div>
           )}
         </div>
