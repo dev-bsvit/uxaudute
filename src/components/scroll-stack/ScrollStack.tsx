@@ -266,7 +266,6 @@ const ScrollStack = ({
       easing: (t: number) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
       smoothWheel: true,
       touchMultiplier: 2,
-      normalizeWheel: true,
       lerp: 0.1,
       syncTouch: true,
     })
