@@ -78,11 +78,11 @@ const ScrollStack = ({
   )
 
   const parsePercentage = useCallback(
-    (value: number | `${number}%`, containerHeight: number) => {
+    (value: number | `${number}%`, containerHeight: number): number => {
       if (typeof value === 'string' && value.includes('%')) {
         return (parseFloat(value) / 100) * containerHeight
       }
-      return value
+      return value as number
     },
     []
   )
@@ -132,6 +132,9 @@ const ScrollStack = ({
     const stackPositionPx = parsePercentage(stackPosition, containerHeight)
     const scaleEndPositionPx = parsePercentage(scaleEndPosition, containerHeight)
 
+    // Ensure itemStackDistance is a number
+    const stackDistance: number = Number(itemStackDistance)
+
     const endElement = useWindowScroll
       ? document.querySelector<HTMLElement>('.scroll-stack-end')
       : scrollerRef.current?.querySelector<HTMLElement>('.scroll-stack-end')
@@ -140,9 +143,9 @@ const ScrollStack = ({
 
     cardsRef.current.forEach((card, i) => {
       const cardTop = getElementOffset(card)
-      const triggerStart = cardTop - stackPositionPx - itemStackDistance * i
+      const triggerStart = cardTop - stackPositionPx - stackDistance * i
       const triggerEnd = cardTop - scaleEndPositionPx
-      const pinStart = cardTop - stackPositionPx - itemStackDistance * i
+      const pinStart = cardTop - stackPositionPx - stackDistance * i
       const pinEnd = endElementTop - containerHeight / 2
 
       const scaleProgress = calculateProgress(scrollTop, triggerStart, triggerEnd)
@@ -157,7 +160,7 @@ const ScrollStack = ({
           const triggerStartJ =
             getElementOffset(cardsRef.current[j]) -
             stackPositionPx -
-            itemStackDistance * j
+            stackDistance * j
           if (scrollTop >= triggerStartJ) {
             topCardIndex = j
           }
@@ -172,9 +175,9 @@ const ScrollStack = ({
       const isPinned = scrollTop >= pinStart && scrollTop <= pinEnd
 
       if (isPinned) {
-        translateY = scrollTop - cardTop + stackPositionPx + itemStackDistance * i
+        translateY = scrollTop - cardTop + stackPositionPx + stackDistance * i
       } else if (scrollTop > pinEnd) {
-        translateY = pinEnd - cardTop + stackPositionPx + itemStackDistance * i
+        translateY = pinEnd - cardTop + stackPositionPx + stackDistance * i
       }
 
       const newTransform: Transform = {
@@ -293,9 +296,12 @@ const ScrollStack = ({
     cardsRef.current = cards
     const transformsCache = lastTransformsRef.current
 
+    // Ensure itemDistance is a number
+    const distance: number = Number(itemDistance)
+
     cards.forEach((card, i) => {
       if (i < cards.length - 1) {
-        card.style.marginBottom = `${itemDistance}px`
+        card.style.marginBottom = `${distance}px`
       }
       card.style.willChange = 'transform, filter'
       card.style.transformOrigin = 'top center'
