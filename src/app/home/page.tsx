@@ -342,7 +342,7 @@ export default function HomePage() {
           }}
         />
 
-        <div className="space-y-8">
+        <div className="space-y-8 overflow-hidden">
 
         {/* Последние проекты */}
         <div>
