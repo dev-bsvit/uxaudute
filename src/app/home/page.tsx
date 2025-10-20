@@ -323,7 +323,7 @@ export default function HomePage() {
 
   return (
     <SidebarDemo user={user}>
-      <div className="space-y-8 overflow-hidden">
+      <div className="space-y-8">
         {/* Заголовок */}
         <PageHeader
           breadcrumbs={[
@@ -342,7 +342,7 @@ export default function HomePage() {
           }}
         />
 
-        <div className="space-y-8 overflow-hidden">
+        <div className="space-y-8">
 
         {/* Последние проекты */}
         <div>
@@ -374,16 +374,10 @@ export default function HomePage() {
               </CardContent>
             </Card>
           ) : (
-            <div
-              className="overflow-x-auto scrollbar-hide -mx-8 px-8"
-              style={{
-                scrollbarWidth: 'none',
-                msOverflowStyle: 'none',
-              }}
-            >
+            <div className="overflow-x-scroll scrollbar-hide">
               <div
                 data-projects-scroll
-                className="flex gap-4 w-max cursor-grab active:cursor-grabbing"
+                className="inline-flex gap-4 cursor-grab active:cursor-grabbing"
                 onMouseDown={handleProjectsDragScroll}
               >
                 {projects.map((project) => (
