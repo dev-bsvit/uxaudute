@@ -80,18 +80,18 @@ export function PageHeader({
       )}
 
       {/* Main content */}
-      <div className="flex flex-col sm:flex-row sm:items-center gap-4 w-full">
+      <div className="flex flex-col lg:flex-row lg:items-center gap-3 lg:gap-4 w-full">
         {/* Left side - Back Button + Icon (optional) + Title + Subtitle */}
-        <div className="flex items-center gap-4 flex-1 min-w-0">
+        <div className="flex items-center gap-3 lg:gap-4 flex-1 min-w-0">
           {showBackButton && onBack && <BackArrow onClick={onBack} />}
           {icon && (
-            <div className="w-[50px] h-[50px] flex-shrink-0 rounded-[44px] bg-[#EEF2FA] flex items-center justify-center">
+            <div className="w-[40px] h-[40px] lg:w-[50px] lg:h-[50px] flex-shrink-0 rounded-[44px] bg-[#EEF2FA] flex items-center justify-center">
               {icon}
             </div>
           )}
           <div className="flex flex-col flex-1 min-w-0">
             <h1
-              className="text-2xl sm:text-3xl lg:text-[38px] font-semibold leading-tight lg:leading-[41.8px] text-[#1F1F1F] truncate"
+              className="text-xl sm:text-2xl lg:text-3xl xl:text-[38px] font-semibold leading-tight xl:leading-[41.8px] text-[#1F1F1F] truncate"
               style={{ fontFamily: 'Inter Display' }}
             >
               {title}
@@ -112,11 +112,11 @@ export function PageHeader({
           {showShareButton && onShare && (
             <button
               onClick={onShare}
-              className="px-4 sm:px-6 py-3 sm:py-4 bg-[#0058FC] rounded-[44px] hover:bg-[#0047d1] transition-colors flex items-center gap-2"
+              className="px-3 py-2 lg:px-4 lg:py-3 xl:px-6 xl:py-4 bg-[#0058FC] rounded-[44px] hover:bg-[#0047d1] transition-colors flex items-center gap-2"
             >
               <Share2 className="w-4 h-4 text-white" />
               <span
-                className="text-sm sm:text-base font-medium leading-[17.6px] text-white whitespace-nowrap"
+                className="text-sm lg:text-base font-medium leading-[17.6px] text-white whitespace-nowrap"
                 style={{ fontFamily: 'Inter Display' }}
               >
                 {computedShareLabel}
@@ -126,7 +126,7 @@ export function PageHeader({
           {secondaryButton && (
             <button
               onClick={secondaryButton.onClick}
-              className="w-[50px] h-[50px] rounded-full bg-[#EEF2FA] flex items-center justify-center hover:bg-[#e0e8f5] transition-colors flex-shrink-0"
+              className="w-[40px] h-[40px] lg:w-[50px] lg:h-[50px] rounded-full bg-[#EEF2FA] flex items-center justify-center hover:bg-[#e0e8f5] transition-colors flex-shrink-0"
             >
               {secondaryButton.icon}
             </button>
@@ -135,10 +135,10 @@ export function PageHeader({
             <button
               onClick={primaryButton.onClick}
               disabled={primaryButton.disabled}
-              className="px-4 sm:px-6 py-3 sm:py-4 bg-[#0058FC] rounded-[44px] hover:bg-[#0047d1] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              className="px-3 py-2 lg:px-4 lg:py-3 xl:px-6 xl:py-4 bg-[#0058FC] rounded-[44px] hover:bg-[#0047d1] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <span
-                className="text-sm sm:text-base font-medium leading-[17.6px] text-white whitespace-nowrap"
+                className="text-sm lg:text-base font-medium leading-[17.6px] text-white whitespace-nowrap"
                 style={{ fontFamily: 'Inter Display' }}
               >
                 {primaryButton.label}
