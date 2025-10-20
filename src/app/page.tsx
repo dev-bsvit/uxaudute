@@ -10,7 +10,6 @@ import { ArrowRight, Zap, Shield, BarChart3, Users } from 'lucide-react'
 import { createClient } from '@supabase/supabase-js'
 import { ensureUserHasInitialBalance } from '@/lib/database'
 import { useTranslation } from '@/hooks/use-translation'
-import ScrollStack, { ScrollStackItem } from '@/components/scroll-stack/ScrollStack'
 
 export default function HomePage() {
   // Версия 1.1.2 - исправлено отображение проблем и решений
@@ -203,9 +202,9 @@ export default function HomePage() {
             </p>
           </div>
 
-          <ScrollStack className="max-h-[70vh] overflow-y-visible">
+          <div className="space-y-8">
             {scrollStackSteps.map((step, idx) => (
-              <ScrollStackItem key={step.heading}>
+              <div key={step.heading} className="bg-white rounded-2xl p-8 shadow-sm border border-gray-100">
                 <div className="flex items-start justify-between pb-6 text-blue-600">
                   <span className="text-sm font-semibold uppercase tracking-wide">
                     {(currentLanguage === 'en' ? 'Step ' : 'Шаг ') + (idx + 1)}
@@ -220,9 +219,9 @@ export default function HomePage() {
                 <p className="text-base leading-relaxed text-slate-600">
                   {step.description}
                 </p>
-              </ScrollStackItem>
+              </div>
             ))}
-          </ScrollStack>
+          </div>
         </div>
       </div>
     </Layout>
