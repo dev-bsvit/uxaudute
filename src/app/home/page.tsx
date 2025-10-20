@@ -378,7 +378,7 @@ export default function HomePage() {
 
   return (
     <SidebarDemo user={user}>
-      <div className="space-y-8 overflow-hidden">
+      <div className="space-y-8">
         {/* Заголовок */}
         <PageHeader
           breadcrumbs={[
@@ -397,11 +397,11 @@ export default function HomePage() {
           }}
         />
 
-        <div className="space-y-8 overflow-hidden">
+        <div className="space-y-8">
 
         {/* Последние проекты */}
-        <div className="space-y-4 overflow-hidden">
-          <div className="flex items-center justify-between px-8">
+        <div className="space-y-4">
+          <div className="flex items-center justify-between">
             <h2 className="text-2xl font-semibold text-slate-900">
               {currentLanguage === 'en' ? 'Recent Projects' : 'Последние проекты'}
             </h2>
@@ -414,9 +414,8 @@ export default function HomePage() {
           </div>
 
           {projects.length === 0 ? (
-            <div className="px-8">
-              <Card>
-                <CardContent className="py-12 text-center">
+            <Card>
+              <CardContent className="py-12 text-center">
                 <FolderOpen className="w-12 h-12 text-slate-400 mx-auto mb-4" />
                 <p className="text-slate-600 mb-4">
                   {currentLanguage === 'en'
@@ -429,35 +428,32 @@ export default function HomePage() {
                 </Button>
               </CardContent>
             </Card>
-            </div>
           ) : (
-            <div className="relative -mx-8">
-              <div
-                data-projects-scroll
-                className="flex w-full gap-4 overflow-x-auto pb-4 px-8 scroll-smooth snap-x snap-mandatory cursor-grab"
-                style={{ scrollbarWidth: 'thin' }}
-                onMouseDown={handleProjectsDragScroll}
-              >
-                {projects.map((project) => (
-                  <div
-                    key={project.id}
-                    className="snap-start flex-none w-[372px] max-w-[90vw]"
-                    data-project-card-wrapper
-                  >
-                    <ProjectCard
-                      project={project}
-                      formatDate={formatDate}
-                      onOpenSettings={() => handleEditProject(project)}
-                      menuLabels={{
-                        settings: currentLanguage === 'en' ? 'Project settings' : 'Настройки проекта'
-                      }}
-                    />
-                  </div>
-                ))}
-              </div>
+            <div
+              data-projects-scroll
+              className="flex gap-4 overflow-x-auto pb-4 scroll-smooth snap-x snap-mandatory cursor-grab"
+              style={{ scrollbarWidth: 'thin' }}
+              onMouseDown={handleProjectsDragScroll}
+            >
+              {projects.map((project) => (
+                <div
+                  key={project.id}
+                  className="snap-start flex-none w-[372px] max-w-[90vw]"
+                  data-project-card-wrapper
+                >
+                  <ProjectCard
+                    project={project}
+                    formatDate={formatDate}
+                    onOpenSettings={() => handleEditProject(project)}
+                    menuLabels={{
+                      settings: currentLanguage === 'en' ? 'Project settings' : 'Настройки проекта'
+                    }}
+                  />
+                </div>
+              ))}
             </div>
           )}
-      </div>
+        </div>
 
         {/* Модалка настроек проекта */}
         {settingsProject && (
