@@ -323,7 +323,7 @@ export default function HomePage() {
 
   return (
     <SidebarDemo user={user}>
-      <div className="space-y-8 overflow-hidden">
+      <div className="space-y-8">
         {/* Заголовок */}
         <PageHeader
           breadcrumbs={[
@@ -357,8 +357,8 @@ export default function HomePage() {
           </div>
 
           {/* Горизонтальный скролл контейнер */}
-          <div className="overflow-x-auto scrollbar-hide -mx-8 px-8">
-            <div className="flex gap-6 pb-4">
+          <div className="overflow-x-auto scrollbar-hide">
+            <div className="flex gap-6 pb-4 min-w-max">
               {/* Пустая карточка 1 */}
               <div className="w-[320px] flex-shrink-0 h-[200px] bg-gradient-to-br from-blue-50 to-indigo-100 rounded-xl border-2 border-dashed border-blue-300 flex items-center justify-center">
                 <p className="text-blue-600 font-medium">Карточка 1</p>
