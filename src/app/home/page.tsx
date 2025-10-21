@@ -323,30 +323,30 @@ export default function HomePage() {
 
   return (
     <SidebarDemo user={user}>
-      {/* Хедер */}
-      <div className="px-8 pt-8">
-        <PageHeader
-          breadcrumbs={[
-            { label: currentLanguage === 'en' ? 'Home' : 'Главная' }
-          ]}
-          title={currentLanguage === 'en' ? 'Welcome Back!' : 'Привет Богдан'}
-          subtitle={
-            currentLanguage === 'en'
-              ? 'Overview of your research and projects'
-              : 'Обзор ваших исследований и проектов'
-          }
-          primaryButton={{
-            label: currentLanguage === 'en' ? 'New Project' : 'Создать аудит',
-            onClick: handleCreateProject,
-            disabled: creating
-          }}
-        />
-      </div>
-
       {/* Секция с горизонтальным скроллом */}
-      <section className="grid grid-cols-[2rem_1fr_2rem] lg:grid-cols-[5vw_1fr_5vw] mt-8">
+      <section className="grid grid-cols-[2rem_1fr_2rem] mt-8">
+        {/* Хедер */}
+        <div className="col-start-2">
+          <PageHeader
+            breadcrumbs={[
+              { label: currentLanguage === 'en' ? 'Home' : 'Главная' }
+            ]}
+            title={currentLanguage === 'en' ? 'Welcome Back!' : 'Привет Богдан'}
+            subtitle={
+              currentLanguage === 'en'
+                ? 'Overview of your research and projects'
+                : 'Обзор ваших исследований и проектов'
+            }
+            primaryButton={{
+              label: currentLanguage === 'en' ? 'New Project' : 'Создать аудит',
+              onClick: handleCreateProject,
+              disabled: creating
+            }}
+          />
+        </div>
+
         {/* Заголовок секции */}
-        <div className="col-start-2 px-8 pb-4">
+        <div className="col-start-2 pb-4 mt-8">
           <div className="flex items-center justify-between">
             <h2 className="text-2xl font-semibold text-slate-900">
               {currentLanguage === 'en' ? 'Recent Projects' : 'Последние проекты'}
