@@ -1,6 +1,13 @@
 'use client'
 
-import { useState, useEffect, type FormEvent, type MouseEvent as ReactMouseEvent } from 'react'
+import {
+  useState,
+  useEffect,
+  useRef,
+  useCallback,
+  type FormEvent,
+  type MouseEvent as ReactMouseEvent
+} from 'react'
 import { useRouter } from 'next/navigation'
 import { SidebarDemo } from '@/components/sidebar-demo'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
@@ -124,10 +131,57 @@ export default function HomePage() {
   const [isDeletingProject, setIsDeletingProject] = useState(false)
   const [deleteTargetProject, setDeleteTargetProject] = useState<Project | null>(null)
   const [showDeleteDialog, setShowDeleteDialog] = useState(false)
+  const projectsScrollRef = useRef<HTMLDivElement | null>(null)
+  const scrollThumbFrame = useRef<number | null>(null)
+  const [isProjectsDragging, setIsProjectsDragging] = useState(false)
+  const [scrollThumb, setScrollThumb] = useState({
+    width: 0,
+    left: 0,
+    trackWidth: 0
+  })
 
   useEffect(() => {
     checkAuth()
   }, [])
+
+  const updateProjectsScrollThumb = useCallback(() => {
+    const container = projectsScrollRef.current
+    if (!container) {
+      return
+    }
+
+    const { scrollWidth, clientWidth, scrollLeft } = container
+    if (scrollWidth <= clientWidth || clientWidth === 0) {
+      setScrollThumb({
+        width: 0,
+        left: 0,
+        trackWidth: 0
+      })
+      return
+    }
+
+    const idealThumbWidth = (clientWidth / scrollWidth) * clientWidth
+    const thumbWidth = Math.min(clientWidth, Math.max(48, idealThumbWidth))
+    const maxThumbOffset = clientWidth - thumbWidth
+    const progress = scrollLeft / (scrollWidth - clientWidth)
+
+    setScrollThumb({
+      width: thumbWidth,
+      left: maxThumbOffset * progress,
+      trackWidth: clientWidth
+    })
+  }, [])
+
+  const scheduleProjectsScrollUpdate = useCallback(() => {
+    if (scrollThumbFrame.current !== null) {
+      return
+    }
+
+    scrollThumbFrame.current = requestAnimationFrame(() => {
+      scrollThumbFrame.current = null
+      updateProjectsScrollThumb()
+    })
+  }, [updateProjectsScrollThumb])
 
   const checkAuth = async () => {
     try {
@@ -149,6 +203,7 @@ export default function HomePage() {
   const handleProjectsDragScroll = (event: ReactMouseEvent<HTMLDivElement>) => {
     if (event.button !== 0) return
     const container = event.currentTarget
+    projectsScrollRef.current = container
     event.preventDefault()
 
     const startX = event.pageX
@@ -166,8 +221,10 @@ export default function HomePage() {
       if (!hasDragged && Math.abs(walk) > 3) {
         hasDragged = true
         container.dataset.dragging = 'true'
+        setIsProjectsDragging(true)
       }
       container.scrollLeft = initialScrollLeft - walk
+      scheduleProjectsScrollUpdate()
     }
 
     const handleMouseUp = () => {
@@ -186,6 +243,9 @@ export default function HomePage() {
         }
         container.addEventListener('click', preventClick, { capture: true, once: true })
       }
+
+      setIsProjectsDragging(false)
+      scheduleProjectsScrollUpdate()
     }
 
     window.addEventListener('mousemove', handleMouseMove)
@@ -381,6 +441,30 @@ export default function HomePage() {
     ...placeholderCards.map((card) => ({ type: 'placeholder' as const, card }))
   ]
 
+  useEffect(() => {
+    const container = projectsScrollRef.current
+    if (!container) {
+      return
+    }
+
+    const handleScroll = () => {
+      scheduleProjectsScrollUpdate()
+    }
+
+    container.addEventListener('scroll', handleScroll)
+    window.addEventListener('resize', scheduleProjectsScrollUpdate)
+    updateProjectsScrollThumb()
+
+    return () => {
+      container.removeEventListener('scroll', handleScroll)
+      window.removeEventListener('resize', scheduleProjectsScrollUpdate)
+      if (scrollThumbFrame.current !== null) {
+        cancelAnimationFrame(scrollThumbFrame.current)
+        scrollThumbFrame.current = null
+      }
+    }
+  }, [scheduleProjectsScrollUpdate, updateProjectsScrollThumb, carouselItems.length])
+
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-100 flex items-center justify-center">
@@ -433,9 +517,10 @@ export default function HomePage() {
         </div>
 
         {/* Horizontal scroll container / card carousel */}
-        <div className="relative col-span-2">
+        <div className="relative col-span-2 pl-8 pr-12 pt-8 pb-4">
           <div
-            className="flex gap-6 overflow-x-auto px-8 pb-4 pr-12 scrollbar-hide cursor-grab snap-x snap-mandatory"
+            ref={projectsScrollRef}
+            className="relative flex gap-6 overflow-x-auto pb-6 scroll-smooth scrollbar-hide cursor-grab snap-x snap-mandatory"
             data-projects-scroll
             data-dragging="false"
             onMouseDown={handleProjectsDragScroll}
@@ -486,6 +571,19 @@ export default function HomePage() {
               )
             })}
           </div>
+          {scrollThumb.trackWidth > 0 && (
+            <div
+              className={`pointer-events-none absolute left-8 right-12 bottom-4 h-1 rounded-full bg-slate-200/70 transition-opacity duration-150 ${isProjectsDragging ? 'opacity-100' : 'opacity-0'} relative`}
+            >
+              <div
+                className="absolute top-0 h-full rounded-full bg-slate-400/90 transition-[left,width] duration-150 ease-out"
+                style={{
+                  width: `${scrollThumb.width}px`,
+                  left: `${scrollThumb.left}px`
+                }}
+              />
+            </div>
+          )}
           {carouselItems.length > 0 && (
             <div className="pointer-events-none absolute inset-y-0 right-0 hidden w-16 bg-gradient-to-l from-white via-white/80 to-transparent sm:block" />
           )}
