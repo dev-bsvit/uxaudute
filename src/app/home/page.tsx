@@ -361,7 +361,7 @@ export default function HomePage() {
 
         {/* Горизонтальный скролл контейнер - БЕЗ padding */}
         <div className="overflow-x-auto scrollbar-hide px-8">
-          <div className="flex gap-6 pb-4">
+          <div className="inline-flex gap-6 pb-4 w-max">
               {/* Пустая карточка 1 */}
               <div className="w-[320px] flex-shrink-0 h-[200px] bg-gradient-to-br from-blue-50 to-indigo-100 rounded-xl border-2 border-dashed border-blue-300 flex items-center justify-center">
                 <p className="text-blue-600 font-medium">Карточка 1</p>
