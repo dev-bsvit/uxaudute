@@ -37,7 +37,6 @@ import {
   TestTube2,
   Lightbulb,
   TrendingUp,
-  Plus,
   FolderOpen,
   ChevronRight,
   Sparkles
@@ -61,60 +60,7 @@ interface ResearchCard {
   available: boolean
 }
 
-interface PlaceholderCard {
-  id: string
-  gradient: string
-  border: string
-  textClass: string
-  label: string
-}
-
-const MAX_CAROUSEL_ITEMS = 7
-
-const PLACEHOLDER_CARD_STYLES: Array<Omit<PlaceholderCard, 'label'>> = [
-  {
-    id: 'placeholder-1',
-    gradient: 'from-blue-50 to-indigo-100',
-    border: 'border-blue-300',
-    textClass: 'text-blue-600'
-  },
-  {
-    id: 'placeholder-2',
-    gradient: 'from-purple-50 to-pink-100',
-    border: 'border-purple-300',
-    textClass: 'text-purple-600'
-  },
-  {
-    id: 'placeholder-3',
-    gradient: 'from-green-50 to-emerald-100',
-    border: 'border-green-300',
-    textClass: 'text-green-600'
-  },
-  {
-    id: 'placeholder-4',
-    gradient: 'from-orange-50 to-red-100',
-    border: 'border-orange-300',
-    textClass: 'text-orange-600'
-  },
-  {
-    id: 'placeholder-5',
-    gradient: 'from-red-50 to-rose-100',
-    border: 'border-red-300',
-    textClass: 'text-red-600'
-  },
-  {
-    id: 'placeholder-6',
-    gradient: 'from-cyan-50 to-sky-100',
-    border: 'border-cyan-300',
-    textClass: 'text-cyan-600'
-  },
-  {
-    id: 'placeholder-7',
-    gradient: 'from-yellow-50 to-amber-100',
-    border: 'border-yellow-300',
-    textClass: 'text-yellow-600'
-  }
-]
+const MAX_RECENT_PROJECTS = 10
 
 export default function HomePage() {
   const router = useRouter()
@@ -281,8 +227,12 @@ export default function HomePage() {
         })
       )
 
-      // Берем только последние 5 проектов
-      setProjects(projectsWithCounts.slice(0, 5))
+      const sortedProjects = [...projectsWithCounts].sort(
+        (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+      )
+
+      // Берем только последние проекты, ограничивая список 10 карточками
+      setProjects(sortedProjects.slice(0, MAX_RECENT_PROJECTS))
     } catch (error) {
       console.error('Error loading projects:', error)
     }
@@ -424,21 +374,10 @@ export default function HomePage() {
     }
   ]
 
-  const recentProjects = projects.slice(0, MAX_CAROUSEL_ITEMS)
-  const placeholderCards: PlaceholderCard[] = PLACEHOLDER_CARD_STYLES.slice(
-    0,
-    Math.max(0, MAX_CAROUSEL_ITEMS - recentProjects.length)
-  ).map((style, index) => ({
-    ...style,
-    label:
-      currentLanguage === 'en'
-        ? `Card ${recentProjects.length + index + 1}`
-        : `Карточка ${recentProjects.length + index + 1}`
-  }))
-
+  const recentProjects = projects.slice(0, MAX_RECENT_PROJECTS)
   const carouselItems = [
     ...recentProjects.map((project) => ({ type: 'project' as const, project })),
-    ...placeholderCards.map((card) => ({ type: 'placeholder' as const, card }))
+    { type: 'view-all' as const }
   ]
 
   useEffect(() => {
@@ -550,23 +489,24 @@ export default function HomePage() {
 
               return (
                 <div
-                  key={item.card.id}
+                  key="view-all-card"
                   className="flex-shrink-0 w-[280px] sm:w-[320px] md:w-[360px]"
                   role="listitem"
-                  aria-hidden="true"
                 >
-                  <div
-                    className={`flex h-[170px] w-full flex-col items-center justify-center rounded-2xl border-2 border-dashed bg-gradient-to-br px-6 text-center ${item.card.border} ${item.card.gradient}`}
+                  <Link
+                    href="/projects"
+                    className="group flex h-[170px] w-full flex-col items-center justify-center rounded-2xl border border-slate-200 bg-slate-100 px-6 text-center text-slate-700 transition-colors hover:bg-slate-200 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-400"
                   >
-                    <p className={`text-base font-semibold ${item.card.textClass}`}>
-                      {item.card.label}
+                    <FolderOpen className="mb-3 h-8 w-8 text-slate-500 transition-colors group-hover:text-slate-600" />
+                    <p className="text-base font-semibold">
+                      {currentLanguage === 'en' ? 'See all projects' : 'Перейти ко всем проектам'}
                     </p>
                     <p className="mt-2 text-sm text-slate-600">
                       {currentLanguage === 'en'
-                        ? 'Reserved for your next project.'
-                        : 'Здесь появится ваш следующий проект.'}
+                        ? 'Browse your entire project library.'
+                        : 'Посмотрите все созданные проекты.'}
                     </p>
-                  </div>
+                  </Link>
                 </div>
               )
             })}
