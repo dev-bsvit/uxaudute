@@ -323,45 +323,44 @@ export default function HomePage() {
 
   return (
     <SidebarDemo user={user}>
-      <div className="-m-8 space-y-8 overflow-x-hidden">
-        {/* Заголовок */}
-        <div className="px-8 pt-8">
-          <PageHeader
-            breadcrumbs={[
-              { label: currentLanguage === 'en' ? 'Home' : 'Главная' }
-            ]}
-            title={currentLanguage === 'en' ? 'Welcome Back!' : 'Привет Богдан'}
-            subtitle={
-              currentLanguage === 'en'
-                ? 'Overview of your research and projects'
-                : 'Обзор ваших исследований и проектов'
-            }
-            primaryButton={{
-              label: currentLanguage === 'en' ? 'New Project' : 'Создать аудит',
-              onClick: handleCreateProject,
-              disabled: creating
-            }}
-          />
-        </div>
+      {/* Заголовок */}
+      <div className="px-8 pt-8 pb-6">
+        <PageHeader
+          breadcrumbs={[
+            { label: currentLanguage === 'en' ? 'Home' : 'Главная' }
+          ]}
+          title={currentLanguage === 'en' ? 'Welcome Back!' : 'Привет Богдан'}
+          subtitle={
+            currentLanguage === 'en'
+              ? 'Overview of your research and projects'
+              : 'Обзор ваших исследований и проектов'
+          }
+          primaryButton={{
+            label: currentLanguage === 'en' ? 'New Project' : 'Создать аудит',
+            onClick: handleCreateProject,
+            disabled: creating
+          }}
+        />
+      </div>
 
-        {/* Горизонтальный скролл с проектами */}
-        <div className="px-8">
-          <div className="flex items-center justify-between mb-6">
-            <h2 className="text-2xl font-semibold text-slate-900">
-              {currentLanguage === 'en' ? 'Recent Projects' : 'Последние проекты'}
-            </h2>
-            <Link href="/projects">
-              <Button variant="ghost" className="flex items-center gap-1">
-                {currentLanguage === 'en' ? 'View all' : 'Все проекты'}
-                <ChevronRight className="w-4 h-4" />
-              </Button>
-            </Link>
-          </div>
+      {/* Секция с заголовком "Последние проекты" */}
+      <div className="px-8 pb-4">
+        <div className="flex items-center justify-between">
+          <h2 className="text-2xl font-semibold text-slate-900">
+            {currentLanguage === 'en' ? 'Recent Projects' : 'Последние проекты'}
+          </h2>
+          <Link href="/projects">
+            <Button variant="ghost" className="flex items-center gap-1">
+              {currentLanguage === 'en' ? 'View all' : 'Все проекты'}
+              <ChevronRight className="w-4 h-4" />
+            </Button>
+          </Link>
         </div>
+      </div>
 
-        {/* Горизонтальный скролл контейнер - прокрутка карточек */}
-        <div className="overflow-x-auto scrollbar-hide cursor-grab active:cursor-grabbing -mx-8 px-8" onMouseDown={handleProjectsDragScroll}>
-          <div className="inline-flex gap-6 pb-4">
+      {/* Горизонтальный скролл карточек */}
+      <div className="overflow-x-scroll scrollbar-hide px-8 pb-8">
+        <div className="flex gap-6">
               {/* Пустая карточка 1 */}
               <div className="w-[320px] flex-shrink-0 h-[200px] bg-gradient-to-br from-blue-50 to-indigo-100 rounded-xl border-2 border-dashed border-blue-300 flex items-center justify-center">
                 <p className="text-blue-600 font-medium">Карточка 1</p>
@@ -411,163 +410,7 @@ export default function HomePage() {
               <div className="w-[320px] flex-shrink-0 h-[200px] bg-gradient-to-br from-lime-50 to-green-100 rounded-xl border-2 border-dashed border-lime-300 flex items-center justify-center">
                 <p className="text-lime-600 font-medium">Карточка 10</p>
               </div>
-          </div>
         </div>
-
-        {/* Модалка настроек проекта */}
-        {settingsProject && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-            <div className="bg-white rounded-2xl p-8 w-full max-w-md mx-4">
-              <h2 className="text-2xl font-bold text-slate-900 mb-6">
-                {currentLanguage === 'en' ? 'Project settings' : 'Настройки проекта'}
-              </h2>
-              <form onSubmit={handleSaveProjectSettings} className="space-y-6">
-                <div>
-                  <Label htmlFor="settingsName" className="block text-sm font-medium text-slate-700 mb-2">
-                    {currentLanguage === 'en' ? 'Project name' : 'Название проекта'}
-                  </Label>
-                  <Input
-                    id="settingsName"
-                    value={settingsName}
-                    onChange={(event) => setSettingsName(event.target.value)}
-                    placeholder={currentLanguage === 'en' ? 'Enter project name' : 'Введите название проекта'}
-                    required
-                    disabled={isSavingSettings}
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="settingsDescription" className="block text-sm font-medium text-slate-700 mb-2">
-                    {currentLanguage === 'en' ? 'Description' : 'Описание'}
-                  </Label>
-                  <textarea
-                    id="settingsDescription"
-                    value={settingsDescription}
-                    onChange={(event) => setSettingsDescription(event.target.value)}
-                    className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
-                    rows={4}
-                    placeholder={currentLanguage === 'en' ? 'Describe the project' : 'Опишите проект'}
-                    disabled={isSavingSettings}
-                  />
-                </div>
-                <div className="flex flex-col gap-4">
-                  <div className="flex gap-4">
-                    <Button type="submit" className="flex-1" disabled={isSavingSettings}>
-                      {isSavingSettings
-                        ? currentLanguage === 'en'
-                          ? 'Saving...'
-                          : 'Сохранение...'
-                        : currentLanguage === 'en'
-                        ? 'Save'
-                        : 'Сохранить'}
-                    </Button>
-                    <Button
-                      type="button"
-                      variant="outline"
-                      onClick={handleCloseProjectSettings}
-                      className="flex-1"
-                      disabled={isSavingSettings}
-                    >
-                      {currentLanguage === 'en' ? 'Cancel' : 'Отмена'}
-                    </Button>
-                  </div>
-                  <Button
-                    type="button"
-                    variant="destructive"
-                    onClick={() => {
-                      handleDeleteProjectRequest(settingsProject)
-                      handleCloseProjectSettings()
-                    }}
-                  >
-                    {currentLanguage === 'en' ? 'Delete project' : 'Удалить проект'}
-                  </Button>
-                </div>
-              </form>
-            </div>
-          </div>
-        )}
-
-        {/* Диалог удаления проекта */}
-        <AlertDialog
-          open={showDeleteDialog}
-          onOpenChange={(open) => {
-            setShowDeleteDialog(open)
-            if (!open && !isDeletingProject) {
-              setDeleteTargetProject(null)
-            }
-          }}
-        >
-          <AlertDialogContent>
-            <AlertDialogHeader>
-              <AlertDialogTitle>
-                {currentLanguage === 'en' ? 'Delete project' : 'Удалить проект'}
-              </AlertDialogTitle>
-              <AlertDialogDescription>
-                {currentLanguage === 'en'
-                  ? 'This action cannot be undone. All related audits will be removed.'
-                  : 'Это действие нельзя отменить. Все связанные аудиты будут удалены.'}
-              </AlertDialogDescription>
-            </AlertDialogHeader>
-            <AlertDialogFooter>
-              <AlertDialogCancel disabled={isDeletingProject}>
-                {currentLanguage === 'en' ? 'Cancel' : 'Отмена'}
-              </AlertDialogCancel>
-              <AlertDialogAction
-                onClick={handleConfirmProjectDelete}
-                className="bg-red-600 hover:bg-red-700"
-                disabled={isDeletingProject}
-              >
-                {isDeletingProject
-                  ? currentLanguage === 'en'
-                    ? 'Deleting...'
-                    : 'Удаление...'
-                  : currentLanguage === 'en'
-                  ? 'Delete'
-                  : 'Удалить'}
-              </AlertDialogAction>
-            </AlertDialogFooter>
-          </AlertDialogContent>
-        </AlertDialog>
-
-        {/* Типы исследований */}
-        <div className="px-8 pb-8 space-y-4">
-          <h2 className="text-2xl font-semibold text-slate-900">
-            {currentLanguage === 'en' ? 'Research Types' : 'Типы исследований'}
-          </h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {researchCards.map((card) => (
-              <Card
-                key={card.id}
-                className={`${
-                  card.available
-                    ? 'hover:shadow-lg transition-shadow cursor-pointer'
-                    : 'opacity-60 cursor-not-allowed'
-                }`}
-              >
-                <CardHeader>
-                  <div className={`w-16 h-16 rounded-lg ${card.color} flex items-center justify-center text-white mb-4`}>
-                    {card.icon}
-                  </div>
-                  <CardTitle>{card.title}</CardTitle>
-                  <CardDescription>{card.description}</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  {card.available ? (
-                    <p className="text-sm text-slate-600">
-                      {currentLanguage === 'en'
-                        ? 'Available in project audits'
-                        : 'Доступно в аудитах проекта'}
-                    </p>
-                  ) : (
-                    <p className="text-sm text-slate-500 italic">
-                      {currentLanguage === 'en' ? 'Coming soon...' : 'Скоро...'}
-                    </p>
-                  )}
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        </div>
-
       </div>
     </SidebarDemo>
   )
