@@ -383,7 +383,6 @@ export default function HomePage() {
               </div>
             </div>
           </div>
-        </div>
 
         {/* Модалка настроек проекта */}
         {settingsProject && (
