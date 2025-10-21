@@ -520,7 +520,7 @@ export default function HomePage() {
         <div className="relative col-span-2 pl-8 pr-12 pt-8 pb-4">
           <div
             ref={projectsScrollRef}
-            className="relative flex gap-6 overflow-x-auto pb-6 scroll-smooth scrollbar-hide cursor-grab snap-x snap-mandatory"
+            className="relative flex gap-6 overflow-x-auto pb-6 scroll-smooth scrollbar-hide cursor-grab"
             data-projects-scroll
             data-dragging="false"
             onMouseDown={handleProjectsDragScroll}
@@ -532,7 +532,7 @@ export default function HomePage() {
                 return (
                   <div
                     key={item.project.id}
-                    className="snap-start flex-shrink-0 w-[280px] sm:w-[320px] md:w-[360px]"
+                    className="flex-shrink-0 w-[280px] sm:w-[320px] md:w-[360px]"
                     role="listitem"
                   >
                     <ProjectCard
@@ -551,7 +551,7 @@ export default function HomePage() {
               return (
                 <div
                   key={item.card.id}
-                  className="snap-start flex-shrink-0 w-[280px] sm:w-[320px] md:w-[360px]"
+                  className="flex-shrink-0 w-[280px] sm:w-[320px] md:w-[360px]"
                   role="listitem"
                   aria-hidden="true"
                 >
