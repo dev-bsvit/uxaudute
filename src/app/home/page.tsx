@@ -359,10 +359,9 @@ export default function HomePage() {
           </div>
         </div>
 
-        {/* Горизонтальный скролл контейнер - обёрнут для ограничения ширины */}
-        <div className="w-full">
-          <div className="overflow-x-auto scrollbar-hide cursor-grab active:cursor-grabbing" onMouseDown={handleProjectsDragScroll}>
-            <div className="inline-flex gap-6 pb-4 w-max px-8">
+        {/* Горизонтальный скролл контейнер - прокрутка карточек */}
+        <div className="overflow-x-auto scrollbar-hide cursor-grab active:cursor-grabbing -mx-8 px-8" onMouseDown={handleProjectsDragScroll}>
+          <div className="inline-flex gap-6 pb-4">
               {/* Пустая карточка 1 */}
               <div className="w-[320px] flex-shrink-0 h-[200px] bg-gradient-to-br from-blue-50 to-indigo-100 rounded-xl border-2 border-dashed border-blue-300 flex items-center justify-center">
                 <p className="text-blue-600 font-medium">Карточка 1</p>
@@ -412,7 +411,6 @@ export default function HomePage() {
               <div className="w-[320px] flex-shrink-0 h-[200px] bg-gradient-to-br from-lime-50 to-green-100 rounded-xl border-2 border-dashed border-lime-300 flex items-center justify-center">
                 <p className="text-lime-600 font-medium">Карточка 10</p>
               </div>
-            </div>
           </div>
         </div>
 
