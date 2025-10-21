@@ -323,95 +323,22 @@ export default function HomePage() {
 
   return (
     <SidebarDemo user={user}>
-      {/* Заголовок */}
-      <div className="px-8 pt-8 pb-6">
-        <PageHeader
-          breadcrumbs={[
-            { label: currentLanguage === 'en' ? 'Home' : 'Главная' }
-          ]}
-          title={currentLanguage === 'en' ? 'Welcome Back!' : 'Привет Богдан'}
-          subtitle={
-            currentLanguage === 'en'
-              ? 'Overview of your research and projects'
-              : 'Обзор ваших исследований и проектов'
-          }
-          primaryButton={{
-            label: currentLanguage === 'en' ? 'New Project' : 'Создать аудит',
-            onClick: handleCreateProject,
-            disabled: creating
-          }}
-        />
-      </div>
-
-      {/* Секция с заголовком "Последние проекты" */}
-      <div className="px-8 pb-4">
-        <div className="flex items-center justify-between">
-          <h2 className="text-2xl font-semibold text-slate-900">
-            {currentLanguage === 'en' ? 'Recent Projects' : 'Последние проекты'}
-          </h2>
-          <Link href="/projects">
-            <Button variant="ghost" className="flex items-center gap-1">
-              {currentLanguage === 'en' ? 'View all' : 'Все проекты'}
-              <ChevronRight className="w-4 h-4" />
-            </Button>
-          </Link>
-        </div>
-      </div>
-
-      {/* Горизонтальный скролл карточек */}
-      <div className="overflow-x-scroll scrollbar-hide px-8 pb-8">
-        <div className="flex gap-6">
-              {/* Пустая карточка 1 */}
-              <div className="w-[320px] flex-shrink-0 h-[200px] bg-gradient-to-br from-blue-50 to-indigo-100 rounded-xl border-2 border-dashed border-blue-300 flex items-center justify-center">
-                <p className="text-blue-600 font-medium">Карточка 1</p>
-              </div>
-
-              {/* Пустая карточка 2 */}
-              <div className="w-[320px] flex-shrink-0 h-[200px] bg-gradient-to-br from-purple-50 to-pink-100 rounded-xl border-2 border-dashed border-purple-300 flex items-center justify-center">
-                <p className="text-purple-600 font-medium">Карточка 2</p>
-              </div>
-
-              {/* Пустая карточка 3 */}
-              <div className="w-[320px] flex-shrink-0 h-[200px] bg-gradient-to-br from-green-50 to-emerald-100 rounded-xl border-2 border-dashed border-green-300 flex items-center justify-center">
-                <p className="text-green-600 font-medium">Карточка 3</p>
-              </div>
-
-              {/* Пустая карточка 4 */}
-              <div className="w-[320px] flex-shrink-0 h-[200px] bg-gradient-to-br from-orange-50 to-red-100 rounded-xl border-2 border-dashed border-orange-300 flex items-center justify-center">
-                <p className="text-orange-600 font-medium">Карточка 4</p>
-              </div>
-
-              {/* Пустая карточка 5 */}
-              <div className="w-[320px] flex-shrink-0 h-[200px] bg-gradient-to-br from-red-50 to-rose-100 rounded-xl border-2 border-dashed border-red-300 flex items-center justify-center">
-                <p className="text-red-600 font-medium">Карточка 5</p>
-              </div>
-
-              {/* Пустая карточка 6 */}
-              <div className="w-[320px] flex-shrink-0 h-[200px] bg-gradient-to-br from-cyan-50 to-sky-100 rounded-xl border-2 border-dashed border-cyan-300 flex items-center justify-center">
-                <p className="text-cyan-600 font-medium">Карточка 6</p>
-              </div>
-
-              {/* Пустая карточка 7 */}
-              <div className="w-[320px] flex-shrink-0 h-[200px] bg-gradient-to-br from-yellow-50 to-amber-100 rounded-xl border-2 border-dashed border-yellow-300 flex items-center justify-center">
-                <p className="text-yellow-600 font-medium">Карточка 7</p>
-              </div>
-
-              {/* Пустая карточка 8 */}
-              <div className="w-[320px] flex-shrink-0 h-[200px] bg-gradient-to-br from-teal-50 to-emerald-100 rounded-xl border-2 border-dashed border-teal-300 flex items-center justify-center">
-                <p className="text-teal-600 font-medium">Карточка 8</p>
-              </div>
-
-              {/* Пустая карточка 9 */}
-              <div className="w-[320px] flex-shrink-0 h-[200px] bg-gradient-to-br from-fuchsia-50 to-purple-100 rounded-xl border-2 border-dashed border-fuchsia-300 flex items-center justify-center">
-                <p className="text-fuchsia-600 font-medium">Карточка 9</p>
-              </div>
-
-              {/* Пустая карточка 10 */}
-              <div className="w-[320px] flex-shrink-0 h-[200px] bg-gradient-to-br from-lime-50 to-green-100 rounded-xl border-2 border-dashed border-lime-300 flex items-center justify-center">
-                <p className="text-lime-600 font-medium">Карточка 10</p>
-              </div>
-        </div>
-      </div>
+      <PageHeader
+        breadcrumbs={[
+          { label: currentLanguage === 'en' ? 'Home' : 'Главная' }
+        ]}
+        title={currentLanguage === 'en' ? 'Welcome Back!' : 'Привет Богдан'}
+        subtitle={
+          currentLanguage === 'en'
+            ? 'Overview of your research and projects'
+            : 'Обзор ваших исследований и проектов'
+        }
+        primaryButton={{
+          label: currentLanguage === 'en' ? 'New Project' : 'Создать аудит',
+          onClick: handleCreateProject,
+          disabled: creating
+        }}
+      />
     </SidebarDemo>
   )
 }
