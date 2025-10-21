@@ -360,7 +360,7 @@ export default function HomePage() {
           </div>
         </div>
 
-        {/* Горизонтальный скролл карточек */}
+        {/* Horizontal scroll container / card carousel */}
         <div className="col-span-2 grid grid-flow-col auto-cols-min gap-6 overflow-x-auto pb-4 pl-8 pr-8 scrollbar-hide">
           {/* Карточка 1 */}
           <div className="w-[320px] h-[200px] bg-gradient-to-br from-blue-50 to-indigo-100 rounded-xl border-2 border-dashed border-blue-300 flex items-center justify-center">
