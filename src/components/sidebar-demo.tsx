@@ -186,7 +186,7 @@ export function SidebarDemo({ children, user }: SidebarDemoProps) {
 
       <div className="flex flex-1">
         <div className="flex h-full w-full flex-1 flex-col overflow-y-auto bg-white">
-          <div className="h-full">{children}</div>
+          <div className="h-full p-8">{children}</div>
         </div>
       </div>
     </div>

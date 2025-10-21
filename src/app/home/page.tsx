@@ -323,27 +323,29 @@ export default function HomePage() {
 
   return (
     <SidebarDemo user={user}>
-      <div className="p-8 pt-8 space-y-8">
+      <div className="-m-8 space-y-8">
         {/* Заголовок */}
-        <PageHeader
-          breadcrumbs={[
-            { label: currentLanguage === 'en' ? 'Home' : 'Главная' }
-          ]}
-          title={currentLanguage === 'en' ? 'Welcome Back!' : 'Привет Богдан'}
-          subtitle={
-            currentLanguage === 'en'
-              ? 'Overview of your research and projects'
-              : 'Обзор ваших исследований и проектов'
-          }
-          primaryButton={{
-            label: currentLanguage === 'en' ? 'New Project' : 'Создать аудит',
-            onClick: handleCreateProject,
-            disabled: creating
-          }}
-        />
+        <div className="px-8 pt-8">
+          <PageHeader
+            breadcrumbs={[
+              { label: currentLanguage === 'en' ? 'Home' : 'Главная' }
+            ]}
+            title={currentLanguage === 'en' ? 'Welcome Back!' : 'Привет Богдан'}
+            subtitle={
+              currentLanguage === 'en'
+                ? 'Overview of your research and projects'
+                : 'Обзор ваших исследований и проектов'
+            }
+            primaryButton={{
+              label: currentLanguage === 'en' ? 'New Project' : 'Создать аудит',
+              onClick: handleCreateProject,
+              disabled: creating
+            }}
+          />
+        </div>
 
         {/* Горизонтальный скролл с проектами */}
-        <div>
+        <div className="px-8">
           <div className="flex items-center justify-between mb-6">
             <h2 className="text-2xl font-semibold text-slate-900">
               {currentLanguage === 'en' ? 'Recent Projects' : 'Последние проекты'}
@@ -355,10 +357,11 @@ export default function HomePage() {
               </Button>
             </Link>
           </div>
+        </div>
 
-          {/* Горизонтальный скролл контейнер */}
-          <div className="-mx-8 px-8 overflow-x-auto scrollbar-hide">
-            <div className="flex gap-6 pb-4">
+        {/* Горизонтальный скролл контейнер - БЕЗ padding */}
+        <div className="overflow-x-auto scrollbar-hide px-8">
+          <div className="flex gap-6 pb-4">
               {/* Пустая карточка 1 */}
               <div className="w-[320px] flex-shrink-0 h-[200px] bg-gradient-to-br from-blue-50 to-indigo-100 rounded-xl border-2 border-dashed border-blue-300 flex items-center justify-center">
                 <p className="text-blue-600 font-medium">Карточка 1</p>
@@ -497,7 +500,7 @@ export default function HomePage() {
         </AlertDialog>
 
         {/* Типы исследований */}
-        <div className="space-y-4">
+        <div className="px-8 pb-8 space-y-4">
           <h2 className="text-2xl font-semibold text-slate-900">
             {currentLanguage === 'en' ? 'Research Types' : 'Типы исследований'}
           </h2>
