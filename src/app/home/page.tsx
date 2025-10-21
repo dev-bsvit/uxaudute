@@ -54,6 +54,61 @@ interface ResearchCard {
   available: boolean
 }
 
+interface PlaceholderCard {
+  id: string
+  gradient: string
+  border: string
+  textClass: string
+  label: string
+}
+
+const MAX_CAROUSEL_ITEMS = 7
+
+const PLACEHOLDER_CARD_STYLES: Array<Omit<PlaceholderCard, 'label'>> = [
+  {
+    id: 'placeholder-1',
+    gradient: 'from-blue-50 to-indigo-100',
+    border: 'border-blue-300',
+    textClass: 'text-blue-600'
+  },
+  {
+    id: 'placeholder-2',
+    gradient: 'from-purple-50 to-pink-100',
+    border: 'border-purple-300',
+    textClass: 'text-purple-600'
+  },
+  {
+    id: 'placeholder-3',
+    gradient: 'from-green-50 to-emerald-100',
+    border: 'border-green-300',
+    textClass: 'text-green-600'
+  },
+  {
+    id: 'placeholder-4',
+    gradient: 'from-orange-50 to-red-100',
+    border: 'border-orange-300',
+    textClass: 'text-orange-600'
+  },
+  {
+    id: 'placeholder-5',
+    gradient: 'from-red-50 to-rose-100',
+    border: 'border-red-300',
+    textClass: 'text-red-600'
+  },
+  {
+    id: 'placeholder-6',
+    gradient: 'from-cyan-50 to-sky-100',
+    border: 'border-cyan-300',
+    textClass: 'text-cyan-600'
+  },
+  {
+    id: 'placeholder-7',
+    gradient: 'from-yellow-50 to-amber-100',
+    border: 'border-yellow-300',
+    textClass: 'text-yellow-600'
+  }
+]
+
 export default function HomePage() {
   const router = useRouter()
   const { t, currentLanguage } = useTranslation()
@@ -309,6 +364,23 @@ export default function HomePage() {
     }
   ]
 
+  const recentProjects = projects.slice(0, MAX_CAROUSEL_ITEMS)
+  const placeholderCards: PlaceholderCard[] = PLACEHOLDER_CARD_STYLES.slice(
+    0,
+    Math.max(0, MAX_CAROUSEL_ITEMS - recentProjects.length)
+  ).map((style, index) => ({
+    ...style,
+    label:
+      currentLanguage === 'en'
+        ? `Card ${recentProjects.length + index + 1}`
+        : `Карточка ${recentProjects.length + index + 1}`
+  }))
+
+  const carouselItems = [
+    ...recentProjects.map((project) => ({ type: 'project' as const, project })),
+    ...placeholderCards.map((card) => ({ type: 'placeholder' as const, card }))
+  ]
+
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-100 flex items-center justify-center">
@@ -362,24 +434,24 @@ export default function HomePage() {
 
         {/* Horizontal scroll container / card carousel */}
         <div className="relative col-span-2">
-          {projects.length > 0 ? (
-            <>
-              <div
-                className="grid grid-flow-col auto-cols-[minmax(280px,_320px)] gap-6 overflow-x-auto px-8 pb-4 scrollbar-hide cursor-grab snap-x snap-mandatory"
-                data-projects-scroll
-                data-dragging="false"
-                onMouseDown={handleProjectsDragScroll}
-                role="list"
-                aria-label={currentLanguage === 'en' ? 'Recent projects' : 'Последние проекты'}
-              >
-                {projects.map((project) => (
+          <div
+            className="flex gap-6 overflow-x-auto px-8 pb-4 pr-12 scrollbar-hide cursor-grab snap-x snap-mandatory"
+            data-projects-scroll
+            data-dragging="false"
+            onMouseDown={handleProjectsDragScroll}
+            role="list"
+            aria-label={currentLanguage === 'en' ? 'Recent projects' : 'Последние проекты'}
+          >
+            {carouselItems.map((item) => {
+              if (item.type === 'project') {
+                return (
                   <div
-                    key={project.id}
+                    key={item.project.id}
                     className="snap-start flex-shrink-0 w-[280px] sm:w-[320px] md:w-[360px]"
                     role="listitem"
                   >
                     <ProjectCard
-                      project={project}
+                      project={item.project}
                       formatDate={formatDate}
                       onOpenSettings={handleEditProject}
                       onEdit={handleEditProject}
@@ -388,28 +460,34 @@ export default function HomePage() {
                       }}
                     />
                   </div>
-                ))}
-              </div>
-              <div className="pointer-events-none absolute inset-y-0 right-0 hidden w-16 bg-gradient-to-l from-white via-white/80 to-transparent sm:block" />
-            </>
-          ) : (
-            <div className="px-8 pb-4">
-              <div className="flex h-[170px] w-full flex-col items-center justify-center rounded-2xl border-2 border-dashed border-slate-200 bg-white px-6 text-center">
-                <p className="max-w-xs text-sm text-slate-600">
-                  {currentLanguage === 'en'
-                    ? 'Create your first project to see it here.'
-                    : 'Создайте первый проект, и он появится здесь.'}
-                </p>
-                <Button
-                  className="mt-4"
-                  onClick={handleCreateProject}
-                  disabled={creating}
-                  data-card-interactive="true"
+                )
+              }
+
+              return (
+                <div
+                  key={item.card.id}
+                  className="snap-start flex-shrink-0 w-[280px] sm:w-[320px] md:w-[360px]"
+                  role="listitem"
+                  aria-hidden="true"
                 >
-                  {currentLanguage === 'en' ? 'Create Project' : 'Создать проект'}
-                </Button>
-              </div>
-            </div>
+                  <div
+                    className={`flex h-[170px] w-full flex-col items-center justify-center rounded-2xl border-2 border-dashed bg-gradient-to-br px-6 text-center ${item.card.border} ${item.card.gradient}`}
+                  >
+                    <p className={`text-base font-semibold ${item.card.textClass}`}>
+                      {item.card.label}
+                    </p>
+                    <p className="mt-2 text-sm text-slate-600">
+                      {currentLanguage === 'en'
+                        ? 'Reserved for your next project.'
+                        : 'Здесь появится ваш следующий проект.'}
+                    </p>
+                  </div>
+                </div>
+              )
+            })}
+          </div>
+          {carouselItems.length > 0 && (
+            <div className="pointer-events-none absolute inset-y-0 right-0 hidden w-16 bg-gradient-to-l from-white via-white/80 to-transparent sm:block" />
           )}
         </div>
       </section>
