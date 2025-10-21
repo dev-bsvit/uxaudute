@@ -323,7 +323,7 @@ export default function HomePage() {
 
   return (
     <SidebarDemo user={user}>
-      <div className="-m-8 space-y-8">
+      <div className="-m-8 space-y-8 overflow-x-hidden">
         {/* Заголовок */}
         <div className="px-8 pt-8">
           <PageHeader
