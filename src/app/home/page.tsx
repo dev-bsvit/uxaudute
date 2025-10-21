@@ -324,9 +324,9 @@ export default function HomePage() {
   return (
     <SidebarDemo user={user}>
       {/* Секция с горизонтальным скроллом */}
-      <section className="grid grid-cols-[2rem_1fr_2rem] mt-8">
+      <section className="grid grid-cols-[1fr_2rem]">
         {/* Хедер */}
-        <div className="col-start-2">
+        <div className="px-8">
           <PageHeader
             breadcrumbs={[
               { label: currentLanguage === 'en' ? 'Home' : 'Главная' }
@@ -346,7 +346,7 @@ export default function HomePage() {
         </div>
 
         {/* Заголовок секции */}
-        <div className="col-start-2 pb-4 mt-8">
+        <div className="px-8 pb-4 mt-8">
           <div className="flex items-center justify-between">
             <h2 className="text-2xl font-semibold text-slate-900">
               {currentLanguage === 'en' ? 'Recent Projects' : 'Последние проекты'}
@@ -361,7 +361,7 @@ export default function HomePage() {
         </div>
 
         {/* Горизонтальный скролл карточек */}
-        <div className="col-start-2 col-end-4 grid grid-flow-col auto-cols-min gap-6 overflow-x-auto pb-4 pr-8 scrollbar-hide">
+        <div className="col-span-2 grid grid-flow-col auto-cols-min gap-6 overflow-x-auto pb-4 pl-8 pr-8 scrollbar-hide">
           {/* Карточка 1 */}
           <div className="w-[320px] h-[200px] bg-gradient-to-br from-blue-50 to-indigo-100 rounded-xl border-2 border-dashed border-blue-300 flex items-center justify-center">
             <p className="text-blue-600 font-medium">Карточка 1</p>
