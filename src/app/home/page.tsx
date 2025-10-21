@@ -361,56 +361,56 @@ export default function HomePage() {
         </div>
 
         {/* Horizontal scroll container / card carousel */}
-        <div className="col-span-2 grid grid-flow-col auto-cols-min gap-6 overflow-x-auto pb-4 pl-8 pr-8 scrollbar-hide">
-          {/* Карточка 1 */}
-          <div className="w-[320px] h-[200px] bg-gradient-to-br from-blue-50 to-indigo-100 rounded-xl border-2 border-dashed border-blue-300 flex items-center justify-center">
-            <p className="text-blue-600 font-medium">Карточка 1</p>
-          </div>
-
-          {/* Карточка 2 */}
-          <div className="w-[320px] h-[200px] bg-gradient-to-br from-purple-50 to-pink-100 rounded-xl border-2 border-dashed border-purple-300 flex items-center justify-center">
-            <p className="text-purple-600 font-medium">Карточка 2</p>
-          </div>
-
-          {/* Карточка 3 */}
-          <div className="w-[320px] h-[200px] bg-gradient-to-br from-green-50 to-emerald-100 rounded-xl border-2 border-dashed border-green-300 flex items-center justify-center">
-            <p className="text-green-600 font-medium">Карточка 3</p>
-          </div>
-
-          {/* Карточка 4 */}
-          <div className="w-[320px] h-[200px] bg-gradient-to-br from-orange-50 to-red-100 rounded-xl border-2 border-dashed border-orange-300 flex items-center justify-center">
-            <p className="text-orange-600 font-medium">Карточка 4</p>
-          </div>
-
-          {/* Карточка 5 */}
-          <div className="w-[320px] h-[200px] bg-gradient-to-br from-red-50 to-rose-100 rounded-xl border-2 border-dashed border-red-300 flex items-center justify-center">
-            <p className="text-red-600 font-medium">Карточка 5</p>
-          </div>
-
-          {/* Карточка 6 */}
-          <div className="w-[320px] h-[200px] bg-gradient-to-br from-cyan-50 to-sky-100 rounded-xl border-2 border-dashed border-cyan-300 flex items-center justify-center">
-            <p className="text-cyan-600 font-medium">Карточка 6</p>
-          </div>
-
-          {/* Карточка 7 */}
-          <div className="w-[320px] h-[200px] bg-gradient-to-br from-yellow-50 to-amber-100 rounded-xl border-2 border-dashed border-yellow-300 flex items-center justify-center">
-            <p className="text-yellow-600 font-medium">Карточка 7</p>
-          </div>
-
-          {/* Карточка 8 */}
-          <div className="w-[320px] h-[200px] bg-gradient-to-br from-teal-50 to-emerald-100 rounded-xl border-2 border-dashed border-teal-300 flex items-center justify-center">
-            <p className="text-teal-600 font-medium">Карточка 8</p>
-          </div>
-
-          {/* Карточка 9 */}
-          <div className="w-[320px] h-[200px] bg-gradient-to-br from-fuchsia-50 to-purple-100 rounded-xl border-2 border-dashed border-fuchsia-300 flex items-center justify-center">
-            <p className="text-fuchsia-600 font-medium">Карточка 9</p>
-          </div>
-
-          {/* Карточка 10 */}
-          <div className="w-[320px] h-[200px] bg-gradient-to-br from-lime-50 to-green-100 rounded-xl border-2 border-dashed border-lime-300 flex items-center justify-center">
-            <p className="text-lime-600 font-medium">Карточка 10</p>
-          </div>
+        <div className="relative col-span-2">
+          {projects.length > 0 ? (
+            <>
+              <div
+                className="grid grid-flow-col auto-cols-[minmax(280px,_320px)] gap-6 overflow-x-auto px-8 pb-4 scrollbar-hide cursor-grab snap-x snap-mandatory"
+                data-projects-scroll
+                data-dragging="false"
+                onMouseDown={handleProjectsDragScroll}
+                role="list"
+                aria-label={currentLanguage === 'en' ? 'Recent projects' : 'Последние проекты'}
+              >
+                {projects.map((project) => (
+                  <div
+                    key={project.id}
+                    className="snap-start flex-shrink-0 w-[280px] sm:w-[320px] md:w-[360px]"
+                    role="listitem"
+                  >
+                    <ProjectCard
+                      project={project}
+                      formatDate={formatDate}
+                      onOpenSettings={handleEditProject}
+                      onEdit={handleEditProject}
+                      menuLabels={{
+                        settings: currentLanguage === 'en' ? 'Project settings' : 'Настройки проекта'
+                      }}
+                    />
+                  </div>
+                ))}
+              </div>
+              <div className="pointer-events-none absolute inset-y-0 right-0 hidden w-16 bg-gradient-to-l from-white via-white/80 to-transparent sm:block" />
+            </>
+          ) : (
+            <div className="px-8 pb-4">
+              <div className="flex h-[170px] w-full flex-col items-center justify-center rounded-2xl border-2 border-dashed border-slate-200 bg-white px-6 text-center">
+                <p className="max-w-xs text-sm text-slate-600">
+                  {currentLanguage === 'en'
+                    ? 'Create your first project to see it here.'
+                    : 'Создайте первый проект, и он появится здесь.'}
+                </p>
+                <Button
+                  className="mt-4"
+                  onClick={handleCreateProject}
+                  disabled={creating}
+                  data-card-interactive="true"
+                >
+                  {currentLanguage === 'en' ? 'Create Project' : 'Создать проект'}
+                </Button>
+              </div>
+            </div>
+          )}
         </div>
       </section>
     </SidebarDemo>
