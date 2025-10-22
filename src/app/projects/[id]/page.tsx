@@ -72,7 +72,7 @@ interface Project {
   description: string | null
   context: string | null
   target_audience: string | null
-  type: 'audit' | 'survey'
+  type?: 'audit' | 'survey' // Опциональное поле для обратной совместимости
   created_at: string
 }
 
@@ -806,8 +806,8 @@ export default function ProjectDetailPage() {
               onClick: () => setShowSettingsModal(true)
           }}
           primaryButton={
-            // Показываем кнопку "Новый аудит" только для audit проектов
-            project?.type === 'audit' ? (
+            // Показываем кнопку "Новый аудит" только для audit проектов (или если тип не указан - для обратной совместимости)
+            (!project?.type || project?.type === 'audit') ? (
               showCreateForm
                 ? {
                     label: submitButtonLabel,
@@ -846,8 +846,8 @@ export default function ProjectDetailPage() {
         {/* Основной контент */}
         {!currentAudit ? (
           <>
-            {/* Форма создания аудита - показываем только для audit проектов */}
-            {showCreateForm && project?.type === 'audit' && (
+            {/* Форма создания аудита - показываем только для audit проектов (или если тип не указан) */}
+            {showCreateForm && (!project?.type || project?.type === 'audit') && (
               <div className="w-full rounded-2xl bg-white p-8">
                 <form
                   ref={createAuditFormRef}
