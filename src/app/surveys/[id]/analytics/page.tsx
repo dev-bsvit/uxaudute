@@ -154,89 +154,105 @@ export default function SurveyAnalyticsPage() {
             </p>
           </div>
 
-          {stats.type === 'yes-no' && 'yes' in stats && 'no' in stats && (
-            <div className="space-y-3">
-              <div>
-                <div className="flex items-center justify-between mb-2">
-                  <div className="flex items-center gap-2">
-                    <ThumbsUp className="w-4 h-4 text-green-600" />
-                    <span className="text-sm font-medium">Да</span>
-                  </div>
-                  <span className="text-sm font-semibold">
-                    {stats.yes.count} ({stats.yes.percentage.toFixed(0)}%)
-                  </span>
-                </div>
-                <div className="h-3 bg-slate-100 rounded-full overflow-hidden">
-                  <div
-                    className="h-full bg-green-500"
-                    style={{ width: `${stats.yes.percentage}%` }}
-                  />
-                </div>
-              </div>
-              <div>
-                <div className="flex items-center justify-between mb-2">
-                  <div className="flex items-center gap-2">
-                    <ThumbsDown className="w-4 h-4 text-red-600" />
-                    <span className="text-sm font-medium">Нет</span>
-                  </div>
-                  <span className="text-sm font-semibold">
-                    {stats.no.count} ({stats.no.percentage.toFixed(0)}%)
-                  </span>
-                </div>
-                <div className="h-3 bg-slate-100 rounded-full overflow-hidden">
-                  <div
-                    className="h-full bg-red-500"
-                    style={{ width: `${stats.no.percentage}%` }}
-                  />
-                </div>
-              </div>
-            </div>
-          )}
-
-          {stats.type === 'rating' && 'average' in stats && 'distribution' in stats && (
-            <div className="space-y-3">
-              <div className="flex items-center gap-2 text-2xl font-bold text-blue-600">
-                <TrendingUp className="w-6 h-6" />
-                {stats.average} / 5
-              </div>
-              <div className="space-y-2">
-                {stats.distribution.slice().reverse().map(({ rating, count }) => (
-                  <div key={rating} className="flex items-center gap-3">
-                    <span className="text-sm font-medium w-8">{rating} ★</span>
-                    <div className="flex-1 h-3 bg-slate-100 rounded-full overflow-hidden">
+          {stats.type === 'yes-no' && (
+            <>
+              {'yes' in stats && 'no' in stats && (
+                <div className="space-y-3">
+                  <div>
+                    <div className="flex items-center justify-between mb-2">
+                      <div className="flex items-center gap-2">
+                        <ThumbsUp className="w-4 h-4 text-green-600" />
+                        <span className="text-sm font-medium">Да</span>
+                      </div>
+                      <span className="text-sm font-semibold">
+                        {stats.yes.count} ({stats.yes.percentage.toFixed(0)}%)
+                      </span>
+                    </div>
+                    <div className="h-3 bg-slate-100 rounded-full overflow-hidden">
                       <div
-                        className="h-full bg-yellow-500"
-                        style={{
-                          width: `${stats.total > 0 ? (count / stats.total) * 100 : 0}%`
-                        }}
+                        className="h-full bg-green-500"
+                        style={{ width: `${stats.yes.percentage}%` }}
                       />
                     </div>
-                    <span className="text-sm text-slate-600 w-8">{count}</span>
                   </div>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {stats.type === 'scale' && 'average' in stats && (
-            <div className="flex items-center gap-2 text-2xl font-bold text-blue-600">
-              <BarChart3 className="w-6 h-6" />
-              {stats.average} / 10
-            </div>
-          )}
-
-          {stats.type === 'text' && 'answers' in stats && (
-            <div className="space-y-3 max-h-96 overflow-y-auto">
-              {stats.answers.length === 0 ? (
-                <p className="text-sm text-slate-500 italic">Нет ответов</p>
-              ) : (
-                stats.answers.map((answer, idx) => (
-                  <Card key={idx} className="p-3 bg-slate-50">
-                    <p className="text-sm text-slate-700">{answer}</p>
-                  </Card>
-                ))
+                  <div>
+                    <div className="flex items-center justify-between mb-2">
+                      <div className="flex items-center gap-2">
+                        <ThumbsDown className="w-4 h-4 text-red-600" />
+                        <span className="text-sm font-medium">Нет</span>
+                      </div>
+                      <span className="text-sm font-semibold">
+                        {stats.no.count} ({stats.no.percentage.toFixed(0)}%)
+                      </span>
+                    </div>
+                    <div className="h-3 bg-slate-100 rounded-full overflow-hidden">
+                      <div
+                        className="h-full bg-red-500"
+                        style={{ width: `${stats.no.percentage}%` }}
+                      />
+                    </div>
+                  </div>
+                </div>
               )}
-            </div>
+            </>
+          )}
+
+          {stats.type === 'rating' && (
+            <>
+              {'average' in stats && 'distribution' in stats && (
+                <div className="space-y-3">
+                  <div className="flex items-center gap-2 text-2xl font-bold text-blue-600">
+                    <TrendingUp className="w-6 h-6" />
+                    {stats.average} / 5
+                  </div>
+                  <div className="space-y-2">
+                    {stats.distribution.slice().reverse().map(({ rating, count }) => (
+                      <div key={rating} className="flex items-center gap-3">
+                        <span className="text-sm font-medium w-8">{rating} ★</span>
+                        <div className="flex-1 h-3 bg-slate-100 rounded-full overflow-hidden">
+                          <div
+                            className="h-full bg-yellow-500"
+                            style={{
+                              width: `${stats.total > 0 ? (count / stats.total) * 100 : 0}%`
+                            }}
+                          />
+                        </div>
+                        <span className="text-sm text-slate-600 w-8">{count}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </>
+          )}
+
+          {stats.type === 'scale' && (
+            <>
+              {'average' in stats && (
+                <div className="flex items-center gap-2 text-2xl font-bold text-blue-600">
+                  <BarChart3 className="w-6 h-6" />
+                  {stats.average} / 10
+                </div>
+              )}
+            </>
+          )}
+
+          {stats.type === 'text' && (
+            <>
+              {'answers' in stats && (
+                <div className="space-y-3 max-h-96 overflow-y-auto">
+                  {stats.answers.length === 0 ? (
+                    <p className="text-sm text-slate-500 italic">Нет ответов</p>
+                  ) : (
+                    stats.answers.map((answer, idx) => (
+                      <Card key={idx} className="p-3 bg-slate-50">
+                        <p className="text-sm text-slate-700">{answer}</p>
+                      </Card>
+                    ))
+                  )}
+                </div>
+              )}
+            </>
           )}
         </div>
       </Card>
