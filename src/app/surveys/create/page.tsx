@@ -87,7 +87,7 @@ export default function CreateSurveyPage() {
     const fileName = `${userId}/${Date.now()}.${fileExt}`
 
     const { data, error } = await supabase.storage
-      .from('screenshots')
+      .from('audit-uploads')
       .upload(fileName, file, {
         cacheControl: '3600',
         upsert: false
@@ -96,7 +96,7 @@ export default function CreateSurveyPage() {
     if (error) throw error
 
     const { data: { publicUrl } } = supabase.storage
-      .from('screenshots')
+      .from('audit-uploads')
       .getPublicUrl(fileName)
 
     return publicUrl
