@@ -190,4 +190,4 @@ export type QuestionAction =
   | { type: 'UPDATE_TEXT'; instanceId: string; text: string }
   | { type: 'UPDATE_TYPE'; instanceId: string; questionType: QuestionType }
   | { type: 'TOGGLE_REQUIRED'; instanceId: string }
-  | { type: 'ADD_CUSTOM'; text: string; type: QuestionType; pool: 'main' | 'additional' }
+  | { type: 'ADD_CUSTOM'; text: string; questionType: QuestionType; pool: 'main' | 'additional' }
