@@ -237,7 +237,10 @@ export default function PublicSurveyPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-slate-100 py-12 px-4">
-      <div className="max-w-3xl mx-auto space-y-8">
+      <div className="max-w-7xl mx-auto">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          {/* Левая колонка - Форма опроса */}
+          <div className="space-y-8">
         {/* Заголовок */}
         <Card className="p-8">
           <h1 className="text-3xl font-bold text-slate-900 mb-2">
@@ -305,6 +308,24 @@ export default function PublicSurveyPage() {
             </Button>
           </Card>
         </form>
+          </div>
+
+          {/* Правая колонка - Скриншот */}
+          {survey.screenshot_url && (
+            <div className="lg:sticky lg:top-8 h-fit">
+              <Card className="p-6">
+                <h3 className="text-lg font-semibold text-slate-900 mb-4">
+                  Анализируемый интерфейс
+                </h3>
+                <img
+                  src={survey.screenshot_url}
+                  alt="Survey screenshot"
+                  className="w-full h-auto rounded-lg border border-slate-200"
+                />
+              </Card>
+            </div>
+          )}
+        </div>
       </div>
     </div>
   )
