@@ -1,5 +1,5 @@
 import type { Metadata } from "next"
-import { Inter, JetBrains_Mono } from "next/font/google"
+import "./fonts.css"
 import "./globals.css"
 import { LanguageProvider } from '@/components/language-provider'
 import { LanguageAutoInitializer } from '@/components/language-auto-initializer'
@@ -9,18 +9,6 @@ import { LanguagePersistenceTest } from '@/components/language-persistence-test'
 import { SmoothLanguageInitializer } from '@/components/smooth-language-initializer'
 import { DynamicHtmlLang } from '@/components/dynamic-html-lang'
 import { DynamicMetadata } from '@/components/dynamic-metadata'
-
-const inter = Inter({
-  variable: "--font-geist-sans",
-  subsets: ["latin", "cyrillic"],
-  display: "swap",
-})
-
-const jetbrainsMono = JetBrains_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin", "cyrillic"],
-  display: "swap",
-})
 
 export const metadata: Metadata = {
   title: "UX Audit",
@@ -39,7 +27,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="ru">
-      <body className={`${inter.variable} ${jetbrainsMono.variable} font-sans antialiased`}>
+      <body className="antialiased">
         <LanguageProvider>
           <SmoothLanguageInitializer
             showLoadingScreen={true}

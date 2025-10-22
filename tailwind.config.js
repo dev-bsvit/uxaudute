@@ -9,8 +9,8 @@ module.exports = {
   theme: {
   	extend: {
   		fontFamily: {
-  			sans: ['var(--font-geist-sans)', 'ui-sans-serif', 'system-ui'],
-  			mono: ['var(--font-geist-mono)', 'ui-monospace', 'SFMono-Regular'],
+  			sans: ['Inter Display', 'ui-sans-serif', 'system-ui', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'sans-serif'],
+  			mono: ['ui-monospace', 'SFMono-Regular', 'Menlo', 'Monaco', 'Consolas', 'monospace'],
   		},
   		borderRadius: {
   			lg: 'var(--radius)',
