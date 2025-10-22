@@ -154,7 +154,7 @@ export default function SurveyAnalyticsPage() {
             </p>
           </div>
 
-          {stats.type === 'yes-no' && (
+          {stats.type === 'yes-no' && 'yes' in stats && 'no' in stats && (
             <div className="space-y-3">
               <div>
                 <div className="flex items-center justify-between mb-2">
@@ -193,14 +193,14 @@ export default function SurveyAnalyticsPage() {
             </div>
           )}
 
-          {stats.type === 'rating' && (
+          {stats.type === 'rating' && 'average' in stats && 'distribution' in stats && (
             <div className="space-y-3">
               <div className="flex items-center gap-2 text-2xl font-bold text-blue-600">
                 <TrendingUp className="w-6 h-6" />
                 {stats.average} / 5
               </div>
               <div className="space-y-2">
-                {stats.distribution.reverse().map(({ rating, count }) => (
+                {stats.distribution.slice().reverse().map(({ rating, count }) => (
                   <div key={rating} className="flex items-center gap-3">
                     <span className="text-sm font-medium w-8">{rating} ★</span>
                     <div className="flex-1 h-3 bg-slate-100 rounded-full overflow-hidden">
@@ -218,14 +218,14 @@ export default function SurveyAnalyticsPage() {
             </div>
           )}
 
-          {stats.type === 'scale' && (
+          {stats.type === 'scale' && 'average' in stats && (
             <div className="flex items-center gap-2 text-2xl font-bold text-blue-600">
               <BarChart3 className="w-6 h-6" />
               {stats.average} / 10
             </div>
           )}
 
-          {stats.type === 'text' && (
+          {stats.type === 'text' && 'answers' in stats && (
             <div className="space-y-3 max-h-96 overflow-y-auto">
               {stats.answers.length === 0 ? (
                 <p className="text-sm text-slate-500 italic">Нет ответов</p>
