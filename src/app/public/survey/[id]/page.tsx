@@ -71,15 +71,34 @@ export default function PublicSurveyPage() {
       setError(null)
 
       const completionTime = Math.floor((Date.now() - startTime) / 1000) // в секундах
+      const now = new Date().toISOString()
+
+      // Преобразуем answers в формат SurveyAnswer[]
+      const formattedAnswers = survey.main_questions
+        .filter(q => answers[q.instance_id])
+        .map(q => {
+          const answer = answers[q.instance_id]
+          return {
+            question_instance_id: q.instance_id,
+            question_id: q.id,
+            question_text: q.text_ru,
+            question_type: q.type,
+            answer_yes_no: q.type === 'yes-no' ? answer === 'yes' : undefined,
+            answer_text: q.type === 'text' ? answer : undefined,
+            answer_rating: q.type === 'rating' ? parseInt(answer) : undefined,
+            answer_scale: q.type === 'scale' ? parseInt(answer) : undefined,
+            answered_at: now,
+            time_spent_seconds: 0
+          }
+        })
 
       await submitSurveyResponse({
         survey_id: survey.id,
-        answers,
-        completion_time: completionTime,
-        respondent_metadata: {
-          user_agent: navigator.userAgent,
-          submitted_at: new Date().toISOString()
-        }
+        answers: formattedAnswers,
+        started_at: new Date(startTime).toISOString(),
+        completed_at: now,
+        completion_time_seconds: completionTime,
+        user_agent: navigator.userAgent
       })
 
       setSubmitted(true)

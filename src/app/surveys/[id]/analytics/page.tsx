@@ -89,13 +89,14 @@ export default function SurveyAnalyticsPage() {
   }
 
   const calculateQuestionStats = (question: SurveyQuestionInstance) => {
+    // Найти все ответы на этот вопрос
     const questionAnswers = responses
-      .map(r => r.answers[question.instance_id])
+      .map(r => r.answers.find(a => a.question_instance_id === question.instance_id))
       .filter(Boolean)
 
     if (question.type === 'yes-no') {
-      const yesCount = questionAnswers.filter(a => a === 'yes').length
-      const noCount = questionAnswers.filter(a => a === 'no').length
+      const yesCount = questionAnswers.filter(a => a?.answer_yes_no === true).length
+      const noCount = questionAnswers.filter(a => a?.answer_yes_no === false).length
       const total = yesCount + noCount
       return {
         type: 'yes-no',
@@ -104,7 +105,9 @@ export default function SurveyAnalyticsPage() {
         total
       }
     } else if (question.type === 'rating') {
-      const ratings = questionAnswers.map(a => parseInt(a)).filter(n => !isNaN(n))
+      const ratings = questionAnswers
+        .map(a => a?.answer_rating)
+        .filter((n): n is number => n !== undefined && n !== null)
       const average = ratings.length > 0 ? ratings.reduce((a, b) => a + b, 0) / ratings.length : 0
       const distribution = [1, 2, 3, 4, 5].map(rating => ({
         rating,
@@ -117,7 +120,9 @@ export default function SurveyAnalyticsPage() {
         total: ratings.length
       }
     } else if (question.type === 'scale') {
-      const scales = questionAnswers.map(a => parseInt(a)).filter(n => !isNaN(n))
+      const scales = questionAnswers
+        .map(a => a?.answer_scale)
+        .filter((n): n is number => n !== undefined && n !== null)
       const average = scales.length > 0 ? scales.reduce((a, b) => a + b, 0) / scales.length : 0
       return {
         type: 'scale',
@@ -127,7 +132,7 @@ export default function SurveyAnalyticsPage() {
     } else {
       return {
         type: 'text',
-        answers: questionAnswers,
+        answers: questionAnswers.map(a => a?.answer_text).filter(Boolean) as string[],
         total: questionAnswers.length
       }
     }
