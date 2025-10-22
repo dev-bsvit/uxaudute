@@ -6,39 +6,36 @@ import { SidebarDemo } from '@/components/sidebar-demo'
 import { PageHeader } from '@/components/page-header'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
+import { ProjectCard } from '@/components/project-card'
 import {
   Loader2,
-  Eye,
-  Edit2,
-  Share2,
-  Trash2,
-  BarChart3,
-  Clock,
-  Users,
-  CheckCircle2,
-  FileText,
-  XCircle,
   FolderOpen,
   Plus
 } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
-import { getUserSurveys, deleteSurvey, createProject } from '@/lib/database'
+import { getUserProjects, createProject, getProjectSurveysForPreview } from '@/lib/database'
 import { useTranslation } from '@/hooks/use-translation'
 import { useFormatters } from '@/hooks/use-formatters'
 import { User } from '@supabase/supabase-js'
-import type { Survey } from '@/types/survey'
+
+interface Project {
+  id: string
+  name: string
+  description: string | null
+  created_at: string
+  surveysCount?: number
+  screenshots?: string[]
+}
 
 export default function SurveysPage() {
   const router = useRouter()
   const searchParams = useSearchParams()
-  const { t, currentLanguage } = useTranslation()
-  const { formatDate: formatDateUtil } = useFormatters()
+  const { t, currentLanguage, tWithFallback } = useTranslation()
+  const { formatDate } = useFormatters()
 
   const [user, setUser] = useState<User | null>(null)
   const [loading, setLoading] = useState(true)
-  const [surveys, setSurveys] = useState<Survey[]>([])
-  const [error, setError] = useState<string | null>(null)
-  const [deletingId, setDeletingId] = useState<string | null>(null)
+  const [projects, setProjects] = useState<Project[]>([])
   const [showCreateForm, setShowCreateForm] = useState(false)
   const [creating, setCreating] = useState(false)
   const [newProject, setNewProject] = useState({ name: '', description: '', context: '', targetAudience: '' })
@@ -51,7 +48,7 @@ export default function SurveysPage() {
 
   useEffect(() => {
     if (user) {
-      loadSurveys()
+      loadProjects()
     }
   }, [user])
 
@@ -77,13 +74,37 @@ export default function SurveysPage() {
     }
   }
 
-  const loadSurveys = async () => {
+  const loadProjects = async () => {
     try {
-      const data = await getUserSurveys()
-      setSurveys(data)
+      const userProjects = await getUserProjects('survey') // Загружаем только survey проекты
+
+      // Загружаем данные для каждого проекта параллельно
+      const projectsWithCounts = await Promise.all(
+        userProjects.map(async (project) => {
+          const { count, surveys } = await getProjectSurveysForPreview(project.id)
+
+          // Извлекаем скриншоты из опросов (максимум 4)
+          const screenshots: string[] = []
+          for (const survey of surveys) {
+            if (screenshots.length >= 4) break
+            if (survey.screenshot_url) {
+              screenshots.push(survey.screenshot_url)
+            }
+          }
+
+          return {
+            ...project,
+            surveysCount: count,
+            screenshots
+          }
+        })
+      )
+
+      setProjects(projectsWithCounts)
     } catch (error) {
-      console.error('Error loading surveys:', error)
-      setError('Не удалось загрузить опросы')
+      console.error('Error loading projects:', error)
+    } finally {
+      setLoading(false)
     }
   }
 
@@ -125,8 +146,8 @@ export default function SurveysPage() {
         'survey' // Создаём проект типа survey
       )
       closeCreateForm()
-      // Перезагружаем опросы чтобы показать новый проект
-      await loadSurveys()
+      // Перезагружаем проекты чтобы показать новый проект
+      await loadProjects()
     } catch (error) {
       console.error('Error creating project:', error)
       const errorMessage = error instanceof Error ? error.message : 'unknown'
@@ -136,93 +157,9 @@ export default function SurveysPage() {
     }
   }
 
-  const handleDelete = async (surveyId: string) => {
-    if (!confirm('Вы уверены, что хотите удалить этот опрос? Это действие нельзя отменить.')) {
-      return
-    }
-
-    try {
-      setDeletingId(surveyId)
-      await deleteSurvey(surveyId)
-      setSurveys(surveys.filter(s => s.id !== surveyId))
-    } catch (error) {
-      console.error('Error deleting survey:', error)
-      setError('Не удалось удалить опрос')
-    } finally {
-      setDeletingId(null)
-    }
+  const formatProjectDate = (dateString: string) => {
+    return formatDate(dateString)
   }
-
-  const handleCopyLink = (surveyId: string) => {
-    const link = `${window.location.origin}/public/survey/${surveyId}`
-    navigator.clipboard.writeText(link)
-    alert('Ссылка скопирована в буфер обмена!')
-  }
-
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString)
-    return date.toLocaleDateString('ru-RU', {
-      day: 'numeric',
-      month: 'long',
-      year: 'numeric'
-    })
-  }
-
-  const getStatusColor = (status: Survey['status']) => {
-    switch (status) {
-      case 'draft':
-        return 'bg-yellow-100 text-yellow-800'
-      case 'published':
-        return 'bg-green-100 text-green-800'
-      case 'closed':
-        return 'bg-slate-100 text-slate-800'
-      default:
-        return 'bg-slate-100 text-slate-800'
-    }
-  }
-
-  const getStatusLabel = (status: Survey['status']) => {
-    switch (status) {
-      case 'draft':
-        return 'Черновик'
-      case 'published':
-        return 'Опубликован'
-      case 'closed':
-        return 'Закрыт'
-      default:
-        return status
-    }
-  }
-
-  const getStatusIcon = (status: Survey['status']) => {
-    switch (status) {
-      case 'draft':
-        return <Clock className="w-4 h-4" />
-      case 'published':
-        return <CheckCircle2 className="w-4 h-4" />
-      case 'closed':
-        return <XCircle className="w-4 h-4" />
-      default:
-        return <FileText className="w-4 h-4" />
-    }
-  }
-
-  // Группируем опросы по проектам
-  const surveysByProject = surveys.reduce((acc, survey) => {
-    const projectId = survey.project_id || 'no-project'
-    const projectName = survey.projects?.name || 'Без проекта'
-
-    if (!acc[projectId]) {
-      acc[projectId] = {
-        projectId,
-        projectName,
-        surveys: []
-      }
-    }
-
-    acc[projectId].surveys.push(survey)
-    return acc
-  }, {} as Record<string, { projectId: string; projectName: string; surveys: Survey[] }>)
 
   if (loading) {
     return (
@@ -357,179 +294,42 @@ export default function SurveysPage() {
             </div>
           )}
 
-          <div className="max-w-7xl space-y-8">
-            {/* Ошибка */}
-            {error && (
-              <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-                <p className="text-sm text-red-800">{error}</p>
-              </div>
-            )}
-
-            {/* Список опросов по проектам */}
-            {surveys.length === 0 ? (
-              <Card className="p-12 text-center">
-                <div className="w-16 h-16 rounded-full bg-blue-100 flex items-center justify-center mx-auto mb-4">
-                  <FileText className="w-8 h-8 text-blue-600" />
+          <div className="space-y-8">
+            {/* Список проектов */}
+            {projects.length === 0 ? (
+              <Card className="p-12 text-center bg-white rounded-2xl border border-gray-200 shadow-lg">
+                <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                  <FolderOpen className="w-8 h-8 text-gray-400" />
                 </div>
-                <h3 className="text-lg font-semibold text-slate-900 mb-2">
-                  У вас пока нет опросов
+                <h3 className="text-2xl font-bold text-slate-900 mb-3">
+                  {t('projects.empty.title') || 'У вас пока нет проектов для опросов'}
                 </h3>
-                <p className="text-slate-600 mb-4">
-                  Создайте первый AI-опрос из проекта
+                <p className="text-lg text-slate-600 mb-8 max-w-md mx-auto">
+                  {t('projects.empty.description') || 'Создайте проект чтобы организовать AI-опросы'}
                 </p>
                 <Button
-                  onClick={() => router.push('/projects')}
-                  className="bg-blue-600 hover:bg-blue-700"
+                  onClick={() => setShowCreateForm(true)}
+                  className="flex items-center gap-2 mx-auto bg-black hover:bg-gray-800 text-white px-8 py-4 rounded-lg font-medium text-lg"
                 >
-                  Перейти к проектам
+                  <Plus className="w-5 h-5" />
+                  {t('projects.empty.createFirst') || 'Создать первый проект'}
                 </Button>
               </Card>
             ) : (
-              <div className="space-y-8">
-                {Object.values(surveysByProject).map(({ projectId, projectName, surveys: projectSurveys }) => (
-                  <div key={projectId} className="space-y-4">
-                    {/* Заголовок проекта */}
-                    <div className="flex items-center gap-3">
-                      <FolderOpen className="w-5 h-5 text-blue-600" />
-                      <h2 className="text-xl font-semibold text-slate-900">{projectName}</h2>
-                      <span className="text-sm text-slate-500">
-                        ({projectSurveys.length} {projectSurveys.length === 1 ? 'опрос' : 'опросов'})
-                      </span>
-                      {projectId !== 'no-project' && (
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={() => router.push(`/projects/${projectId}`)}
-                        >
-                          Открыть проект
-                        </Button>
-                      )}
-                    </div>
-
-                    {/* Опросы проекта */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                      {projectSurveys.map((survey) => (
-                        <Card key={survey.id} className="p-6 hover:shadow-lg transition-shadow">
-                          <div className="space-y-4">
-                            {/* Заголовок и статус */}
-                            <div>
-                              <div className="flex items-start justify-between gap-2 mb-2">
-                                <h3 className="font-semibold text-slate-900 text-lg line-clamp-2">
-                                  {survey.name}
-                                </h3>
-                                <div className={`px-2 py-1 rounded-full text-xs font-medium flex items-center gap-1 whitespace-nowrap ${getStatusColor(survey.status)}`}>
-                                  {getStatusIcon(survey.status)}
-                                  {getStatusLabel(survey.status)}
-                                </div>
-                              </div>
-                              {survey.description && (
-                                <p className="text-sm text-slate-600 line-clamp-2">
-                                  {survey.description}
-                                </p>
-                              )}
-                            </div>
-
-                            {/* Скриншот */}
-                            {survey.screenshot_url && (
-                              <div className="relative aspect-video bg-slate-100 rounded-lg overflow-hidden">
-                                <img
-                                  src={survey.screenshot_url}
-                                  alt="Survey screenshot"
-                                  className="w-full h-full object-cover"
-                                />
-                              </div>
-                            )}
-
-                            {/* Статистика */}
-                            <div className="flex items-center gap-4 text-sm text-slate-600">
-                              <div className="flex items-center gap-1">
-                                <FileText className="w-4 h-4" />
-                                <span>{survey.main_questions.length} вопросов</span>
-                              </div>
-                              {survey.status === 'published' && (
-                                <div className="flex items-center gap-1">
-                                  <Users className="w-4 h-4" />
-                                  <span>{survey.responses_count || 0} ответов</span>
-                                </div>
-                              )}
-                            </div>
-
-                            {/* Дата создания */}
-                            <div className="text-xs text-slate-500">
-                              Создан {formatDate(survey.created_at)}
-                            </div>
-
-                            {/* Действия */}
-                            <div className="flex gap-2 pt-2 border-t">
-                              {survey.status === 'draft' ? (
-                                <Button
-                                  size="sm"
-                                  onClick={() => router.push(`/surveys/${survey.id}`)}
-                                  className="flex-1"
-                                >
-                                  <Edit2 className="w-4 h-4 mr-1" />
-                                  Редактировать
-                                </Button>
-                              ) : (
-                                <>
-                                  <Button
-                                    size="sm"
-                                    variant="outline"
-                                    onClick={() => router.push(`/surveys/${survey.id}`)}
-                                    className="flex-1"
-                                  >
-                                    <Eye className="w-4 h-4 mr-1" />
-                                    Просмотр
-                                  </Button>
-                                  <Button
-                                    size="sm"
-                                    variant="outline"
-                                    onClick={() => handleCopyLink(survey.id)}
-                                    className="flex-1"
-                                  >
-                                    <Share2 className="w-4 h-4 mr-1" />
-                                    Ссылка
-                                  </Button>
-                                </>
-                              )}
-                            </div>
-
-                            {survey.status === 'published' && (
-                              <Button
-                                size="sm"
-                                variant="outline"
-                                onClick={() => router.push(`/surveys/${survey.id}/analytics`)}
-                                className="w-full"
-                              >
-                                <BarChart3 className="w-4 h-4 mr-1" />
-                                Аналитика
-                              </Button>
-                            )}
-
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              onClick={() => handleDelete(survey.id)}
-                              disabled={deletingId === survey.id}
-                              className="w-full text-red-600 hover:text-red-700 hover:bg-red-50"
-                            >
-                              {deletingId === survey.id ? (
-                                <>
-                                  <Loader2 className="w-4 h-4 mr-1 animate-spin" />
-                                  Удаление...
-                                </>
-                              ) : (
-                                <>
-                                  <Trash2 className="w-4 h-4 mr-1" />
-                                  Удалить
-                                </>
-                              )}
-                            </Button>
-                          </div>
-                        </Card>
-                      ))}
-                    </div>
-                  </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {projects.map((project) => (
+                  <ProjectCard
+                    key={project.id}
+                    project={{
+                      ...project,
+                      auditsCount: project.surveysCount
+                    }}
+                    formatDate={formatProjectDate}
+                    onOpenSettings={() => {}} // Пока не реализовано
+                    menuLabels={{
+                      settings: 'Настройки проекта'
+                    }}
+                  />
                 ))}
               </div>
             )}

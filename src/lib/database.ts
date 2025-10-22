@@ -674,6 +674,42 @@ export async function getProjectSurveys(projectId: string): Promise<Survey[]> {
 }
 
 /**
+ * Получить опросы проекта для превью (оптимизированный запрос)
+ */
+export async function getProjectSurveysForPreview(projectId: string): Promise<{
+  count: number
+  surveys: Array<{ id: string; screenshot_url: string | null }>
+}> {
+  const [countResult, surveysResult] = await Promise.all([
+    supabase
+      .from('surveys')
+      .select('*', { count: 'exact', head: true })
+      .eq('project_id', projectId),
+    supabase
+      .from('surveys')
+      .select('id, screenshot_url')
+      .eq('project_id', projectId)
+      .order('created_at', { ascending: false })
+      .limit(10) // Берём 10 последних, чтобы найти 4 со скриншотами
+  ])
+
+  if (countResult.error) {
+    console.error('Error getting project surveys count:', countResult.error)
+    return { count: 0, surveys: [] }
+  }
+
+  if (surveysResult.error) {
+    console.error('Error getting project surveys:', surveysResult.error)
+    return { count: countResult.count || 0, surveys: [] }
+  }
+
+  return {
+    count: countResult.count || 0,
+    surveys: surveysResult.data || []
+  }
+}
+
+/**
  * Получить опрос по ID
  */
 export async function getSurvey(surveyId: string): Promise<Survey> {
