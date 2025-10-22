@@ -612,7 +612,7 @@ export async function createSurvey(
 }
 
 /**
- * Получить все опросы пользователя
+ * Получить все опросы пользователя с информацией о проектах
  */
 export async function getUserSurveys(): Promise<Survey[]> {
   try {
@@ -621,7 +621,13 @@ export async function getUserSurveys(): Promise<Survey[]> {
 
     const { data, error } = await supabase
       .from('surveys')
-      .select('*')
+      .select(`
+        *,
+        projects (
+          id,
+          name
+        )
+      `)
       .eq('user_id', user.id)
       .order('created_at', { ascending: false })
 

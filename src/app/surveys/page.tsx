@@ -8,7 +8,6 @@ import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import {
   Loader2,
-  Plus,
   Eye,
   Edit2,
   Share2,
@@ -18,7 +17,8 @@ import {
   Users,
   CheckCircle2,
   FileText,
-  XCircle
+  XCircle,
+  FolderOpen
 } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 import { getUserSurveys, deleteSurvey } from '@/lib/database'
@@ -143,6 +143,23 @@ export default function SurveysPage() {
     }
   }
 
+  // Группируем опросы по проектам
+  const surveysByProject = surveys.reduce((acc, survey) => {
+    const projectId = survey.project_id || 'no-project'
+    const projectName = survey.projects?.name || 'Без проекта'
+
+    if (!acc[projectId]) {
+      acc[projectId] = {
+        projectId,
+        projectName,
+        surveys: []
+      }
+    }
+
+    acc[projectId].surveys.push(survey)
+    return acc
+  }, {} as Record<string, { projectId: string; projectName: string; surveys: Survey[] }>)
+
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-100 flex items-center justify-center">
@@ -163,23 +180,12 @@ export default function SurveysPage() {
               { label: 'Опросы' }
             ]}
             title="Мои опросы"
-            subtitle="Создавайте AI-опросы и собирайте отзывы от пользователей"
+            subtitle="AI-опросы сгруппированные по проектам"
           />
         </div>
 
         <div className="px-8">
-          <div className="max-w-7xl space-y-6">
-            {/* Кнопка создания */}
-            <div>
-              <Button
-                onClick={() => router.push('/surveys/create')}
-                className="bg-blue-600 hover:bg-blue-700"
-              >
-                <Plus className="w-4 h-4 mr-2" />
-                Создать новый опрос
-              </Button>
-            </div>
-
+          <div className="max-w-7xl space-y-8">
             {/* Ошибка */}
             {error && (
               <div className="bg-red-50 border border-red-200 rounded-lg p-4">
@@ -187,7 +193,7 @@ export default function SurveysPage() {
               </div>
             )}
 
-            {/* Список опросов */}
+            {/* Список опросов по проектам */}
             {surveys.length === 0 ? (
               <Card className="p-12 text-center">
                 <div className="w-16 h-16 rounded-full bg-blue-100 flex items-center justify-center mx-auto mb-4">
@@ -197,137 +203,161 @@ export default function SurveysPage() {
                   У вас пока нет опросов
                 </h3>
                 <p className="text-slate-600 mb-4">
-                  Создайте первый AI-опрос, загрузив скриншот интерфейса
+                  Создайте первый AI-опрос из проекта
                 </p>
                 <Button
-                  onClick={() => router.push('/surveys/create')}
+                  onClick={() => router.push('/projects')}
                   className="bg-blue-600 hover:bg-blue-700"
                 >
-                  <Plus className="w-4 h-4 mr-2" />
-                  Создать опрос
+                  Перейти к проектам
                 </Button>
               </Card>
             ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {surveys.map((survey) => (
-                  <Card key={survey.id} className="p-6 hover:shadow-lg transition-shadow">
-                    <div className="space-y-4">
-                      {/* Заголовок и статус */}
-                      <div>
-                        <div className="flex items-start justify-between gap-2 mb-2">
-                          <h3 className="font-semibold text-slate-900 text-lg line-clamp-2">
-                            {survey.name}
-                          </h3>
-                          <div className={`px-2 py-1 rounded-full text-xs font-medium flex items-center gap-1 whitespace-nowrap ${getStatusColor(survey.status)}`}>
-                            {getStatusIcon(survey.status)}
-                            {getStatusLabel(survey.status)}
-                          </div>
-                        </div>
-                        {survey.description && (
-                          <p className="text-sm text-slate-600 line-clamp-2">
-                            {survey.description}
-                          </p>
-                        )}
-                      </div>
-
-                      {/* Скриншот (если есть) */}
-                      {survey.screenshot_url && (
-                        <div className="relative aspect-video bg-slate-100 rounded-lg overflow-hidden">
-                          <img
-                            src={survey.screenshot_url}
-                            alt="Survey screenshot"
-                            className="w-full h-full object-cover"
-                          />
-                        </div>
-                      )}
-
-                      {/* Статистика */}
-                      <div className="flex items-center gap-4 text-sm text-slate-600">
-                        <div className="flex items-center gap-1">
-                          <FileText className="w-4 h-4" />
-                          <span>{survey.main_questions.length} вопросов</span>
-                        </div>
-                        {survey.status === 'published' && (
-                          <div className="flex items-center gap-1">
-                            <Users className="w-4 h-4" />
-                            <span>{survey.responses_count || 0} ответов</span>
-                          </div>
-                        )}
-                      </div>
-
-                      {/* Дата создания */}
-                      <div className="text-xs text-slate-500">
-                        Создан {formatDate(survey.created_at)}
-                      </div>
-
-                      {/* Действия */}
-                      <div className="flex gap-2 pt-2 border-t">
-                        {survey.status === 'draft' ? (
-                          <Button
-                            size="sm"
-                            onClick={() => router.push(`/surveys/${survey.id}`)}
-                            className="flex-1"
-                          >
-                            <Edit2 className="w-4 h-4 mr-1" />
-                            Редактировать
-                          </Button>
-                        ) : (
-                          <>
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              onClick={() => router.push(`/surveys/${survey.id}`)}
-                              className="flex-1"
-                            >
-                              <Eye className="w-4 h-4 mr-1" />
-                              Просмотр
-                            </Button>
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              onClick={() => handleCopyLink(survey.id)}
-                              className="flex-1"
-                            >
-                              <Share2 className="w-4 h-4 mr-1" />
-                              Поделиться
-                            </Button>
-                          </>
-                        )}
-                      </div>
-
-                      {survey.status === 'published' && (
+              <div className="space-y-8">
+                {Object.values(surveysByProject).map(({ projectId, projectName, surveys: projectSurveys }) => (
+                  <div key={projectId} className="space-y-4">
+                    {/* Заголовок проекта */}
+                    <div className="flex items-center gap-3">
+                      <FolderOpen className="w-5 h-5 text-blue-600" />
+                      <h2 className="text-xl font-semibold text-slate-900">{projectName}</h2>
+                      <span className="text-sm text-slate-500">
+                        ({projectSurveys.length} {projectSurveys.length === 1 ? 'опрос' : 'опросов'})
+                      </span>
+                      {projectId !== 'no-project' && (
                         <Button
                           size="sm"
                           variant="outline"
-                          onClick={() => router.push(`/surveys/${survey.id}/analytics`)}
-                          className="w-full"
+                          onClick={() => router.push(`/projects/${projectId}`)}
                         >
-                          <BarChart3 className="w-4 h-4 mr-1" />
-                          Аналитика
+                          Открыть проект
                         </Button>
                       )}
-
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={() => handleDelete(survey.id)}
-                        disabled={deletingId === survey.id}
-                        className="w-full text-red-600 hover:text-red-700 hover:bg-red-50"
-                      >
-                        {deletingId === survey.id ? (
-                          <>
-                            <Loader2 className="w-4 h-4 mr-1 animate-spin" />
-                            Удаление...
-                          </>
-                        ) : (
-                          <>
-                            <Trash2 className="w-4 h-4 mr-1" />
-                            Удалить
-                          </>
-                        )}
-                      </Button>
                     </div>
-                  </Card>
+
+                    {/* Опросы проекта */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                      {projectSurveys.map((survey) => (
+                        <Card key={survey.id} className="p-6 hover:shadow-lg transition-shadow">
+                          <div className="space-y-4">
+                            {/* Заголовок и статус */}
+                            <div>
+                              <div className="flex items-start justify-between gap-2 mb-2">
+                                <h3 className="font-semibold text-slate-900 text-lg line-clamp-2">
+                                  {survey.name}
+                                </h3>
+                                <div className={`px-2 py-1 rounded-full text-xs font-medium flex items-center gap-1 whitespace-nowrap ${getStatusColor(survey.status)}`}>
+                                  {getStatusIcon(survey.status)}
+                                  {getStatusLabel(survey.status)}
+                                </div>
+                              </div>
+                              {survey.description && (
+                                <p className="text-sm text-slate-600 line-clamp-2">
+                                  {survey.description}
+                                </p>
+                              )}
+                            </div>
+
+                            {/* Скриншот */}
+                            {survey.screenshot_url && (
+                              <div className="relative aspect-video bg-slate-100 rounded-lg overflow-hidden">
+                                <img
+                                  src={survey.screenshot_url}
+                                  alt="Survey screenshot"
+                                  className="w-full h-full object-cover"
+                                />
+                              </div>
+                            )}
+
+                            {/* Статистика */}
+                            <div className="flex items-center gap-4 text-sm text-slate-600">
+                              <div className="flex items-center gap-1">
+                                <FileText className="w-4 h-4" />
+                                <span>{survey.main_questions.length} вопросов</span>
+                              </div>
+                              {survey.status === 'published' && (
+                                <div className="flex items-center gap-1">
+                                  <Users className="w-4 h-4" />
+                                  <span>{survey.responses_count || 0} ответов</span>
+                                </div>
+                              )}
+                            </div>
+
+                            {/* Дата создания */}
+                            <div className="text-xs text-slate-500">
+                              Создан {formatDate(survey.created_at)}
+                            </div>
+
+                            {/* Действия */}
+                            <div className="flex gap-2 pt-2 border-t">
+                              {survey.status === 'draft' ? (
+                                <Button
+                                  size="sm"
+                                  onClick={() => router.push(`/surveys/${survey.id}`)}
+                                  className="flex-1"
+                                >
+                                  <Edit2 className="w-4 h-4 mr-1" />
+                                  Редактировать
+                                </Button>
+                              ) : (
+                                <>
+                                  <Button
+                                    size="sm"
+                                    variant="outline"
+                                    onClick={() => router.push(`/surveys/${survey.id}`)}
+                                    className="flex-1"
+                                  >
+                                    <Eye className="w-4 h-4 mr-1" />
+                                    Просмотр
+                                  </Button>
+                                  <Button
+                                    size="sm"
+                                    variant="outline"
+                                    onClick={() => handleCopyLink(survey.id)}
+                                    className="flex-1"
+                                  >
+                                    <Share2 className="w-4 h-4 mr-1" />
+                                    Ссылка
+                                  </Button>
+                                </>
+                              )}
+                            </div>
+
+                            {survey.status === 'published' && (
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                onClick={() => router.push(`/surveys/${survey.id}/analytics`)}
+                                className="w-full"
+                              >
+                                <BarChart3 className="w-4 h-4 mr-1" />
+                                Аналитика
+                              </Button>
+                            )}
+
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => handleDelete(survey.id)}
+                              disabled={deletingId === survey.id}
+                              className="w-full text-red-600 hover:text-red-700 hover:bg-red-50"
+                            >
+                              {deletingId === survey.id ? (
+                                <>
+                                  <Loader2 className="w-4 h-4 mr-1 animate-spin" />
+                                  Удаление...
+                                </>
+                              ) : (
+                                <>
+                                  <Trash2 className="w-4 h-4 mr-1" />
+                                  Удалить
+                                </>
+                              )}
+                            </Button>
+                          </div>
+                        </Card>
+                      ))}
+                    </div>
+                  </div>
                 ))}
               </div>
             )}

@@ -30,6 +30,12 @@ export interface Survey {
   // Скриншот интерфейса для анализа
   screenshot_url?: string
 
+  // Информация о проекте (если загружена)
+  projects?: {
+    id: string
+    name: string
+  }
+
   // Вопросы, сгенерированные AI (20 вопросов)
   ai_questions: SurveyQuestionInstance[]
 
