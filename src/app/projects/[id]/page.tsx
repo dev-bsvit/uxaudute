@@ -782,26 +782,27 @@ export default function ProjectDetailPage() {
     <SidebarDemo user={user}>
       <div className="space-y-6">
         {/* Хедер проекта */}
-        <PageHeader
-          breadcrumbs={[
-            { label: 'Главная', href: '/home' },
-            { label: 'Мои проекты', href: '/projects' },
-            { label: project.name }
-          ]}
-          title={project.name}
-          subtitle={
-            project.description
-              ? project.description
-              : (t('projects.detail.createdAt', { date: formatDate(project.created_at) }) ||
-                  (currentLanguage === 'en'
-                    ? `Created ${formatDate(project.created_at)}`
-                    : `Создан ${formatDate(project.created_at)}`))
-          }
-          showBackButton={true}
-          onBack={() => router.push('/projects')}
-          secondaryButton={{
-            icon: <Settings className="w-5 h-5 text-[#222222]" />,
-            onClick: () => setShowSettingsModal(true)
+        <div className="px-8">
+          <PageHeader
+            breadcrumbs={[
+              { label: 'Главная', href: '/home' },
+              { label: 'Мои проекты', href: '/projects' },
+              { label: project.name }
+            ]}
+            title={project.name}
+            subtitle={
+              project.description
+                ? project.description
+                : (t('projects.detail.createdAt', { date: formatDate(project.created_at) }) ||
+                    (currentLanguage === 'en'
+                      ? `Created ${formatDate(project.created_at)}`
+                      : `Создан ${formatDate(project.created_at)}`))
+            }
+            showBackButton={true}
+            onBack={() => router.push('/projects')}
+            secondaryButton={{
+              icon: <Settings className="w-5 h-5 text-[#222222]" />,
+              onClick: () => setShowSettingsModal(true)
           }}
           primaryButton={
             showCreateForm
@@ -817,7 +818,8 @@ export default function ProjectDetailPage() {
                   onClick: () => setShowCreateForm(true)
                 }
           }
-        />
+          />
+        </div>
 
         <div className="px-8 space-y-6">
 

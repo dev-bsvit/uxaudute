@@ -57,7 +57,6 @@ export function PageHeader({
                     ? 'text-[#1F1F1F]'
                     : 'text-[rgba(23,26,36,0.30)]'
                 }`}
-                style={{ fontFamily: 'Inter' }}
               >
                 {crumb.label}
               </span>
@@ -90,17 +89,11 @@ export function PageHeader({
             </div>
           )}
           <div className="flex flex-col flex-1">
-            <h1
-              className="text-[38px] font-semibold leading-[41.8px] text-[#1F1F1F]"
-              style={{ fontFamily: 'Inter Display' }}
-            >
+            <h1 className="text-[38px] font-semibold leading-[41.8px] text-[#1F1F1F]">
               {title}
             </h1>
             {subtitle && (
-              <p
-                className="text-xs font-normal leading-[15.6px] text-[rgba(23,26,36,0.64)]"
-                style={{ fontFamily: 'Inter Display' }}
-              >
+              <p className="text-xs font-normal leading-[15.6px] text-[rgba(23,26,36,0.64)]">
                 {subtitle}
               </p>
             )}
@@ -115,10 +108,7 @@ export function PageHeader({
               className="px-6 py-4 bg-[#0058FC] rounded-[44px] hover:bg-[#0047d1] transition-colors flex items-center gap-2"
             >
               <Share2 className="w-4 h-4 text-white" />
-              <span
-                className="text-base font-medium leading-[17.6px] text-white"
-                style={{ fontFamily: 'Inter Display' }}
-              >
+              <span className="text-base font-medium leading-[17.6px] text-white">
                 {computedShareLabel}
               </span>
             </button>
@@ -137,10 +127,7 @@ export function PageHeader({
               disabled={primaryButton.disabled}
               className="px-6 py-4 bg-[#0058FC] rounded-[44px] hover:bg-[#0047d1] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              <span
-                className="text-base font-medium leading-[17.6px] text-white"
-                style={{ fontFamily: 'Inter Display' }}
-              >
+              <span className="text-base font-medium leading-[17.6px] text-white">
                 {primaryButton.label}
               </span>
             </button>

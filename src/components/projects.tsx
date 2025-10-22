@@ -240,18 +240,20 @@ export function Projects({ user, onProjectSelect }: ProjectsProps) {
 
   return (
     <div className="space-y-8">
-      <PageHeader
-        breadcrumbs={[
-          { label: 'Главная', href: '/home' },
-          { label: t('projects.management.title') }
-        ]}
-        title={t('projects.management.title')}
-        subtitle={t('projects.management.description')}
-        primaryButton={{
-          label: t('projects.newProject'),
-          onClick: openCreateForm
-        }}
-      />
+      <div className="px-8">
+        <PageHeader
+          breadcrumbs={[
+            { label: 'Главная', href: '/home' },
+            { label: t('projects.management.title') }
+          ]}
+          title={t('projects.management.title')}
+          subtitle={t('projects.management.description')}
+          primaryButton={{
+            label: t('projects.newProject'),
+            onClick: openCreateForm
+          }}
+        />
+      </div>
 
       <div className="px-8 space-y-8">
       {/* Форма создания проекта */}

@@ -78,15 +78,17 @@ export default function CreditsPage() {
   return (
     <SidebarDemo user={user}>
       <div className="space-y-8">
-        <PageHeader
-          breadcrumbs={[
-            { label: 'Главная', href: '/home' },
-            { label: t('components.creditsPage.title') }
-          ]}
-          icon={<CreditCard className="w-5 h-5 text-slate-700" />}
-          title={t('components.creditsPage.title')}
-          subtitle={t('components.creditsPage.description')}
-        />
+        <div className="px-8">
+          <PageHeader
+            breadcrumbs={[
+              { label: 'Главная', href: '/home' },
+              { label: t('components.creditsPage.title') }
+            ]}
+            icon={<CreditCard className="w-5 h-5 text-slate-700" />}
+            title={t('components.creditsPage.title')}
+            subtitle={t('components.creditsPage.description')}
+          />
+        </div>
 
         <div className="px-8 space-y-8">
           

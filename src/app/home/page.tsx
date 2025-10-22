@@ -548,7 +548,7 @@ export default function HomePage() {
 
         {/* Блок инструментов */}
         <section className="px-8 pb-16">
-          <div className="max-w-5xl">
+          <div className="w-full">
             <div>
               <h2 className="text-2xl font-semibold text-slate-900">All tools</h2>
               <p className="mt-2 text-sm text-slate-600">
@@ -557,14 +557,14 @@ export default function HomePage() {
                   : 'Выберите инструмент, чтобы создать новое исследование.'}
               </p>
             </div>
-            <div className="mt-6 flex flex-wrap gap-5">
+            <div className="mt-6 flex flex-wrap items-stretch gap-5">
               {researchCards.map((card) => {
                 const Icon = card.icon
                 return (
                   <div
                     key={card.id}
-                    className="flex w-[264px] min-h-[240px] flex-col rounded-[32px] p-6"
-                    style={{ backgroundColor: card.backgroundColor }}
+                    className="flex min-h-[240px] flex-col rounded-[32px] p-6"
+                    style={{ backgroundColor: card.backgroundColor, flex: '0 0 264px' }}
                   >
                     <div
                       className="flex h-12 w-12 items-center justify-center rounded-full"

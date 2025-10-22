@@ -159,16 +159,18 @@ export default function SettingsPage() {
   return (
     <SidebarDemo user={user}>
       <div className="space-y-8">
-        <PageHeader
-          breadcrumbs={[
-            { label: 'Главная', href: '/home' },
-            { label: t('settings.title') }
-          ]}
-          icon={<SettingsIcon className="w-5 h-5 text-slate-700" />}
-          title={t('settings.title')}
-          subtitle={t('settings.subtitle')}
-          onBack={() => window.history.back()}
-        />
+        <div className="px-8">
+          <PageHeader
+            breadcrumbs={[
+              { label: 'Главная', href: '/home' },
+              { label: t('settings.title') }
+            ]}
+            icon={<SettingsIcon className="w-5 h-5 text-slate-700" />}
+            title={t('settings.title')}
+            subtitle={t('settings.subtitle')}
+            onBack={() => window.history.back()}
+          />
+        </div>
 
         <div className="px-8 space-y-8">
 

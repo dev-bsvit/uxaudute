@@ -525,21 +525,23 @@ export default function AuditPage() {
       ) : (
         <div className="space-y-8">
           {/* Хедер аудита */}
-          <PageHeader
-            breadcrumbs={[
-              { label: 'Главная', href: '/home' },
-              { label: 'Мои проекты', href: '/projects' },
-              ...(audit.project_id ? [{ label: audit.projects?.name || 'Проект', href: `/projects/${audit.project_id}` }] : []),
-              { label: audit.name }
-            ]}
-            title={audit.name}
-            subtitle={`Создан: ${new Date(audit.created_at).toLocaleDateString('ru-RU')}`}
-            showBackButton={true}
-            onBack={() => router.push(audit?.project_id ? `/projects/${audit.project_id}` : '/home')}
-            showShareButton={true}
-            onShare={handleShareClick}
-            shareButtonLabel={currentLanguage === 'en' ? 'Share' : 'Поделиться'}
-          />
+          <div className="px-8">
+            <PageHeader
+              breadcrumbs={[
+                { label: 'Главная', href: '/home' },
+                { label: 'Мои проекты', href: '/projects' },
+                ...(audit.project_id ? [{ label: audit.projects?.name || 'Проект', href: `/projects/${audit.project_id}` }] : []),
+                { label: audit.name }
+              ]}
+              title={audit.name}
+              subtitle={`Создан: ${new Date(audit.created_at).toLocaleDateString('ru-RU')}`}
+              showBackButton={true}
+              onBack={() => router.push(audit?.project_id ? `/projects/${audit.project_id}` : '/home')}
+              showShareButton={true}
+              onShare={handleShareClick}
+              shareButtonLabel={currentLanguage === 'en' ? 'Share' : 'Поделиться'}
+            />
+          </div>
 
         {/* Результаты анализа */}
         {audit.result_data ? (

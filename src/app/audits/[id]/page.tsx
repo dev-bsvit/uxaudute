@@ -203,18 +203,20 @@ export default function AuditPage() {
     <Layout title={`Аудит: ${auditData.name}`}>
       <div className="space-y-6">
         {/* Навигация назад и действия */}
-        <PageHeader
-          breadcrumbs={[
-            { label: 'Мои проекты', href: '/projects' },
-            { label: projectName || 'Проект', href: `/projects/${auditData.project_id}` },
-            { label: auditData.name }
-          ]}
-          icon={<FileText className="w-5 h-5 text-slate-700" />}
-          title={auditData.name}
-          subtitle={`Создан: ${new Date(auditData.created_at).toLocaleDateString('ru-RU')}`}
-          showShareButton
-          onShare={handleShare}
-        />
+        <div className="px-8">
+          <PageHeader
+            breadcrumbs={[
+              { label: 'Мои проекты', href: '/projects' },
+              { label: projectName || 'Проект', href: `/projects/${auditData.project_id}` },
+              { label: auditData.name }
+            ]}
+            icon={<FileText className="w-5 h-5 text-slate-700" />}
+            title={auditData.name}
+            subtitle={`Создан: ${new Date(auditData.created_at).toLocaleDateString('ru-RU')}`}
+            showShareButton
+            onShare={handleShare}
+          />
+        </div>
 
         <div className="px-8 space-y-6">
         {/* Табы */}
