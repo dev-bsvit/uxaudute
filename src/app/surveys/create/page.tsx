@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useRef } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { SidebarDemo } from '@/components/sidebar-demo'
 import { PageHeader } from '@/components/page-header'
@@ -35,9 +35,9 @@ export default function CreateSurveyPage() {
   const [generating, setGenerating] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
-  useState(() => {
+  useEffect(() => {
     checkAuth()
-  })
+  }, [])
 
   const checkAuth = async () => {
     try {
