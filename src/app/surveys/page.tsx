@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { SidebarDemo } from '@/components/sidebar-demo'
 import { PageHeader } from '@/components/page-header'
 import { Button } from '@/components/ui/button'
@@ -18,23 +18,32 @@ import {
   CheckCircle2,
   FileText,
   XCircle,
-  FolderOpen
+  FolderOpen,
+  Plus
 } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
-import { getUserSurveys, deleteSurvey } from '@/lib/database'
+import { getUserSurveys, deleteSurvey, createProject } from '@/lib/database'
 import { useTranslation } from '@/hooks/use-translation'
+import { useFormatters } from '@/hooks/use-formatters'
 import { User } from '@supabase/supabase-js'
 import type { Survey } from '@/types/survey'
 
 export default function SurveysPage() {
   const router = useRouter()
+  const searchParams = useSearchParams()
   const { t, currentLanguage } = useTranslation()
+  const { formatDate: formatDateUtil } = useFormatters()
 
   const [user, setUser] = useState<User | null>(null)
   const [loading, setLoading] = useState(true)
   const [surveys, setSurveys] = useState<Survey[]>([])
   const [error, setError] = useState<string | null>(null)
   const [deletingId, setDeletingId] = useState<string | null>(null)
+  const [showCreateForm, setShowCreateForm] = useState(false)
+  const [creating, setCreating] = useState(false)
+  const [newProject, setNewProject] = useState({ name: '', description: '', context: '', targetAudience: '' })
+
+  const shouldOpenCreateForm = searchParams?.get('create') === '1'
 
   useEffect(() => {
     checkAuth()
@@ -45,6 +54,12 @@ export default function SurveysPage() {
       loadSurveys()
     }
   }, [user])
+
+  useEffect(() => {
+    if (shouldOpenCreateForm) {
+      setShowCreateForm(true)
+    }
+  }, [shouldOpenCreateForm])
 
   const checkAuth = async () => {
     try {
@@ -69,6 +84,54 @@ export default function SurveysPage() {
     } catch (error) {
       console.error('Error loading surveys:', error)
       setError('Не удалось загрузить опросы')
+    }
+  }
+
+  const updateCreateQuery = (value: '1' | null) => {
+    const params = new URLSearchParams(searchParams?.toString() || '')
+    if (value) {
+      params.set('create', value)
+    } else {
+      params.delete('create')
+    }
+    const queryString = params.toString()
+    router.replace(queryString ? `/surveys?${queryString}` : '/surveys', { scroll: false })
+  }
+
+  const openCreateForm = () => {
+    setShowCreateForm(true)
+    if (!shouldOpenCreateForm) {
+      updateCreateQuery('1')
+    }
+  }
+
+  const closeCreateForm = () => {
+    setShowCreateForm(false)
+    setNewProject({ name: '', description: '', context: '', targetAudience: '' })
+    updateCreateQuery(null)
+  }
+
+  const handleCreateProject = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!newProject.name.trim()) return
+
+    setCreating(true)
+    try {
+      await createProject(
+        newProject.name,
+        newProject.description || undefined,
+        newProject.context || undefined,
+        newProject.targetAudience || undefined
+      )
+      closeCreateForm()
+      // Перезагружаем опросы чтобы показать новый проект
+      await loadSurveys()
+    } catch (error) {
+      console.error('Error creating project:', error)
+      const errorMessage = error instanceof Error ? error.message : 'unknown'
+      alert(t('projects.errors.createError', { error: errorMessage }))
+    } finally {
+      setCreating(false)
     }
   }
 
@@ -181,10 +244,118 @@ export default function SurveysPage() {
             ]}
             title="Мои опросы"
             subtitle="AI-опросы сгруппированные по проектам"
+            primaryButton={{
+              label: 'Создать проект',
+              onClick: openCreateForm
+            }}
           />
         </div>
 
-        <div className="px-8">
+        <div className="px-8 space-y-8">
+          {/* Форма создания проекта */}
+          {showCreateForm && (
+            <div className="bg-white rounded-2xl border border-gray-200 shadow-lg p-8">
+              <div className="mb-6">
+                <h3 className="text-2xl font-bold text-slate-900 mb-2">
+                  {t('projects.createProject.title') || 'Создать новый проект'}
+                </h3>
+                <p className="text-slate-600">
+                  {t('projects.createProject.description') || 'Создайте проект для организации опросов'}
+                </p>
+              </div>
+
+              <form onSubmit={handleCreateProject} className="space-y-6">
+                <div>
+                  <label htmlFor="projectName" className="block text-sm font-medium text-slate-700 mb-2">
+                    {t('projects.createProject.nameLabel') || 'Название проекта'}
+                  </label>
+                  <input
+                    id="projectName"
+                    type="text"
+                    value={newProject.name}
+                    onChange={(e) => setNewProject({ ...newProject, name: e.target.value })}
+                    className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+                    placeholder={t('projects.createProject.namePlaceholder') || 'Введите название проекта'}
+                    required
+                  />
+                </div>
+
+                <div>
+                  <label htmlFor="projectDescription" className="block text-sm font-medium text-slate-700 mb-2">
+                    {t('projects.createProject.descriptionLabel') || 'Описание'}
+                  </label>
+                  <textarea
+                    id="projectDescription"
+                    value={newProject.description}
+                    onChange={(e) => setNewProject({ ...newProject, description: e.target.value })}
+                    className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+                    rows={3}
+                    placeholder={t('projects.createProject.descriptionPlaceholder') || 'Краткое описание проекта'}
+                  />
+                </div>
+
+                <div>
+                  <label htmlFor="projectContext" className="block text-sm font-medium text-slate-700 mb-2">
+                    {t('projects.createProject.contextLabel') || 'Контекст'}
+                  </label>
+                  <textarea
+                    id="projectContext"
+                    value={newProject.context}
+                    onChange={(e) => setNewProject({ ...newProject, context: e.target.value })}
+                    className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+                    rows={4}
+                    placeholder={t('projects.createProject.contextPlaceholder') || 'Контекст для AI анализа'}
+                  />
+                  <p className="text-sm text-slate-500 mt-1">
+                    {t('projects.createProject.contextNote') || 'Поможет AI генерировать более точные вопросы'}
+                  </p>
+                </div>
+
+                <div>
+                  <label htmlFor="projectAudience" className="block text-sm font-medium text-slate-700 mb-2">
+                    {t('projects.createProject.audienceLabel') || 'Целевая аудитория'}
+                  </label>
+                  <textarea
+                    id="projectAudience"
+                    value={newProject.targetAudience}
+                    onChange={(e) => setNewProject({ ...newProject, targetAudience: e.target.value })}
+                    className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+                    rows={4}
+                    placeholder={currentLanguage === 'en'
+                      ? 'Example: Young people aged 18-35, active smartphone users...'
+                      : 'Например: Молодые люди 18-35 лет, активные пользователи смартфонов...'}
+                  />
+                  <p className="text-sm text-slate-500 mt-1">
+                    {t('projects.createProject.audienceNote') || 'Опишите вашу целевую аудиторию'}
+                  </p>
+                </div>
+
+                <div className="flex gap-4 pt-4">
+                  <Button
+                    type="submit"
+                    disabled={creating}
+                    className="flex items-center gap-2 bg-black hover:bg-gray-800 text-white px-6 py-3 rounded-lg font-medium"
+                  >
+                    {creating ? (
+                      <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent"></div>
+                    ) : (
+                      <Plus className="w-4 h-4" />
+                    )}
+                    {creating ? (t('projects.createProject.loading') || 'Создание...') : (t('projects.createProject.createButton') || 'Создать проект')}
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={closeCreateForm}
+                    className="px-6 py-3 rounded-lg font-medium border-2 border-gray-200 hover:border-gray-300"
+                  >
+                    {t('projects.createProject.cancel') || 'Отмена'}
+                  </Button>
+                </div>
+              </form>
+            </div>
+          )}
+
           <div className="max-w-7xl space-y-8">
             {/* Ошибка */}
             {error && (

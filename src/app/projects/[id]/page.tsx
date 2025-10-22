@@ -823,6 +823,20 @@ export default function ProjectDetailPage() {
 
         <div className="px-8 space-y-6">
 
+        {/* Кнопка "Новый опрос" */}
+        {!showCreateForm && !currentAudit && (
+          <div className="flex justify-end">
+            <Button
+              onClick={() => router.push(`/projects/${projectId}/create-survey`)}
+              variant="outline"
+              className="flex items-center gap-2 border-2 border-blue-600 text-blue-600 hover:bg-blue-50"
+            >
+              <Plus className="w-4 h-4" />
+              {currentLanguage === 'en' ? 'New Survey' : 'Новый опрос'}
+            </Button>
+          </div>
+        )}
+
         {/* Статистика убрана - отображается только в разделе "Мои проекты" */}
 
         {/* Основной контент */}
