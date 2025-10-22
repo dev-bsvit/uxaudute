@@ -121,7 +121,8 @@ export default function SurveysPage() {
         newProject.name,
         newProject.description || undefined,
         newProject.context || undefined,
-        newProject.targetAudience || undefined
+        newProject.targetAudience || undefined,
+        'survey' // Создаём проект типа survey
       )
       closeCreateForm()
       // Перезагружаем опросы чтобы показать новый проект

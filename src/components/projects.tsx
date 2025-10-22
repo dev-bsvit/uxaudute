@@ -91,7 +91,7 @@ export function Projects({ user, onProjectSelect }: ProjectsProps) {
 
   const loadProjects = async () => {
     try {
-      const userProjects = await getUserProjects()
+      const userProjects = await getUserProjects('audit') // Загружаем только audit проекты
 
       // Загружаем данные для каждого проекта параллельно (оптимизированный запрос)
       const projectsWithCounts = await Promise.all(
@@ -136,7 +136,8 @@ export function Projects({ user, onProjectSelect }: ProjectsProps) {
         newProject.name,
         newProject.description || undefined,
         newProject.context || undefined,
-        newProject.targetAudience || undefined
+        newProject.targetAudience || undefined,
+        'audit' // Создаём проект типа audit
       )
       closeCreateForm()
       await loadProjects()

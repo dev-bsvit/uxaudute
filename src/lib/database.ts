@@ -9,7 +9,13 @@ type AuditInsert = Tables['audits']['Insert']
 type AuditHistory = Tables['audit_history']['Insert']
 
 // Projects functions
-export async function createProject(name: string, description?: string, context?: string, targetAudience?: string) {
+export async function createProject(
+  name: string,
+  description?: string,
+  context?: string,
+  targetAudience?: string,
+  type: 'audit' | 'survey' = 'audit'
+) {
   try {
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) throw new Error('User not authenticated')
@@ -19,7 +25,7 @@ export async function createProject(name: string, description?: string, context?
     // Убедимся, что пользователь существует в profiles
     await ensureUserProfile(user)
 
-    console.log('User profile ensured, creating project:', { name, description, context, targetAudience })
+    console.log('User profile ensured, creating project:', { name, description, context, targetAudience, type })
 
     const { data, error } = await supabase
       .from('projects')
@@ -28,7 +34,8 @@ export async function createProject(name: string, description?: string, context?
         name,
         description,
         context,
-        target_audience: targetAudience
+        target_audience: targetAudience,
+        type
       })
       .select()
       .single()
@@ -91,18 +98,24 @@ async function ensureUserProfile(user: any) {
   }
 }
 
-export async function getUserProjects(): Promise<Project[]> {
+export async function getUserProjects(type?: 'audit' | 'survey'): Promise<Project[]> {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return []
 
   // Убедимся, что пользователь существует в profiles
   await ensureUserProfile(user)
 
-  const { data, error } = await supabase
+  let query = supabase
     .from('projects')
     .select('*')
     .eq('user_id', user.id)
-    .order('created_at', { ascending: false })
+
+  // Фильтруем по типу если указан
+  if (type) {
+    query = query.eq('type', type)
+  }
+
+  const { data, error } = await query.order('created_at', { ascending: false })
 
   if (error) throw error
   return data || []
@@ -623,12 +636,14 @@ export async function getUserSurveys(): Promise<Survey[]> {
       .from('surveys')
       .select(`
         *,
-        projects (
+        projects!inner (
           id,
-          name
+          name,
+          type
         )
       `)
       .eq('user_id', user.id)
+      .eq('projects.type', 'survey') // Загружаем только опросы из survey проектов
       .order('created_at', { ascending: false })
 
     if (error) throw error

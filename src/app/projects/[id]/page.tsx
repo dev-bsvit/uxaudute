@@ -72,6 +72,7 @@ interface Project {
   description: string | null
   context: string | null
   target_audience: string | null
+  type: 'audit' | 'survey'
   created_at: string
 }
 
@@ -805,26 +806,29 @@ export default function ProjectDetailPage() {
               onClick: () => setShowSettingsModal(true)
           }}
           primaryButton={
-            showCreateForm
-              ? {
-                  label: submitButtonLabel,
-                  onClick: () => createAuditFormRef.current?.requestSubmit(),
-                  disabled: isSubmitDisabled
-                }
-              : {
-                  label:
-                    t('projects.detail.newAudit') ||
-                    (currentLanguage === 'en' ? 'New audit' : 'Новый аудит'),
-                  onClick: () => setShowCreateForm(true)
-                }
+            // Показываем кнопку "Новый аудит" только для audit проектов
+            project?.type === 'audit' ? (
+              showCreateForm
+                ? {
+                    label: submitButtonLabel,
+                    onClick: () => createAuditFormRef.current?.requestSubmit(),
+                    disabled: isSubmitDisabled
+                  }
+                : {
+                    label:
+                      t('projects.detail.newAudit') ||
+                      (currentLanguage === 'en' ? 'New audit' : 'Новый аудит'),
+                    onClick: () => setShowCreateForm(true)
+                  }
+            ) : undefined
           }
           />
         </div>
 
         <div className="px-8 space-y-6">
 
-        {/* Кнопка "Новый опрос" */}
-        {!showCreateForm && !currentAudit && (
+        {/* Кнопка "Новый опрос" - показываем только для survey проектов */}
+        {project?.type === 'survey' && !showCreateForm && !currentAudit && (
           <div className="flex justify-end">
             <Button
               onClick={() => router.push(`/projects/${projectId}/create-survey`)}
@@ -842,8 +846,8 @@ export default function ProjectDetailPage() {
         {/* Основной контент */}
         {!currentAudit ? (
           <>
-            {/* Форма создания аудита */}
-            {showCreateForm && (
+            {/* Форма создания аудита - показываем только для audit проектов */}
+            {showCreateForm && project?.type === 'audit' && (
               <div className="w-full rounded-2xl bg-white p-8">
                 <form
                   ref={createAuditFormRef}
