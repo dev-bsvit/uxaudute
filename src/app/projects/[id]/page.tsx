@@ -62,7 +62,8 @@ import {
   TestTube2,
   Lightbulb,
   TrendingUp,
-  Info
+  Info,
+  FileText
 } from 'lucide-react'
 import { BackArrow } from '@/components/icons/back-arrow'
 import { type ActionType } from '@/lib/utils'
