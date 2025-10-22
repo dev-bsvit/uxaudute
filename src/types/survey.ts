@@ -4,6 +4,9 @@ import { QuestionType, SurveyQuestion } from '@/lib/survey-question-bank'
  * Типы для системы опросов
  */
 
+// Реэкспорт типов из survey-question-bank
+export type { QuestionType, SurveyQuestion }
+
 export interface SurveyQuestionInstance extends SurveyQuestion {
   // Уникальный ID для инстанса вопроса (используется для drag-and-drop)
   instance_id: string
