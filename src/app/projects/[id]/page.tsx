@@ -181,10 +181,13 @@ export default function ProjectDetailPage() {
       setHasAnyChanges(false)
 
       // Загружаем либо аудиты либо опросы в зависимости от типа проекта
-      if (!projectData.type || projectData.type === 'audit') {
+      // Используем безопасный доступ к полю type
+      const projectType = (projectData as any).type as 'audit' | 'survey' | undefined
+
+      if (!projectType || projectType === 'audit') {
         const auditsData = await getProjectAudits(projectId)
         setAudits(auditsData)
-      } else if (projectData.type === 'survey') {
+      } else if (projectType === 'survey') {
         const surveysData = await getProjectSurveys(projectId)
         setSurveys(surveysData)
       }
