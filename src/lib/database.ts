@@ -561,3 +561,235 @@ export async function ensureUserHasInitialBalance(userId: string): Promise<void>
     console.error('❌ Stack trace:', error instanceof Error ? error.stack : 'No stack')
   }
 }
+
+// ============================================
+// Survey functions
+// ============================================
+
+import type { Survey, SurveyQuestionInstance, SurveySettings, SurveyResponse } from '@/types/survey'
+
+/**
+ * Создать новый опрос
+ */
+export async function createSurvey(
+  name: string,
+  projectId?: string,
+  description?: string
+): Promise<Survey> {
+  try {
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) throw new Error('User not authenticated')
+
+    const { data, error } = await supabase
+      .from('surveys')
+      .insert({
+        user_id: user.id,
+        project_id: projectId || null,
+        name,
+        description: description || null,
+        status: 'draft',
+        settings: {
+          language: 'ru',
+          show_progress: true,
+          allow_anonymous: true,
+          require_email: false,
+          show_branding: true
+        }
+      })
+      .select()
+      .single()
+
+    if (error) {
+      console.error('Supabase survey creation error:', error)
+      throw new Error(`Database error: ${error.message}`)
+    }
+
+    return data as Survey
+  } catch (error) {
+    console.error('createSurvey error:', error)
+    throw error
+  }
+}
+
+/**
+ * Получить все опросы пользователя
+ */
+export async function getUserSurveys(): Promise<Survey[]> {
+  try {
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) throw new Error('User not authenticated')
+
+    const { data, error } = await supabase
+      .from('surveys')
+      .select('*')
+      .eq('user_id', user.id)
+      .order('created_at', { ascending: false })
+
+    if (error) throw error
+    return (data || []) as Survey[]
+  } catch (error) {
+    console.error('getUserSurveys error:', error)
+    throw error
+  }
+}
+
+/**
+ * Получить опросы проекта
+ */
+export async function getProjectSurveys(projectId: string): Promise<Survey[]> {
+  try {
+    const { data, error } = await supabase
+      .from('surveys')
+      .select('*')
+      .eq('project_id', projectId)
+      .order('created_at', { ascending: false })
+
+    if (error) throw error
+    return (data || []) as Survey[]
+  } catch (error) {
+    console.error('getProjectSurveys error:', error)
+    throw error
+  }
+}
+
+/**
+ * Получить опрос по ID
+ */
+export async function getSurvey(surveyId: string): Promise<Survey> {
+  try {
+    const { data, error } = await supabase
+      .from('surveys')
+      .select('*')
+      .eq('id', surveyId)
+      .single()
+
+    if (error) throw error
+    return data as Survey
+  } catch (error) {
+    console.error('getSurvey error:', error)
+    throw error
+  }
+}
+
+/**
+ * Обновить опрос
+ */
+export async function updateSurvey(
+  surveyId: string,
+  updates: Partial<Survey>
+): Promise<Survey> {
+  try {
+    const { data, error } = await supabase
+      .from('surveys')
+      .update(updates)
+      .eq('id', surveyId)
+      .select()
+      .single()
+
+    if (error) throw error
+    return data as Survey
+  } catch (error) {
+    console.error('updateSurvey error:', error)
+    throw error
+  }
+}
+
+/**
+ * Удалить опрос
+ */
+export async function deleteSurvey(surveyId: string): Promise<void> {
+  try {
+    const { error } = await supabase
+      .from('surveys')
+      .delete()
+      .eq('id', surveyId)
+
+    if (error) throw error
+  } catch (error) {
+    console.error('deleteSurvey error:', error)
+    throw error
+  }
+}
+
+/**
+ * Опубликовать опрос
+ */
+export async function publishSurvey(surveyId: string): Promise<Survey> {
+  try {
+    const { data, error } = await supabase
+      .from('surveys')
+      .update({
+        status: 'published',
+        published_at: new Date().toISOString()
+      })
+      .eq('id', surveyId)
+      .select()
+      .single()
+
+    if (error) throw error
+    return data as Survey
+  } catch (error) {
+    console.error('publishSurvey error:', error)
+    throw error
+  }
+}
+
+/**
+ * Закрыть опрос
+ */
+export async function closeSurvey(surveyId: string): Promise<Survey> {
+  try {
+    const { data, error } = await supabase
+      .from('surveys')
+      .update({ status: 'closed' })
+      .eq('id', surveyId)
+      .select()
+      .single()
+
+    if (error) throw error
+    return data as Survey
+  } catch (error) {
+    console.error('closeSurvey error:', error)
+    throw error
+  }
+}
+
+/**
+ * Сохранить ответ на опрос
+ */
+export async function submitSurveyResponse(
+  response: Omit<SurveyResponse, 'id' | 'created_at'>
+): Promise<SurveyResponse> {
+  try {
+    const { data, error } = await supabase
+      .from('survey_responses')
+      .insert(response)
+      .select()
+      .single()
+
+    if (error) throw error
+    return data as SurveyResponse
+  } catch (error) {
+    console.error('submitSurveyResponse error:', error)
+    throw error
+  }
+}
+
+/**
+ * Получить все ответы на опрос
+ */
+export async function getSurveyResponses(surveyId: string): Promise<SurveyResponse[]> {
+  try {
+    const { data, error } = await supabase
+      .from('survey_responses')
+      .select('*')
+      .eq('survey_id', surveyId)
+      .order('created_at', { ascending: false })
+
+    if (error) throw error
+    return (data || []) as SurveyResponse[]
+  } catch (error) {
+    console.error('getSurveyResponses error:', error)
+    throw error
+  }
+}

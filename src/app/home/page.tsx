@@ -362,14 +362,14 @@ export default function HomePage() {
     {
       id: 'custom-surveys',
       titleLines: currentLanguage === 'en'
-        ? ['Custom research surveys', 'collect feedback aligned', 'with your design']
-        : ['Кастомные исследования', 'собирают нужную обратную', 'связь по дизайну'],
+        ? ['AI-powered surveys', 'with auto-generated', 'relevant questions']
+        : ['AI-опросы с автоматически', 'созданными релевантными', 'вопросами'],
       icon: Lightbulb,
       backgroundColor: '#E0ECDC',
       iconBackgroundColor: '#3C5862',
       iconColor: '#FFFFFF',
       textColor: '#3C5862',
-      ctaLabel: currentLanguage === 'en' ? 'Start audit' : 'Начать аудит',
+      ctaLabel: currentLanguage === 'en' ? 'Create survey' : 'Создать опрос',
       ctaColor: '#3C5862',
       available: true
     },
@@ -584,6 +584,11 @@ export default function HomePage() {
                     <div className="mt-auto pt-4">
                       <button
                         type="button"
+                        onClick={() => {
+                          if (card.available && card.id === 'custom-surveys') {
+                            router.push('/surveys/create')
+                          }
+                        }}
                         className={`text-sm font-medium transition-opacity ${
                           card.available
                             ? 'hover:opacity-80 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-300'
