@@ -26,6 +26,7 @@ import {
   Plus,
   Settings2,
   Star,
+  FileText,
 } from "lucide-react";
 import { User } from "@supabase/supabase-js";
 import { signOut } from "@/lib/database";
@@ -90,6 +91,9 @@ export function SidebarDemo({ children, user }: SidebarDemoProps) {
     if (href === "/projects") {
       return pathname.startsWith("/projects");
     }
+    if (href === "/surveys") {
+      return pathname.startsWith("/surveys") || pathname.includes("/public/survey/");
+    }
     return pathname.startsWith(href);
   };
 
@@ -106,6 +110,12 @@ export function SidebarDemo({ children, user }: SidebarDemoProps) {
         label: tWithFallback("components.sidebar.myProjects", "My Projects"),
         href: "/projects",
         icon: FolderClosed,
+      },
+      {
+        key: "surveys",
+        label: tWithFallback("components.sidebar.surveys", "Surveys"),
+        href: "/surveys",
+        icon: FileText,
       },
     ],
     [tWithFallback]

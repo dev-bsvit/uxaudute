@@ -19,7 +19,9 @@ import {
   X,
   Eye,
   EyeOff,
-  Send
+  Send,
+  Copy,
+  ExternalLink
 } from 'lucide-react'
 import {
   DndContext,
@@ -485,13 +487,23 @@ export default function SurveyEditorPage() {
       setPublishing(true)
       await publishSurvey(survey.id)
       setSurvey({ ...survey, status: 'published' })
-      alert('Опрос опубликован! Теперь вы можете поделиться ссылкой с респондентами.')
     } catch (error) {
       console.error('Error publishing survey:', error)
       setError('Не удалось опубликовать опрос')
     } finally {
       setPublishing(false)
     }
+  }
+
+  const handleCopyLink = () => {
+    const link = `${window.location.origin}/public/survey/${survey?.id}`
+    navigator.clipboard.writeText(link)
+    alert('Ссылка скопирована в буфер обмена!')
+  }
+
+  const handleOpenSurvey = () => {
+    const link = `${window.location.origin}/public/survey/${survey?.id}`
+    window.open(link, '_blank')
   }
 
   if (loading) {
@@ -547,25 +559,47 @@ export default function SurveyEditorPage() {
                 </span>
               </div>
 
-              {survey.status === 'draft' && (
-                <Button
-                  onClick={handlePublish}
-                  disabled={publishing || survey.main_questions.length === 0}
-                  className="bg-green-600 hover:bg-green-700"
-                >
-                  {publishing ? (
-                    <>
-                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                      Публикация...
-                    </>
-                  ) : (
-                    <>
-                      <Send className="w-4 h-4 mr-2" />
-                      Опубликовать опрос
-                    </>
-                  )}
-                </Button>
-              )}
+              <div className="flex gap-2">
+                {survey.status === 'draft' && (
+                  <Button
+                    onClick={handlePublish}
+                    disabled={publishing || survey.main_questions.length === 0}
+                    className="bg-green-600 hover:bg-green-700"
+                  >
+                    {publishing ? (
+                      <>
+                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                        Публикация...
+                      </>
+                    ) : (
+                      <>
+                        <Send className="w-4 h-4 mr-2" />
+                        Опубликовать опрос
+                      </>
+                    )}
+                  </Button>
+                )}
+
+                {survey.status === 'published' && (
+                  <>
+                    <Button
+                      onClick={handleCopyLink}
+                      variant="outline"
+                      className="bg-blue-600 hover:bg-blue-700 text-white hover:text-white"
+                    >
+                      <Copy className="w-4 h-4 mr-2" />
+                      Скопировать ссылку
+                    </Button>
+                    <Button
+                      onClick={handleOpenSurvey}
+                      variant="outline"
+                    >
+                      <ExternalLink className="w-4 h-4 mr-2" />
+                      Открыть опрос
+                    </Button>
+                  </>
+                )}
+              </div>
             </div>
 
             {/* Ошибка */}
