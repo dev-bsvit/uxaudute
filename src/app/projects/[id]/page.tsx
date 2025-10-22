@@ -40,8 +40,11 @@ import {
   updateProjectContext,
   updateProjectTargetAudience,
   updateAuditName,
-  deleteAudit
+  deleteAudit,
+  getProjectSurveys,
+  deleteSurvey
 } from '@/lib/database'
+import type { Survey } from '@/types/survey'
 import { useTranslation } from '@/hooks/use-translation'
 import { useFormatters } from '@/hooks/use-formatters'
 import {
@@ -112,6 +115,7 @@ export default function ProjectDetailPage() {
   const [user, setUser] = useState<User | null>(null)
   const [project, setProject] = useState<Project | null>(null)
   const [audits, setAudits] = useState<Audit[]>([])
+  const [surveys, setSurveys] = useState<Survey[]>([])
   const [loading, setLoading] = useState(true)
   const [showCreateForm, setShowCreateForm] = useState(false)
   const [currentAudit, setCurrentAudit] = useState<Audit | null>(null)
@@ -165,10 +169,7 @@ export default function ProjectDetailPage() {
 
   const loadProjectData = async () => {
     try {
-      const [projectData, auditsData] = await Promise.all([
-        getProject(projectId),
-        getProjectAudits(projectId)
-      ])
+      const projectData = await getProject(projectId)
 
       if (!projectData) {
         throw new Error('Project not found')
@@ -178,7 +179,15 @@ export default function ProjectDetailPage() {
       setEditContext(projectData.context || '')
       setEditTargetAudience(projectData.target_audience || '')
       setHasAnyChanges(false)
-      setAudits(auditsData)
+
+      // Загружаем либо аудиты либо опросы в зависимости от типа проекта
+      if (!projectData.type || projectData.type === 'audit') {
+        const auditsData = await getProjectAudits(projectId)
+        setAudits(auditsData)
+      } else if (projectData.type === 'survey') {
+        const surveysData = await getProjectSurveys(projectId)
+        setSurveys(surveysData)
+      }
     } catch (error) {
       console.error('Error loading project data:', error)
       throw error
@@ -564,6 +573,23 @@ export default function ProjectDetailPage() {
       const deleteErrorMessage = t('projects.detail.alerts.deleteError', { error: errorMessage }) || (currentLanguage === 'en'
         ? `Error deleting audit: ${errorMessage}`
         : `Ошибка при удалении аудита: ${errorMessage}`)
+      alert(deleteErrorMessage)
+    }
+  }
+
+  const handleDeleteSurvey = async (surveyId: string) => {
+    try {
+      await deleteSurvey(surveyId)
+      // Перезагружаем список опросов после удаления
+      await loadProjectData()
+      const successMessage = currentLanguage === 'en' ? 'Survey deleted successfully' : 'Опрос успешно удалён'
+      alert(successMessage)
+    } catch (error) {
+      console.error('Error deleting survey:', error)
+      const errorMessage = error instanceof Error ? error.message : unknownErrorMessage
+      const deleteErrorMessage = currentLanguage === 'en'
+        ? `Error deleting survey: ${errorMessage}`
+        : `Ошибка при удалении опроса: ${errorMessage}`
       alert(deleteErrorMessage)
     }
   }
@@ -1107,9 +1133,10 @@ export default function ProjectDetailPage() {
               </div>
             )}
 
-            {/* Таблица аудитов */}
+            {/* Таблица аудитов или опросов */}
             <div className="w-full">
-              {audits.length === 0 ? (
+              {/* Empty state для аудитов */}
+              {(!project?.type || project?.type === 'audit') && audits.length === 0 ? (
                 <div className="text-center py-8">
                   <BarChart3 className="w-12 h-12 text-slate-400 mx-auto mb-4" />
                   <p className="text-slate-600 mb-4">
@@ -1120,7 +1147,24 @@ export default function ProjectDetailPage() {
                     {t('projects.detail.history.emptyAction') || (currentLanguage === 'en' ? 'Create first audit' : 'Создать первый аудит')}
                   </Button>
                 </div>
-              ) : (
+              ) : null}
+
+              {/* Empty state для опросов */}
+              {project?.type === 'survey' && surveys.length === 0 ? (
+                <div className="text-center py-8">
+                  <FileText className="w-12 h-12 text-slate-400 mx-auto mb-4" />
+                  <p className="text-slate-600 mb-4">
+                    {currentLanguage === 'en' ? 'There are no surveys in this project yet' : 'В этом проекте пока нет опросов'}
+                  </p>
+                  <Button onClick={() => router.push(`/projects/${projectId}/create-survey`)}>
+                    <Plus className="w-4 h-4 mr-2" />
+                    {currentLanguage === 'en' ? 'Create first survey' : 'Создать первый опрос'}
+                  </Button>
+                </div>
+              ) : null}
+
+              {/* Таблица аудитов */}
+              {(!project?.type || project?.type === 'audit') && audits.length > 0 && (
                 <div className="w-full">
                   {/* Заголовки таблицы */}
                   <div className="grid grid-cols-[auto_200px_120px_120px_120px_80px] gap-4 px-4 py-3 text-sm font-medium text-slate-500">
@@ -1219,6 +1263,110 @@ export default function ProjectDetailPage() {
                         </div>
                         {/* Сепаратор */}
                         {index < audits.length - 1 && (
+                          <div className="h-[1px] bg-[#EEF2FA]"></div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Таблица опросов */}
+              {project?.type === 'survey' && surveys.length > 0 && (
+                <div className="w-full">
+                  {/* Заголовки таблицы */}
+                  <div className="grid grid-cols-[auto_200px_120px_120px_80px] gap-4 px-4 py-3 text-sm font-medium text-slate-500">
+                    <div>{currentLanguage === 'en' ? 'Survey History' : 'История опросов'}</div>
+                    <div>{t('projects.detail.table.date') || 'Дата'}</div>
+                    <div>{t('projects.detail.table.status') || 'Статус'}</div>
+                    <div>{currentLanguage === 'en' ? 'Responses' : 'Ответов'}</div>
+                    <div>{t('projects.detail.table.actions') || 'Действие'}</div>
+                  </div>
+
+                  {/* Строки таблицы */}
+                  <div className="space-y-0">
+                    {surveys.map((survey, index) => (
+                      <div key={survey.id}>
+                        <div
+                          onClick={() => router.push(`/surveys/${survey.id}`)}
+                          className="grid grid-cols-[auto_200px_120px_120px_80px] gap-4 px-4 py-4 items-center bg-white hover:bg-slate-50 transition-colors rounded-lg cursor-pointer"
+                        >
+                          {/* Превью + Название */}
+                          <div className="flex items-center gap-4">
+                            <div className="w-[80px] h-[60px] bg-slate-100 rounded-lg flex items-center justify-center overflow-hidden flex-shrink-0">
+                              {survey.screenshot_url ? (
+                                <img
+                                  src={survey.screenshot_url}
+                                  alt={survey.name}
+                                  className="w-full h-full object-cover"
+                                />
+                              ) : (
+                                <FileText className="w-6 h-6 text-slate-400" />
+                              )}
+                            </div>
+                            <h3 className="font-medium text-slate-900">{survey.name}</h3>
+                          </div>
+
+                          {/* Дата */}
+                          <div className="text-sm text-slate-600">
+                            {formatDateTime(survey.created_at)}
+                          </div>
+
+                          {/* Статус */}
+                          <div>
+                            <Badge className={
+                              survey.status === 'draft' ? 'bg-yellow-100 text-yellow-800' :
+                              survey.status === 'published' ? 'bg-green-100 text-green-800' :
+                              'bg-slate-100 text-slate-800'
+                            }>
+                              {survey.status === 'draft' ? (currentLanguage === 'en' ? 'Draft' : 'Черновик') :
+                               survey.status === 'published' ? (currentLanguage === 'en' ? 'Published' : 'Опубликован') :
+                               survey.status === 'closed' ? (currentLanguage === 'en' ? 'Closed' : 'Закрыт') : survey.status}
+                            </Badge>
+                          </div>
+
+                          {/* Количество ответов */}
+                          <div className="text-sm text-slate-600">
+                            {survey.responses_count || 0}
+                          </div>
+
+                          {/* Действия - Dropdown меню */}
+                          <div className="flex items-center justify-center" onClick={(e) => e.stopPropagation()}>
+                            <DropdownMenu>
+                              <DropdownMenuTrigger asChild>
+                                <button className="text-slate-400 hover:text-slate-600">
+                                  <MoreVertical className="w-5 h-5" />
+                                </button>
+                              </DropdownMenuTrigger>
+                              <DropdownMenuContent align="end">
+                                <DropdownMenuItem
+                                  onClick={() => {
+                                    const link = `${window.location.origin}/public/survey/${survey.id}`
+                                    navigator.clipboard.writeText(link)
+                                    alert('Ссылка скопирована в буфер обмена!')
+                                  }}
+                                >
+                                  <Share2 className="w-4 h-4 mr-2" />
+                                  {t('common.share') || (currentLanguage === 'en' ? 'Share' : 'Поделиться')}
+                                </DropdownMenuItem>
+                                <DropdownMenuItem
+                                  onClick={async () => {
+                                    const confirmMessage = currentLanguage === 'en' ? 'Delete this survey?' : 'Удалить этот опрос?'
+                                    if (confirm(confirmMessage)) {
+                                      await handleDeleteSurvey(survey.id)
+                                    }
+                                  }}
+                                  className="text-red-600 focus:text-red-600"
+                                >
+                                  <Trash2 className="w-4 h-4 mr-2" />
+                                  {t('common.delete') || (currentLanguage === 'en' ? 'Delete' : 'Удалить')}
+                                </DropdownMenuItem>
+                              </DropdownMenuContent>
+                            </DropdownMenu>
+                          </div>
+                        </div>
+                        {/* Сепаратор */}
+                        {index < surveys.length - 1 && (
                           <div className="h-[1px] bg-[#EEF2FA]"></div>
                         )}
                       </div>
