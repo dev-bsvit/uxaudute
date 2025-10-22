@@ -806,7 +806,7 @@ export default function ProjectDetailPage() {
               onClick: () => setShowSettingsModal(true)
           }}
           primaryButton={
-            // Показываем кнопку "Новый аудит" только для audit проектов (или если тип не указан - для обратной совместимости)
+            // Для audit проектов показываем кнопку "Новый аудит"
             (!project?.type || project?.type === 'audit') ? (
               showCreateForm
                 ? {
@@ -820,28 +820,18 @@ export default function ProjectDetailPage() {
                       (currentLanguage === 'en' ? 'New audit' : 'Новый аудит'),
                     onClick: () => setShowCreateForm(true)
                   }
-            ) : undefined
+            ) : (
+              // Для survey проектов показываем кнопку "Новый опрос"
+              project?.type === 'survey' ? {
+                label: currentLanguage === 'en' ? 'New Survey' : 'Новый опрос',
+                onClick: () => router.push(`/projects/${projectId}/create-survey`)
+              } : undefined
+            )
           }
           />
         </div>
 
         <div className="px-8 space-y-6">
-
-        {/* Кнопка "Новый опрос" - показываем только для survey проектов */}
-        {project?.type === 'survey' && !showCreateForm && !currentAudit && (
-          <div className="flex justify-end">
-            <Button
-              onClick={() => router.push(`/projects/${projectId}/create-survey`)}
-              variant="outline"
-              className="flex items-center gap-2 border-2 border-blue-600 text-blue-600 hover:bg-blue-50"
-            >
-              <Plus className="w-4 h-4" />
-              {currentLanguage === 'en' ? 'New Survey' : 'Новый опрос'}
-            </Button>
-          </div>
-        )}
-
-        {/* Статистика убрана - отображается только в разделе "Мои проекты" */}
 
         {/* Основной контент */}
         {!currentAudit ? (
