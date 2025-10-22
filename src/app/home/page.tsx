@@ -54,7 +54,7 @@ interface Project {
 
 interface ResearchCard {
   id: string
-  title: string
+  titleLines: [string, string, string]
   icon: LucideIcon
   backgroundColor: string
   iconBackgroundColor: string
@@ -319,7 +319,9 @@ export default function HomePage() {
   const researchCards: ResearchCard[] = [
     {
       id: 'ux-analysis',
-      title: currentLanguage === 'en' ? 'UX audit with expert tips' : 'UX-анализ с экспертными рекомендациями',
+      titleLines: currentLanguage === 'en'
+        ? ['UX audit with expert', 'recommendations tailored', 'for your product goals']
+        : ['UX-анализ с экспертными', 'рекомендациями под ваши', 'продуктовые цели'],
       icon: BarChart3,
       backgroundColor: '#E8DDF9',
       iconBackgroundColor: '#6C2EFF',
@@ -331,7 +333,9 @@ export default function HomePage() {
     },
     {
       id: 'ab-test-plans',
-      title: currentLanguage === 'en' ? 'A/B tests with ready tech specs' : 'A/B тесты с готовым ТЗ',
+      titleLines: currentLanguage === 'en'
+        ? ['A/B tests with ready', 'technical specs to launch', 'insight-driven experiments']
+        : ['A/B тесты с готовым ТЗ', 'для быстрого запуска', 'UX-экспериментов'],
       icon: TestTube2,
       backgroundColor: '#CAEEF7',
       iconBackgroundColor: '#003EF2',
@@ -343,7 +347,9 @@ export default function HomePage() {
     },
     {
       id: 'ab-test-templates',
-      title: currentLanguage === 'en' ? 'A/B tests templates' : 'A/B тесты с шаблонами',
+      titleLines: currentLanguage === 'en'
+        ? ['Template library for A/B', 'tests that accelerate your', 'growth experiments']
+        : ['Библиотека шаблонов A/B', 'тестов для ускорения', 'роста продукта'],
       icon: TrendingUp,
       backgroundColor: '#E9E9E9',
       iconBackgroundColor: '#6944BE',
@@ -355,7 +361,9 @@ export default function HomePage() {
     },
     {
       id: 'custom-surveys',
-      title: currentLanguage === 'en' ? 'Custom research survey' : 'Создать опрос по вашему дизайну',
+      titleLines: currentLanguage === 'en'
+        ? ['Custom research surveys', 'collect feedback aligned', 'with your design']
+        : ['Кастомные исследования', 'собирают нужную обратную', 'связь по дизайну'],
       icon: Lightbulb,
       backgroundColor: '#E0ECDC',
       iconBackgroundColor: '#3C5862',
@@ -367,7 +375,9 @@ export default function HomePage() {
     },
     {
       id: 'coming-soon',
-      title: currentLanguage === 'en' ? 'All-in-one growth kit' : 'Комплексный growth-kit',
+      titleLines: currentLanguage === 'en'
+        ? ['All-in-one growth kit', 'to supercharge product', 'teams coming soon']
+        : ['Комплексный growth-kit', 'для прокачки продукта', 'совсем скоро'],
       icon: Zap,
       backgroundColor: '#E8DDF9',
       iconBackgroundColor: '#AB72AE',
@@ -553,7 +563,7 @@ export default function HomePage() {
                 return (
                   <div
                     key={card.id}
-                    className="flex w-[264px] flex-col items-start gap-[10px] rounded-[32px] p-6"
+                    className="flex w-[264px] min-h-[240px] flex-col rounded-[32px] p-6"
                     style={{ backgroundColor: card.backgroundColor }}
                   >
                     <div
@@ -562,25 +572,33 @@ export default function HomePage() {
                     >
                       <Icon className="h-6 w-6" style={{ color: card.iconColor }} />
                     </div>
-                    <h3 className="text-lg font-semibold leading-tight" style={{ color: card.textColor }}>
-                      {card.title}
-                    </h3>
-                    <button
-                      type="button"
-                      className={`text-sm font-medium transition-opacity ${
-                        card.available
-                          ? 'hover:opacity-80 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-300'
-                          : 'cursor-not-allowed opacity-60'
-                      }`}
-                      style={{
-                        color: card.available ? card.ctaColor : '#646464',
-                        outlineColor: card.available ? card.ctaColor : '#646464'
-                      }}
-                      disabled={!card.available}
-                      aria-disabled={!card.available}
-                    >
-                      {card.ctaLabel}
-                    </button>
+                    <div className="mt-4 flex flex-1 flex-col">
+                      <h3 className="text-lg font-semibold leading-snug" style={{ color: card.textColor }}>
+                        {card.titleLines.map((line, index) => (
+                          <span key={`${card.id}-line-${index}`} className="block">
+                            {line}
+                          </span>
+                        ))}
+                      </h3>
+                    </div>
+                    <div className="mt-auto pt-4">
+                      <button
+                        type="button"
+                        className={`text-sm font-medium transition-opacity ${
+                          card.available
+                            ? 'hover:opacity-80 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-300'
+                            : 'cursor-not-allowed opacity-60'
+                        }`}
+                        style={{
+                          color: card.available ? card.ctaColor : '#646464',
+                          outlineColor: card.available ? card.ctaColor : '#646464'
+                        }}
+                        disabled={!card.available}
+                        aria-disabled={!card.available}
+                      >
+                        {card.ctaLabel}
+                      </button>
+                    </div>
                   </div>
                 )
               })}
