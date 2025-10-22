@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 import { SidebarDemo } from '@/components/sidebar-demo'
 import { PageHeader } from '@/components/page-header'
+import { SurveySplitLayout } from '@/components/survey-split-layout'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
@@ -538,7 +539,12 @@ export default function SurveyEditorPage() {
         </div>
 
         <div className="px-8">
-          <div className="max-w-5xl space-y-8">
+          <SurveySplitLayout
+            screenshot={survey.screenshot_url}
+            surveyId={survey.id}
+            showAnnotations={true}
+          >
+            <div className="space-y-8">
             {/* Статус и действия */}
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
@@ -794,7 +800,8 @@ export default function SurveyEditorPage() {
                 </DndContext>
               )}
             </div>
-          </div>
+            </div>
+          </SurveySplitLayout>
         </div>
       </div>
     </SidebarDemo>

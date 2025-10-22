@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 import { SidebarDemo } from '@/components/sidebar-demo'
 import { PageHeader } from '@/components/page-header'
+import { SurveySplitLayout } from '@/components/survey-split-layout'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import {
@@ -284,7 +285,12 @@ export default function SurveyAnalyticsPage() {
         </div>
 
         <div className="px-8">
-          <div className="max-w-7xl space-y-8">
+          <SurveySplitLayout
+            screenshot={survey.screenshot_url}
+            surveyId={survey.id}
+            showAnnotations={false}
+          >
+            <div className="space-y-8">
             {/* Общая статистика */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               <Card className="p-6">
@@ -372,7 +378,8 @@ export default function SurveyAnalyticsPage() {
                 </div>
               </div>
             )}
-          </div>
+            </div>
+          </SurveySplitLayout>
         </div>
       </div>
     </SidebarDemo>
