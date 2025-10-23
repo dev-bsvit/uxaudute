@@ -38,6 +38,12 @@ export function Step1Intro({
     const file = e.target.files?.[0]
     if (!file) return
 
+    // Check if already uploading
+    if (uploading) {
+      e.target.value = ''
+      return
+    }
+
     // Validation
     if (!file.type.startsWith('image/')) {
       alert('Пожалуйста, загрузите изображение')
@@ -172,7 +178,6 @@ export function Step1Intro({
                 className="hidden"
                 accept="image/*"
                 onChange={handleImageUpload}
-                disabled={uploading}
               />
             </label>
           )}
