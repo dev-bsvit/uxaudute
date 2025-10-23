@@ -613,16 +613,16 @@ export default function SurveyEditorPage() {
                     </div>
                   </div>
 
-            {/* Ошибка */}
-            {error && (
-              <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-                <p className="text-sm text-red-800">{error}</p>
-              </div>
-            )}
+                  {/* Ошибка */}
+                  {error && (
+                    <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+                      <p className="text-sm text-red-800">{error}</p>
+                    </div>
+                  )}
 
-            {/* Добавить свой вопрос - ВВЕРХУ */}
-            <div>
-              {!showAddQuestion ? (
+                  {/* Добавить свой вопрос - ВВЕРХУ */}
+                  <div>
+                    {!showAddQuestion ? (
                 <Button
                   onClick={() => setShowAddQuestion(true)}
                   variant="outline"
@@ -696,114 +696,115 @@ export default function SurveyEditorPage() {
                   </div>
                 </Card>
               )}
-            </div>
+                  </div>
 
-            {/* Основные вопросы */}
-            <div>
-              <div className="flex items-center justify-between mb-4">
-                <h2 className="text-xl font-semibold text-slate-900">
-                  Основные вопросы
-                </h2>
-                <span className="text-sm text-slate-500">
-                  Показываются сразу в опросе
-                </span>
-              </div>
-
-              {survey.main_questions.length === 0 ? (
-                <Card className="p-8 text-center">
-                  <p className="text-slate-500">
-                    Нет основных вопросов. Добавьте вопросы из дополнительных или создайте свои.
-                  </p>
-                </Card>
-              ) : (
-                <DndContext
-                  sensors={sensors}
-                  collisionDetection={closestCenter}
-                  onDragEnd={(e) => handleDragEnd(e, 'main')}
-                >
-                  <SortableContext
-                    items={survey.main_questions.map(q => q.instance_id)}
-                    strategy={verticalListSortingStrategy}
-                  >
-                    <div className="space-y-3">
-                      {survey.main_questions.map((q, i) => (
-                        <SortableQuestion
-                          key={q.instance_id}
-                          question={q}
-                          pool="main"
-                          index={i}
-                          isEditing={editingQuestionId === q.instance_id}
-                          editedText={editedText}
-                          editedType={editedType}
-                          onStartEdit={handleStartEdit}
-                          onSaveEdit={handleSaveEdit}
-                          onCancelEdit={handleCancelEdit}
-                          onMove={handleMoveQuestion}
-                          onDelete={handleDeleteQuestion}
-                          onTextChange={setEditedText}
-                          onTypeChange={setEditedType}
-                          saving={saving}
-                          currentLanguage={currentLanguage}
-                        />
-                      ))}
+                  {/* Основные вопросы */}
+                  <div>
+                    <div className="flex items-center justify-between mb-4">
+                      <h2 className="text-xl font-semibold text-slate-900">
+                        Основные вопросы
+                      </h2>
+                      <span className="text-sm text-slate-500">
+                        Показываются сразу в опросе
+                      </span>
                     </div>
-                  </SortableContext>
-                </DndContext>
-              )}
-            </div>
 
-            {/* Дополнительные вопросы */}
-            <div>
-              <div className="flex items-center justify-between mb-4">
-                <h2 className="text-xl font-semibold text-slate-900">
-                  Дополнительные вопросы
-                </h2>
-                <span className="text-sm text-slate-500">
-                  Скрыты, можно добавить в основные
-                </span>
-              </div>
+                    {survey.main_questions.length === 0 ? (
+                      <Card className="p-8 text-center">
+                        <p className="text-slate-500">
+                          Нет основных вопросов. Добавьте вопросы из дополнительных или создайте свои.
+                        </p>
+                      </Card>
+                    ) : (
+                      <DndContext
+                        sensors={sensors}
+                        collisionDetection={closestCenter}
+                        onDragEnd={(e) => handleDragEnd(e, 'main')}
+                      >
+                        <SortableContext
+                          items={survey.main_questions.map(q => q.instance_id)}
+                          strategy={verticalListSortingStrategy}
+                        >
+                          <div className="space-y-3">
+                            {survey.main_questions.map((q, i) => (
+                              <SortableQuestion
+                                key={q.instance_id}
+                                question={q}
+                                pool="main"
+                                index={i}
+                                isEditing={editingQuestionId === q.instance_id}
+                                editedText={editedText}
+                                editedType={editedType}
+                                onStartEdit={handleStartEdit}
+                                onSaveEdit={handleSaveEdit}
+                                onCancelEdit={handleCancelEdit}
+                                onMove={handleMoveQuestion}
+                                onDelete={handleDeleteQuestion}
+                                onTextChange={setEditedText}
+                                onTypeChange={setEditedType}
+                                saving={saving}
+                                currentLanguage={currentLanguage}
+                              />
+                            ))}
+                          </div>
+                        </SortableContext>
+                            </DndContext>
+                          )}
+                  </div>
 
-              {survey.additional_questions.length === 0 ? (
-                <Card className="p-8 text-center">
-                  <p className="text-slate-500">
-                    Нет дополнительных вопросов
-                  </p>
-                </Card>
-              ) : (
-                <DndContext
-                  sensors={sensors}
-                  collisionDetection={closestCenter}
-                  onDragEnd={(e) => handleDragEnd(e, 'additional')}
-                >
-                  <SortableContext
-                    items={survey.additional_questions.map(q => q.instance_id)}
-                    strategy={verticalListSortingStrategy}
-                  >
-                    <div className="space-y-3">
-                      {survey.additional_questions.map((q, i) => (
-                        <SortableQuestion
-                          key={q.instance_id}
-                          question={q}
-                          pool="additional"
-                          index={i}
-                          isEditing={editingQuestionId === q.instance_id}
-                          editedText={editedText}
-                          editedType={editedType}
-                          onStartEdit={handleStartEdit}
-                          onSaveEdit={handleSaveEdit}
-                          onCancelEdit={handleCancelEdit}
-                          onMove={handleMoveQuestion}
-                          onDelete={handleDeleteQuestion}
-                          onTextChange={setEditedText}
-                          onTypeChange={setEditedType}
-                          saving={saving}
-                          currentLanguage={currentLanguage}
-                        />
-                      ))}
-                    </div>
-                  </SortableContext>
-                </DndContext>
-              )}
+                  {/* Дополнительные вопросы */}
+                  <div>
+                          <div className="flex items-center justify-between mb-4">
+                            <h2 className="text-xl font-semibold text-slate-900">
+                              Дополнительные вопросы
+                            </h2>
+                            <span className="text-sm text-slate-500">
+                              Скрыты, можно добавить в основные
+                            </span>
+                          </div>
+
+                          {survey.additional_questions.length === 0 ? (
+                            <Card className="p-8 text-center">
+                              <p className="text-slate-500">
+                                Нет дополнительных вопросов
+                              </p>
+                            </Card>
+                          ) : (
+                            <DndContext
+                              sensors={sensors}
+                              collisionDetection={closestCenter}
+                              onDragEnd={(e) => handleDragEnd(e, 'additional')}
+                            >
+                              <SortableContext
+                                items={survey.additional_questions.map(q => q.instance_id)}
+                                strategy={verticalListSortingStrategy}
+                              >
+                                <div className="space-y-3">
+                                  {survey.additional_questions.map((q, i) => (
+                                    <SortableQuestion
+                                      key={q.instance_id}
+                                      question={q}
+                                      pool="additional"
+                                      index={i}
+                                      isEditing={editingQuestionId === q.instance_id}
+                                      editedText={editedText}
+                                      editedType={editedType}
+                                      onStartEdit={handleStartEdit}
+                                      onSaveEdit={handleSaveEdit}
+                                      onCancelEdit={handleCancelEdit}
+                                      onMove={handleMoveQuestion}
+                                      onDelete={handleDeleteQuestion}
+                                      onTextChange={setEditedText}
+                                      onTypeChange={setEditedType}
+                                      saving={saving}
+                                      currentLanguage={currentLanguage}
+                                    />
+                                  ))}
+                                </div>
+                              </SortableContext>
+                            </DndContext>
+                          )}
+                  </div>
                 </div>
               </TabsContent>
 
