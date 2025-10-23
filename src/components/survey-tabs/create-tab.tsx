@@ -16,7 +16,6 @@ interface CreateTabProps {
 
 export function CreateTab({ survey, onUpdate, currentLanguage }: CreateTabProps) {
   const [publishing, setPublishing] = useState(false)
-  const [showWizard, setShowWizard] = useState(true)
 
   // Проверяем, завершен ли опрос (все 3 шага пройдены)
   const isComplete =
@@ -26,6 +25,9 @@ export function CreateTab({ survey, onUpdate, currentLanguage }: CreateTabProps)
     survey.main_questions &&
     survey.main_questions.length > 0 &&
     survey.thank_you_text
+
+  // Показываем wizard только если опрос не завершен
+  const [showWizard, setShowWizard] = useState(!isComplete)
 
   const handleWizardUpdate = async (updates: Partial<Survey>) => {
     try {

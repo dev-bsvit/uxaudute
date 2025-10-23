@@ -20,6 +20,7 @@ interface Step1IntroProps {
     intro_description?: string
   }) => void
   onNext: () => void
+  onBack?: () => void
 }
 
 export function Step1Intro({
@@ -27,7 +28,8 @@ export function Step1Intro({
   introTitle,
   introDescription,
   onUpdate,
-  onNext
+  onNext,
+  onBack
 }: Step1IntroProps) {
   const [imageUrl, setImageUrl] = useState(introImageUrl || '')
   const [title, setTitle] = useState(introTitle || '')
@@ -87,6 +89,7 @@ export function Step1Intro({
         .from('screenshots')
         .getPublicUrl(fileName)
 
+      console.log('Uploaded image URL:', publicUrl)
       setImageUrl(publicUrl)
       onUpdate({ intro_image_url: publicUrl, intro_title: title, intro_description: description })
 
@@ -248,11 +251,21 @@ export function Step1Intro({
       )}
 
       {/* Navigation */}
-      <div className="flex justify-end">
+      <div className="flex justify-between">
+        {onBack && (
+          <Button
+            onClick={onBack}
+            variant="outline"
+            size="lg"
+          >
+            Назад
+          </Button>
+        )}
         <Button
           onClick={handleNext}
           size="lg"
           disabled={!imageUrl || !title || !description}
+          className={!onBack ? 'ml-auto' : ''}
         >
           Далее: Вопросы
         </Button>
