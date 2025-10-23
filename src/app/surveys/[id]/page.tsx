@@ -10,6 +10,7 @@ import { Card } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import {
   Loader2,
   Plus,
@@ -22,7 +23,8 @@ import {
   EyeOff,
   Send,
   Copy,
-  ExternalLink
+  ExternalLink,
+  Share2
 } from 'lucide-react'
 import {
   DndContext,
@@ -251,6 +253,7 @@ export default function SurveyEditorPage() {
   const [saving, setSaving] = useState(false)
   const [publishing, setPublishing] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [activeTab, setActiveTab] = useState<'survey' | 'results'>('survey')
 
   // Редактирование вопроса
   const [editingQuestionId, setEditingQuestionId] = useState<string | null>(null)
@@ -535,6 +538,9 @@ export default function SurveyEditorPage() {
                 ? 'Опрос опубликован и доступен для прохождения'
                 : 'Опрос закрыт'
             }
+            showShareButton={survey.status === 'published'}
+            onShare={handleCopyLink}
+            shareButtonLabel={currentLanguage === 'en' ? 'Share' : 'Поделиться'}
           />
         </div>
 
@@ -544,69 +550,68 @@ export default function SurveyEditorPage() {
             surveyId={survey.id}
             showAnnotations={true}
           >
-            <div className="space-y-8">
-            {/* Статус и действия */}
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <div className={`px-3 py-1 rounded-full text-sm font-medium ${
-                  survey.status === 'draft'
-                    ? 'bg-yellow-100 text-yellow-800'
-                    : survey.status === 'published'
-                    ? 'bg-green-100 text-green-800'
-                    : 'bg-slate-100 text-slate-800'
-                }`}>
-                  {survey.status === 'draft' ? 'Черновик' : survey.status === 'published' ? 'Опубликован' : 'Закрыт'}
-                </div>
-                <span className="text-sm text-slate-600">
-                  {survey.main_questions.length} основных вопросов
-                </span>
-                <span className="text-sm text-slate-600">
-                  {survey.additional_questions.length} дополнительных
-                </span>
-              </div>
+            {/* Табы */}
+            <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as 'survey' | 'results')} className="w-full">
+              <TabsList className="grid w-full grid-cols-2 mb-6 bg-gray-100 h-16 relative z-10 p-1">
+                <TabsTrigger
+                  value="survey"
+                  className="h-14 text-sm font-medium data-[state=active]:bg-white data-[state=active]:shadow-sm"
+                >
+                  {currentLanguage === 'en' ? 'Survey' : 'Опрос'}
+                </TabsTrigger>
+                <TabsTrigger
+                  value="results"
+                  className="h-14 text-sm font-medium data-[state=active]:bg-white data-[state=active]:shadow-sm"
+                  disabled={survey.status === 'draft'}
+                >
+                  {currentLanguage === 'en' ? 'Results' : 'Результаты'}
+                </TabsTrigger>
+              </TabsList>
 
-              <div className="flex gap-2">
-                {survey.status === 'draft' && (
-                  <Button
-                    onClick={handlePublish}
-                    disabled={publishing || survey.main_questions.length === 0}
-                    className="bg-green-600 hover:bg-green-700"
-                  >
-                    {publishing ? (
-                      <>
-                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                        Публикация...
-                      </>
-                    ) : (
-                      <>
-                        <Send className="w-4 h-4 mr-2" />
-                        Опубликовать опрос
-                      </>
-                    )}
-                  </Button>
-                )}
+              <TabsContent value="survey">
+                <div className="space-y-8">
+                  {/* Статус и кнопка опубликовать */}
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <div className={`px-3 py-1 rounded-full text-sm font-medium ${
+                        survey.status === 'draft'
+                          ? 'bg-yellow-100 text-yellow-800'
+                          : survey.status === 'published'
+                          ? 'bg-green-100 text-green-800'
+                          : 'bg-slate-100 text-slate-800'
+                      }`}>
+                        {survey.status === 'draft' ? 'Черновик' : survey.status === 'published' ? 'Опубликован' : 'Закрыт'}
+                      </div>
+                      <span className="text-sm text-slate-600">
+                        {survey.main_questions.length} основных вопросов
+                      </span>
+                      <span className="text-sm text-slate-600">
+                        {survey.additional_questions.length} дополнительных
+                      </span>
+                    </div>
 
-                {survey.status === 'published' && (
-                  <>
-                    <Button
-                      onClick={handleCopyLink}
-                      variant="outline"
-                      className="bg-blue-600 hover:bg-blue-700 text-white hover:text-white"
-                    >
-                      <Copy className="w-4 h-4 mr-2" />
-                      Скопировать ссылку
-                    </Button>
-                    <Button
-                      onClick={handleOpenSurvey}
-                      variant="outline"
-                    >
-                      <ExternalLink className="w-4 h-4 mr-2" />
-                      Открыть опрос
-                    </Button>
-                  </>
-                )}
-              </div>
-            </div>
+                    <div className="flex gap-2">
+                      {survey.status === 'draft' && (
+                        <Button
+                          onClick={handlePublish}
+                          disabled={publishing || survey.main_questions.length === 0}
+                          className="bg-green-600 hover:bg-green-700"
+                        >
+                          {publishing ? (
+                            <>
+                              <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                              Публикация...
+                            </>
+                          ) : (
+                            <>
+                              <Send className="w-4 h-4 mr-2" />
+                              Опубликовать опрос
+                            </>
+                          )}
+                        </Button>
+                      )}
+                    </div>
+                  </div>
 
             {/* Ошибка */}
             {error && (
@@ -799,8 +804,25 @@ export default function SurveyEditorPage() {
                   </SortableContext>
                 </DndContext>
               )}
-            </div>
-            </div>
+                </div>
+              </TabsContent>
+
+              <TabsContent value="results">
+                <div className="text-center py-12">
+                  <p className="text-slate-600">
+                    {currentLanguage === 'en'
+                      ? 'Survey analytics will be displayed here'
+                      : 'Здесь будет отображаться аналитика опроса'}
+                  </p>
+                  <Button
+                    onClick={() => router.push(`/surveys/${survey.id}/analytics`)}
+                    className="mt-4"
+                  >
+                    {currentLanguage === 'en' ? 'View Analytics' : 'Посмотреть аналитику'}
+                  </Button>
+                </div>
+              </TabsContent>
+            </Tabs>
           </SurveySplitLayout>
         </div>
       </div>
