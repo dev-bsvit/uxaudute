@@ -4,12 +4,14 @@ import { useState, useEffect } from 'react'
 import { useParams } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
-import { Label } from '@/components/ui/label'
+import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
-import { Loader2, CheckCircle2, AlertCircle } from 'lucide-react'
-import { supabase } from '@/lib/supabase'
+import { Loader2, CheckCircle2, AlertCircle, ArrowRight, ArrowLeft, ExternalLink } from 'lucide-react'
 import { getSurvey, submitSurveyResponse } from '@/lib/database'
-import type { Survey, SurveyQuestionInstance } from '@/types/survey'
+import type { Survey, SurveyQuestionInstance, SurveyAnswer } from '@/types/survey'
+import Image from 'next/image'
+
+type SurveyStage = 'intro' | 'questions' | 'thankyou' | 'error'
 
 export default function PublicSurveyPage() {
   const params = useParams()
@@ -18,10 +20,16 @@ export default function PublicSurveyPage() {
   const [loading, setLoading] = useState(true)
   const [submitting, setSubmitting] = useState(false)
   const [survey, setSurvey] = useState<Survey | null>(null)
-  const [answers, setAnswers] = useState<Record<string, string>>({})
   const [error, setError] = useState<string | null>(null)
-  const [submitted, setSubmitted] = useState(false)
+
+  // Stage management
+  const [stage, setStage] = useState<SurveyStage>('intro')
+  const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0)
+
+  // Answers
+  const [answers, setAnswers] = useState<Record<string, any>>({})
   const [startTime] = useState<number>(Date.now())
+  const [questionStartTime, setQuestionStartTime] = useState<number>(Date.now())
 
   useEffect(() => {
     loadSurvey()
@@ -33,49 +41,71 @@ export default function PublicSurveyPage() {
 
       if (surveyData.status !== 'published') {
         setError('Этот опрос недоступен для прохождения')
+        setStage('error')
         return
       }
 
       setSurvey(surveyData)
+
+      // Если нет intro screen, сразу переходим к вопросам
+      if (!surveyData.intro_title || !surveyData.intro_description) {
+        setStage('questions')
+      }
     } catch (error) {
       console.error('Error loading survey:', error)
       setError('Не удалось загрузить опрос')
+      setStage('error')
     } finally {
       setLoading(false)
     }
   }
 
-  const handleAnswerChange = (questionId: string, value: string) => {
+  const handleStartSurvey = () => {
+    setStage('questions')
+    setQuestionStartTime(Date.now())
+  }
+
+  const handleAnswerChange = (value: any) => {
+    if (!survey) return
+    const currentQuestion = survey.main_questions[currentQuestionIndex]
     setAnswers(prev => ({
       ...prev,
-      [questionId]: value
+      [currentQuestion.instance_id]: value
     }))
   }
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-
+  const handleNext = () => {
     if (!survey) return
 
-    // Проверка обязательных вопросов
-    const requiredQuestions = survey.main_questions.filter(q => q.required)
-    const missingAnswers = requiredQuestions.filter(q => !answers[q.instance_id]?.trim())
-
-    if (missingAnswers.length > 0) {
-      setError('Пожалуйста, ответьте на все обязательные вопросы')
-      return
+    // Если это последний вопрос, переходим к thank you
+    if (currentQuestionIndex >= survey.main_questions.length - 1) {
+      handleSubmit()
+    } else {
+      setCurrentQuestionIndex(prev => prev + 1)
+      setQuestionStartTime(Date.now())
     }
+  }
+
+  const handlePrevious = () => {
+    if (currentQuestionIndex > 0) {
+      setCurrentQuestionIndex(prev => prev - 1)
+      setQuestionStartTime(Date.now())
+    }
+  }
+
+  const handleSubmit = async () => {
+    if (!survey) return
 
     try {
       setSubmitting(true)
       setError(null)
 
-      const completionTime = Math.floor((Date.now() - startTime) / 1000) // в секундах
+      const completionTime = Math.floor((Date.now() - startTime) / 1000)
       const now = new Date().toISOString()
 
       // Преобразуем answers в формат SurveyAnswer[]
-      const formattedAnswers = survey.main_questions
-        .filter(q => answers[q.instance_id])
+      const formattedAnswers: SurveyAnswer[] = survey.main_questions
+        .filter(q => answers[q.instance_id] !== undefined)
         .map(q => {
           const answer = answers[q.instance_id]
           return {
@@ -83,10 +113,10 @@ export default function PublicSurveyPage() {
             question_id: q.id,
             question_text: q.text_ru,
             question_type: q.type,
-            answer_yes_no: q.type === 'yes-no' ? answer === 'yes' : undefined,
+            answer_yes_no: q.type === 'yes-no' ? answer : undefined,
             answer_text: q.type === 'text' ? answer : undefined,
-            answer_rating: q.type === 'rating' ? parseInt(answer) : undefined,
-            answer_scale: q.type === 'scale' ? parseInt(answer) : undefined,
+            answer_rating: q.type === 'rating' ? answer : undefined,
+            answer_scale: q.type === 'scale' ? answer : undefined,
             answered_at: now,
             time_spent_seconds: 0
           }
@@ -101,7 +131,7 @@ export default function PublicSurveyPage() {
         user_agent: navigator.userAgent
       })
 
-      setSubmitted(true)
+      setStage('thankyou')
     } catch (error) {
       console.error('Error submitting survey:', error)
       setError('Не удалось отправить ответы. Попробуйте еще раз.')
@@ -110,223 +140,304 @@ export default function PublicSurveyPage() {
     }
   }
 
-  const renderQuestion = (question: SurveyQuestionInstance, index: number) => {
-    const answer = answers[question.instance_id] || ''
-
-    return (
-      <Card key={question.instance_id} className="p-6">
-        <div className="space-y-4">
-          <div>
-            <Label className="text-base font-semibold text-slate-900">
-              {index + 1}. {question.text_ru}
-              {question.required && <span className="text-red-500 ml-1">*</span>}
-            </Label>
-            {question.required && (
-              <p className="text-xs text-slate-500 mt-1">Обязательный вопрос</p>
-            )}
-          </div>
-
-          {question.type === 'yes-no' ? (
-            <div className="flex gap-3">
-              <Button
-                type="button"
-                variant={answer === 'yes' ? 'default' : 'outline'}
-                onClick={() => handleAnswerChange(question.instance_id, 'yes')}
-                className={answer === 'yes' ? 'bg-green-600 hover:bg-green-700' : ''}
-              >
-                Да
-              </Button>
-              <Button
-                type="button"
-                variant={answer === 'no' ? 'default' : 'outline'}
-                onClick={() => handleAnswerChange(question.instance_id, 'no')}
-                className={answer === 'no' ? 'bg-red-600 hover:bg-red-700' : ''}
-              >
-                Нет
-              </Button>
-            </div>
-          ) : question.type === 'rating' ? (
-            <div className="flex gap-2">
-              {[1, 2, 3, 4, 5].map(rating => (
-                <Button
-                  key={rating}
-                  type="button"
-                  variant={answer === String(rating) ? 'default' : 'outline'}
-                  onClick={() => handleAnswerChange(question.instance_id, String(rating))}
-                  className="w-12 h-12"
-                >
-                  {rating}
-                </Button>
-              ))}
-            </div>
-          ) : question.type === 'scale' ? (
-            <div className="space-y-2">
-              <input
-                type="range"
-                min="0"
-                max="10"
-                value={answer || '5'}
-                onChange={(e) => handleAnswerChange(question.instance_id, e.target.value)}
-                className="w-full"
-              />
-              <div className="flex justify-between text-sm text-slate-600">
-                <span>0</span>
-                <span className="font-semibold">{answer || '5'}</span>
-                <span>10</span>
-              </div>
-            </div>
-          ) : (
-            <Textarea
-              value={answer}
-              onChange={(e) => handleAnswerChange(question.instance_id, e.target.value)}
-              placeholder="Введите ваш ответ..."
-              rows={4}
-              className="w-full"
-            />
-          )}
-        </div>
-      </Card>
-    )
+  const getCurrentAnswer = () => {
+    if (!survey) return undefined
+    const currentQuestion = survey.main_questions[currentQuestionIndex]
+    return answers[currentQuestion.instance_id]
   }
 
+  const isCurrentAnswerValid = () => {
+    if (!survey) return false
+    const currentQuestion = survey.main_questions[currentQuestionIndex]
+    const answer = answers[currentQuestion.instance_id]
+
+    if (!currentQuestion.required) return true
+
+    if (currentQuestion.type === 'text') {
+      return answer && answer.trim().length > 0
+    }
+
+    return answer !== undefined && answer !== null && answer !== ''
+  }
+
+  // Loading state
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-slate-100 flex items-center justify-center p-4">
-        <Card className="p-8">
-          <Loader2 className="w-8 h-8 animate-spin text-blue-500 mx-auto" />
-        </Card>
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center">
+        <Loader2 className="w-8 h-8 animate-spin text-blue-600" />
       </div>
     )
   }
 
-  if (error) {
+  // Error state
+  if (stage === 'error' || !survey) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-slate-100 flex items-center justify-center p-4">
-        <Card className="p-8 max-w-md text-center">
-          <AlertCircle className="w-12 h-12 text-red-500 mx-auto mb-4" />
-          <h2 className="text-xl font-semibold text-slate-900 mb-2">
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">
+        <Card className="max-w-md w-full p-8 text-center">
+          <AlertCircle className="w-16 h-16 text-red-500 mx-auto mb-4" />
+          <h1 className="text-2xl font-bold text-slate-900 mb-2">
             Опрос недоступен
-          </h2>
-          <p className="text-slate-600">{error}</p>
-        </Card>
-      </div>
-    )
-  }
-
-  if (submitted) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-slate-100 flex items-center justify-center p-4">
-        <Card className="p-8 max-w-md text-center">
-          <div className="w-16 h-16 rounded-full bg-green-100 flex items-center justify-center mx-auto mb-4">
-            <CheckCircle2 className="w-8 h-8 text-green-600" />
-          </div>
-          <h2 className="text-2xl font-semibold text-slate-900 mb-2">
-            Спасибо за участие!
-          </h2>
+          </h1>
           <p className="text-slate-600">
-            Ваши ответы успешно отправлены и помогут улучшить продукт.
+            {error || 'Этот опрос не найден или недоступен для прохождения.'}
           </p>
         </Card>
       </div>
     )
   }
 
-  if (!survey) return null
-
-  const progress = (Object.keys(answers).length / survey.main_questions.length) * 100
-
-  return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-slate-100 py-12 px-4">
-      <div className="max-w-7xl mx-auto">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          {/* Левая колонка - Форма опроса */}
-          <div className="space-y-8">
-        {/* Заголовок */}
-        <Card className="p-8">
-          <h1 className="text-3xl font-bold text-slate-900 mb-2">
-            {survey.name}
-          </h1>
-          {survey.description && (
-            <p className="text-slate-600 text-lg">
-              {survey.description}
-            </p>
+  // Intro Screen
+  if (stage === 'intro') {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">
+        <Card className="max-w-2xl w-full overflow-hidden">
+          {/* Image */}
+          {survey.intro_image_url && (
+            <div className="relative w-full h-64 bg-slate-200">
+              <Image
+                src={survey.intro_image_url}
+                alt={survey.intro_title || 'Survey intro'}
+                fill
+                className="object-cover"
+              />
+            </div>
           )}
-          <div className="mt-4 flex items-center gap-2 text-sm text-slate-500">
-            <span>{survey.main_questions.length} вопросов</span>
-            <span>•</span>
-            <span>Примерно {Math.ceil(survey.main_questions.length * 0.5)} минут</span>
+
+          {/* Content */}
+          <div className="p-8 text-center">
+            <h1 className="text-3xl font-bold text-slate-900 mb-4">
+              {survey.intro_title || survey.name}
+            </h1>
+            <p className="text-lg text-slate-600 mb-8 whitespace-pre-wrap">
+              {survey.intro_description || survey.description}
+            </p>
+
+            <div className="flex items-center justify-center gap-4 text-sm text-slate-500 mb-8">
+              <span>{survey.main_questions.length} вопросов</span>
+              <span>•</span>
+              <span>~{Math.ceil(survey.main_questions.length * 0.5)} мин</span>
+            </div>
+
+            <Button
+              onClick={handleStartSurvey}
+              size="lg"
+              className="px-8"
+            >
+              Начать опрос
+              <ArrowRight className="w-5 h-5 ml-2" />
+            </Button>
           </div>
         </Card>
+      </div>
+    )
+  }
 
-        {/* Прогресс */}
-        {Object.keys(answers).length > 0 && (
-          <div className="space-y-2">
-            <div className="flex justify-between text-sm text-slate-600">
-              <span>Прогресс</span>
-              <span>{Math.round(progress)}%</span>
+  // Questions Flow
+  if (stage === 'questions') {
+    const currentQuestion = survey.main_questions[currentQuestionIndex]
+    const progress = ((currentQuestionIndex + 1) / survey.main_questions.length) * 100
+    const currentAnswer = getCurrentAnswer()
+
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">
+        <div className="max-w-4xl w-full">
+          {/* Progress Bar */}
+          <div className="mb-6">
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-sm font-medium text-slate-700">
+                Вопрос {currentQuestionIndex + 1} из {survey.main_questions.length}
+              </span>
+              <span className="text-sm text-slate-600">
+                {Math.round(progress)}%
+              </span>
             </div>
-            <div className="h-2 bg-slate-200 rounded-full overflow-hidden">
+            <div className="h-2 bg-white rounded-full overflow-hidden">
               <div
                 className="h-full bg-blue-600 transition-all duration-300"
                 style={{ width: `${progress}%` }}
               />
             </div>
           </div>
-        )}
 
-        {/* Форма */}
-        <form onSubmit={handleSubmit} className="space-y-6">
-          {survey.main_questions.map((question, index) =>
-            renderQuestion(question, index)
-          )}
-
-          {/* Ошибка */}
-          {error && (
-            <Card className="p-4 bg-red-50 border-red-200">
-              <p className="text-sm text-red-800">{error}</p>
-            </Card>
-          )}
-
-          {/* Кнопка отправки */}
-          <Card className="p-6">
-            <Button
-              type="submit"
-              disabled={submitting}
-              className="w-full bg-blue-600 hover:bg-blue-700 h-12 text-lg"
-            >
-              {submitting ? (
-                <>
-                  <Loader2 className="w-5 h-5 mr-2 animate-spin" />
-                  Отправка...
-                </>
-              ) : (
-                <>
-                  <CheckCircle2 className="w-5 h-5 mr-2" />
-                  Отправить ответы
-                </>
-              )}
-            </Button>
-          </Card>
-        </form>
-          </div>
-
-          {/* Правая колонка - Скриншот */}
-          {survey.screenshot_url && (
-            <div className="lg:sticky lg:top-8 h-fit">
-              <Card className="p-6">
-                <h3 className="text-lg font-semibold text-slate-900 mb-4">
-                  Анализируемый интерфейс
-                </h3>
-                <img
-                  src={survey.screenshot_url}
+          <Card className="overflow-hidden">
+            {/* Image */}
+            {survey.intro_image_url && (
+              <div className="relative w-full h-48 bg-slate-200">
+                <Image
+                  src={survey.intro_image_url}
                   alt="Survey screenshot"
-                  className="w-full h-auto rounded-lg border border-slate-200"
+                  fill
+                  className="object-cover"
                 />
-              </Card>
+              </div>
+            )}
+
+            {/* Question */}
+            <div className="p-8">
+              <h2 className="text-2xl font-bold text-slate-900 mb-6">
+                {currentQuestion.text_ru}
+              </h2>
+
+              {/* Answer Input */}
+              <div className="mb-8">
+                {currentQuestion.type === 'yes-no' && (
+                  <div className="flex gap-4">
+                    <Button
+                      variant={currentAnswer === true ? 'default' : 'outline'}
+                      onClick={() => handleAnswerChange(true)}
+                      className="flex-1 h-16"
+                    >
+                      Да
+                    </Button>
+                    <Button
+                      variant={currentAnswer === false ? 'default' : 'outline'}
+                      onClick={() => handleAnswerChange(false)}
+                      className="flex-1 h-16"
+                    >
+                      Нет
+                    </Button>
+                  </div>
+                )}
+
+                {currentQuestion.type === 'rating' && (
+                  <div className="flex gap-2 justify-center">
+                    {[1, 2, 3, 4, 5].map(rating => (
+                      <Button
+                        key={rating}
+                        variant={currentAnswer === rating ? 'default' : 'outline'}
+                        onClick={() => handleAnswerChange(rating)}
+                        className="w-16 h-16 text-xl"
+                      >
+                        {rating}
+                      </Button>
+                    ))}
+                  </div>
+                )}
+
+                {currentQuestion.type === 'scale' && (
+                  <div>
+                    <Input
+                      type="range"
+                      min="1"
+                      max="10"
+                      value={currentAnswer || 5}
+                      onChange={(e) => handleAnswerChange(parseInt(e.target.value))}
+                      className="w-full mb-2"
+                    />
+                    <div className="flex justify-between text-sm text-slate-600">
+                      <span>1</span>
+                      <span className="font-semibold text-lg text-blue-600">
+                        {currentAnswer || 5}
+                      </span>
+                      <span>10</span>
+                    </div>
+                  </div>
+                )}
+
+                {currentQuestion.type === 'text' && (
+                  <Textarea
+                    value={currentAnswer || ''}
+                    onChange={(e) => handleAnswerChange(e.target.value)}
+                    placeholder="Введите ваш ответ..."
+                    rows={4}
+                    className="resize-none"
+                  />
+                )}
+              </div>
+
+              {/* Navigation */}
+              <div className="flex items-center justify-between">
+                <Button
+                  variant="outline"
+                  onClick={handlePrevious}
+                  disabled={currentQuestionIndex === 0}
+                >
+                  <ArrowLeft className="w-4 h-4 mr-2" />
+                  Назад
+                </Button>
+
+                <Button
+                  onClick={handleNext}
+                  disabled={!isCurrentAnswerValid() || submitting}
+                >
+                  {submitting ? (
+                    <>
+                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                      Отправка...
+                    </>
+                  ) : currentQuestionIndex >= survey.main_questions.length - 1 ? (
+                    'Завершить'
+                  ) : (
+                    <>
+                      Далее
+                      <ArrowRight className="w-4 h-4 ml-2" />
+                    </>
+                  )}
+                </Button>
+              </div>
             </div>
-          )}
+          </Card>
         </div>
       </div>
-    </div>
-  )
+    )
+  }
+
+  // Thank You Screen
+  if (stage === 'thankyou') {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">
+        <Card className="max-w-2xl w-full p-12 text-center">
+          {/* Success Icon */}
+          <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
+            <CheckCircle2 className="w-12 h-12 text-green-600" />
+          </div>
+
+          {/* Title */}
+          <h1 className="text-3xl font-bold text-slate-900 mb-4">
+            Опрос завершен!
+          </h1>
+
+          {/* Thank You Text */}
+          <p className="text-lg text-slate-600 mb-8 whitespace-pre-wrap">
+            {survey.thank_you_text || 'Спасибо за ваше время и ценные ответы! Ваше мнение поможет нам стать лучше.'}
+          </p>
+
+          {/* Promo Code */}
+          {survey.thank_you_promo_code && (
+            <div className="bg-blue-50 border-2 border-blue-200 rounded-lg p-6 max-w-md mx-auto mb-6">
+              <p className="text-sm text-slate-600 mb-2">Ваш промокод:</p>
+              <div className="flex items-center justify-center gap-3">
+                <code className="text-3xl font-bold text-blue-600 tracking-wider">
+                  {survey.thank_you_promo_code}
+                </code>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => {
+                    navigator.clipboard.writeText(survey.thank_you_promo_code!)
+                    alert('Промокод скопирован!')
+                  }}
+                >
+                  Копировать
+                </Button>
+              </div>
+            </div>
+          )}
+
+          {/* Link */}
+          {survey.thank_you_link && (
+            <Button
+              onClick={() => window.open(survey.thank_you_link, '_blank')}
+              size="lg"
+            >
+              Перейти на сайт
+              <ExternalLink className="w-4 h-4 ml-2" />
+            </Button>
+          )}
+        </Card>
+      </div>
+    )
+  }
+
+  return null
 }
