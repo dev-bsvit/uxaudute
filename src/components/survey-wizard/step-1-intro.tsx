@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -33,6 +33,7 @@ export function Step1Intro({
   const [title, setTitle] = useState(introTitle || '')
   const [description, setDescription] = useState(introDescription || '')
   const [uploading, setUploading] = useState(false)
+  const fileInputRef = useRef<HTMLInputElement>(null)
 
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
@@ -151,8 +152,8 @@ export function Step1Intro({
               </button>
             </div>
           ) : (
-            <label
-              htmlFor="intro-image"
+            <div
+              onClick={() => fileInputRef.current?.click()}
               className="flex flex-col items-center justify-center w-full h-64 border-2 border-dashed border-slate-300 rounded-lg cursor-pointer hover:border-blue-500 hover:bg-blue-50 transition-colors"
             >
               <div className="flex flex-col items-center justify-center pt-5 pb-6">
@@ -173,13 +174,13 @@ export function Step1Intro({
                 )}
               </div>
               <input
-                id="intro-image"
+                ref={fileInputRef}
                 type="file"
                 className="hidden"
                 accept="image/*"
                 onChange={handleImageUpload}
               />
-            </label>
+            </div>
           )}
         </div>
 
