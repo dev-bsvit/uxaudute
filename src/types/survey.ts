@@ -30,6 +30,16 @@ export interface Survey {
   // Скриншот интерфейса для анализа
   screenshot_url?: string
 
+  // Intro Screen (Шаг 1)
+  intro_image_url?: string
+  intro_title?: string
+  intro_description?: string
+
+  // Thank You Screen (Шаг 3)
+  thank_you_text?: string
+  thank_you_link?: string
+  thank_you_promo_code?: string
+
   // Информация о проекте (если загружена)
   projects?: {
     id: string
