@@ -87,27 +87,56 @@ export function Step2Questions({
 
     setGeneratingAI(true)
     try {
-      // TODO: Implement AI generation based on intro image
-      // For now, simulate by selecting random questions from bank
-      const randomQuestions = QUESTION_BANK
-        .sort(() => Math.random() - 0.5)
-        .slice(0, 10)
-        .map((q, index) => ({
-          ...q,
-          instance_id: `ai-${Date.now()}-${index}`,
-          order: localQuestions.length + index,
-          required: true,
-          is_custom: false,
-          pool: 'main' as const
-        }))
+      // Вызов API для генерации вопросов на основе изображения
+      const response = await fetch('/api/survey/generate-questions', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          screenshotUrl: introImageUrl,
+          language: currentLanguage
+        })
+      })
 
-      const updated = [...localQuestions, ...randomQuestions]
+      if (!response.ok) {
+        throw new Error('Failed to generate questions')
+      }
+
+      const data = await response.json()
+
+      // data содержит:
+      // - ai_questions: ~20 AI вопросов, специфичных для скриншота
+      // - selected_bank_questions: ~100 релевантных из банка (отсортированы по релевантности)
+
+      // Берем все AI вопросы (макс 20) + топ релевантных из банка до 30 вопросов всего
+      const aiQuestions = data.ai_questions || []
+      const bankQuestions = data.selected_bank_questions || []
+
+      const totalToAdd = Math.min(30, aiQuestions.length + bankQuestions.length)
+      const bankToAdd = Math.max(0, totalToAdd - aiQuestions.length)
+
+      const combinedQuestions = [
+        ...aiQuestions,
+        ...bankQuestions.slice(0, bankToAdd)
+      ].slice(0, 30) // Максимум 30 вопросов
+
+      const relevantQuestions = combinedQuestions.map((q: any, index: number) => ({
+        ...q,
+        instance_id: `ai-${Date.now()}-${index}`,
+        order: localQuestions.length + index,
+        required: true,
+        pool: 'main' as const
+      }))
+
+      const updated = [...localQuestions, ...relevantQuestions]
       setLocalQuestions(updated)
       onUpdate(updated)
-      alert(`Добавлено ${randomQuestions.length} вопросов на основе изображения`)
+
+      alert(`Добавлено ${relevantQuestions.length} релевантных вопросов на основе анализа изображения`)
     } catch (error) {
       console.error('Error generating AI questions:', error)
-      alert('Не удалось сгенерировать вопросы')
+      alert('Не удалось сгенерировать вопросы. Проверьте подключение к интернету.')
     } finally {
       setGeneratingAI(false)
     }
