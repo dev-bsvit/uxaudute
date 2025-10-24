@@ -193,12 +193,12 @@ export default function PublicSurveyPage() {
         <Card className="max-w-2xl w-full overflow-hidden">
           {/* Image */}
           {survey.intro_image_url && (
-            <div className="relative w-full h-64 bg-slate-200">
+            <div className="relative w-full h-96 bg-slate-100 flex items-center justify-center">
               <Image
                 src={survey.intro_image_url}
                 alt={survey.intro_title || 'Survey intro'}
                 fill
-                className="object-cover"
+                className="object-contain p-4"
               />
             </div>
           )}
@@ -262,12 +262,12 @@ export default function PublicSurveyPage() {
           <Card className="overflow-hidden">
             {/* Image */}
             {survey.intro_image_url && (
-              <div className="relative w-full h-48 bg-slate-200">
+              <div className="relative w-full h-80 bg-slate-100 flex items-center justify-center">
                 <Image
                   src={survey.intro_image_url}
                   alt="Survey screenshot"
                   fill
-                  className="object-cover"
+                  className="object-contain p-4"
                 />
               </div>
             )}
