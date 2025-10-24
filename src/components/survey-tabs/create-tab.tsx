@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { SurveyWizard } from '@/components/survey-wizard/survey-wizard'
 import { Survey } from '@/types/survey'
 import { updateSurvey, publishSurvey } from '@/lib/database'
@@ -16,6 +16,7 @@ interface CreateTabProps {
 
 export function CreateTab({ survey, onUpdate, currentLanguage }: CreateTabProps) {
   const [publishing, setPublishing] = useState(false)
+  const [showWizard, setShowWizard] = useState(false)
 
   // Проверяем, завершен ли опрос (все 3 шага пройдены)
   const isComplete =
@@ -26,8 +27,10 @@ export function CreateTab({ survey, onUpdate, currentLanguage }: CreateTabProps)
     survey.main_questions.length > 0 &&
     survey.thank_you_text
 
-  // Показываем wizard только если опрос не завершен
-  const [showWizard, setShowWizard] = useState(!isComplete)
+  // Синхронизируем showWizard с isComplete при изменении survey
+  useEffect(() => {
+    setShowWizard(!isComplete)
+  }, [isComplete])
 
   const handleWizardUpdate = async (updates: Partial<Survey>) => {
     try {

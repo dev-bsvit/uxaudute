@@ -16,7 +16,7 @@ interface Step3ThankYouProps {
     thank_you_text?: string
     thank_you_link?: string
     thank_you_promo_code?: string
-  }) => void
+  }) => Promise<void>
   onBack: () => void
   onComplete: () => void
 }
@@ -35,13 +35,18 @@ export function Step3ThankYou({
   const [link, setLink] = useState(thankYouLink || '')
   const [promoCode, setPromoCode] = useState(thankYouPromoCode || '')
 
-  const handleComplete = () => {
+  const handleComplete = async () => {
     if (!text.trim()) {
       alert('Пожалуйста, введите текст благодарности')
       return
     }
-    onUpdate({ thank_you_text: text, thank_you_link: link, thank_you_promo_code: promoCode })
-    onComplete()
+    try {
+      await onUpdate({ thank_you_text: text, thank_you_link: link, thank_you_promo_code: promoCode })
+      onComplete()
+    } catch (error) {
+      console.error('Error saving step 3:', error)
+      alert('Не удалось сохранить данные')
+    }
   }
 
   return (

@@ -18,7 +18,7 @@ interface Step1IntroProps {
     intro_image_url?: string
     intro_title?: string
     intro_description?: string
-  }) => void
+  }) => Promise<void>
   onNext: () => void
   onBack?: () => void
 }
@@ -109,13 +109,18 @@ export function Step1Intro({
     onUpdate({ intro_image_url: '', intro_title: title, intro_description: description })
   }
 
-  const handleNext = () => {
+  const handleNext = async () => {
     if (!imageUrl || !title || !description) {
       alert('Пожалуйста, заполните все поля')
       return
     }
-    onUpdate({ intro_image_url: imageUrl, intro_title: title, intro_description: description })
-    onNext()
+    try {
+      await onUpdate({ intro_image_url: imageUrl, intro_title: title, intro_description: description })
+      onNext()
+    } catch (error) {
+      console.error('Error saving step 1:', error)
+      alert('Не удалось сохранить данные')
+    }
   }
 
   return (
