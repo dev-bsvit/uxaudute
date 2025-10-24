@@ -19,17 +19,13 @@ interface Step1IntroProps {
     intro_title?: string
     intro_description?: string
   }) => Promise<void>
-  onNext: () => void
-  onBack?: () => void
 }
 
 export function Step1Intro({
   introImageUrl,
   introTitle,
   introDescription,
-  onUpdate,
-  onNext,
-  onBack
+  onUpdate
 }: Step1IntroProps) {
   const [imageUrl, setImageUrl] = useState(introImageUrl || '')
   const [title, setTitle] = useState(introTitle || '')
@@ -107,20 +103,6 @@ export function Step1Intro({
   const handleRemoveImage = () => {
     setImageUrl('')
     onUpdate({ intro_image_url: '', intro_title: title, intro_description: description })
-  }
-
-  const handleNext = async () => {
-    if (!imageUrl || !title || !description) {
-      alert('Пожалуйста, заполните все поля')
-      return
-    }
-    try {
-      await onUpdate({ intro_image_url: imageUrl, intro_title: title, intro_description: description })
-      onNext()
-    } catch (error) {
-      console.error('Error saving step 1:', error)
-      alert('Не удалось сохранить данные')
-    }
   }
 
   return (
@@ -226,55 +208,6 @@ export function Step1Intro({
           />
         </div>
       </Card>
-
-      {/* Preview */}
-      {(imageUrl || title || description) && (
-        <Card className="p-8">
-          <div className="text-center space-y-4">
-            <p className="text-sm text-slate-500 mb-6">Предпросмотр:</p>
-            {imageUrl && (
-              <div className="relative w-full h-48 rounded-lg overflow-hidden mb-6">
-                <Image
-                  src={imageUrl}
-                  alt="Preview"
-                  fill
-                  className="object-cover"
-                />
-              </div>
-            )}
-            {title && (
-              <h3 className="text-2xl font-bold text-slate-900">{title}</h3>
-            )}
-            {description && (
-              <p className="text-slate-600 max-w-2xl mx-auto">{description}</p>
-            )}
-            <Button className="mt-6" disabled>
-              Начать опрос
-            </Button>
-          </div>
-        </Card>
-      )}
-
-      {/* Navigation */}
-      <div className="flex justify-between">
-        {onBack && (
-          <Button
-            onClick={onBack}
-            variant="outline"
-            size="lg"
-          >
-            Назад
-          </Button>
-        )}
-        <Button
-          onClick={handleNext}
-          size="lg"
-          disabled={!imageUrl || !title || !description}
-          className={!onBack ? 'ml-auto' : ''}
-        >
-          Далее: Вопросы
-        </Button>
-      </div>
     </div>
   )
 }
