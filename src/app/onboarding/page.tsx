@@ -70,6 +70,24 @@ export default function OnboardingPage() {
         throw new Error('Failed to save onboarding data')
       }
 
+      // Начисляем начальные 5 кредитов для нового пользователя
+      console.log('💰 Начисляем начальные кредиты для пользователя:', userId)
+      try {
+        const balanceResponse = await fetch('/api/ensure-user-balance', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ userId })
+        })
+        if (balanceResponse.ok) {
+          const balanceResult = await balanceResponse.json()
+          console.log('✅ Баланс создан:', balanceResult)
+        } else {
+          console.error('❌ Ошибка создания баланса:', await balanceResponse.json())
+        }
+      } catch (balanceError) {
+        console.error('❌ Ошибка при начислении кредитов:', balanceError)
+      }
+
       // Редирект на home после успешного сохранения
       router.push('/home')
     } catch (error) {

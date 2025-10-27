@@ -153,14 +153,21 @@ export default function AdminPanel() {
   // Загрузка данных онбординга
   const loadOnboardingData = async () => {
     try {
+      console.log('🔍 Загружаем данные онбординга...')
       const response = await fetch('/api/admin/onboarding')
+      console.log('📡 Ответ получен, status:', response.status)
+
       const data = await response.json()
+      console.log('📦 Данные онбординга:', data)
 
       if (data.success) {
-        setOnboardingData(data.data)
+        console.log('✅ Успешно загружено записей:', data.data?.length || 0)
+        setOnboardingData(data.data || [])
+      } else {
+        console.error('❌ Ошибка в ответе:', data.error)
       }
     } catch (err) {
-      console.error('Ошибка загрузки данных онбординга:', err)
+      console.error('❌ Ошибка загрузки данных онбординга:', err)
     }
   }
 

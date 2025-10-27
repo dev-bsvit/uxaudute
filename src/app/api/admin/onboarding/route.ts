@@ -8,7 +8,9 @@ const supabase = createClient(
 
 export async function GET(request: NextRequest) {
   try {
-    // Получаем данные онбординга с join к auth.users для получения email
+    console.log('🔍 [Admin API] Запрос на получение данных онбординга...')
+
+    // Получаем данные онбординга с join к profiles для получения email
     const { data, error } = await supabase
       .from('user_onboarding')
       .select(`
@@ -19,8 +21,10 @@ export async function GET(request: NextRequest) {
       `)
       .order('created_at', { ascending: false })
 
+    console.log('📊 [Admin API] Получено записей:', data?.length || 0)
+
     if (error) {
-      console.error('Error fetching onboarding data:', error)
+      console.error('❌ [Admin API] Error fetching onboarding data:', error)
       return NextResponse.json(
         { error: 'Failed to fetch onboarding data', details: error },
         { status: 500 }
@@ -33,9 +37,10 @@ export async function GET(request: NextRequest) {
       user_email: item.profiles?.email || null
     }))
 
+    console.log('✅ [Admin API] Возвращаем данные, записей:', formattedData.length)
     return NextResponse.json({ success: true, data: formattedData })
   } catch (error) {
-    console.error('Error in admin onboarding API:', error)
+    console.error('❌ [Admin API] Error in admin onboarding API:', error)
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }

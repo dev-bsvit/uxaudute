@@ -31,9 +31,25 @@ export default function AuthCallback() {
         return
       }
 
-      setStatus('Проверяем баланс...')
+      // Проверяем, прошел ли пользователь онбординг
+      setStatus('Проверяем профиль...')
+      const { data: onboarding } = await supabase
+        .from('user_onboarding')
+        .select('completed')
+        .eq('user_id', user.id)
+        .single()
 
-      // Проверяем и создаем баланс
+      // Если пользователь новый (не прошел онбординг), редиректим на онбординг
+      // Кредиты начислятся после завершения онбординга
+      if (!onboarding || !onboarding.completed) {
+        setStatus('Настройка профиля...')
+        await new Promise(resolve => setTimeout(resolve, 500))
+        fadeOutAndRedirect('/onboarding')
+        return
+      }
+
+      // Если пользователь уже прошел онбординг, проверяем баланс
+      setStatus('Проверяем баланс...')
       try {
         const response = await fetch('/api/ensure-user-balance', {
           method: 'POST',
@@ -45,22 +61,6 @@ export default function AuthCallback() {
         }
       } catch (error) {
         console.error('Ошибка проверки баланса:', error)
-      }
-
-      // Проверяем, прошел ли пользователь онбординг
-      setStatus('Проверяем профиль...')
-      const { data: onboarding } = await supabase
-        .from('user_onboarding')
-        .select('completed')
-        .eq('user_id', user.id)
-        .single()
-
-      // Если пользователь новый (не прошел онбординг), редиректим на онбординг
-      if (!onboarding || !onboarding.completed) {
-        setStatus('Настройка профиля...')
-        await new Promise(resolve => setTimeout(resolve, 500))
-        fadeOutAndRedirect('/onboarding')
-        return
       }
 
       // Проверяем pendingAnalysis
