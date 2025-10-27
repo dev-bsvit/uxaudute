@@ -60,7 +60,6 @@ export default function OnboardingPage() {
         body: JSON.stringify({
           userId,
           firstName: data.firstName,
-          lastName: data.lastName,
           role: data.role,
           interests: data.interests,
           source: data.source,

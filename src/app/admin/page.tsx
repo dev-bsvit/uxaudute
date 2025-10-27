@@ -46,7 +46,6 @@ interface OnboardingData {
   id: string
   user_id: string
   first_name: string
-  last_name: string
   role: string
   interests: string[]
   source: string
@@ -535,7 +534,7 @@ export default function AdminPanel() {
                           <div className="space-y-2 flex-1">
                             <div>
                               <h3 className="font-semibold text-lg">
-                                {data.first_name} {data.last_name}
+                                {data.first_name}
                               </h3>
                               <p className="text-sm text-gray-500">{data.user_email || data.user_id}</p>
                             </div>

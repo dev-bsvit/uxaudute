@@ -9,7 +9,7 @@ const supabase = createClient(
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
-    const { userId, firstName, lastName, role, interests, source } = body
+    const { userId, firstName, role, interests, source } = body
 
     if (!userId) {
       return NextResponse.json(
@@ -31,7 +31,6 @@ export async function POST(request: NextRequest) {
         .from('user_onboarding')
         .update({
           first_name: firstName,
-          last_name: lastName,
           role,
           interests,
           source,
@@ -58,7 +57,6 @@ export async function POST(request: NextRequest) {
         .insert({
           user_id: userId,
           first_name: firstName,
-          last_name: lastName,
           role,
           interests,
           source,

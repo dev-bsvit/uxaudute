@@ -1,9 +1,9 @@
 import { Check } from 'lucide-react'
 
 interface StepIndicatorProps {
-  currentStep: 1 | 2 | 3 | 4
+  currentStep: 1 | 2 | 3
   steps: {
-    number: 1 | 2 | 3 | 4
+    number: 1 | 2 | 3
     title: string
     description: string
   }[]

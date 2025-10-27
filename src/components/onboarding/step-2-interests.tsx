@@ -2,7 +2,7 @@
 
 import { Check } from 'lucide-react'
 
-interface Step3InterestsProps {
+interface Step2InterestsProps {
   selectedInterests: string[]
   onChange: (interests: string[]) => void
 }
@@ -18,7 +18,7 @@ const interests = [
   { id: 'other', label: 'Другое' },
 ]
 
-export function Step3Interests({ selectedInterests, onChange }: Step3InterestsProps) {
+export function Step2Interests({ selectedInterests, onChange }: Step2InterestsProps) {
   const toggleInterest = (interestId: string) => {
     if (selectedInterests.includes(interestId)) {
       onChange(selectedInterests.filter(id => id !== interestId))

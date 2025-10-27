@@ -2,7 +2,7 @@
 
 import { Linkedin, Send, Search, MessageCircle, Youtube, Instagram, MoreHorizontal } from 'lucide-react'
 
-interface Step4SourceProps {
+interface Step3SourceProps {
   selectedSource: string
   onChange: (source: string) => void
 }
@@ -17,7 +17,7 @@ const sources = [
   { id: 'other', label: 'Другое', icon: MoreHorizontal },
 ]
 
-export function Step4Source({ selectedSource, onChange }: Step4SourceProps) {
+export function Step3Source({ selectedSource, onChange }: Step3SourceProps) {
   return (
     <div className="space-y-6">
       <div className="text-center mb-8">

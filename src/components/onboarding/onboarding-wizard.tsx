@@ -3,15 +3,13 @@
 import { useState } from 'react'
 import { StepIndicator } from './step-indicator'
 import { Step1Personal } from './step-1-personal'
-import { Step2Role } from './step-2-role'
-import { Step3Interests } from './step-3-interests'
-import { Step4Source } from './step-4-source'
+import { Step2Interests } from './step-2-interests'
+import { Step3Source } from './step-3-source'
 import { Button } from '@/components/ui/button'
 import { ArrowLeft, ArrowRight } from 'lucide-react'
 
 export interface OnboardingData {
   firstName: string
-  lastName: string
   role: string
   interests: string[]
   source: string
@@ -23,12 +21,11 @@ interface OnboardingWizardProps {
 }
 
 export function OnboardingWizard({ onComplete, initialData }: OnboardingWizardProps) {
-  const [currentStep, setCurrentStep] = useState<1 | 2 | 3 | 4>(1)
+  const [currentStep, setCurrentStep] = useState<1 | 2 | 3>(1)
   const [isSubmitting, setIsSubmitting] = useState(false)
 
   const [formData, setFormData] = useState<OnboardingData>({
     firstName: initialData?.firstName || '',
-    lastName: initialData?.lastName || '',
     role: initialData?.role || '',
     interests: initialData?.interests || [],
     source: initialData?.source || ''
@@ -42,16 +39,11 @@ export function OnboardingWizard({ onComplete, initialData }: OnboardingWizardPr
     },
     {
       number: 2 as const,
-      title: 'Роль',
-      description: 'Ваша роль'
-    },
-    {
-      number: 3 as const,
       title: 'Интересы',
       description: 'Что вас интересует'
     },
     {
-      number: 4 as const,
+      number: 3 as const,
       title: 'Источник',
       description: 'Как узнали о нас'
     }
@@ -64,12 +56,10 @@ export function OnboardingWizard({ onComplete, initialData }: OnboardingWizardPr
   const canProceed = () => {
     switch (currentStep) {
       case 1:
-        return formData.firstName.trim() !== '' && formData.lastName.trim() !== ''
+        return formData.firstName.trim() !== '' && formData.role !== ''
       case 2:
-        return formData.role !== ''
-      case 3:
         return formData.interests.length > 0
-      case 4:
+      case 3:
         return formData.source !== ''
       default:
         return false
@@ -77,8 +67,8 @@ export function OnboardingWizard({ onComplete, initialData }: OnboardingWizardPr
   }
 
   const handleNext = async () => {
-    if (currentStep < 4) {
-      setCurrentStep((prev) => (prev + 1) as 1 | 2 | 3 | 4)
+    if (currentStep < 3) {
+      setCurrentStep((prev) => (prev + 1) as 1 | 2 | 3)
     } else {
       // Завершение онбординга
       setIsSubmitting(true)
@@ -93,7 +83,7 @@ export function OnboardingWizard({ onComplete, initialData }: OnboardingWizardPr
 
   const handleBack = () => {
     if (currentStep > 1) {
-      setCurrentStep((prev) => (prev - 1) as 1 | 2 | 3 | 4)
+      setCurrentStep((prev) => (prev - 1) as 1 | 2 | 3)
     }
   }
 
@@ -108,27 +98,20 @@ export function OnboardingWizard({ onComplete, initialData }: OnboardingWizardPr
         {currentStep === 1 && (
           <Step1Personal
             firstName={formData.firstName}
-            lastName={formData.lastName}
+            role={formData.role}
             onChange={updateFormData}
           />
         )}
 
         {currentStep === 2 && (
-          <Step2Role
-            selectedRole={formData.role}
-            onChange={(role) => updateFormData({ role })}
-          />
-        )}
-
-        {currentStep === 3 && (
-          <Step3Interests
+          <Step2Interests
             selectedInterests={formData.interests}
             onChange={(interests) => updateFormData({ interests })}
           />
         )}
 
-        {currentStep === 4 && (
-          <Step4Source
+        {currentStep === 3 && (
+          <Step3Source
             selectedSource={formData.source}
             onChange={(source) => updateFormData({ source })}
           />
@@ -150,7 +133,7 @@ export function OnboardingWizard({ onComplete, initialData }: OnboardingWizardPr
           >
             {isSubmitting ? (
               'Сохранение...'
-            ) : currentStep === 4 ? (
+            ) : currentStep === 3 ? (
               'Завершить'
             ) : (
               <>
