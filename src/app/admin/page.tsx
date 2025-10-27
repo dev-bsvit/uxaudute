@@ -42,6 +42,20 @@ interface Transaction {
   created_at: string
 }
 
+interface OnboardingData {
+  id: string
+  user_id: string
+  first_name: string
+  last_name: string
+  role: string
+  interests: string[]
+  source: string
+  completed: boolean
+  completed_at: string
+  created_at: string
+  user_email?: string
+}
+
 export default function AdminPanel() {
   const router = useRouter()
   const [user, setUser] = useState<SupabaseUser | null>(null)
@@ -49,6 +63,7 @@ export default function AdminPanel() {
   const [isChecking, setIsChecking] = useState(true)
   const [users, setUsers] = useState<User[]>([])
   const [transactions, setTransactions] = useState<Transaction[]>([])
+  const [onboardingData, setOnboardingData] = useState<OnboardingData[]>([])
   const [searchTerm, setSearchTerm] = useState('')
   const [selectedUser, setSelectedUser] = useState<User | null>(null)
   const [creditAmount, setCreditAmount] = useState('')
@@ -92,7 +107,8 @@ export default function AdminPanel() {
         // Загружаем данные
         loadUsers()
         loadTransactions()
-        
+        loadOnboardingData()
+
       } catch (error) {
         console.error('Ошибка проверки доступа:', error)
         router.push('/')
@@ -126,12 +142,26 @@ export default function AdminPanel() {
     try {
       const response = await fetch('/api/admin/transactions')
       const data = await response.json()
-      
+
       if (data.success) {
         setTransactions(data.transactions)
       }
     } catch (err) {
       console.error('Ошибка загрузки транзакций:', err)
+    }
+  }
+
+  // Загрузка данных онбординга
+  const loadOnboardingData = async () => {
+    try {
+      const response = await fetch('/api/admin/onboarding')
+      const data = await response.json()
+
+      if (data.success) {
+        setOnboardingData(data.data)
+      }
+    } catch (err) {
+      console.error('Ошибка загрузки данных онбординга:', err)
     }
   }
 
@@ -300,6 +330,7 @@ export default function AdminPanel() {
             <TabsTrigger value="users">Пользователи</TabsTrigger>
             <TabsTrigger value="credits">Кредиты</TabsTrigger>
             <TabsTrigger value="transactions">Транзакции</TabsTrigger>
+            <TabsTrigger value="onboarding">Анкеты</TabsTrigger>
           </TabsList>
 
           {/* Вкладка пользователей */}
@@ -477,6 +508,101 @@ export default function AdminPanel() {
                       </div>
                     </div>
                   ))}
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          {/* Вкладка анкет онбординга */}
+          <TabsContent value="onboarding" className="space-y-6">
+            <Card>
+              <CardHeader>
+                <CardTitle>Данные анкет пользователей</CardTitle>
+                <CardDescription>
+                  Информация, собранная во время онбординга
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  {onboardingData.length === 0 ? (
+                    <p className="text-gray-500 text-center py-8">
+                      Пока нет данных анкет
+                    </p>
+                  ) : (
+                    onboardingData.map((data) => (
+                      <div key={data.id} className="p-6 border rounded-lg space-y-3">
+                        <div className="flex items-start justify-between">
+                          <div className="space-y-2 flex-1">
+                            <div>
+                              <h3 className="font-semibold text-lg">
+                                {data.first_name} {data.last_name}
+                              </h3>
+                              <p className="text-sm text-gray-500">{data.user_email || data.user_id}</p>
+                            </div>
+
+                            <div className="grid grid-cols-2 gap-4 mt-4">
+                              <div>
+                                <p className="text-sm font-medium text-gray-700">Роль:</p>
+                                <Badge variant="outline" className="mt-1">
+                                  {data.role === 'designer' && 'Designer'}
+                                  {data.role === 'researcher' && 'Researcher'}
+                                  {data.role === 'marketer' && 'Marketer'}
+                                  {data.role === 'product_manager' && 'Product Manager'}
+                                  {data.role === 'founder_ceo' && 'Founder / CEO'}
+                                  {data.role === 'student' && 'Student'}
+                                  {data.role === 'other' && 'Other'}
+                                </Badge>
+                              </div>
+
+                              <div>
+                                <p className="text-sm font-medium text-gray-700">Источник:</p>
+                                <Badge variant="outline" className="mt-1">
+                                  {data.source === 'linkedin' && 'LinkedIn'}
+                                  {data.source === 'telegram' && 'Telegram'}
+                                  {data.source === 'google' && 'Google'}
+                                  {data.source === 'chatgpt' && 'ChatGPT'}
+                                  {data.source === 'youtube' && 'YouTube'}
+                                  {data.source === 'instagram' && 'Instagram'}
+                                  {data.source === 'other' && 'Другое'}
+                                </Badge>
+                              </div>
+                            </div>
+
+                            <div>
+                              <p className="text-sm font-medium text-gray-700">Интересы:</p>
+                              <div className="flex flex-wrap gap-2 mt-1">
+                                {data.interests.map((interest, idx) => (
+                                  <Badge key={idx} variant="secondary">
+                                    {interest === 'ux_analysis' && 'UX анализ'}
+                                    {interest === 'ab_test' && 'A/B тест'}
+                                    {interest === 'hypotheses' && 'Гипотезы'}
+                                    {interest === 'business_analytics' && 'Бизнес-аналитика'}
+                                    {interest === 'surveys' && 'Опросы'}
+                                    {interest === 'card_sorting' && 'Карточная сортировка'}
+                                    {interest === 'comparative_analysis' && 'Сравнительный анализ'}
+                                    {interest === 'other' && 'Другое'}
+                                  </Badge>
+                                ))}
+                              </div>
+                            </div>
+
+                            <div className="flex items-center gap-4 text-xs text-gray-500 mt-3 pt-3 border-t">
+                              <span>Создано: {new Date(data.created_at).toLocaleDateString()}</span>
+                              {data.completed && data.completed_at && (
+                                <span>Завершено: {new Date(data.completed_at).toLocaleDateString()}</span>
+                              )}
+                            </div>
+                          </div>
+
+                          <div>
+                            <Badge variant={data.completed ? "default" : "secondary"}>
+                              {data.completed ? 'Завершено' : 'В процессе'}
+                            </Badge>
+                          </div>
+                        </div>
+                      </div>
+                    ))
+                  )}
                 </div>
               </CardContent>
             </Card>

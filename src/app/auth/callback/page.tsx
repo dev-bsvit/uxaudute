@@ -47,6 +47,22 @@ export default function AuthCallback() {
         console.error('Ошибка проверки баланса:', error)
       }
 
+      // Проверяем, прошел ли пользователь онбординг
+      setStatus('Проверяем профиль...')
+      const { data: onboarding } = await supabase
+        .from('user_onboarding')
+        .select('completed')
+        .eq('user_id', user.id)
+        .single()
+
+      // Если пользователь новый (не прошел онбординг), редиректим на онбординг
+      if (!onboarding || !onboarding.completed) {
+        setStatus('Настройка профиля...')
+        await new Promise(resolve => setTimeout(resolve, 500))
+        fadeOutAndRedirect('/onboarding')
+        return
+      }
+
       // Проверяем pendingAnalysis
       const pendingAnalysis = localStorage.getItem('pendingAnalysis')
 
