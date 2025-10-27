@@ -127,16 +127,16 @@ export function Step1Intro({
           </p>
 
           {imageUrl ? (
-            <div className="relative w-full h-64 rounded-lg overflow-hidden border-2 border-slate-200">
+            <div className="relative w-full h-96 rounded-lg border-2 border-slate-200 bg-slate-50 flex items-center justify-center overflow-hidden">
               <Image
                 src={imageUrl}
                 alt="Intro image"
                 fill
-                className="object-cover"
+                className="object-contain p-4"
               />
               <button
                 onClick={handleRemoveImage}
-                className="absolute top-2 right-2 p-2 bg-red-500 text-white rounded-full hover:bg-red-600 transition-colors"
+                className="absolute top-2 right-2 p-2 bg-red-500 text-white rounded-full hover:bg-red-600 transition-colors z-10"
               >
                 <X className="w-4 h-4" />
               </button>

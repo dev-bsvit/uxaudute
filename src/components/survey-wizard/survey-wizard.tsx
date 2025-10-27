@@ -256,12 +256,12 @@ export function SurveyWizard({
 
           {survey.intro_image_url ? (
             <div className="space-y-4">
-              <div className="relative w-full h-48 rounded-lg overflow-hidden border border-slate-200">
+              <div className="relative w-full h-48 rounded-lg border border-slate-200 bg-slate-50 flex items-center justify-center overflow-hidden">
                 <Image
                   src={survey.intro_image_url}
                   alt="Survey preview"
                   fill
-                  className="object-cover"
+                  className="object-contain p-2"
                 />
               </div>
 
