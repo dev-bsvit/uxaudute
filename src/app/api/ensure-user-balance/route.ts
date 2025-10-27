@@ -24,7 +24,35 @@ export async function POST(request: NextRequest) {
     }
 
     console.log('🔍 ensureUserHasInitialBalance API вызвана для пользователя:', userId)
-    
+
+    // Проверяем, есть ли уже НАЧИСЛЕНИЕ начальных кредитов (транзакция с описанием "Начальный баланс")
+    const { data: initialTransaction, error: transactionCheckError } = await supabaseClient
+      .from('transactions')
+      .select('id')
+      .eq('user_id', userId)
+      .ilike('description', '%Начальный баланс%')
+      .limit(1)
+
+    console.log('📊 Проверка начальной транзакции:', { initialTransaction, transactionCheckError })
+
+    // Если уже была транзакция начального баланса - не начисляем повторно
+    if (initialTransaction && initialTransaction.length > 0) {
+      console.log('ℹ️ Начальные кредиты уже были начислены этому пользователю')
+
+      // Проверяем текущий баланс для информации
+      const { data: currentBalance } = await supabaseClient
+        .from('user_balances')
+        .select('balance')
+        .eq('user_id', userId)
+        .single()
+
+      return NextResponse.json({
+        success: true,
+        message: 'Начальные кредиты уже были начислены',
+        balance: currentBalance?.balance || 0
+      })
+    }
+
     // Проверяем, есть ли уже баланс у пользователя
     const { data: existingBalance, error: checkError } = await supabaseClient
       .from('user_balances')
@@ -34,18 +62,32 @@ export async function POST(request: NextRequest) {
 
     console.log('📊 Результат проверки баланса:', { existingBalance, checkError })
 
-    if (checkError && checkError.code !== 'PGRST116') {
-      // PGRST116 = no rows found, это нормально
-      console.error('❌ Ошибка проверки баланса:', checkError)
-      return NextResponse.json({ error: checkError.message }, { status: 500 })
-    }
+    // Новый пользователь ИЛИ баланс существует - добавляем 5 кредитов
+    console.log('💰 Начисляем начальные 5 кредитов для пользователя:', userId)
 
-    // Если баланса НЕТ (новый пользователь), создаем начальный баланс
-    // НЕ поповнюємо якщо баланс просто = 0 (користувач витратив кредити)
-    if (!existingBalance) {
-      console.log('💰 Создаем начальный баланс для НОВОГО пользователя:', userId)
+    let newBalance = 5
+    if (existingBalance) {
+      // Если баланс уже есть (например, создан триггером с 0), добавляем к нему 5
+      newBalance = existingBalance.balance + 5
+      console.log(`📊 Обновляем существующий баланс: ${existingBalance.balance} + 5 = ${newBalance}`)
 
+      // Обновляем баланс
+      const { data: balanceData, error: balanceError } = await supabaseClient
+        .from('user_balances')
+        .update({ balance: newBalance })
+        .eq('user_id', userId)
+        .select()
+
+      console.log('📊 Результат обновления баланса:', { balanceData, balanceError })
+
+      if (balanceError) {
+        console.error('❌ Ошибка обновления баланса:', balanceError)
+        return NextResponse.json({ error: balanceError.message }, { status: 500 })
+      }
+    } else {
       // Создаем новый баланс с 5 кредитами
+      console.log('📊 Создаем новую запись баланса с 5 кредитами')
+
       const { data: balanceData, error: balanceError } = await supabaseClient
         .from('user_balances')
         .insert({
@@ -61,43 +103,36 @@ export async function POST(request: NextRequest) {
         console.error('❌ Ошибка создания начального баланса:', balanceError)
         return NextResponse.json({ error: balanceError.message }, { status: 500 })
       }
-
-      // Создаем транзакцию для начального баланса
-      const { data: transactionData, error: transactionError } = await supabaseClient
-        .from('transactions')
-        .insert({
-          user_id: userId,
-          type: 'credit',
-          amount: 5,
-          balance_after: 5,
-          source: 'manual',
-          description: 'Добро пожаловать! Начальный баланс 5 кредитов'
-        })
-        .select()
-
-      console.log('📊 Результат создания транзакции:', { transactionData, transactionError })
-
-      if (transactionError) {
-        console.error('❌ Ошибка создания транзакции:', transactionError)
-        return NextResponse.json({ error: transactionError.message }, { status: 500 })
-      }
-
-      console.log('✅ Начальный баланс создан для пользователя:', userId)
-
-      return NextResponse.json({ 
-        success: true, 
-        message: 'Начальный баланс создан успешно',
-        balance: balanceData?.[0],
-        transaction: transactionData?.[0]
-      })
-    } else {
-      console.log('ℹ️ У пользователя уже есть баланс:', existingBalance.balance)
-      return NextResponse.json({ 
-        success: true, 
-        message: 'У пользователя уже есть баланс',
-        balance: existingBalance.balance
-      })
     }
+
+    // Создаем транзакцию для начального баланса
+    const { data: transactionData, error: transactionError } = await supabaseClient
+      .from('transactions')
+      .insert({
+        user_id: userId,
+        type: 'credit',
+        amount: 5,
+        balance_after: newBalance,
+        source: 'manual',
+        description: 'Добро пожаловать! Начальный баланс 5 кредитов'
+      })
+      .select()
+
+    console.log('📊 Результат создания транзакции:', { transactionData, transactionError })
+
+    if (transactionError) {
+      console.error('❌ Ошибка создания транзакции:', transactionError)
+      return NextResponse.json({ error: transactionError.message }, { status: 500 })
+    }
+
+    console.log('✅ Начальный баланс начислен для пользователя:', userId)
+
+    return NextResponse.json({
+      success: true,
+      message: 'Начальный баланс начислен успешно',
+      balance: newBalance,
+      transaction: transactionData?.[0]
+    })
 
   } catch (error) {
     console.error('❌ Ошибка при создании начального баланса:', error)
