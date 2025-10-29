@@ -31,18 +31,7 @@ export default function HomePage() {
 
         const { data: { user } } = await supabase.auth.getUser()
 
-        // Показываем модалку только если пользователь не залогинен
-        if (!user) {
-          // Проверяем, показывали ли уже модалку в этой сессии
-          const modalShown = sessionStorage.getItem('authModalShown')
-          if (!modalShown) {
-            // Показываем модалку через 2 секунды после загрузки
-            setTimeout(() => {
-              setShowAuthModal(true)
-              sessionStorage.setItem('authModalShown', 'true')
-            }, 2000)
-          }
-        } else {
+        if (user) {
           console.log('🔍 Главная страница: проверяем баланс пользователя', user.email, user.id)
 
           // Проверяем баланс через API
@@ -57,6 +46,15 @@ export default function HomePage() {
           if (data.success && data.balance === 0) {
             console.log('🔍 Главная страница: обнаружен нулевой баланс, создаем начальный баланс')
             await ensureUserHasInitialBalance(user.id)
+          }
+        } else {
+          // Пользователь не залогинен - показываем модалку
+          const modalShown = sessionStorage.getItem('authModalShown')
+          if (!modalShown) {
+            setTimeout(() => {
+              setShowAuthModal(true)
+              sessionStorage.setItem('authModalShown', 'true')
+            }, 2000) // Показываем через 2 секунды
           }
         }
       } catch (error) {
@@ -107,7 +105,7 @@ export default function HomePage() {
 
   return (
     <Layout transparentHeader={true}>
-      {/* Модальное окно входа */}
+      {/* Модалка входа в стиле Google One Tap */}
       <AuthModal isOpen={showAuthModal} onClose={() => setShowAuthModal(false)} />
 
       {/* Hero секция с градиентом на всю ширину */}
