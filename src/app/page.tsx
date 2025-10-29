@@ -5,6 +5,7 @@ import { useEffect, useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { HeroSection } from '@/components/hero-section'
+import { AuthModal } from '@/components/auth-modal'
 import Link from 'next/link'
 import { ArrowRight, Zap, Shield, BarChart3, Users } from 'lucide-react'
 import { createClient } from '@supabase/supabase-js'
@@ -14,11 +15,12 @@ import { useTranslation } from '@/hooks/use-translation'
 export default function HomePage() {
   // Версия 1.1.2 - исправлено отображение проблем и решений
   const [mounted, setMounted] = useState(false)
+  const [showAuthModal, setShowAuthModal] = useState(false)
   const { t } = useTranslation()
-  
+
   useEffect(() => {
     setMounted(true)
-    
+
     // Проверяем баланс всех авторизованных пользователей
     const checkUserBalance = async () => {
       try {
@@ -26,11 +28,23 @@ export default function HomePage() {
           process.env.NEXT_PUBLIC_SUPABASE_URL!,
           process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
         )
-        
+
         const { data: { user } } = await supabase.auth.getUser()
-        if (user) {
+
+        // Показываем модалку только если пользователь не залогинен
+        if (!user) {
+          // Проверяем, показывали ли уже модалку в этой сессии
+          const modalShown = sessionStorage.getItem('authModalShown')
+          if (!modalShown) {
+            // Показываем модалку через 2 секунды после загрузки
+            setTimeout(() => {
+              setShowAuthModal(true)
+              sessionStorage.setItem('authModalShown', 'true')
+            }, 2000)
+          }
+        } else {
           console.log('🔍 Главная страница: проверяем баланс пользователя', user.email, user.id)
-          
+
           // Проверяем баланс через API
           const response = await fetch('/api/credits/balance', {
             headers: {
@@ -39,7 +53,7 @@ export default function HomePage() {
           })
           const data = await response.json()
           console.log('🔍 Главная страница: результат проверки баланса', data)
-          
+
           if (data.success && data.balance === 0) {
             console.log('🔍 Главная страница: обнаружен нулевой баланс, создаем начальный баланс')
             await ensureUserHasInitialBalance(user.id)
@@ -49,10 +63,10 @@ export default function HomePage() {
         console.error('❌ Ошибка проверки баланса на главной странице:', error)
       }
     }
-    
-    // Запускаем проверку через 3 секунды после загрузки страницы
-    setTimeout(checkUserBalance, 3000)
-    
+
+    // Запускаем проверку через 1 секунду после загрузки страницы
+    setTimeout(checkUserBalance, 1000)
+
     // Дополнительно проверяем всех новых пользователей
     setTimeout(async () => {
       try {
@@ -93,6 +107,9 @@ export default function HomePage() {
 
   return (
     <Layout transparentHeader={true}>
+      {/* Модальное окно входа */}
+      <AuthModal isOpen={showAuthModal} onClose={() => setShowAuthModal(false)} />
+
       {/* Hero секция с градиентом на всю ширину */}
       <HeroSection />
       
