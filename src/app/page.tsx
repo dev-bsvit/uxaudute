@@ -8,7 +8,7 @@ import { HeroSection } from '@/components/hero-section'
 import { AuthModal } from '@/components/auth-modal'
 import Link from 'next/link'
 import { ArrowRight, Zap, Shield, BarChart3, Users } from 'lucide-react'
-import { createClient } from '@supabase/supabase-js'
+import { supabase } from '@/lib/supabase'
 import { ensureUserHasInitialBalance } from '@/lib/database'
 import { useTranslation } from '@/hooks/use-translation'
 
@@ -24,15 +24,13 @@ export default function HomePage() {
     // Проверяем баланс всех авторизованных пользователей
     const checkUserBalance = async () => {
       try {
-        const supabase = createClient(
-          process.env.NEXT_PUBLIC_SUPABASE_URL!,
-          process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-        )
-
-        // Сначала проверяем сессию
+        // Сначала проверяем сессию используя глобальный supabase клиент
         const { data: { session } } = await supabase.auth.getSession()
 
-        console.log('🔍 Проверка сессии:', session ? 'Есть сессия' : 'Нет сессии')
+        console.log('🔍 Проверка сессии:', session ? 'Есть сессию' : 'Нет сессии')
+        if (session) {
+          console.log('✅ Сессия найдена для пользователя:', session.user.email)
+        }
 
         if (session) {
           // Если есть сессия, получаем пользователя
