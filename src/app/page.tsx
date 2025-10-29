@@ -52,15 +52,23 @@ export default function HomePage() {
         } else {
           // Пользователь не залогинен - показываем модалку
           console.log('👉 Пользователь НЕ залогинен, проверяем модалку...')
-          const modalShown = sessionStorage.getItem('authModalShown')
-          console.log('📝 Modal shown status:', modalShown)
 
-          if (!modalShown) {
+          // Проверяем, есть ли параметр force в URL для тестирования
+          const urlParams = new URLSearchParams(window.location.search)
+          const forceModal = urlParams.get('modal') === 'show'
+
+          const modalShown = sessionStorage.getItem('authModalShown_v2') // v2 для сброса старого флага
+          console.log('📝 Modal shown status:', modalShown)
+          console.log('🔧 Force modal:', forceModal)
+
+          if (!modalShown || forceModal) {
             console.log('✅ Показываем модалку через 2 секунды...')
             setTimeout(() => {
               console.log('🎯 ПОКАЗЫВАЕМ МОДАЛКУ СЕЙЧАС!')
               setShowAuthModal(true)
-              sessionStorage.setItem('authModalShown', 'true')
+              if (!forceModal) {
+                sessionStorage.setItem('authModalShown_v2', 'true')
+              }
             }, 2000) // Показываем через 2 секунды
           } else {
             console.log('❌ Модалка уже была показана в этой сессии')
