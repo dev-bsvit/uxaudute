@@ -31,6 +31,8 @@ export default function HomePage() {
 
         const { data: { user } } = await supabase.auth.getUser()
 
+        console.log('🔍 Проверка пользователя:', user ? 'Залогинен' : 'НЕ залогинен')
+
         if (user) {
           console.log('🔍 Главная страница: проверяем баланс пользователя', user.email, user.id)
 
@@ -49,12 +51,19 @@ export default function HomePage() {
           }
         } else {
           // Пользователь не залогинен - показываем модалку
+          console.log('👉 Пользователь НЕ залогинен, проверяем модалку...')
           const modalShown = sessionStorage.getItem('authModalShown')
+          console.log('📝 Modal shown status:', modalShown)
+
           if (!modalShown) {
+            console.log('✅ Показываем модалку через 2 секунды...')
             setTimeout(() => {
+              console.log('🎯 ПОКАЗЫВАЕМ МОДАЛКУ СЕЙЧАС!')
               setShowAuthModal(true)
               sessionStorage.setItem('authModalShown', 'true')
             }, 2000) // Показываем через 2 секунды
+          } else {
+            console.log('❌ Модалка уже была показана в этой сессии')
           }
         }
       } catch (error) {

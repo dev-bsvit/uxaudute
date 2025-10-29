@@ -14,10 +14,12 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
 
   // Закрытие по ESC
   useEffect(() => {
+    console.log('🎨 AuthModal isOpen:', isOpen)
     const handleEsc = (e: KeyboardEvent) => {
       if (e.key === 'Escape') onClose()
     }
     if (isOpen) {
+      console.log('✅ Модалка ОТКРЫТА, добавляем слушатель ESC')
       document.addEventListener('keydown', handleEsc)
     }
     return () => {
