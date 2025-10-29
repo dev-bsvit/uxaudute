@@ -115,11 +115,12 @@ export default function AuthCallback() {
         currentLanguage
       )
 
-      // Сохраняем для автозапуска
+      // Сохраняем для автозапуска с привязкой к пользователю
       localStorage.setItem('pendingAuditAnalysis', JSON.stringify({
         type: data.type,
         data: data.data,
         auditId: audit.id,
+        userId: user.id, // Добавляем ID пользователя для безопасности
         autoStart: true
       }))
 

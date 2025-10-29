@@ -118,11 +118,12 @@ export default function ProjectsPage() {
       )
       console.log('✅ Аудит создан:', audit.id)
 
-      // Сохраняем данные анализа для страницы аудита
+      // Сохраняем данные анализа для страницы аудита с привязкой к пользователю
       localStorage.setItem('pendingAuditAnalysis', JSON.stringify({
         type: data.type,
         data: data.data,
         auditId: audit.id,
+        userId: user.id, // Добавляем ID пользователя для безопасности
         autoStart: true
       }))
 

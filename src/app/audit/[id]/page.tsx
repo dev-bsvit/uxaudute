@@ -313,7 +313,7 @@ export default function AuditPage() {
 
   const checkPendingAuditAnalysis = async () => {
     const pendingData = localStorage.getItem('pendingAuditAnalysis')
-    if (!pendingData || !audit) return
+    if (!pendingData || !audit || !user) return
 
     try {
       const data = JSON.parse(pendingData)
@@ -322,6 +322,24 @@ export default function AuditPage() {
       // Проверяем что это наш аудит
       if (data.auditId !== audit.id) {
         console.log('⚠️ pendingAuditAnalysis для другого аудита, пропускаем')
+        return
+      }
+
+      // ВАЖНО: Проверяем что аудит принадлежит текущему пользователю
+      if (audit.user_id !== user.id) {
+        console.log('🚨 SECURITY: Обнаружена попытка запустить аудит другого пользователя!')
+        console.log('🚨 Audit user_id:', audit.user_id)
+        console.log('🚨 Current user_id:', user.id)
+        localStorage.removeItem('pendingAuditAnalysis')
+        return
+      }
+
+      // Дополнительная проверка userId из pendingData
+      if (data.userId && data.userId !== user.id) {
+        console.log('🚨 SECURITY: userId в pendingData не совпадает с текущим пользователем!')
+        console.log('🚨 Pending userId:', data.userId)
+        console.log('🚨 Current user_id:', user.id)
+        localStorage.removeItem('pendingAuditAnalysis')
         return
       }
 

@@ -530,6 +530,19 @@ export async function signInWithGoogle() {
 }
 
 export async function signOut() {
+  // Очищаем все данные пользователя из localStorage при выходе
+  console.log('🚪 Выход из системы: очищаем localStorage...')
+
+  // Очищаем данные аудитов
+  localStorage.removeItem('pendingAuditAnalysis')
+  localStorage.removeItem('pendingAnalysis')
+
+  // Очищаем другие пользовательские данные (можно добавить больше если нужно)
+  const keysToRemove = ['authModalShown', 'authModalShown_v2']
+  keysToRemove.forEach(key => localStorage.removeItem(key))
+
+  console.log('✅ localStorage очищен')
+
   const { error } = await supabase.auth.signOut()
   if (error) throw error
 }
