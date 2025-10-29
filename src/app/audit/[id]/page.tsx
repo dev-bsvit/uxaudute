@@ -32,6 +32,7 @@ interface Audit {
   created_at: string
   updated_at: string
   project_id: string
+  user_id: string
   projects?: {
     id: string
     name: string
