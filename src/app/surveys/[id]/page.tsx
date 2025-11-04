@@ -79,18 +79,17 @@ export default function SurveyEditorPage() {
 
   return (
     <SidebarDemo user={user}>
-      <div className="space-y-8">
-        <div className="px-8">
+      <div className="space-y-6">
+        <div className="px-4">
           <PageHeader
             breadcrumbs={[
-              { label: 'Главная', href: '/home' },
-              { label: 'Опросы', href: '/surveys' },
+              { label: 'Мои проекты', href: '/projects' },
               { label: survey.name }
             ]}
             title={survey.name}
             subtitle={
               survey.status === 'draft'
-                ? 'Настройте опрос и опубликуйте его'
+                ? 'Буду проверять сам себя'
                 : survey.status === 'published'
                 ? 'Опрос опубликован и доступен для прохождения'
                 : 'Опрос закрыт'
@@ -100,55 +99,56 @@ export default function SurveyEditorPage() {
           />
         </div>
 
-        <div className="px-8">
-          {/* Tabs */}
-          <Tabs
-            value={activeTab}
-            onValueChange={(value) => setActiveTab(value as 'create' | 'share' | 'results')}
-            className="w-full"
-          >
-            <TabsList className="grid w-full grid-cols-3 mb-6 bg-gray-100 h-16 relative z-10 p-1">
+        {/* Tabs - Positioned as per Figma spec */}
+        <Tabs
+          value={activeTab}
+          onValueChange={(value) => setActiveTab(value as 'create' | 'share' | 'results')}
+          className="w-full"
+        >
+          {/* Tab List with Figma styling */}
+          <div className="px-4">
+            <TabsList className="grid grid-cols-3 gap-0 mb-6 bg-[#F0F1F4] h-[61px] rounded-2xl p-1 w-full max-w-[1088px]">
               <TabsTrigger
                 value="create"
-                className="h-14 text-sm font-medium data-[state=active]:bg-white data-[state=active]:shadow-sm"
+                className="h-[53px] text-base font-medium leading-[17.6px] tracking-[-0.16px] text-[#1F1F1F] data-[state=active]:bg-white data-[state=active]:shadow-[0_4px_4px_rgba(0,0,0,0.05)] data-[state=active]:rounded-[14px]"
               >
                 {currentLanguage === 'en' ? 'Create' : 'Создание'}
               </TabsTrigger>
               <TabsTrigger
                 value="share"
-                className="h-14 text-sm font-medium data-[state=active]:bg-white data-[state=active]:shadow-sm"
+                className="h-[53px] text-base font-medium leading-[17.6px] tracking-[-0.16px] text-[#1F1F1F] data-[state=active]:bg-white data-[state=active]:shadow-[0_4px_4px_rgba(0,0,0,0.05)] data-[state=active]:rounded-[14px]"
               >
                 {currentLanguage === 'en' ? 'Share' : 'Поделиться'}
               </TabsTrigger>
               <TabsTrigger
                 value="results"
-                className="h-14 text-sm font-medium data-[state=active]:bg-white data-[state=active]:shadow-sm"
+                className="h-[53px] text-base font-medium leading-[17.6px] tracking-[-0.16px] text-[#121217] data-[state=active]:bg-white data-[state=active]:shadow-[0_4px_4px_rgba(0,0,0,0.05)] data-[state=active]:rounded-[14px] disabled:opacity-50"
                 disabled={survey.status === 'draft'}
               >
                 {currentLanguage === 'en' ? 'Results' : 'Результаты'}
               </TabsTrigger>
             </TabsList>
+          </div>
 
-            {/* Create Tab */}
-            <TabsContent value="create">
-              <CreateTab
-                survey={survey}
-                onUpdate={handleSurveyUpdate}
-                currentLanguage={currentLanguage as 'ru' | 'en'}
-              />
-            </TabsContent>
+          {/* Create Tab */}
+          <TabsContent value="create" className="mt-0">
+            <CreateTab
+              survey={survey}
+              onUpdate={handleSurveyUpdate}
+              currentLanguage={currentLanguage as 'ru' | 'en'}
+            />
+          </TabsContent>
 
-            {/* Share Tab */}
-            <TabsContent value="share">
-              <ShareTab survey={survey} currentLanguage={currentLanguage as 'ru' | 'en'} />
-            </TabsContent>
+          {/* Share Tab */}
+          <TabsContent value="share" className="mt-0">
+            <ShareTab survey={survey} currentLanguage={currentLanguage as 'ru' | 'en'} />
+          </TabsContent>
 
-            {/* Results Tab */}
-            <TabsContent value="results">
-              <ResultsTab survey={survey} currentLanguage={currentLanguage as 'ru' | 'en'} />
-            </TabsContent>
-          </Tabs>
-        </div>
+          {/* Results Tab */}
+          <TabsContent value="results" className="mt-0">
+            <ResultsTab survey={survey} currentLanguage={currentLanguage as 'ru' | 'en'} />
+          </TabsContent>
+        </Tabs>
       </div>
     </SidebarDemo>
   )

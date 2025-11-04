@@ -106,60 +106,70 @@ export function Step1Intro({
   }
 
   return (
-    <div className="max-w-4xl mx-auto space-y-6">
+    <div className="space-y-6">
+      {/* Section Title */}
       <div>
-        <h2 className="text-2xl font-bold text-slate-900 mb-2">
-          Вступительный экран
+        <h2 className="text-[28px] font-medium leading-[30.8px] tracking-[-0.28px] text-[#1F1F1F] mb-2">
+          Шаги создания
         </h2>
-        <p className="text-slate-600">
-          Создайте первое впечатление. Это первое, что увидят пользователи при открытии опроса.
-        </p>
       </div>
 
-      <Card className="p-6 space-y-6">
-        {/* Image Upload */}
+      {/* Step Section: Экран Вступления */}
+      <div className="space-y-6">
+        {/* Step Header */}
         <div>
-          <Label htmlFor="intro-image" className="text-base font-medium mb-2 block">
-            Изображение *
-          </Label>
-          <p className="text-sm text-slate-500 mb-4">
-            Загрузите изображение для вступительного экрана. Это изображение также будет использоваться для показа вопросов.
+          <h3 className="text-base font-bold leading-[17.6px] tracking-[-0.16px] text-[#1F1F1F] mb-3">
+            Экран Вступления
+          </h3>
+          <p className="text-base leading-[17.12px] text-[#1F1F1F]">
+            На этом шаге загрузите скриншот интерфейса, для которого вы хотите создать опрос. Укажите вопрос либо задачу, которую пользователь должен был понятно, о каком экране идёт речь. Добавьте описание с контекстом: объясните, что нужно сделать пользователю, на что обратить внимание или какую функцию найти. Эта информация будет показана на приветственном экране опроса.
           </p>
+        </div>
+
+        {/* Image Upload Section */}
+        <div className="space-y-2">
+          <Label htmlFor="intro-image" className="text-sm font-medium text-[#121217]">
+            Загрузите изображения <span className="text-red-500">*</span>
+          </Label>
 
           {imageUrl ? (
-            <div className="relative w-full h-96 rounded-lg border-2 border-slate-200 bg-slate-50 flex items-center justify-center overflow-hidden">
-              <Image
-                src={imageUrl}
-                alt="Intro image"
-                fill
-                className="object-contain p-4"
-              />
+            <div className="relative w-full h-[104px] rounded-[15px] border-[1.2px] border-dashed border-[#CECECE] bg-white flex items-center justify-center overflow-visible">
+              <div className="absolute left-[185px] top-[5px] w-[157px] h-[92px]">
+                <div className="relative w-full h-full rounded-lg overflow-hidden">
+                  <Image
+                    src={imageUrl}
+                    alt="Intro image"
+                    fill
+                    className="object-cover"
+                  />
+                </div>
+              </div>
               <button
                 onClick={handleRemoveImage}
-                className="absolute top-2 right-2 p-2 bg-red-500 text-white rounded-full hover:bg-red-600 transition-colors z-10"
+                className="absolute top-2 right-2 p-1.5 bg-red-500 text-white rounded-full hover:bg-red-600 transition-colors z-10"
               >
-                <X className="w-4 h-4" />
+                <X className="w-3 h-3" />
               </button>
             </div>
           ) : (
             <div
               onClick={() => fileInputRef.current?.click()}
-              className="flex flex-col items-center justify-center w-full h-64 border-2 border-dashed border-slate-300 rounded-lg cursor-pointer hover:border-blue-500 hover:bg-blue-50 transition-colors"
+              className="flex flex-col items-center justify-center w-full h-[104px] border-[1.2px] border-dashed border-[#CECECE] rounded-[15px] cursor-pointer hover:border-blue-500 hover:bg-blue-50 transition-colors"
             >
-              <div className="flex flex-col items-center justify-center pt-5 pb-6">
+              <div className="flex flex-col items-center justify-center">
                 {uploading ? (
                   <>
-                    <Loader2 className="w-12 h-12 text-blue-600 animate-spin mb-3" />
-                    <p className="text-sm font-medium text-slate-700">Загрузка изображения...</p>
-                    <p className="text-xs text-slate-500 mt-1">Пожалуйста, подождите</p>
+                    <Loader2 className="w-8 h-8 text-blue-600 animate-spin mb-2" />
+                    <p className="text-xs font-medium text-slate-700">Загрузка...</p>
                   </>
                 ) : (
                   <>
-                    <ImageIcon className="w-12 h-12 text-slate-400 mb-3" />
-                    <p className="mb-2 text-sm text-slate-500">
-                      <span className="font-semibold">Нажмите для загрузки</span> или перетащите
+                    <Upload className="w-8 h-8 text-slate-400 mb-2" />
+                    <p className="text-sm text-slate-500">
+                      Перетащите изображения сюда
                     </p>
-                    <p className="text-xs text-slate-400">PNG, JPG или WEBP (макс. 10MB)</p>
+                    <p className="text-xs text-slate-400 mt-1">или нажмите для выбора файла</p>
+                    <p className="text-xs text-slate-400 mt-1">PNG, JPG, GIF, WEBP до 5MB</p>
                   </>
                 )}
               </div>
@@ -174,10 +184,10 @@ export function Step1Intro({
           )}
         </div>
 
-        {/* Title */}
-        <div>
-          <Label htmlFor="intro-title" className="text-base font-medium mb-2 block">
-            Заголовок *
+        {/* Title Field */}
+        <div className="space-y-2">
+          <Label htmlFor="intro-title" className="text-sm font-medium text-[#121217]">
+            Заголовок
           </Label>
           <Input
             id="intro-title"
@@ -186,15 +196,15 @@ export function Step1Intro({
               setTitle(e.target.value)
               onUpdate({ intro_image_url: imageUrl, intro_title: e.target.value, intro_description: description })
             }}
-            placeholder="Например: Помогите нам улучшить ваш опыт"
-            className="text-lg"
+            placeholder="Экран ообавления карты "
+            className="w-full bg-white border border-[#D1D1DB] rounded-lg px-2 py-2 text-sm text-[#6C6C89] placeholder:text-[#6C6C89]"
           />
         </div>
 
-        {/* Description */}
-        <div>
-          <Label htmlFor="intro-description" className="text-base font-medium mb-2 block">
-            Описание *
+        {/* Description Field */}
+        <div className="space-y-2">
+          <Label htmlFor="intro-description" className="text-sm font-medium text-[#121217]">
+            Описание <span className="text-sm text-[#6C6C89]">(необязательно)</span>
           </Label>
           <Textarea
             id="intro-description"
@@ -203,11 +213,44 @@ export function Step1Intro({
               setDescription(e.target.value)
               onUpdate({ intro_image_url: imageUrl, intro_title: title, intro_description: e.target.value })
             }}
-            placeholder="Расскажите, что пользователей ждет в опросе и почему их мнение важно..."
+            placeholder="Оцените удобсто и расположения элементов после прохождения тестов вам будет предоставлен подарочный сертификат"
             rows={4}
+            className="w-full bg-white border border-[#D1D1DB] rounded-lg px-4 py-2 text-sm text-[#6C6C89] placeholder:text-[#6C6C89]"
           />
         </div>
-      </Card>
+
+        {/* Next Button */}
+        <div>
+          <Button
+            className="h-[50px] px-6 bg-[#0058FC] rounded-[44px] text-white text-base font-medium leading-[17.6px] tracking-[-0.16px] hover:bg-[#0047d1]"
+          >
+            Дальше
+          </Button>
+        </div>
+      </div>
+
+      {/* Accordion Sections */}
+      <div className="space-y-4 mt-6">
+        {/* Вопросы Accordion */}
+        <button className="w-full flex items-center justify-between p-4 bg-white rounded-lg border border-slate-200">
+          <span className="text-base font-bold text-[#1F1F1F]">Вопросы</span>
+          <div className="w-8 h-8 rounded-full bg-[#EEF2FA] flex items-center justify-center">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+              <path d="M4 6L8 10L12 6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+          </div>
+        </button>
+
+        {/* Экран благодарности Accordion */}
+        <button className="w-full flex items-center justify-between p-4 bg-white rounded-lg border border-slate-200">
+          <span className="text-base font-bold text-[#1F1F1F]">Экран благодарности</span>
+          <div className="w-8 h-8 rounded-full bg-[#EEF2FA] flex items-center justify-center">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+              <path d="M4 6L8 10L12 6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+          </div>
+        </button>
+      </div>
     </div>
   )
 }
