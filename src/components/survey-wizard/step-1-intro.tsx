@@ -109,15 +109,6 @@ export function Step1Intro({
 
   return (
     <div className="space-y-6">
-      {/* Section Title */}
-      <div>
-        <h2 className="text-[28px] font-medium leading-[30.8px] tracking-[-0.28px] text-[#1F1F1F] mb-2">
-          Шаги создания
-        </h2>
-      </div>
-
-      {/* Step Section: Экран Вступления */}
-      <div className="space-y-6">
         {/* Step Header */}
         <div>
           <h3 className="text-base font-bold leading-[17.6px] tracking-[-0.16px] text-[#1F1F1F] mb-3">
@@ -221,38 +212,14 @@ export function Step1Intro({
           />
         </div>
 
-        {/* Next Button */}
-        <div>
-          <Button
-            onClick={onNext}
-            className="h-[50px] px-6 bg-[#0058FC] rounded-[44px] text-white text-base font-medium leading-[17.6px] tracking-[-0.16px] hover:bg-[#0047d1]"
-          >
-            Дальше
-          </Button>
-        </div>
-      </div>
-
-      {/* Accordion Sections */}
-      <div className="space-y-4 mt-6">
-        {/* Вопросы Accordion */}
-        <button className="w-full flex items-center justify-between p-4 bg-white rounded-lg border border-slate-200">
-          <span className="text-base font-bold text-[#1F1F1F]">Вопросы</span>
-          <div className="w-8 h-8 rounded-full bg-[#EEF2FA] flex items-center justify-center">
-            <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-              <path d="M4 6L8 10L12 6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-            </svg>
-          </div>
-        </button>
-
-        {/* Экран благодарности Accordion */}
-        <button className="w-full flex items-center justify-between p-4 bg-white rounded-lg border border-slate-200">
-          <span className="text-base font-bold text-[#1F1F1F]">Экран благодарности</span>
-          <div className="w-8 h-8 rounded-full bg-[#EEF2FA] flex items-center justify-center">
-            <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-              <path d="M4 6L8 10L12 6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-            </svg>
-          </div>
-        </button>
+      {/* Next Button */}
+      <div>
+        <Button
+          onClick={onNext}
+          className="h-[50px] px-6 bg-[#0058FC] rounded-[44px] text-white text-base font-medium leading-[17.6px] tracking-[-0.16px] hover:bg-[#0047d1]"
+        >
+          Дальше
+        </Button>
       </div>
     </div>
   )

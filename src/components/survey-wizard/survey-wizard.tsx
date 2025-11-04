@@ -97,44 +97,96 @@ export function SurveyWizard({
   return (
     <div className="px-4">
       <div className="flex gap-6">
-        {/* Left Column: Main Content - 536px */}
-        <div className="w-[536px] flex-shrink-0">
-          {currentStep === 1 && (
-            <Step1Intro
-              introImageUrl={survey.intro_image_url}
-              introTitle={survey.intro_title}
-              introDescription={survey.intro_description}
-              onUpdate={handleStep1Update}
-              onNext={() => setCurrentStep(2)}
-            />
-          )}
+        {/* Left Column: Forms - flex-1 */}
+        <div className="flex-1">
+          <div className="space-y-6">
+            {/* Section Title */}
+            <h2 className="text-[28px] font-medium leading-[30.8px] tracking-[-0.28px] text-[#1F1F1F]">
+              Шаги создания
+            </h2>
 
-          {currentStep === 2 && (
-            <Step2Questions
-              questions={survey.main_questions || []}
-              introImageUrl={survey.intro_image_url}
-              onUpdate={handleStep2Update}
-              onBack={() => setCurrentStep(1)}
-              onNext={() => setCurrentStep(3)}
-              currentLanguage={currentLanguage}
-            />
-          )}
+            {/* Step 1: Экран Вступления */}
+            <div className="space-y-4">
+              {currentStep === 1 ? (
+                <Step1Intro
+                  introImageUrl={survey.intro_image_url}
+                  introTitle={survey.intro_title}
+                  introDescription={survey.intro_description}
+                  onUpdate={handleStep1Update}
+                  onNext={() => setCurrentStep(2)}
+                />
+              ) : (
+                <button
+                  onClick={() => setCurrentStep(1)}
+                  className="w-full flex items-center justify-between p-4 bg-white rounded-lg border border-slate-200 hover:border-slate-300 transition-colors"
+                >
+                  <span className="text-base font-bold text-[#1F1F1F]">Экран Вступления</span>
+                  <div className="w-8 h-8 rounded-full bg-[#EEF2FA] flex items-center justify-center">
+                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                      <path d="M4 6L8 10L12 6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                    </svg>
+                  </div>
+                </button>
+              )}
+            </div>
 
-          {currentStep === 3 && (
-            <Step3ThankYou
-              thankYouText={survey.thank_you_text}
-              thankYouLink={survey.thank_you_link}
-              thankYouPromoCode={survey.thank_you_promo_code}
-              onUpdate={handleStep3Update}
-              onBack={() => setCurrentStep(2)}
-              onComplete={() => {}}
-            />
-          )}
+            {/* Step 2: Вопросы */}
+            <div className="space-y-4">
+              {currentStep === 2 ? (
+                <Step2Questions
+                  questions={survey.main_questions || []}
+                  introImageUrl={survey.intro_image_url}
+                  onUpdate={handleStep2Update}
+                  onBack={() => setCurrentStep(1)}
+                  onNext={() => setCurrentStep(3)}
+                  currentLanguage={currentLanguage}
+                />
+              ) : (
+                <button
+                  onClick={() => setCurrentStep(2)}
+                  className="w-full flex items-center justify-between p-4 bg-white rounded-lg border border-slate-200 hover:border-slate-300 transition-colors"
+                >
+                  <span className="text-base font-bold text-[#1F1F1F]">Вопросы</span>
+                  <div className="w-8 h-8 rounded-full bg-[#EEF2FA] flex items-center justify-center">
+                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                      <path d="M4 6L8 10L12 6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                    </svg>
+                  </div>
+                </button>
+              )}
+            </div>
+
+            {/* Step 3: Экран благодарности */}
+            <div className="space-y-4">
+              {currentStep === 3 ? (
+                <Step3ThankYou
+                  thankYouText={survey.thank_you_text}
+                  thankYouLink={survey.thank_you_link}
+                  thankYouPromoCode={survey.thank_you_promo_code}
+                  onUpdate={handleStep3Update}
+                  onBack={() => setCurrentStep(2)}
+                  onComplete={() => {}}
+                />
+              ) : (
+                <button
+                  onClick={() => setCurrentStep(3)}
+                  className="w-full flex items-center justify-between p-4 bg-white rounded-lg border border-slate-200 hover:border-slate-300 transition-colors"
+                >
+                  <span className="text-base font-bold text-[#1F1F1F]">Экран благодарности</span>
+                  <div className="w-8 h-8 rounded-full bg-[#EEF2FA] flex items-center justify-center">
+                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                      <path d="M4 6L8 10L12 6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                    </svg>
+                  </div>
+                </button>
+              )}
+            </div>
+          </div>
         </div>
 
-        {/* Right Column: Hint/Preview Card - 530px */}
-        <div className="w-[530px] flex-shrink-0">
-          <div className="bg-[#CAEEF7] rounded-[24px] p-10 h-[322px] flex gap-8">
+        {/* Right Column: Screenshot Preview - flex-1 */}
+        <div className="flex-1">
+          <div className="bg-[#CAEEF7] rounded-[24px] p-10 h-[322px] flex gap-8 sticky top-4">
             {/* Mini Preview - Left */}
             {survey.intro_image_url && (
               <div className="w-[99px] h-[214px] flex-shrink-0">
