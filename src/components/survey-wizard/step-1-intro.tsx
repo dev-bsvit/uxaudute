@@ -19,13 +19,15 @@ interface Step1IntroProps {
     intro_title?: string
     intro_description?: string
   }) => Promise<void>
+  onNext?: () => void
 }
 
 export function Step1Intro({
   introImageUrl,
   introTitle,
   introDescription,
-  onUpdate
+  onUpdate,
+  onNext
 }: Step1IntroProps) {
   const [imageUrl, setImageUrl] = useState(introImageUrl || '')
   const [title, setTitle] = useState(introTitle || '')
@@ -222,6 +224,7 @@ export function Step1Intro({
         {/* Next Button */}
         <div>
           <Button
+            onClick={onNext}
             className="h-[50px] px-6 bg-[#0058FC] rounded-[44px] text-white text-base font-medium leading-[17.6px] tracking-[-0.16px] hover:bg-[#0047d1]"
           >
             Дальше

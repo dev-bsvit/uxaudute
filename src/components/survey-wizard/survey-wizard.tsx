@@ -96,7 +96,7 @@ export function SurveyWizard({
 
   return (
     <div className="px-4">
-      <div className="flex gap-6 max-w-[1088px]">
+      <div className="flex gap-6">
         {/* Left Column: Main Content - 536px */}
         <div className="w-[536px] flex-shrink-0">
           {currentStep === 1 && (
@@ -105,6 +105,7 @@ export function SurveyWizard({
               introTitle={survey.intro_title}
               introDescription={survey.intro_description}
               onUpdate={handleStep1Update}
+              onNext={() => setCurrentStep(2)}
             />
           )}
 

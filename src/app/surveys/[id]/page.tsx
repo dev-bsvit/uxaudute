@@ -107,7 +107,7 @@ export default function SurveyEditorPage() {
         >
           {/* Tab List with Figma styling */}
           <div className="px-4">
-            <TabsList className="grid grid-cols-3 gap-0 mb-6 bg-[#F0F1F4] h-[61px] rounded-2xl p-1 w-full max-w-[1088px]">
+            <TabsList className="grid grid-cols-3 gap-0 mb-6 bg-[#F0F1F4] h-[61px] rounded-2xl p-1 w-full">
               <TabsTrigger
                 value="create"
                 className="h-[53px] text-base font-medium leading-[17.6px] tracking-[-0.16px] text-[#1F1F1F] data-[state=active]:bg-white data-[state=active]:shadow-[0_4px_4px_rgba(0,0,0,0.05)] data-[state=active]:rounded-[14px]"
