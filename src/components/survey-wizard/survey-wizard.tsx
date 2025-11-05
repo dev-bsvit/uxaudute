@@ -107,7 +107,24 @@ export function SurveyWizard({
 
             {/* Step 1: Экран Вступления */}
             <div className="space-y-4">
-              {currentStep === 1 ? (
+              <button
+                onClick={() => setCurrentStep(currentStep === 1 ? 0 as any : 1)}
+                className="w-full flex items-center justify-between p-4 bg-white rounded-lg border border-slate-200 hover:border-slate-300 transition-colors"
+              >
+                <span className="text-base font-bold text-[#1F1F1F]">Экран Вступления</span>
+                <div className="w-8 h-8 rounded-full bg-[#EEF2FA] flex items-center justify-center transition-transform">
+                  <svg
+                    width="16"
+                    height="16"
+                    viewBox="0 0 16 16"
+                    fill="none"
+                    className={`transition-transform ${currentStep === 1 ? 'rotate-180' : ''}`}
+                  >
+                    <path d="M4 6L8 10L12 6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                </div>
+              </button>
+              {currentStep === 1 && (
                 <Step1Intro
                   introImageUrl={survey.intro_image_url}
                   introTitle={survey.intro_title}
@@ -115,24 +132,29 @@ export function SurveyWizard({
                   onUpdate={handleStep1Update}
                   onNext={() => setCurrentStep(2)}
                 />
-              ) : (
-                <button
-                  onClick={() => setCurrentStep(1)}
-                  className="w-full flex items-center justify-between p-4 bg-white rounded-lg border border-slate-200 hover:border-slate-300 transition-colors"
-                >
-                  <span className="text-base font-bold text-[#1F1F1F]">Экран Вступления</span>
-                  <div className="w-8 h-8 rounded-full bg-[#EEF2FA] flex items-center justify-center">
-                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                      <path d="M4 6L8 10L12 6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                    </svg>
-                  </div>
-                </button>
               )}
             </div>
 
             {/* Step 2: Вопросы */}
             <div className="space-y-4">
-              {currentStep === 2 ? (
+              <button
+                onClick={() => setCurrentStep(currentStep === 2 ? 0 as any : 2)}
+                className="w-full flex items-center justify-between p-4 bg-white rounded-lg border border-slate-200 hover:border-slate-300 transition-colors"
+              >
+                <span className="text-base font-bold text-[#1F1F1F]">Вопросы</span>
+                <div className="w-8 h-8 rounded-full bg-[#EEF2FA] flex items-center justify-center transition-transform">
+                  <svg
+                    width="16"
+                    height="16"
+                    viewBox="0 0 16 16"
+                    fill="none"
+                    className={`transition-transform ${currentStep === 2 ? 'rotate-180' : ''}`}
+                  >
+                    <path d="M4 6L8 10L12 6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                </div>
+              </button>
+              {currentStep === 2 && (
                 <Step2Questions
                   questions={survey.main_questions || []}
                   introImageUrl={survey.intro_image_url}
@@ -141,24 +163,29 @@ export function SurveyWizard({
                   onNext={() => setCurrentStep(3)}
                   currentLanguage={currentLanguage}
                 />
-              ) : (
-                <button
-                  onClick={() => setCurrentStep(2)}
-                  className="w-full flex items-center justify-between p-4 bg-white rounded-lg border border-slate-200 hover:border-slate-300 transition-colors"
-                >
-                  <span className="text-base font-bold text-[#1F1F1F]">Вопросы</span>
-                  <div className="w-8 h-8 rounded-full bg-[#EEF2FA] flex items-center justify-center">
-                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                      <path d="M4 6L8 10L12 6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                    </svg>
-                  </div>
-                </button>
               )}
             </div>
 
             {/* Step 3: Экран благодарности */}
             <div className="space-y-4">
-              {currentStep === 3 ? (
+              <button
+                onClick={() => setCurrentStep(currentStep === 3 ? 0 as any : 3)}
+                className="w-full flex items-center justify-between p-4 bg-white rounded-lg border border-slate-200 hover:border-slate-300 transition-colors"
+              >
+                <span className="text-base font-bold text-[#1F1F1F]">Экран благодарности</span>
+                <div className="w-8 h-8 rounded-full bg-[#EEF2FA] flex items-center justify-center transition-transform">
+                  <svg
+                    width="16"
+                    height="16"
+                    viewBox="0 0 16 16"
+                    fill="none"
+                    className={`transition-transform ${currentStep === 3 ? 'rotate-180' : ''}`}
+                  >
+                    <path d="M4 6L8 10L12 6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                </div>
+              </button>
+              {currentStep === 3 && (
                 <Step3ThankYou
                   thankYouText={survey.thank_you_text}
                   thankYouLink={survey.thank_you_link}
@@ -167,18 +194,6 @@ export function SurveyWizard({
                   onBack={() => setCurrentStep(2)}
                   onComplete={() => {}}
                 />
-              ) : (
-                <button
-                  onClick={() => setCurrentStep(3)}
-                  className="w-full flex items-center justify-between p-4 bg-white rounded-lg border border-slate-200 hover:border-slate-300 transition-colors"
-                >
-                  <span className="text-base font-bold text-[#1F1F1F]">Экран благодарности</span>
-                  <div className="w-8 h-8 rounded-full bg-[#EEF2FA] flex items-center justify-center">
-                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                      <path d="M4 6L8 10L12 6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                    </svg>
-                  </div>
-                </button>
               )}
             </div>
           </div>

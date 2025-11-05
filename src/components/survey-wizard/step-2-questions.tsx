@@ -202,19 +202,19 @@ export function Step2Questions({
   }
 
   return (
-    <div className="max-w-4xl mx-auto space-y-6">
+    <div className="space-y-6">
       <div>
-        <h2 className="text-2xl font-bold text-slate-900 mb-2">
-          Вопросы опроса
-        </h2>
-        <p className="text-slate-600">
+        <h3 className="text-base font-bold leading-[17.6px] tracking-[-0.16px] text-[#1F1F1F] mb-3">
+          Вопросы
+        </h3>
+        <p className="text-base leading-[17.12px] text-[#1F1F1F]">
           Добавьте вопросы одним из трех способов: вручную, с помощью AI или из готовой библиотеки.
         </p>
       </div>
 
       {/* Add Methods */}
-      <Card className="p-6">
-        <h3 className="font-semibold text-slate-900 mb-4">Добавить вопросы:</h3>
+      <div className="space-y-4">
+        <h4 className="text-sm font-medium text-[#121217]">Добавить вопросы:</h4>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {/* Manual */}
           <Button
@@ -261,7 +261,7 @@ export function Step2Questions({
 
         {/* Manual Question Form */}
         {showManualForm && (
-          <Card className="mt-4 p-4 bg-slate-50">
+          <div className="mt-4 p-4 bg-slate-50 rounded-lg">
             <h4 className="font-medium mb-4">Создать вопрос вручную</h4>
             <div className="space-y-4">
               <div>
@@ -295,17 +295,17 @@ export function Step2Questions({
                 </Button>
               </div>
             </div>
-          </Card>
+          </div>
         )}
-      </Card>
+      </div>
 
       {/* Questions List */}
       {localQuestions.length > 0 && (
-        <Card className="p-6">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="font-semibold text-slate-900">
+        <div className="space-y-4">
+          <div className="flex items-center justify-between">
+            <h4 className="text-sm font-medium text-[#121217]">
               Добавленные вопросы ({localQuestions.length})
-            </h3>
+            </h4>
           </div>
 
           <div className="space-y-3">
@@ -314,7 +314,7 @@ export function Step2Questions({
               const text = currentLanguage === 'ru' ? question.text_ru : question.text_en
 
               return (
-                <Card key={question.instance_id} className="p-4">
+                <div key={question.instance_id} className="p-4 bg-white rounded-lg border border-slate-200">
                   <div className="flex items-start gap-3">
                     <GripVertical className="w-5 h-5 text-slate-400 mt-1 flex-shrink-0" />
 
@@ -371,16 +371,16 @@ export function Step2Questions({
                       </Button>
                     </div>
                   </div>
-                </Card>
+                </div>
               )
             })}
           </div>
-        </Card>
+        </div>
       )}
 
       {/* Empty State */}
       {localQuestions.length === 0 && (
-        <Card className="p-12 text-center">
+        <div className="p-12 text-center bg-white rounded-lg border border-slate-200">
           <Library className="w-12 h-12 text-slate-400 mx-auto mb-4" />
           <h3 className="text-lg font-semibold text-slate-900 mb-2">
             Вопросы не добавлены
@@ -388,20 +388,17 @@ export function Step2Questions({
           <p className="text-slate-600">
             Выберите один из способов выше, чтобы добавить вопросы в опрос
           </p>
-        </Card>
+        </div>
       )}
 
       {/* Navigation */}
-      <div className="flex justify-between">
-        <Button onClick={onBack} variant="outline" size="lg">
-          Назад: Intro Screen
-        </Button>
+      <div className="flex gap-4">
         <Button
           onClick={handleNext}
-          size="lg"
           disabled={localQuestions.length === 0}
+          className="h-[50px] px-6 bg-[#0058FC] rounded-[44px] text-white text-base font-medium leading-[17.6px] tracking-[-0.16px] hover:bg-[#0047d1]"
         >
-          Далее: Thank You Screen
+          Дальше
         </Button>
       </div>
 
