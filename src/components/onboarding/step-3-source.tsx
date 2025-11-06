@@ -1,6 +1,6 @@
 'use client'
 
-import { Linkedin, Send, Search, MessageCircle, Youtube, Instagram, MoreHorizontal } from 'lucide-react'
+import { Label } from '@/components/ui/label'
 
 interface Step3SourceProps {
   selectedSource: string
@@ -8,55 +8,65 @@ interface Step3SourceProps {
 }
 
 const sources = [
-  { id: 'linkedin', label: 'LinkedIn', icon: Linkedin },
-  { id: 'telegram', label: 'Telegram', icon: Send },
-  { id: 'google', label: 'Google', icon: Search },
-  { id: 'chatgpt', label: 'ChatGPT', icon: MessageCircle },
-  { id: 'youtube', label: 'YouTube', icon: Youtube },
-  { id: 'instagram', label: 'Instagram', icon: Instagram },
-  { id: 'other', label: 'Другое', icon: MoreHorizontal },
+  { id: 'linkedin', label: 'Linkedin' },
+  { id: 'telegram', label: 'Telegram' },
+  { id: 'google', label: 'Google' },
+  { id: 'chatgpt', label: 'ChatGPT' },
+  { id: 'youtube', label: 'YouTube' },
+  { id: 'instagram', label: 'Instagram' },
+  { id: 'other', label: 'Другое' },
 ]
 
 export function Step3Source({ selectedSource, onChange }: Step3SourceProps) {
   return (
-    <div className="space-y-6">
-      <div className="text-center mb-8">
-        <h2 className="text-3xl font-bold text-slate-900 mb-2">
-          Откуда вы о нас узнали?
-        </h2>
-        <p className="text-slate-600">
-          Это поможет нам стать лучше
-        </p>
-      </div>
+    <div className="space-y-4">
+      {/* Заголовок: Inter Display Medium 28, lh 1.1, tracking −0.28, #1f1f1f */}
+      <h2
+        className="text-[28px] font-medium leading-[1.1] tracking-[-0.28px] text-[#1f1f1f]"
+        style={{ fontFamily: 'Inter Display, sans-serif' }}
+      >
+        Откуда вы о нас узнали?
+      </h2>
 
-      <div className="max-w-3xl mx-auto grid grid-cols-2 md:grid-cols-3 gap-4">
-        {sources.map((source) => {
-          const Icon = source.icon
-          return (
-            <button
-              key={source.id}
-              onClick={() => onChange(source.id)}
-              className={`p-6 rounded-lg border-2 transition-all hover:shadow-md ${
-                selectedSource === source.id
-                  ? 'border-blue-600 bg-blue-50'
-                  : 'border-gray-200 hover:border-blue-300'
-              }`}
-            >
-              <Icon
-                className={`w-8 h-8 mx-auto mb-3 ${
-                  selectedSource === source.id ? 'text-blue-600' : 'text-gray-400'
+      {/* Подзаголовок: Inter Regular 16, lh ≈1.07, #a9a9bc, width 334px */}
+      <p
+        className="text-base leading-[1.07] text-[#a9a9bc] max-w-[334px]"
+        style={{ fontFamily: 'Inter, sans-serif' }}
+      >
+        Это поможет нам стать лучше
+      </p>
+
+      {/* Отступ 16px между подзаголовком и первым полем */}
+      <div className="pt-4 space-y-2">
+        {/* Лейбл: Inter Medium 14, #121217 */}
+        <Label
+          className="text-sm font-medium text-[#121217]"
+          style={{ fontFamily: 'Inter, sans-serif' }}
+        >
+          Что лучше всего описывает вашу текущую роль?
+        </Label>
+
+        {/* Контейнер чипсов: flex-wrap, gap 8px */}
+        <div className="flex flex-wrap gap-2">
+          {sources.map((source) => {
+            const isSelected = selectedSource === source.id
+            return (
+              <button
+                key={source.id}
+                type="button"
+                onClick={() => onChange(source.id)}
+                className={`px-2 py-1 rounded-lg text-sm font-medium transition-all ${
+                  isSelected
+                    ? 'bg-[#0058fc] text-white'
+                    : 'bg-[#f7f7f8] text-[#121217] hover:bg-[#e8e8f0]'
                 }`}
-              />
-              <p
-                className={`text-sm font-medium ${
-                  selectedSource === source.id ? 'text-blue-900' : 'text-gray-700'
-                }`}
+                style={{ fontFamily: 'Inter, sans-serif' }}
               >
                 {source.label}
-              </p>
-            </button>
-          )
-        })}
+              </button>
+            )
+          })}
+        </div>
       </div>
     </div>
   )

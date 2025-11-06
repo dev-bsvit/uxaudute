@@ -98,58 +98,47 @@ export default function OnboardingPage() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center">
+      <div className="min-h-screen bg-white flex items-center justify-center">
         <div className="text-center">
           <div className="relative w-16 h-16 mx-auto mb-4">
-            <div className="absolute inset-0 rounded-full border-4 border-blue-200"></div>
-            <div className="absolute inset-0 rounded-full border-4 border-blue-600 border-t-transparent animate-spin"></div>
+            <div className="absolute inset-0 rounded-full border-4 border-gray-200"></div>
+            <div className="absolute inset-0 rounded-full border-4 border-[#0058FC] border-t-transparent animate-spin"></div>
           </div>
-          <p className="text-slate-600">Загрузка...</p>
+          <p className="text-[#6c6c89] text-sm">Загрузка...</p>
         </div>
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen flex">
-      {/* Left side - Form */}
-      <div className="w-full lg:w-1/2 bg-white overflow-y-auto">
-        <div className="min-h-screen flex items-center justify-center p-8">
-          <div className="w-full max-w-2xl">
-            <OnboardingWizard onComplete={handleComplete} />
-          </div>
+    <div className="min-h-screen w-full flex">
+      {/* Left side - Form (756px = 50%) */}
+      <div className="w-full lg:w-1/2 bg-white flex items-center justify-center overflow-y-auto">
+        {/* Logo */}
+        <div className="absolute top-[26px] left-[20px]">
+          <svg width="116" height="21" viewBox="0 0 116 21" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <text x="0" y="16" fill="#0058FC" fontFamily="Inter Display, sans-serif" fontSize="18" fontWeight="600">
+              QuickUX
+            </text>
+            <path d="M110 8 L116 8 L113 12 Z" fill="#0058FC"/>
+          </svg>
+        </div>
+
+        {/* Form container: 467px width */}
+        <div className="w-full max-w-[467px] px-[10px]">
+          <OnboardingWizard onComplete={handleComplete} />
         </div>
       </div>
 
-      {/* Right side - Image/Illustration */}
-      <div className="hidden lg:block lg:w-1/2 bg-gradient-to-br from-pink-400 via-pink-300 to-yellow-400 relative overflow-hidden">
-        <div className="absolute inset-0 flex items-center justify-center p-12">
-          <div className="relative w-full h-full max-w-3xl max-h-[600px]">
-            {/* Placeholder for design mockup image */}
-            <div className="w-full h-full bg-white/10 backdrop-blur-sm rounded-2xl shadow-2xl flex items-center justify-center">
-              <div className="text-center text-white/80">
-                <div className="w-64 h-64 mx-auto mb-6 bg-white/20 rounded-lg flex items-center justify-center">
-                  {/* You can replace this with an actual image */}
-                  <svg
-                    className="w-32 h-32 text-white/60"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={1.5}
-                      d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
-                    />
-                  </svg>
-                </div>
-                <h3 className="text-2xl font-bold mb-2">Welcome to UX Audit</h3>
-                <p className="text-lg">Design mockup placeholder</p>
-              </div>
-            </div>
-          </div>
-        </div>
+      {/* Right side - Image (756px = 50%, height 982px) */}
+      <div className="hidden lg:block lg:w-1/2 relative overflow-hidden h-screen">
+        <Image
+          src="/onboarding-background.jpg"
+          alt="Onboarding background"
+          fill
+          className="object-cover object-center"
+          priority
+        />
       </div>
     </div>
   )

@@ -1,6 +1,6 @@
 'use client'
 
-import { Check } from 'lucide-react'
+import { Label } from '@/components/ui/label'
 
 interface Step2InterestsProps {
   selectedInterests: string[]
@@ -9,12 +9,12 @@ interface Step2InterestsProps {
 
 const interests = [
   { id: 'ux_analysis', label: 'UX анализ' },
-  { id: 'ab_test', label: 'A/B тест' },
+  { id: 'ab_test', label: 'А/В тест' },
   { id: 'hypotheses', label: 'Гипотезы' },
   { id: 'business_analytics', label: 'Бизнес-аналитика' },
   { id: 'surveys', label: 'Опросы' },
   { id: 'card_sorting', label: 'Карточная сортировка' },
-  { id: 'comparative_analysis', label: 'Сравнительный анализ' },
+  { id: 'comparative_analysis', label: 'Сравнительный анали' },
   { id: 'other', label: 'Другое' },
 ]
 
@@ -28,51 +28,55 @@ export function Step2Interests({ selectedInterests, onChange }: Step2InterestsPr
   }
 
   return (
-    <div className="space-y-6">
-      <div className="text-center mb-8">
-        <h2 className="text-3xl font-bold text-slate-900 mb-2">
-          Что вас больше всего интересует?
-        </h2>
-        <p className="text-slate-600">
-          Выберите все подходящие варианты
-        </p>
-      </div>
+    <div className="space-y-4">
+      {/* Заголовок: Inter Display Medium 28, lh 1.1, tracking −0.28, #1f1f1f */}
+      <h2
+        className="text-[28px] font-medium leading-[1.1] tracking-[-0.28px] text-[#1f1f1f]"
+        style={{ fontFamily: 'Inter Display, sans-serif' }}
+      >
+        Что вас больше всего интересует?
+      </h2>
 
-      <div className="max-w-3xl mx-auto grid grid-cols-2 md:grid-cols-3 gap-4">
-        {interests.map((interest) => {
-          const isSelected = selectedInterests.includes(interest.id)
-          return (
-            <button
-              key={interest.id}
-              onClick={() => toggleInterest(interest.id)}
-              className={`p-6 rounded-lg border-2 transition-all hover:shadow-md relative ${
-                isSelected
-                  ? 'border-blue-600 bg-blue-50'
-                  : 'border-gray-200 hover:border-blue-300'
-              }`}
-            >
-              {isSelected && (
-                <div className="absolute top-2 right-2 w-6 h-6 bg-blue-600 rounded-full flex items-center justify-center">
-                  <Check className="w-4 h-4 text-white" />
-                </div>
-              )}
-              <p
-                className={`text-sm font-medium ${
-                  isSelected ? 'text-blue-900' : 'text-gray-700'
+      {/* Подзаголовок: Inter Regular 16, lh ≈1.07, #a9a9bc, width 334px */}
+      <p
+        className="text-base leading-[1.07] text-[#a9a9bc] max-w-[334px]"
+        style={{ fontFamily: 'Inter, sans-serif' }}
+      >
+        Выберите все подходящие варианты
+      </p>
+
+      {/* Отступ 16px между подзаголовком и первым полем */}
+      <div className="pt-4 space-y-2">
+        {/* Лейбл: Inter Medium 14, #121217 */}
+        <Label
+          className="text-sm font-medium text-[#121217]"
+          style={{ fontFamily: 'Inter, sans-serif' }}
+        >
+          Что лучше всего описывает вашу текущую роль?
+        </Label>
+
+        {/* Контейнер чипсов: flex-wrap, gap 8px */}
+        <div className="flex flex-wrap gap-2">
+          {interests.map((interest) => {
+            const isSelected = selectedInterests.includes(interest.id)
+            return (
+              <button
+                key={interest.id}
+                type="button"
+                onClick={() => toggleInterest(interest.id)}
+                className={`px-2 py-1 rounded-lg text-sm font-medium transition-all ${
+                  isSelected
+                    ? 'bg-[#0058fc] text-white'
+                    : 'bg-[#f7f7f8] text-[#121217] hover:bg-[#e8e8f0]'
                 }`}
+                style={{ fontFamily: 'Inter, sans-serif' }}
               >
                 {interest.label}
-              </p>
-            </button>
-          )
-        })}
+              </button>
+            )
+          })}
+        </div>
       </div>
-
-      {selectedInterests.length > 0 && (
-        <p className="text-center text-sm text-slate-500 mt-4">
-          Выбрано: {selectedInterests.length}
-        </p>
-      )}
     </div>
   )
 }

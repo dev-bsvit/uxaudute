@@ -2,7 +2,6 @@
 
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { Palette, Search, TrendingUp, User, Briefcase, GraduationCap, MoreHorizontal } from 'lucide-react'
 
 interface Step1PersonalProps {
   firstName: string
@@ -11,74 +10,87 @@ interface Step1PersonalProps {
 }
 
 const roles = [
-  { id: 'designer', label: 'Designer', icon: Palette },
-  { id: 'researcher', label: 'Researcher', icon: Search },
-  { id: 'marketer', label: 'Marketer', icon: TrendingUp },
-  { id: 'product_manager', label: 'Product manager', icon: Briefcase },
-  { id: 'founder_ceo', label: 'Founder / CEO', icon: User },
-  { id: 'student', label: 'Student', icon: GraduationCap },
-  { id: 'other', label: 'Other', icon: MoreHorizontal },
+  { id: 'designer', label: 'Designer' },
+  { id: 'researcher', label: 'Researcher' },
+  { id: 'marketer', label: 'Marketer' },
+  { id: 'product_manager', label: 'Product manager' },
+  { id: 'founder_ceo', label: 'Founder / CEO' },
+  { id: 'student', label: 'Student' },
+  { id: 'other', label: 'Other' },
 ]
 
 export function Step1Personal({ firstName, role, onChange }: Step1PersonalProps) {
   return (
-    <div className="space-y-6">
-      <div className="text-center mb-8">
-        <h2 className="text-3xl font-bold text-slate-900 mb-2">
-          Let's get to know you
-        </h2>
-        <p className="text-slate-600">
-          Tell us a bit about yourself
-        </p>
-      </div>
+    <div className="space-y-4">
+      {/* Заголовок: Inter Display Medium 28, lh 1.1, tracking −0.28, #1f1f1f */}
+      <h2
+        className="text-[28px] font-medium leading-[1.1] tracking-[-0.28px] text-[#1f1f1f]"
+        style={{ fontFamily: 'Inter Display, sans-serif' }}
+      >
+        Давайте познакомимся с вами
+      </h2>
 
-      <div className="max-w-3xl mx-auto space-y-8">
-        {/* Имя */}
+      {/* Подзаголовок: Inter Regular 16, lh ≈1.07, #a9a9bc, width 334px */}
+      <p
+        className="text-base leading-[1.07] text-[#a9a9bc] max-w-[334px]"
+        style={{ fontFamily: 'Inter, sans-serif' }}
+      >
+        Расскажите немного о себе.
+      </p>
+
+      {/* Отступ 16px между подзаголовком и первым полем */}
+      <div className="pt-4 space-y-4">
+        {/* Поле "Как вас зовут" */}
         <div className="space-y-2">
-          <Label htmlFor="firstName" className="text-base font-medium text-slate-700">
-            Как к вам обращаться?
+          {/* Лейбл: Inter Medium 14, #121217 */}
+          <Label
+            htmlFor="firstName"
+            className="text-sm font-medium text-[#121217]"
+            style={{ fontFamily: 'Inter, sans-serif' }}
+          >
+            Как вас зовут
           </Label>
+
+          {/* Инпут: height авто (min ~48px), bg #ffffff, border 1px solid #d1d1db, radius 8px, padding 8px */}
           <Input
             id="firstName"
             type="text"
-            placeholder="Введите ваше имя"
+            placeholder="Имя"
             value={firstName}
             onChange={(e) => onChange({ firstName: e.target.value })}
-            className="h-12 text-base"
+            className="h-auto min-h-[48px] bg-white border border-[#d1d1db] rounded-lg px-2 py-2 text-sm text-[#121217] placeholder:text-[#6c6c89] focus:border-[#0058fc] focus:outline-none focus:ring-2 focus:ring-[#0058fc]/12"
+            style={{ fontFamily: 'Inter, sans-serif' }}
             autoFocus
           />
         </div>
 
-        {/* Роль */}
-        <div className="space-y-4">
-          <Label className="text-base font-medium text-slate-700">
-            Кто вы? (What best describes your current role?)
+        {/* Блок "Что лучше всего описывает вашу текущую роль?" */}
+        <div className="space-y-2">
+          {/* Лейбл: Inter Medium 14, #121217 */}
+          <Label
+            className="text-sm font-medium text-[#121217]"
+            style={{ fontFamily: 'Inter, sans-serif' }}
+          >
+            Что лучше всего описывает вашу текущую роль?
           </Label>
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+
+          {/* Контейнер чипсов: flex-wrap, gap 8px */}
+          <div className="flex flex-wrap gap-2">
             {roles.map((roleOption) => {
-              const Icon = roleOption.icon
+              const isSelected = role === roleOption.id
               return (
                 <button
                   key={roleOption.id}
+                  type="button"
                   onClick={() => onChange({ role: roleOption.id })}
-                  className={`p-6 rounded-lg border-2 transition-all hover:shadow-md ${
-                    role === roleOption.id
-                      ? 'border-blue-600 bg-blue-50'
-                      : 'border-gray-200 hover:border-blue-300'
+                  className={`px-2 py-1 rounded-lg text-sm font-medium transition-all ${
+                    isSelected
+                      ? 'bg-[#0058fc] text-white'
+                      : 'bg-[#f7f7f8] text-[#121217] hover:bg-[#e8e8f0]'
                   }`}
+                  style={{ fontFamily: 'Inter, sans-serif' }}
                 >
-                  <Icon
-                    className={`w-8 h-8 mx-auto mb-3 ${
-                      role === roleOption.id ? 'text-blue-600' : 'text-gray-400'
-                    }`}
-                  />
-                  <p
-                    className={`text-sm font-medium ${
-                      role === roleOption.id ? 'text-blue-900' : 'text-gray-700'
-                    }`}
-                  >
-                    {roleOption.label}
-                  </p>
+                  {roleOption.label}
                 </button>
               )
             })}

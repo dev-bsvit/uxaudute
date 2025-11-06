@@ -1,12 +1,10 @@
 'use client'
 
 import { useState } from 'react'
-import { StepIndicator } from './step-indicator'
 import { Step1Personal } from './step-1-personal'
 import { Step2Interests } from './step-2-interests'
 import { Step3Source } from './step-3-source'
 import { Button } from '@/components/ui/button'
-import { ArrowLeft, ArrowRight } from 'lucide-react'
 
 export interface OnboardingData {
   firstName: string
@@ -30,24 +28,6 @@ export function OnboardingWizard({ onComplete, initialData }: OnboardingWizardPr
     interests: initialData?.interests || [],
     source: initialData?.source || ''
   })
-
-  const steps = [
-    {
-      number: 1 as const,
-      title: 'Знакомство',
-      description: 'Расскажите о себе'
-    },
-    {
-      number: 2 as const,
-      title: 'Интересы',
-      description: 'Что вас интересует'
-    },
-    {
-      number: 3 as const,
-      title: 'Источник',
-      description: 'Как узнали о нас'
-    }
-  ]
 
   const updateFormData = (updates: Partial<OnboardingData>) => {
     setFormData(prev => ({ ...prev, ...updates }))
@@ -87,14 +67,29 @@ export function OnboardingWizard({ onComplete, initialData }: OnboardingWizardPr
     }
   }
 
-  return (
-    <div className="w-full max-w-4xl mx-auto">
-      <StepIndicator
-        currentStep={currentStep}
-        steps={steps}
-      />
+  // Ширина прогресс-бара по шагам
+  const getProgressWidth = () => {
+    switch (currentStep) {
+      case 1: return '116px' // ~25%
+      case 2: return '243px' // ~52%
+      case 3: return '447px' // ~96%
+      default: return '116px'
+    }
+  }
 
-      <div className="mt-8 bg-white rounded-lg shadow-lg p-8 min-h-[400px]">
+  return (
+    <div className="w-full space-y-6">
+      {/* Progress bar container: height 10px, bg #eef2fa, radius 15px */}
+      <div className="w-full h-[10px] bg-[#eef2fa] rounded-[15px] overflow-hidden">
+        {/* Progress indicator: bg #bffe00, radius 13px */}
+        <div
+          className="h-[10px] bg-[#bffe00] rounded-[13px] transition-all duration-300 ease-in-out"
+          style={{ width: getProgressWidth() }}
+        />
+      </div>
+
+      {/* Form content */}
+      <div className="w-full min-h-[400px]">
         {currentStep === 1 && (
           <Step1Personal
             firstName={formData.firstName}
@@ -116,33 +111,30 @@ export function OnboardingWizard({ onComplete, initialData }: OnboardingWizardPr
             onChange={(source) => updateFormData({ source })}
           />
         )}
+      </div>
 
-        <div className="flex justify-between mt-8 pt-6 border-t">
+      {/* Navigation buttons */}
+      <div className={`flex ${currentStep === 1 ? 'justify-end' : 'justify-between'} w-full`}>
+        {currentStep > 1 && (
           <Button
-            variant="outline"
+            variant="ghost"
             onClick={handleBack}
-            disabled={currentStep === 1 || isSubmitting}
+            disabled={isSubmitting}
+            className="h-auto px-6 py-4 rounded-[44px] text-[#121217] text-base font-medium leading-[1.1] tracking-[-0.16px] hover:bg-[#f7f7f8]"
+            style={{ fontFamily: 'Inter Display, sans-serif' }}
           >
-            <ArrowLeft className="w-4 h-4 mr-2" />
             Назад
           </Button>
+        )}
 
-          <Button
-            onClick={handleNext}
-            disabled={!canProceed() || isSubmitting}
-          >
-            {isSubmitting ? (
-              'Сохранение...'
-            ) : currentStep === 3 ? (
-              'Завершить'
-            ) : (
-              <>
-                Далее
-                <ArrowRight className="w-4 h-4 ml-2" />
-              </>
-            )}
-          </Button>
-        </div>
+        <Button
+          onClick={handleNext}
+          disabled={!canProceed() || isSubmitting}
+          className="h-auto px-6 py-4 bg-[#0058fc] rounded-[44px] text-white text-base font-medium leading-[1.1] tracking-[-0.16px] hover:bg-[#0047d1] disabled:bg-[#d1d1db] disabled:text-[#6c6c89]"
+          style={{ fontFamily: 'Inter Display, sans-serif' }}
+        >
+          {isSubmitting ? 'Сохранение...' : 'Далее'}
+        </Button>
       </div>
     </div>
   )
