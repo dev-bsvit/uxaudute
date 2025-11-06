@@ -103,12 +103,15 @@ export function Projects({ user, onProjectSelect }: ProjectsProps) {
           for (const audit of audits) {
             if (screenshots.length >= 4) break
 
+            console.log('🔍 Аудит input_data:', audit.id, audit.input_data)
             const inputData = audit.input_data as { screenshot?: string; screenshotUrl?: string } | null
             const screenshotUrl = inputData?.screenshotUrl || inputData?.screenshot
+            console.log('📸 Найденный URL скриншота:', screenshotUrl)
             if (screenshotUrl) {
               screenshots.push(screenshotUrl)
             }
           }
+          console.log('📸 Итоговый массив скриншотов для проекта', project.id, ':', screenshots)
 
           return {
             ...project,
