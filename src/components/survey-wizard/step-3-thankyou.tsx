@@ -50,7 +50,7 @@ export function Step3ThankYou({
   }
 
   return (
-    <div className="max-w-4xl mx-auto space-y-6">
+    <div className="w-full space-y-6">
       <div>
         <h2 className="text-2xl font-bold text-slate-900 mb-2">
           Экран благодарности
@@ -60,7 +60,7 @@ export function Step3ThankYou({
         </p>
       </div>
 
-      <Card className="p-6 space-y-6">
+      <div className="p-6 space-y-6">
         {/* Thank You Text */}
         <div>
           <Label htmlFor="thank-you-text" className="text-base font-medium mb-2 block">
@@ -127,10 +127,10 @@ export function Step3ThankYou({
             Поощрите участников промокодом или специальным предложением
           </p>
         </div>
-      </Card>
+      </div>
 
       {/* Preview */}
-      <Card className="p-8">
+      <div className="p-8 bg-white rounded-lg">
         <div className="text-center space-y-6">
           <p className="text-sm text-slate-500 mb-6">Предпросмотр:</p>
 
@@ -183,7 +183,7 @@ export function Step3ThankYou({
             </Button>
           )}
         </div>
-      </Card>
+      </div>
 
       {/* Navigation */}
       <div className="flex justify-between">

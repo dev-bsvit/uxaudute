@@ -148,7 +148,14 @@ export function SurveyWizard({
                 onClick={() => setCurrentStep(currentStep === 2 ? 0 as any : 2)}
                 className="w-full flex items-center justify-between py-2 hover:opacity-80 transition-opacity"
               >
-                <span className="text-base font-bold text-[#1F1F1F]">Вопросы</span>
+                <div className="flex items-center gap-2">
+                  <span className="text-base font-bold text-[#1F1F1F]">Вопросы</span>
+                  {isStep2Complete && (
+                    <span className="px-3 py-1 text-xs font-medium text-[#17663A] bg-[#EEFBF4] border border-[#B2EECC] rounded-full">
+                      Заполнено
+                    </span>
+                  )}
+                </div>
                 <div className="w-8 h-8 rounded-full bg-[#EEF2FA] flex items-center justify-center transition-transform hover:bg-[#E5EBF6]">
                   <svg
                     width="16"
@@ -179,7 +186,14 @@ export function SurveyWizard({
                 onClick={() => setCurrentStep(currentStep === 3 ? 0 as any : 3)}
                 className="w-full flex items-center justify-between py-2 hover:opacity-80 transition-opacity"
               >
-                <span className="text-base font-bold text-[#1F1F1F]">Экран благодарности</span>
+                <div className="flex items-center gap-2">
+                  <span className="text-base font-bold text-[#1F1F1F]">Экран благодарности</span>
+                  {isStep3Complete && (
+                    <span className="px-3 py-1 text-xs font-medium text-[#17663A] bg-[#EEFBF4] border border-[#B2EECC] rounded-full">
+                      Заполнено
+                    </span>
+                  )}
+                </div>
                 <div className="w-8 h-8 rounded-full bg-[#EEF2FA] flex items-center justify-center transition-transform hover:bg-[#E5EBF6]">
                   <svg
                     width="16"
@@ -208,28 +222,28 @@ export function SurveyWizard({
 
         {/* Right Column: Preview Card */}
         <div className="flex-1">
-          <div className="w-[548px] bg-[#CAEEF7] rounded-[24px] p-4 sticky top-4">
-            <div className="flex flex-col items-center gap-[22px]">
-              {/* Mini Screen Preview */}
+          <div className="w-full bg-[#CAEEF7] rounded-[24px] p-6 sticky top-4">
+            <div className="flex flex-col items-start gap-[22px]">
+              {/* Mini Screen Preview - Larger */}
               {survey.intro_image_url && (
-                <div className="w-[127px] h-[274px] rounded-lg overflow-hidden shadow-lg">
+                <div className="w-[200px] h-[400px] rounded-lg overflow-hidden shadow-lg">
                   <Image
                     src={survey.intro_image_url}
                     alt="Preview"
-                    width={127}
-                    height={274}
+                    width={200}
+                    height={400}
                     className="object-cover w-full h-full"
                   />
                 </div>
               )}
 
-              {/* Title */}
-              <h3 className="text-xl font-bold leading-[22px] tracking-[-0.2px] text-[#1F1F1F] text-center">
+              {/* Title - Left aligned */}
+              <h3 className="text-xl font-bold leading-[22px] tracking-[-0.2px] text-[#1F1F1F] text-left">
                 {survey.intro_title || 'Экран добавления карты'}
               </h3>
 
-              {/* Description */}
-              <p className="text-base leading-[17.12px] text-[#1F1F1F] text-center">
+              {/* Description - Left aligned */}
+              <p className="text-base leading-[17.12px] text-[#1F1F1F] text-left">
                 {survey.intro_description || 'Оцените удобство и расположение элементов после прохождения тестов вам будет предоставлен подарочный сертификат'}
               </p>
 
