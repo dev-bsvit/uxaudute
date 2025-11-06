@@ -85,12 +85,15 @@ export default function SurveysPage() {
 
           // Извлекаем скриншоты из опросов (максимум 4)
           const screenshots: string[] = []
+          console.log('🔍 Опросы для проекта', project.id, ':', surveys.length)
           for (const survey of surveys) {
             if (screenshots.length >= 4) break
+            console.log('📸 Опрос', survey.id, 'screenshot_url:', survey.screenshot_url)
             if (survey.screenshot_url) {
               screenshots.push(survey.screenshot_url)
             }
           }
+          console.log('📸 Итоговый массив скриншотов для survey проекта', project.id, ':', screenshots)
 
           return {
             ...project,
