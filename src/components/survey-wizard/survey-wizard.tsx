@@ -111,7 +111,14 @@ export function SurveyWizard({
                 onClick={() => setCurrentStep(currentStep === 1 ? 0 as any : 1)}
                 className="w-full flex items-center justify-between p-4 bg-white rounded-lg border border-slate-200 hover:border-slate-300 transition-colors"
               >
-                <span className="text-base font-bold text-[#1F1F1F]">Экран Вступления</span>
+                <div className="flex items-center gap-2">
+                  <span className="text-base font-bold text-[#1F1F1F]">Экран Вступления</span>
+                  {isStep1Complete && (
+                    <span className="px-3 py-1 text-xs font-medium text-[#17663A] bg-[#EEFBF4] border border-[#B2EECC] rounded-full">
+                      Заполнено
+                    </span>
+                  )}
+                </div>
                 <div className="w-8 h-8 rounded-full bg-[#EEF2FA] flex items-center justify-center transition-transform">
                   <svg
                     width="16"
@@ -139,10 +146,10 @@ export function SurveyWizard({
             <div className="space-y-4">
               <button
                 onClick={() => setCurrentStep(currentStep === 2 ? 0 as any : 2)}
-                className="w-full flex items-center justify-between p-4 bg-white rounded-lg border border-slate-200 hover:border-slate-300 transition-colors"
+                className="w-full flex items-center justify-between py-2 hover:opacity-80 transition-opacity"
               >
                 <span className="text-base font-bold text-[#1F1F1F]">Вопросы</span>
-                <div className="w-8 h-8 rounded-full bg-[#EEF2FA] flex items-center justify-center transition-transform">
+                <div className="w-8 h-8 rounded-full bg-[#EEF2FA] flex items-center justify-center transition-transform hover:bg-[#E5EBF6]">
                   <svg
                     width="16"
                     height="16"
@@ -150,7 +157,7 @@ export function SurveyWizard({
                     fill="none"
                     className={`transition-transform ${currentStep === 2 ? 'rotate-180' : ''}`}
                   >
-                    <path d="M4 6L8 10L12 6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                    <path d="M4 6L8 10L12 6" stroke="#171A24" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
                   </svg>
                 </div>
               </button>
@@ -170,10 +177,10 @@ export function SurveyWizard({
             <div className="space-y-4">
               <button
                 onClick={() => setCurrentStep(currentStep === 3 ? 0 as any : 3)}
-                className="w-full flex items-center justify-between p-4 bg-white rounded-lg border border-slate-200 hover:border-slate-300 transition-colors"
+                className="w-full flex items-center justify-between py-2 hover:opacity-80 transition-opacity"
               >
                 <span className="text-base font-bold text-[#1F1F1F]">Экран благодарности</span>
-                <div className="w-8 h-8 rounded-full bg-[#EEF2FA] flex items-center justify-center transition-transform">
+                <div className="w-8 h-8 rounded-full bg-[#EEF2FA] flex items-center justify-center transition-transform hover:bg-[#E5EBF6]">
                   <svg
                     width="16"
                     height="16"
@@ -181,7 +188,7 @@ export function SurveyWizard({
                     fill="none"
                     className={`transition-transform ${currentStep === 3 ? 'rotate-180' : ''}`}
                   >
-                    <path d="M4 6L8 10L12 6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                    <path d="M4 6L8 10L12 6" stroke="#171A24" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
                   </svg>
                 </div>
               </button>
@@ -199,31 +206,37 @@ export function SurveyWizard({
           </div>
         </div>
 
-        {/* Right Column: Screenshot Preview - flex-1 */}
+        {/* Right Column: Preview Card */}
         <div className="flex-1">
-          <div className="bg-[#CAEEF7] rounded-[24px] p-10 h-[322px] flex gap-8 sticky top-4">
-            {/* Mini Preview - Left */}
-            {survey.intro_image_url && (
-              <div className="w-[99px] h-[214px] flex-shrink-0">
-                <div className="relative w-full h-full rounded-lg bg-white shadow-sm overflow-hidden">
+          <div className="w-[548px] bg-[#CAEEF7] rounded-[24px] p-4 sticky top-4">
+            <div className="flex flex-col items-center gap-[22px]">
+              {/* Mini Screen Preview */}
+              {survey.intro_image_url && (
+                <div className="w-[127px] h-[274px] rounded-lg overflow-hidden shadow-lg">
                   <Image
                     src={survey.intro_image_url}
                     alt="Preview"
-                    fill
-                    className="object-cover"
+                    width={127}
+                    height={274}
+                    className="object-cover w-full h-full"
                   />
                 </div>
-              </div>
-            )}
+              )}
 
-            {/* Hint Text - Right */}
-            <div className="flex-1 flex flex-col justify-center">
-              <h3 className="text-xl font-medium leading-[22px] tracking-[-0.2px] text-[#1F1F1F] mb-4">
-                Экран ообавления карты
+              {/* Title */}
+              <h3 className="text-xl font-bold leading-[22px] tracking-[-0.2px] text-[#1F1F1F] text-center">
+                {survey.intro_title || 'Экран добавления карты'}
               </h3>
-              <p className="text-base leading-[17.12px] text-[#1F1F1F]">
-                Оцените удобсто и расположения элементов после прохождения тестов вам будет предоставлен подарочный сертификат
+
+              {/* Description */}
+              <p className="text-base leading-[17.12px] text-[#1F1F1F] text-center">
+                {survey.intro_description || 'Оцените удобство и расположение элементов после прохождения тестов вам будет предоставлен подарочный сертификат'}
               </p>
+
+              {/* Start Button */}
+              <button className="h-[50px] px-6 bg-[#0058FC] rounded-[44px] text-white text-base font-medium leading-[17.6px] tracking-[-0.16px] hover:bg-[#0047d1] transition-colors">
+                Начать
+              </button>
             </div>
           </div>
         </div>
