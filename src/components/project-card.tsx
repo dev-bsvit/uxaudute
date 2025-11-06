@@ -21,6 +21,7 @@ interface ProjectCardProps {
   menuLabels?: {
     settings?: string
   }
+  href?: string // Опциональный кастомный URL для навигации
 }
 
 export function ProjectCard({
@@ -28,7 +29,8 @@ export function ProjectCard({
   formatDate,
   onEdit,
   onOpenSettings,
-  menuLabels
+  menuLabels,
+  href
 }: ProjectCardProps) {
   // Создаём массив из 4 элементов для сетки
   const screenshotSlots = Array.from({ length: 4 }, (_, i) =>
@@ -40,7 +42,8 @@ export function ProjectCard({
   const router = useRouter()
 
   const handleNavigate = () => {
-    router.push(`/projects/${project.id}`)
+    // Используем кастомный href если передан, иначе дефолтный URL
+    router.push(href || `/projects/${project.id}`)
   }
 
   const handleCardClick = (event: MouseEvent<HTMLDivElement>) => {

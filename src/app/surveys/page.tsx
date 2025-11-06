@@ -325,6 +325,7 @@ export default function SurveysPage() {
                       auditsCount: project.surveysCount
                     }}
                     formatDate={formatProjectDate}
+                    href={`/projects/${project.id}?from=surveys`} // Добавляем параметр для сайдбара
                     onOpenSettings={() => {}} // Пока не реализовано
                     menuLabels={{
                       settings: 'Настройки проекта'

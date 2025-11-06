@@ -85,14 +85,26 @@ export function SidebarDemo({ children, user }: SidebarDemoProps) {
 
   const isActive = (href: string) => {
     if (!pathname) return false;
+
+    // Получаем query параметр from из URL
+    const searchParams = new URLSearchParams(window.location.search);
+    const fromParam = searchParams.get('from');
+
     if (href === "/home") {
       return pathname === "/home" || pathname === "/";
     }
     if (href === "/projects") {
+      // Если мы на /projects/[id] и from=surveys, то НЕ активна вкладка Projects
+      if (pathname.startsWith("/projects") && fromParam === "surveys") {
+        return false;
+      }
       return pathname.startsWith("/projects");
     }
     if (href === "/surveys") {
-      return pathname.startsWith("/surveys") || pathname.includes("/public/survey/");
+      // Активна если мы на /surveys ИЛИ на /projects/[id]?from=surveys
+      const isOnSurveysPage = pathname.startsWith("/surveys") || pathname.includes("/public/survey/");
+      const isOnProjectFromSurveys = pathname.startsWith("/projects") && fromParam === "surveys";
+      return isOnSurveysPage || isOnProjectFromSurveys;
     }
     return pathname.startsWith(href);
   };
