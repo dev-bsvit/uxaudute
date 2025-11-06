@@ -184,13 +184,32 @@ export default function ProjectDetailPage() {
       // Загружаем либо аудиты либо опросы в зависимости от типа проекта
       // Используем безопасный доступ к полю type
       const projectType = (projectData as any).type as 'audit' | 'survey' | undefined
+      console.log('🔍 Тип проекта:', projectType)
 
       if (!projectType || projectType === 'audit') {
         const auditsData = await getProjectAudits(projectId)
+        console.log('📊 Загружено аудитов:', auditsData.length)
         setAudits(auditsData)
+
+        // Также проверяем, нет ли случайно опросов в audit проекте
+        const surveysData = await getProjectSurveys(projectId)
+        console.log('⚠️ Обнаружено опросов в audit проекте:', surveysData.length)
+        if (surveysData.length > 0) {
+          console.warn('⚠️ ВНИМАНИЕ: В проекте типа audit найдены опросы! Это ошибка данных.')
+          setSurveys(surveysData)
+        }
       } else if (projectType === 'survey') {
         const surveysData = await getProjectSurveys(projectId)
+        console.log('📋 Загружено опросов:', surveysData.length)
         setSurveys(surveysData)
+
+        // Также проверяем, нет ли случайно аудитов в survey проекте
+        const auditsData = await getProjectAudits(projectId)
+        console.log('⚠️ Обнаружено аудитов в survey проекте:', auditsData.length)
+        if (auditsData.length > 0) {
+          console.warn('⚠️ ВНИМАНИЕ: В проекте типа survey найдены аудиты! Это ошибка данных.')
+          setAudits(auditsData)
+        }
       }
     } catch (error) {
       console.error('Error loading project data:', error)
@@ -1138,13 +1157,13 @@ export default function ProjectDetailPage() {
             )}
 
             {/* Таблица аудитов или опросов */}
-            <div className="w-full">
-              {/* Empty state для аудитов */}
-              {(!project?.type || project?.type === 'audit') && audits.length === 0 ? (
+            <div className="w-full space-y-8">
+              {/* Empty state - если нет НИ аудитов НИ опросов */}
+              {audits.length === 0 && surveys.length === 0 ? (
                 <div className="text-center py-8">
                   <BarChart3 className="w-12 h-12 text-slate-400 mx-auto mb-4" />
                   <p className="text-slate-600 mb-4">
-                    {t('projects.detail.history.empty') || (currentLanguage === 'en' ? 'There are no audits in this project yet' : 'В этом проекте пока нет аудитов')}
+                    {currentLanguage === 'en' ? 'There is no content in this project yet' : 'В этом проекте пока нет контента'}
                   </p>
                   <Button onClick={() => setShowCreateForm(true)}>
                     <Plus className="w-4 h-4 mr-2" />
@@ -1153,22 +1172,8 @@ export default function ProjectDetailPage() {
                 </div>
               ) : null}
 
-              {/* Empty state для опросов */}
-              {project?.type === 'survey' && surveys.length === 0 ? (
-                <div className="text-center py-8">
-                  <FileText className="w-12 h-12 text-slate-400 mx-auto mb-4" />
-                  <p className="text-slate-600 mb-4">
-                    {currentLanguage === 'en' ? 'There are no surveys in this project yet' : 'В этом проекте пока нет опросов'}
-                  </p>
-                  <Button onClick={() => router.push(`/projects/${projectId}/create-survey`)}>
-                    <Plus className="w-4 h-4 mr-2" />
-                    {currentLanguage === 'en' ? 'Create first survey' : 'Создать первый опрос'}
-                  </Button>
-                </div>
-              ) : null}
-
-              {/* Таблица аудитов */}
-              {(!project?.type || project?.type === 'audit') && audits.length > 0 && (
+              {/* Таблица аудитов - показываем если есть аудиты */}
+              {audits.length > 0 && (
                 <div className="w-full">
                   {/* Заголовки таблицы */}
                   <div className="grid grid-cols-[auto_200px_120px_120px_120px_80px] gap-4 px-4 py-3 text-sm font-medium text-slate-500">
@@ -1275,8 +1280,8 @@ export default function ProjectDetailPage() {
                 </div>
               )}
 
-              {/* Таблица опросов */}
-              {project?.type === 'survey' && surveys.length > 0 && (
+              {/* Таблица опросов - показываем если есть опросы */}
+              {surveys.length > 0 && (
                 <div className="w-full">
                   {/* Заголовки таблицы */}
                   <div className="grid grid-cols-[auto_200px_120px_120px_80px] gap-4 px-4 py-3 text-sm font-medium text-slate-500">
