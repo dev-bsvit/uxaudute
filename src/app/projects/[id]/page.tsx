@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useRef, useState } from 'react'
-import { useParams, useRouter } from 'next/navigation'
+import { useParams, useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { SidebarDemo } from '@/components/sidebar-demo'
 import { UploadForm } from '@/components/upload-form'
@@ -108,10 +108,14 @@ function truncateScreenType(screenType: string, maxWords: number = 3): string {
 export default function ProjectDetailPage() {
   const params = useParams()
   const router = useRouter()
+  const searchParams = useSearchParams()
   const projectId = params.id as string
   const { t, currentLanguage } = useTranslation()
   const { formatDateTime, formatDate } = useFormatters()
   const unknownErrorMessage = t('common.unknown') || (currentLanguage === 'en' ? 'Unknown error' : 'Неизвестная ошибка')
+
+  // Получаем параметр from для правильной навигации назад
+  const fromParam = searchParams?.get('from')
 
   const [user, setUser] = useState<User | null>(null)
   const [project, setProject] = useState<Project | null>(null)
@@ -849,7 +853,7 @@ export default function ProjectDetailPage() {
                       : `Создан ${formatDate(project.created_at)}`))
             }
             showBackButton={true}
-            onBack={() => router.push('/projects')}
+            onBack={() => router.push(fromParam === 'surveys' ? '/surveys' : '/projects')}
             secondaryButton={{
               icon: <Settings className="w-5 h-5 text-[#222222]" />,
               onClick: () => setShowSettingsModal(true)
