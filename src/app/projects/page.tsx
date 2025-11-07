@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import { SidebarDemo } from '@/components/sidebar-demo'
 import { Projects } from '@/components/projects'
-import { Auth } from '@/components/auth'
+import { SignInPage } from '@/components/sign-in-page'
 import { User } from '@supabase/supabase-js'
 import { supabase } from '@/lib/supabase'
 import { useRouter } from 'next/navigation'
@@ -155,21 +155,7 @@ export default function ProjectsPage() {
   }
 
   if (!user) {
-    return (
-      <div className="min-h-screen bg-gray-100 flex items-center justify-center">
-        <div className="max-w-md mx-auto bg-white rounded-2xl shadow-lg p-8">
-          <div className="text-center mb-8">
-            <h2 className="text-3xl font-bold text-slate-900 mb-4">
-              {t('projects.signInTitle')}
-            </h2>
-            <p className="text-lg text-slate-600">
-              {t('projects.signInDescription')}
-            </p>
-          </div>
-          <Auth onAuthChange={handleAuthChange} />
-        </div>
-      </div>
-    )
+    return <SignInPage onAuthChange={handleAuthChange} />
   }
 
   return (
