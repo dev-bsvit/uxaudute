@@ -39,6 +39,7 @@ export interface Survey {
   thank_you_text?: string
   thank_you_link?: string
   thank_you_promo_code?: string
+  thank_you_image_url?: string
 
   // Информация о проекте (если загружена)
   projects?: {
