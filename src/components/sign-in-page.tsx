@@ -74,18 +74,15 @@ export function SignInPage({ onAuthChange }: SignInPageProps) {
         </div>
       </div>
 
-      {/* Right Column - Image/Gradient */}
-      <div className="w-1/2 relative bg-gradient-to-br from-green-400 via-green-500 to-green-600">
-        {/* Можно заменить на изображение когда оно будет доступно */}
-        {/* <Image
-          src="/auth-background.jpg"
-          alt="Background"
+      {/* Right Column - Rectangle 24 background */}
+      <div className="w-1/2 relative overflow-hidden">
+        <Image
+          src="/rectangle-24.png"
+          alt="Background with green hills"
           fill
-          className="object-cover"
-          style={{ objectPosition: '50% 50%' }}
+          className="object-cover object-center"
           priority
-        /> */}
-        <div className="absolute inset-0 bg-[url('/auth-pattern.svg')] opacity-10" />
+        />
       </div>
     </div>
   )
