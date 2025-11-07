@@ -132,9 +132,9 @@ export default function OnboardingPage() {
 
       {/* Right side - Image (756px = 50%, height 982px) */}
       <div className="hidden lg:block lg:w-1/2 relative overflow-hidden h-screen">
-        {/* Rectangle 24 - SVG с зелеными холмами и оранжевыми цветами */}
+        {/* Rectangle 24 - настоящее изображение с зелеными холмами и оранжевыми цветами */}
         <Image
-          src="/rectangle-24.svg"
+          src="/rectangle-24.png"
           alt="Onboarding background with green hills"
           fill
           className="object-cover object-center"
