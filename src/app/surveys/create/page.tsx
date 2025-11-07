@@ -201,174 +201,227 @@ export default function CreateSurveyPage() {
           />
         </div>
 
+        {/* 2-колоночный layout */}
         <div className="px-8">
-          <div className="max-w-3xl">
-            <form onSubmit={handleCreateSurvey} className="space-y-6">
-              {/* Название */}
-              <div>
-                <Label htmlFor="name" className="text-base font-semibold">
-                  Название опроса
-                </Label>
-                <Input
-                  id="name"
-                  value={surveyName}
-                  onChange={(e) => setSurveyName(e.target.value)}
-                  placeholder="Например: Опрос пользователей мобильного приложения"
-                  className="mt-2"
-                  required
-                />
-              </div>
+          <div className="flex gap-5">
+            {/* Левая колонка - Форма */}
+            <div className="flex-1">
+              <form onSubmit={handleCreateSurvey} className="space-y-6">
+                {/* Название */}
+                <div>
+                  <Label htmlFor="name" className="text-base font-semibold">
+                    Название опроса
+                  </Label>
+                  <Input
+                    id="name"
+                    value={surveyName}
+                    onChange={(e) => setSurveyName(e.target.value)}
+                    placeholder="Например: Опрос пользователей мобильного приложения"
+                    className="mt-2"
+                    required
+                  />
+                </div>
 
-              {/* Описание */}
-              <div>
-                <Label htmlFor="description" className="text-base font-semibold">
-                  Описание (опционально)
-                </Label>
-                <Textarea
-                  id="description"
-                  value={surveyDescription}
-                  onChange={(e) => setSurveyDescription(e.target.value)}
-                  placeholder="Кратко опишите цель опроса..."
-                  className="mt-2"
-                  rows={3}
-                />
-              </div>
+                {/* Описание */}
+                <div>
+                  <Label htmlFor="description" className="text-base font-semibold">
+                    Описание (опционально)
+                  </Label>
+                  <Textarea
+                    id="description"
+                    value={surveyDescription}
+                    onChange={(e) => setSurveyDescription(e.target.value)}
+                    placeholder="Кратко опишите цель опроса..."
+                    className="mt-2"
+                    rows={3}
+                  />
+                </div>
 
-              {/* Загрузка скриншота */}
-              <div>
-                <Label className="text-base font-semibold">
-                  Скриншот интерфейса
-                </Label>
-                <p className="text-sm text-slate-600 mt-1 mb-3">
-                  AI проанализирует скриншот и создаст релевантные вопросы
-                </p>
+                {/* Загрузка скриншота */}
+                <div>
+                  <Label className="text-base font-semibold">
+                    Скриншот интерфейса
+                  </Label>
+                  <p className="text-sm text-slate-600 mt-1 mb-3">
+                    AI проанализирует скриншот и создаст релевантные вопросы
+                  </p>
 
-                <input
-                  ref={fileInputRef}
-                  type="file"
-                  accept="image/*"
-                  onChange={handleFileSelect}
-                  className="hidden"
-                />
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept="image/*"
+                    onChange={handleFileSelect}
+                    className="hidden"
+                  />
 
-                {!screenshotPreview ? (
-                  <Card
-                    onClick={() => fileInputRef.current?.click()}
-                    className="border-2 border-dashed border-slate-300 hover:border-blue-400 transition-colors cursor-pointer"
-                  >
-                    <div className="p-12 flex flex-col items-center justify-center text-center">
-                      <div className="w-16 h-16 rounded-full bg-blue-100 flex items-center justify-center mb-4">
-                        <Upload className="w-8 h-8 text-blue-600" />
-                      </div>
-                      <h3 className="text-lg font-semibold text-slate-900 mb-2">
-                        Загрузите скриншот
-                      </h3>
-                      <p className="text-sm text-slate-600">
-                        Нажмите для выбора файла или перетащите сюда
-                      </p>
-                      <p className="text-xs text-slate-500 mt-2">
-                        PNG, JPG или WebP до 10MB
-                      </p>
-                    </div>
-                  </Card>
-                ) : (
-                  <div className="relative">
-                    <Card className="overflow-hidden">
-                      <img
-                        src={screenshotPreview}
-                        alt="Screenshot preview"
-                        className="w-full h-auto"
-                      />
-                    </Card>
-                    <Button
-                      type="button"
-                      variant="outline"
-                      onClick={() => {
-                        setScreenshot(null)
-                        setScreenshotPreview(null)
-                        if (fileInputRef.current) {
-                          fileInputRef.current.value = ''
-                        }
-                      }}
-                      className="mt-2"
+                  {!screenshotPreview ? (
+                    <Card
+                      onClick={() => fileInputRef.current?.click()}
+                      className="border-2 border-dashed border-slate-300 hover:border-blue-400 transition-colors cursor-pointer"
                     >
-                      <ImageIcon className="w-4 h-4 mr-2" />
-                      Выбрать другое изображение
-                    </Button>
+                      <div className="p-12 flex flex-col items-center justify-center text-center">
+                        <div className="w-16 h-16 rounded-full bg-blue-100 flex items-center justify-center mb-4">
+                          <Upload className="w-8 h-8 text-blue-600" />
+                        </div>
+                        <h3 className="text-lg font-semibold text-slate-900 mb-2">
+                          Загрузите скриншот
+                        </h3>
+                        <p className="text-sm text-slate-600">
+                          Нажмите для выбора файла или перетащите сюда
+                        </p>
+                        <p className="text-xs text-slate-500 mt-2">
+                          PNG, JPG или WebP до 10MB
+                        </p>
+                      </div>
+                    </Card>
+                  ) : (
+                    <div className="relative">
+                      <Card className="overflow-hidden">
+                        <img
+                          src={screenshotPreview}
+                          alt="Screenshot preview"
+                          className="w-full h-auto"
+                        />
+                      </Card>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        onClick={() => {
+                          setScreenshot(null)
+                          setScreenshotPreview(null)
+                          if (fileInputRef.current) {
+                            fileInputRef.current.value = ''
+                          }
+                        }}
+                        className="mt-2"
+                      >
+                        <ImageIcon className="w-4 h-4 mr-2" />
+                        Выбрать другое изображение
+                      </Button>
+                    </div>
+                  )}
+                </div>
+
+                {/* Ошибка */}
+                {error && (
+                  <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+                    <p className="text-sm text-red-800">{error}</p>
                   </div>
                 )}
-              </div>
 
-              {/* Ошибка */}
-              {error && (
-                <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-                  <p className="text-sm text-red-800">{error}</p>
+                {/* Кнопки */}
+                <div className="flex gap-4 pt-4">
+                  <Button
+                    type="submit"
+                    disabled={uploading || generating || !surveyName.trim() || !screenshot}
+                    className="bg-blue-600 hover:bg-blue-700"
+                  >
+                    {uploading ? (
+                      <>
+                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                        Загрузка скриншота...
+                      </>
+                    ) : generating ? (
+                      <>
+                        <Sparkles className="w-4 h-4 mr-2 animate-pulse" />
+                        AI генерирует вопросы...
+                      </>
+                    ) : (
+                      <>
+                        <Sparkles className="w-4 h-4 mr-2" />
+                        Создать опрос с AI
+                      </>
+                    )}
+                  </Button>
+
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => router.push('/home')}
+                    disabled={uploading || generating}
+                  >
+                    Отмена
+                  </Button>
+                </div>
+              </form>
+
+              {/* Информационный блок */}
+              <Card className="mt-8 bg-blue-50 border-blue-200">
+                <div className="p-6">
+                  <h3 className="font-semibold text-slate-900 mb-3 flex items-center gap-2">
+                    <Sparkles className="w-5 h-5 text-blue-600" />
+                    Как это работает
+                  </h3>
+                  <ol className="space-y-2 text-sm text-slate-700">
+                    <li className="flex gap-3">
+                      <span className="font-semibold text-blue-600">1.</span>
+                      <span>AI анализирует скриншот и создаёт ~20 специфичных вопросов</span>
+                    </li>
+                    <li className="flex gap-3">
+                      <span className="font-semibold text-blue-600">2.</span>
+                      <span>Из банка 120 стандартных вопросов выбираются ~100 релевантных</span>
+                    </li>
+                    <li className="flex gap-3">
+                      <span className="font-semibold text-blue-600">3.</span>
+                      <span>Вопросы делятся на основные (показываются сразу) и дополнительные</span>
+                    </li>
+                    <li className="flex gap-3">
+                      <span className="font-semibold text-blue-600">4.</span>
+                      <span>Вы сможете редактировать, сортировать и добавлять свои вопросы</span>
+                    </li>
+                  </ol>
+                </div>
+              </Card>
+            </div>
+
+            {/* Правая колонка - Превью блок */}
+            <div
+              className="w-[548px] h-[322px] rounded-[24px] bg-[#caeef7] p-4 flex flex-col items-center gap-[22px] flex-shrink-0"
+            >
+              {/* Мини-превью экрана */}
+              {screenshotPreview ? (
+                <div className="w-[127px] h-[274px] rounded-lg overflow-hidden flex-shrink-0">
+                  <img
+                    src={screenshotPreview}
+                    alt="Preview"
+                    className="w-full h-full object-cover object-center"
+                  />
+                </div>
+              ) : (
+                <div className="w-[127px] h-[274px] rounded-lg bg-white/50 flex items-center justify-center flex-shrink-0">
+                  <ImageIcon className="w-12 h-12 text-slate-400" />
                 </div>
               )}
 
-              {/* Кнопки */}
-              <div className="flex gap-4 pt-4">
-                <Button
-                  type="submit"
-                  disabled={uploading || generating || !surveyName.trim() || !screenshot}
-                  className="bg-blue-600 hover:bg-blue-700"
+              {/* Текстовый блок */}
+              <div className="flex flex-col items-start gap-[11px] w-full">
+                {/* Заголовок */}
+                <h3
+                  className="text-[20px] leading-[1.1] tracking-[-0.2px] text-[#1f1f1f] w-full"
+                  style={{ fontFamily: 'Inter Display, sans-serif', fontWeight: 700 }}
                 >
-                  {uploading ? (
-                    <>
-                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                      Загрузка скриншота...
-                    </>
-                  ) : generating ? (
-                    <>
-                      <Sparkles className="w-4 h-4 mr-2 animate-pulse" />
-                      AI генерирует вопросы...
-                    </>
-                  ) : (
-                    <>
-                      <Sparkles className="w-4 h-4 mr-2" />
-                      Создать опрос с AI
-                    </>
-                  )}
-                </Button>
-
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={() => router.push('/home')}
-                  disabled={uploading || generating}
-                >
-                  Отмена
-                </Button>
-              </div>
-            </form>
-
-            {/* Информационный блок */}
-            <Card className="mt-8 bg-blue-50 border-blue-200">
-              <div className="p-6">
-                <h3 className="font-semibold text-slate-900 mb-3 flex items-center gap-2">
-                  <Sparkles className="w-5 h-5 text-blue-600" />
-                  Как это работает
+                  Экран добавления карты
                 </h3>
-                <ol className="space-y-2 text-sm text-slate-700">
-                  <li className="flex gap-3">
-                    <span className="font-semibold text-blue-600">1.</span>
-                    <span>AI анализирует скриншот и создаёт ~20 специфичных вопросов</span>
-                  </li>
-                  <li className="flex gap-3">
-                    <span className="font-semibold text-blue-600">2.</span>
-                    <span>Из банка 120 стандартных вопросов выбираются ~100 релевантных</span>
-                  </li>
-                  <li className="flex gap-3">
-                    <span className="font-semibold text-blue-600">3.</span>
-                    <span>Вопросы делятся на основные (показываются сразу) и дополнительные</span>
-                  </li>
-                  <li className="flex gap-3">
-                    <span className="font-semibold text-blue-600">4.</span>
-                    <span>Вы сможете редактировать, сортировать и добавлять свои вопросы</span>
-                  </li>
-                </ol>
+
+                {/* Описание */}
+                <p
+                  className="text-base leading-[1.067] text-[#1f1f1f] w-full"
+                  style={{ fontFamily: 'Inter, sans-serif' }}
+                >
+                  Загрузите скриншот интерфейса, чтобы AI автоматически создал релевантные вопросы для вашего опроса
+                </p>
+
+                {/* CTA кнопка */}
+                <button
+                  type="button"
+                  onClick={() => fileInputRef.current?.click()}
+                  className="h-[50px] rounded-[44px] px-6 bg-[#0058fc] text-white text-base tracking-[-0.16px] hover:bg-[#0048d4] active:bg-[#003ec0] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[rgba(0,88,252,0.24)] disabled:bg-[#d1d1db] disabled:text-[#6c6c89] transition-all"
+                  style={{ fontFamily: 'Inter Display, sans-serif', fontWeight: 500 }}
+                >
+                  Начать
+                </button>
               </div>
-            </Card>
+            </div>
           </div>
         </div>
       </div>
