@@ -132,22 +132,14 @@ export default function OnboardingPage() {
 
       {/* Right side - Image (756px = 50%, height 982px) */}
       <div className="hidden lg:block lg:w-1/2 relative overflow-hidden h-screen">
-        {/* Временный градиентный фон - замените на Rectangle 24 */}
-        {/* Чтобы добавить настоящее изображение: */}
-        {/* 1. Поместите файл Rectangle 24 в папку /public как rectangle-24.jpg */}
-        {/* 2. Раскомментируйте Image компонент ниже */}
-        {/* 3. Удалите div с градиентом */}
-
-        {/* <Image
-          src="/rectangle-24.jpg"
-          alt="Onboarding background"
+        {/* Rectangle 24 - SVG с зелеными холмами и оранжевыми цветами */}
+        <Image
+          src="/rectangle-24.svg"
+          alt="Onboarding background with green hills"
           fill
           className="object-cover object-center"
           priority
-        /> */}
-
-        {/* Временный градиент похожий на макеты с зелеными холмами */}
-        <div className="absolute inset-0 bg-gradient-to-br from-[#A8D5BA] via-[#7CB985] to-[#96C56E]" />
+        />
       </div>
     </div>
   )
