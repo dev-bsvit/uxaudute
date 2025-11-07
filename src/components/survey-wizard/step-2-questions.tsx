@@ -25,6 +25,23 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  DragEndEvent,
+} from '@dnd-kit/core'
+import {
+  arrayMove,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  useSortable,
+  verticalListSortingStrategy,
+} from '@dnd-kit/sortable'
+import { CSS } from '@dnd-kit/utilities'
 
 interface Step2QuestionsProps {
   questions: SurveyQuestionInstance[]
@@ -33,6 +50,121 @@ interface Step2QuestionsProps {
   onBack: () => void
   onNext: () => void
   currentLanguage: 'ru' | 'en'
+}
+
+// Компонент для отдельного вопроса с drag-and-drop
+interface SortableQuestionItemProps {
+  question: SurveyQuestionInstance
+  index: number
+  isEditing: boolean
+  editText: string
+  currentLanguage: 'ru' | 'en'
+  onEditTextChange: (text: string) => void
+  onStartEdit: () => void
+  onSaveEdit: () => void
+  onCancelEdit: () => void
+  onDelete: () => void
+}
+
+function SortableQuestionItem({
+  question,
+  index,
+  isEditing,
+  editText,
+  currentLanguage,
+  onEditTextChange,
+  onStartEdit,
+  onSaveEdit,
+  onCancelEdit,
+  onDelete,
+}: SortableQuestionItemProps) {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id: question.instance_id })
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.5 : 1,
+  }
+
+  const text = currentLanguage === 'ru' ? question.text_ru : question.text_en
+
+  return (
+    <div
+      ref={setNodeRef}
+      style={style}
+      className="p-4 bg-white rounded-lg border border-slate-200"
+    >
+      <div className="flex items-start gap-3">
+        <div
+          {...attributes}
+          {...listeners}
+          className="cursor-grab active:cursor-grabbing touch-none"
+        >
+          <GripVertical className="w-5 h-5 text-slate-400 mt-1 flex-shrink-0" />
+        </div>
+
+        <div className="flex-1 min-w-0">
+          {isEditing ? (
+            <div className="space-y-2">
+              <Input
+                value={editText}
+                onChange={(e) => onEditTextChange(e.target.value)}
+                className="w-full"
+              />
+              <div className="flex gap-2">
+                <Button size="sm" onClick={onSaveEdit}>
+                  <Check className="w-4 h-4" />
+                </Button>
+                <Button size="sm" variant="outline" onClick={onCancelEdit}>
+                  <X className="w-4 h-4" />
+                </Button>
+              </div>
+            </div>
+          ) : (
+            <>
+              <p className="text-slate-900 font-medium">
+                {index + 1}. {text}
+              </p>
+              <div className="flex gap-2 mt-2">
+                <span className="text-xs bg-slate-100 px-2 py-1 rounded">
+                  {question.type}
+                </span>
+                {question.is_custom && (
+                  <span className="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded">
+                    Пользовательский
+                  </span>
+                )}
+              </div>
+            </>
+          )}
+        </div>
+
+        <div className="flex gap-1 flex-shrink-0">
+          <Button
+            size="icon"
+            variant="ghost"
+            onClick={onStartEdit}
+          >
+            <Edit2 className="w-4 h-4" />
+          </Button>
+          <Button
+            size="icon"
+            variant="ghost"
+            onClick={onDelete}
+          >
+            <Trash2 className="w-4 h-4 text-red-500" />
+          </Button>
+        </div>
+      </div>
+    </div>
+  )
 }
 
 export function Step2Questions({
@@ -55,6 +187,33 @@ export function Step2Questions({
   // Editing
   const [editingId, setEditingId] = useState<string | null>(null)
   const [editText, setEditText] = useState('')
+
+  // Drag and drop sensors
+  const sensors = useSensors(
+    useSensor(PointerSensor),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    })
+  )
+
+  // Handle drag end
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event
+
+    if (over && active.id !== over.id) {
+      const oldIndex = localQuestions.findIndex((q) => q.instance_id === active.id)
+      const newIndex = localQuestions.findIndex((q) => q.instance_id === over.id)
+
+      const reordered = arrayMove(localQuestions, oldIndex, newIndex)
+      const withUpdatedOrder = reordered.map((q, index) => ({
+        ...q,
+        order: index
+      }))
+
+      setLocalQuestions(withUpdatedOrder)
+      onUpdate(withUpdatedOrder)
+    }
+  }
 
   const handleAddManualQuestion = () => {
     if (!manualText.trim()) return
@@ -306,75 +465,39 @@ export function Step2Questions({
             <h4 className="text-sm font-medium text-[#121217]">
               Добавленные вопросы ({localQuestions.length})
             </h4>
+            <p className="text-xs text-slate-500">
+              Перетащите вопросы, чтобы изменить порядок
+            </p>
           </div>
 
-          <div className="space-y-3">
-            {localQuestions.map((question, index) => {
-              const isEditing = editingId === question.instance_id
-              const text = currentLanguage === 'ru' ? question.text_ru : question.text_en
-
-              return (
-                <div key={question.instance_id} className="p-4 bg-white rounded-lg border border-slate-200">
-                  <div className="flex items-start gap-3">
-                    <GripVertical className="w-5 h-5 text-slate-400 mt-1 flex-shrink-0" />
-
-                    <div className="flex-1 min-w-0">
-                      {isEditing ? (
-                        <div className="space-y-2">
-                          <Input
-                            value={editText}
-                            onChange={(e) => setEditText(e.target.value)}
-                            className="w-full"
-                          />
-                          <div className="flex gap-2">
-                            <Button size="sm" onClick={handleSaveEdit}>
-                              <Check className="w-4 h-4" />
-                            </Button>
-                            <Button size="sm" variant="outline" onClick={handleCancelEdit}>
-                              <X className="w-4 h-4" />
-                            </Button>
-                          </div>
-                        </div>
-                      ) : (
-                        <>
-                          <p className="text-slate-900 font-medium">
-                            {index + 1}. {text}
-                          </p>
-                          <div className="flex gap-2 mt-2">
-                            <span className="text-xs bg-slate-100 px-2 py-1 rounded">
-                              {question.type}
-                            </span>
-                            {question.is_custom && (
-                              <span className="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded">
-                                Пользовательский
-                              </span>
-                            )}
-                          </div>
-                        </>
-                      )}
-                    </div>
-
-                    <div className="flex gap-1 flex-shrink-0">
-                      <Button
-                        size="icon"
-                        variant="ghost"
-                        onClick={() => handleStartEdit(question)}
-                      >
-                        <Edit2 className="w-4 h-4" />
-                      </Button>
-                      <Button
-                        size="icon"
-                        variant="ghost"
-                        onClick={() => handleDeleteQuestion(question.instance_id)}
-                      >
-                        <Trash2 className="w-4 h-4 text-red-500" />
-                      </Button>
-                    </div>
-                  </div>
-                </div>
-              )
-            })}
-          </div>
+          <DndContext
+            sensors={sensors}
+            collisionDetection={closestCenter}
+            onDragEnd={handleDragEnd}
+          >
+            <SortableContext
+              items={localQuestions.map((q) => q.instance_id)}
+              strategy={verticalListSortingStrategy}
+            >
+              <div className="space-y-3">
+                {localQuestions.map((question, index) => (
+                  <SortableQuestionItem
+                    key={question.instance_id}
+                    question={question}
+                    index={index}
+                    isEditing={editingId === question.instance_id}
+                    editText={editText}
+                    currentLanguage={currentLanguage}
+                    onEditTextChange={setEditText}
+                    onStartEdit={() => handleStartEdit(question)}
+                    onSaveEdit={handleSaveEdit}
+                    onCancelEdit={handleCancelEdit}
+                    onDelete={() => handleDeleteQuestion(question.instance_id)}
+                  />
+                ))}
+              </div>
+            </SortableContext>
+          </DndContext>
         </div>
       )}
 
