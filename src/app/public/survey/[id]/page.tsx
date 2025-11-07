@@ -191,37 +191,59 @@ export default function PublicSurveyPage() {
   if (stage === 'intro') {
     return (
       <div className="min-h-screen bg-[#f4f5fb] flex items-center justify-center p-4">
-        <div className="w-full max-w-[420px] rounded-[32px] bg-white shadow-[0_36px_72px_rgba(25,26,39,0.08)] overflow-hidden flex flex-col">
+        {/* Карточка: 420×520px (до 600px на больших экранах), радиус 32px, тень, отступы фиксированные */}
+        <div
+          className="w-full max-w-[420px] lg:max-w-[600px] min-h-[520px] rounded-[32px] bg-white flex flex-col items-center"
+          style={{
+            boxShadow: '0 36px 72px rgba(25, 26, 39, 0.08)',
+            paddingTop: '40px',
+            paddingLeft: '40px',
+            paddingRight: '40px',
+            paddingBottom: '48px'
+          }}
+        >
+          {/* Превью: 180×316px, отступ сверху 40px уже в padding */}
           {survey.intro_image_url ? (
-            <div className="relative mx-auto mt-10 h-[316px] w-[180px]">
+            <div className="relative w-[180px] h-[316px] flex-shrink-0">
               <Image
                 src={survey.intro_image_url}
                 alt={survey.intro_title || survey.name}
                 fill
-                className="object-contain"
+                className="object-cover rounded-lg"
               />
             </div>
           ) : (
-            <div className="mx-auto mt-10 flex h-[180px] w-[180px] items-center justify-center rounded-[24px] bg-[#eef2fa] text-sm text-slate-500">
-              Превью недоступно
+            <div className="w-[180px] h-[180px] flex-shrink-0 flex items-center justify-center rounded-[24px] bg-[#eef2fa]">
+              <span className="text-xs font-semibold text-[#6c6c89]">
+                Превью недоступно
+              </span>
             </div>
           )}
 
-          <div className="mt-12 flex flex-1 flex-col items-center px-10 pb-12 text-center">
-            <h1 className="text-2xl font-bold tracking-[-0.28px] text-slate-900">
-              {survey.intro_title || survey.name}
-            </h1>
-            <p className="mt-4 text-base leading-[1.35] text-slate-600">
-              {(survey.intro_description || survey.description) ?? ''}
-            </p>
+          {/* Заголовок: отступ 32px от превью */}
+          <h1
+            className="mt-[32px] text-[20px] sm:text-[24px] font-bold leading-[1.1] tracking-[-0.28px] text-[#1f1f1f] text-center w-full max-w-[320px]"
+            style={{ fontFamily: 'Inter Display, sans-serif' }}
+          >
+            {survey.intro_title || survey.name}
+          </h1>
 
-            <Button
-              onClick={handleStartSurvey}
-              className="mt-10 h-[52px] w-[220px] rounded-[26px] bg-[#0058fc] text-base font-medium tracking-[-0.16px] hover:bg-[#0048d4]"
-            >
-              Начать опрос
-            </Button>
-          </div>
+          {/* Описание: отступ 16px от заголовка */}
+          <p
+            className="mt-4 text-base leading-[1.35] text-[#6c6c89] text-center w-full max-w-[320px]"
+            style={{ fontFamily: 'Inter, sans-serif' }}
+          >
+            {(survey.intro_description || survey.description) ?? ''}
+          </p>
+
+          {/* Кнопка: отступ 40px от описания */}
+          <button
+            onClick={handleStartSurvey}
+            className="mt-10 w-[220px] h-[52px] rounded-[26px] bg-[#0058fc] text-white text-base font-medium tracking-[-0.16px] hover:bg-[#0048d4] active:bg-[#003ec0] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[rgba(0,88,252,0.24)] transition-all disabled:bg-[#d1d1db] disabled:text-[#6c6c89] disabled:cursor-not-allowed"
+            style={{ fontFamily: 'Inter Display, sans-serif' }}
+          >
+            Начать опрос
+          </button>
         </div>
       </div>
     )
