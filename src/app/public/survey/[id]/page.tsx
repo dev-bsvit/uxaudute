@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
-import { Loader2, CheckCircle2, AlertCircle, ArrowRight, ArrowLeft, ExternalLink } from 'lucide-react'
+import { Loader2, AlertCircle, ArrowRight, ArrowLeft } from 'lucide-react'
 import { getSurvey, submitSurveyResponse } from '@/lib/database'
 import type { Survey, SurveyQuestionInstance, SurveyAnswer } from '@/types/survey'
 import Image from 'next/image'
@@ -21,6 +21,7 @@ export default function PublicSurveyPage() {
   const [submitting, setSubmitting] = useState(false)
   const [survey, setSurvey] = useState<Survey | null>(null)
   const [error, setError] = useState<string | null>(null)
+  const [promoCopied, setPromoCopied] = useState(false)
 
   // Stage management
   const [stage, setStage] = useState<SurveyStage>('intro')
@@ -189,45 +190,39 @@ export default function PublicSurveyPage() {
   // Intro Screen
   if (stage === 'intro') {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">
-        <Card className="max-w-2xl w-full overflow-hidden">
-          {/* Image */}
-          {survey.intro_image_url && (
-            <div className="relative w-full h-96 bg-slate-100 flex items-center justify-center">
+      <div className="min-h-screen bg-[#f4f5fb] flex items-center justify-center p-4">
+        <div className="w-full max-w-[420px] rounded-[32px] bg-white shadow-[0_36px_72px_rgba(25,26,39,0.08)] overflow-hidden flex flex-col">
+          {survey.intro_image_url ? (
+            <div className="relative mx-auto mt-10 h-[316px] w-[180px]">
               <Image
                 src={survey.intro_image_url}
-                alt={survey.intro_title || 'Survey intro'}
+                alt={survey.intro_title || survey.name}
                 fill
-                className="object-contain p-4"
+                className="object-contain"
               />
+            </div>
+          ) : (
+            <div className="mx-auto mt-10 flex h-[180px] w-[180px] items-center justify-center rounded-[24px] bg-[#eef2fa] text-sm text-slate-500">
+              Превью недоступно
             </div>
           )}
 
-          {/* Content */}
-          <div className="p-8 text-center">
-            <h1 className="text-3xl font-bold text-slate-900 mb-4">
+          <div className="mt-12 flex flex-1 flex-col items-center px-10 pb-12 text-center">
+            <h1 className="text-2xl font-bold tracking-[-0.28px] text-slate-900">
               {survey.intro_title || survey.name}
             </h1>
-            <p className="text-lg text-slate-600 mb-8 whitespace-pre-wrap">
-              {survey.intro_description || survey.description}
+            <p className="mt-4 text-base leading-[1.35] text-slate-600">
+              {(survey.intro_description || survey.description) ?? ''}
             </p>
-
-            <div className="flex items-center justify-center gap-4 text-sm text-slate-500 mb-8">
-              <span>{survey.main_questions.length} вопросов</span>
-              <span>•</span>
-              <span>~{Math.ceil(survey.main_questions.length * 0.5)} мин</span>
-            </div>
 
             <Button
               onClick={handleStartSurvey}
-              size="lg"
-              className="px-8"
+              className="mt-10 h-[52px] w-[220px] rounded-[26px] bg-[#0058fc] text-base font-medium tracking-[-0.16px] hover:bg-[#0048d4]"
             >
               Начать опрос
-              <ArrowRight className="w-5 h-5 ml-2" />
             </Button>
           </div>
-        </Card>
+        </div>
       </div>
     )
   }
@@ -384,57 +379,61 @@ export default function PublicSurveyPage() {
 
   // Thank You Screen
   if (stage === 'thankyou') {
+    const thankYouText = survey.thank_you_text || 'Спасибо за ваше время и ценные ответы! Ваше мнение поможет нам стать лучше.'
+
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">
-        <Card className="max-w-2xl w-full p-12 text-center">
-          {/* Success Icon */}
-          <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
-            <CheckCircle2 className="w-12 h-12 text-green-600" />
-          </div>
-
-          {/* Title */}
-          <h1 className="text-3xl font-bold text-slate-900 mb-4">
-            Опрос завершен!
-          </h1>
-
-          {/* Thank You Text */}
-          <p className="text-lg text-slate-600 mb-8 whitespace-pre-wrap">
-            {survey.thank_you_text || 'Спасибо за ваше время и ценные ответы! Ваше мнение поможет нам стать лучше.'}
-          </p>
-
-          {/* Promo Code */}
-          {survey.thank_you_promo_code && (
-            <div className="bg-blue-50 border-2 border-blue-200 rounded-lg p-6 max-w-md mx-auto mb-6">
-              <p className="text-sm text-slate-600 mb-2">Ваш промокод:</p>
-              <div className="flex items-center justify-center gap-3">
-                <code className="text-3xl font-bold text-blue-600 tracking-wider">
-                  {survey.thank_you_promo_code}
-                </code>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => {
-                    navigator.clipboard.writeText(survey.thank_you_promo_code!)
-                    alert('Промокод скопирован!')
-                  }}
-                >
-                  Копировать
-                </Button>
-              </div>
+      <div className="min-h-screen bg-[#f4f5fb] flex items-center justify-center p-4">
+        <div className="w-full max-w-[420px] rounded-[32px] bg-white shadow-[0_36px_72px_rgba(25,26,39,0.08)] overflow-hidden flex flex-col items-center p-10 text-center">
+          {survey.thank_you_image_url ? (
+            <div className="relative mb-8 h-[200px] w-[200px]">
+              <Image
+                src={survey.thank_you_image_url}
+                alt="Иллюстрация завершения"
+                fill
+                className="object-contain"
+              />
+            </div>
+          ) : (
+            <div className="mb-8 flex h-[200px] w-[200px] items-center justify-center rounded-[24px] bg-[#eef2fa] text-sm text-slate-500">
+              Спасибо!
             </div>
           )}
 
-          {/* Link */}
+          <div className="h-px w-full bg-[#f2f2f5]" />
+
+          <h1 className="mt-8 text-2xl font-bold text-slate-900">Опрос завершён!</h1>
+
+          {survey.thank_you_promo_code && (
+            <div className="mt-6 flex items-center justify-center gap-4">
+              <span className="text-xl font-semibold tracking-[0.08em] text-slate-900">
+                {survey.thank_you_promo_code}
+              </span>
+              <button
+                onClick={() => {
+                  navigator.clipboard.writeText(survey.thank_you_promo_code!)
+                  setPromoCopied(true)
+                  setTimeout(() => setPromoCopied(false), 2500)
+                }}
+                className="h-10 rounded-[14px] border border-[#e0e0eb] px-4 text-sm font-medium text-slate-900 transition-colors hover:bg-[#f5f5f9]"
+              >
+                {promoCopied ? 'Скопировано' : 'Копировать'}
+              </button>
+            </div>
+          )}
+
+          <p className="mt-6 text-base leading-[1.45] text-slate-600 whitespace-pre-wrap max-w-[320px]">
+            {thankYouText}
+          </p>
+
           {survey.thank_you_link && (
             <Button
               onClick={() => window.open(survey.thank_you_link, '_blank')}
-              size="lg"
+              className="mt-8 h-[52px] w-[220px] rounded-[26px] bg-[#0058fc] text-base font-medium tracking-[-0.16px] hover:bg-[#0048d4]"
             >
-              Перейти на сайт
-              <ExternalLink className="w-4 h-4 ml-2" />
+              Перейти по ссылке
             </Button>
           )}
-        </Card>
+        </div>
       </div>
     )
   }
