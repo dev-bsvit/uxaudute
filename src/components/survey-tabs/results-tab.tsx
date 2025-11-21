@@ -230,7 +230,7 @@ export function ResultsTab({ survey, currentLanguage }: ResultsTabProps) {
   }
 
   return (
-    <div className="space-y-8 max-w-6xl">
+    <div className="px-8 space-y-8 max-w-6xl">
       {/* Общая статистика */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <Card className="p-6">

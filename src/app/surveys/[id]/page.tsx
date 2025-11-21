@@ -115,14 +115,13 @@ export default function SurveyEditorPage() {
         </div>
 
         {/* Tabs - Positioned as per Figma spec */}
-        <div className="px-8 space-y-8">
         <Tabs
           value={activeTab}
           onValueChange={(value) => setActiveTab(value as 'create' | 'share' | 'results')}
           className="w-full"
         >
-          {/* Tab List with Figma styling */}
-          <div>
+          {/* Tab List with Figma styling - только TabsList имеет px-8 */}
+          <div className="px-8">
             <TabsList className="grid grid-cols-3 gap-0 mb-6 bg-[#F0F1F4] h-[61px] rounded-2xl p-1 w-full">
               <TabsTrigger
                 value="create"
@@ -165,7 +164,6 @@ export default function SurveyEditorPage() {
             <ResultsTab survey={survey} currentLanguage={currentLanguage as 'ru' | 'en'} />
           </TabsContent>
         </Tabs>
-        </div>
       </div>
     </SidebarDemo>
   )

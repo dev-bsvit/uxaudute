@@ -95,7 +95,7 @@ export function SurveyWizard({
   }
 
   return (
-    <div className="px-4">
+    <div className="px-8">
       <div className="flex gap-6">
         {/* Left Column: Forms - flex-1 */}
         <div className="flex-1">

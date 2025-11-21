@@ -28,7 +28,7 @@ export function ShareTab({ survey, currentLanguage }: ShareTabProps) {
   }
 
   return (
-    <div className="space-y-6 max-w-4xl">
+    <div className="px-8 space-y-6 max-w-4xl">
       {/* Status Info */}
       <Card className="p-6">
         <div className="flex items-center justify-between">
