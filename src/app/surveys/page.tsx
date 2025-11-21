@@ -214,13 +214,13 @@ export default function SurveysPage() {
         <div className="px-8">
           <PageHeader
             breadcrumbs={[
-              { label: 'Главная', href: '/home' },
-              { label: 'Опросы' }
+              { label: currentLanguage === 'en' ? 'Home' : 'Главная', href: '/home' },
+              { label: currentLanguage === 'en' ? 'Surveys' : 'Опросы' }
             ]}
-            title="Мои опросы"
-            subtitle="AI-опросы сгруппированные по проектам"
+            title={currentLanguage === 'en' ? 'My Surveys' : 'Мои опросы'}
+            subtitle={currentLanguage === 'en' ? 'AI surveys grouped by projects' : 'AI-опросы сгруппированные по проектам'}
             primaryButton={{
-              label: 'Создать проект',
+              label: currentLanguage === 'en' ? 'Create Project' : 'Создать проект',
               onClick: openCreateForm
             }}
           />
@@ -365,7 +365,7 @@ export default function SurveysPage() {
                     href={`/projects/${project.id}?from=surveys`} // Добавляем параметр для сайдбара
                     onOpenSettings={() => {}} // Пока не реализовано
                     menuLabels={{
-                      settings: 'Настройки проекта'
+                      settings: currentLanguage === 'en' ? 'Project Settings' : 'Настройки проекта'
                     }}
                   />
                 ))}
