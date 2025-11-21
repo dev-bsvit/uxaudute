@@ -69,9 +69,24 @@ export default function SurveyEditorPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-100 flex items-center justify-center">
-        <Loader2 className="w-8 h-8 animate-spin text-blue-500" />
-      </div>
+      <SidebarDemo user={null}>
+        <div className="space-y-8">
+          <div className="px-8 flex items-center justify-between">
+            <div>
+              <div className="h-8 w-64 bg-gray-200 rounded animate-pulse mb-2"></div>
+              <div className="h-5 w-96 bg-gray-100 rounded animate-pulse"></div>
+            </div>
+          </div>
+          <div className="px-8">
+            <div className="h-16 w-full bg-gray-100 rounded-lg animate-pulse mb-6"></div>
+            <div className="bg-white rounded-2xl p-6 animate-pulse space-y-4">
+              <div className="h-6 w-1/2 bg-gray-200 rounded"></div>
+              <div className="h-4 w-3/4 bg-gray-100 rounded"></div>
+              <div className="h-4 w-2/3 bg-gray-100 rounded"></div>
+            </div>
+          </div>
+        </div>
+      </SidebarDemo>
     )
   }
 
@@ -79,8 +94,8 @@ export default function SurveyEditorPage() {
 
   return (
     <SidebarDemo user={user}>
-      <div className="space-y-6">
-        <div className="px-4">
+      <div className="space-y-8">
+        <div className="px-8">
           <PageHeader
             breadcrumbs={[
               { label: 'Мои проекты', href: '/projects' },
@@ -100,13 +115,14 @@ export default function SurveyEditorPage() {
         </div>
 
         {/* Tabs - Positioned as per Figma spec */}
+        <div className="px-8 space-y-8">
         <Tabs
           value={activeTab}
           onValueChange={(value) => setActiveTab(value as 'create' | 'share' | 'results')}
           className="w-full"
         >
           {/* Tab List with Figma styling */}
-          <div className="px-4">
+          <div>
             <TabsList className="grid grid-cols-3 gap-0 mb-6 bg-[#F0F1F4] h-[61px] rounded-2xl p-1 w-full">
               <TabsTrigger
                 value="create"
@@ -149,6 +165,7 @@ export default function SurveyEditorPage() {
             <ResultsTab survey={survey} currentLanguage={currentLanguage as 'ru' | 'en'} />
           </TabsContent>
         </Tabs>
+        </div>
       </div>
     </SidebarDemo>
   )
