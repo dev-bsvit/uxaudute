@@ -95,7 +95,7 @@ export function AnalysisResultDisplay({
       {/* Левая колонка - Результаты анализа */}
       <div className="space-y-8">
         {/* Заголовок */}
-        <div className="text-center">
+        <div>
           <h2 className="text-3xl font-bold text-gray-900 mb-2">
             {t('analysis-results.title')}
           </h2>
