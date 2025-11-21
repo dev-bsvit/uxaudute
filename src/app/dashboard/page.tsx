@@ -344,7 +344,7 @@ export default function DashboardPage() {
   return (
     <SidebarDemo user={user}>
       <div className="space-y-8">
-
+        <div className="px-8 space-y-8">
         {/* Если пользователь авторизован */}
         {user && !result && (
           <>
@@ -446,6 +446,7 @@ export default function DashboardPage() {
             }}
           />
         )}
+        </div>
       </div>
     </SidebarDemo>
   )

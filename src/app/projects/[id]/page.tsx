@@ -790,9 +790,30 @@ export default function ProjectDetailPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-100 flex items-center justify-center">
-        <div className="animate-spin rounded-full h-8 w-8 border-2 border-blue-500 border-t-transparent"></div>
-      </div>
+      <SidebarDemo user={null}>
+        <div className="space-y-6">
+          <div className="px-8 flex items-center justify-between">
+            <div>
+              <div className="h-8 w-64 bg-gray-200 rounded animate-pulse mb-2"></div>
+              <div className="h-5 w-96 bg-gray-100 rounded animate-pulse"></div>
+            </div>
+            <div className="h-12 w-40 bg-gray-200 rounded-lg animate-pulse"></div>
+          </div>
+          <div className="px-8 space-y-4">
+            {[1, 2, 3].map((i) => (
+              <div key={i} className="rounded-lg bg-white p-4 animate-pulse">
+                <div className="flex items-center gap-4">
+                  <div className="w-[80px] h-[60px] bg-slate-200 rounded-lg"></div>
+                  <div className="flex-1 space-y-2">
+                    <div className="h-5 w-48 bg-gray-200 rounded"></div>
+                    <div className="h-4 w-32 bg-gray-100 rounded"></div>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </SidebarDemo>
     )
   }
 

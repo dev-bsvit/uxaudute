@@ -496,9 +496,26 @@ export default function AuditPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-100 flex items-center justify-center">
-        <div className="animate-spin rounded-full h-8 w-8 border-2 border-blue-500 border-t-transparent"></div>
-      </div>
+      <SidebarDemo user={null}>
+        <div className="space-y-8">
+          <div className="px-8 flex items-center justify-between">
+            <div>
+              <div className="h-8 w-64 bg-gray-200 rounded animate-pulse mb-2"></div>
+              <div className="h-5 w-96 bg-gray-100 rounded animate-pulse"></div>
+            </div>
+            <div className="h-12 w-40 bg-gray-200 rounded-lg animate-pulse"></div>
+          </div>
+          <div className="px-8">
+            <div className="h-16 w-full bg-gray-100 rounded-lg animate-pulse mb-6"></div>
+            <div className="bg-white rounded-2xl p-6 animate-pulse space-y-4">
+              <div className="h-6 w-1/2 bg-gray-200 rounded"></div>
+              <div className="h-4 w-3/4 bg-gray-100 rounded"></div>
+              <div className="h-4 w-2/3 bg-gray-100 rounded"></div>
+              <div className="h-4 w-1/2 bg-gray-100 rounded"></div>
+            </div>
+          </div>
+        </div>
+      </SidebarDemo>
     )
   }
 
@@ -563,6 +580,7 @@ export default function AuditPage() {
           </div>
 
         {/* Результаты анализа */}
+        <div className="px-8 space-y-8">
         {audit.result_data ? (
           <Tabs defaultValue="ux-analysis" className="w-full">
             <TabsList className="grid w-full grid-cols-4 mb-6 bg-gray-100 h-16 relative z-10 p-1">
@@ -696,6 +714,7 @@ export default function AuditPage() {
 
           {/* Debug Panel */}
           <AuditDebugPanel auditId={auditId} auditData={audit} />
+        </div>
         </div>
       )}
     </SidebarDemo>

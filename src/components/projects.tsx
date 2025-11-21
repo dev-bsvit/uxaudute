@@ -204,7 +204,7 @@ export function Projects({ user, onProjectSelect }: ProjectsProps) {
   if (loading) {
     return (
       <div className="space-y-8">
-        <div className="flex items-center justify-between">
+        <div className="px-8 flex items-center justify-between">
           <div>
             <div className="h-8 w-64 bg-gray-200 rounded animate-pulse mb-2"></div>
             <div className="h-5 w-96 bg-gray-100 rounded animate-pulse"></div>
@@ -212,7 +212,7 @@ export function Projects({ user, onProjectSelect }: ProjectsProps) {
           <div className="h-12 w-40 bg-gray-200 rounded-lg animate-pulse"></div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="px-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {[1, 2, 3, 4, 5, 6].map((i) => (
             <div key={i} className="rounded-2xl overflow-hidden h-[170px] bg-[#F5F5F5] animate-pulse">
               <div className="flex h-full gap-4 p-4">
