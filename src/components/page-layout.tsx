@@ -63,7 +63,7 @@ export function PageLayout({
   const maxWidthClass = maxWidthMap[maxWidth]
 
   return (
-    <SidebarDemo>
+    <SidebarDemo user={null}>
       <div className={`${spacingClass} w-full ${className}`}>
         {header && (
           <div className={paddingClass}>
@@ -95,7 +95,7 @@ export function PageLayoutSkeleton({
   const spacingClass = spacingMap[spacing]
 
   return (
-    <SidebarDemo>
+    <SidebarDemo user={null}>
       <div className={`${spacingClass} w-full`}>
         <div className={`${paddingClass} ${spacingClass}`}>
           {children}
