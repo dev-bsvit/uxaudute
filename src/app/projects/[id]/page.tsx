@@ -943,13 +943,13 @@ export default function ProjectDetailPage() {
                   }}
                   className="space-y-8"
                 >
-                  <div className="grid h-16 w-full grid-cols-3 items-center justify-center rounded-lg bg-gray-100 p-1 text-muted-foreground">
+                  <div className="grid h-[61px] w-full grid-cols-3 gap-0 items-center justify-center rounded-2xl bg-[#F0F1F4] p-1 text-muted-foreground">
                     <button
                       type="button"
-                      className={`w-full rounded-md py-3 text-sm font-medium transition-all duration-200 ${
+                      className={`h-[53px] text-base font-medium leading-[17.6px] tracking-[-0.16px] transition-colors ${
                         activeTab === 'screenshot'
-                          ? 'bg-white text-blue-600 shadow-sm'
-                          : 'text-slate-600 hover:text-slate-800'
+                          ? 'bg-white text-[#1F1F1F] shadow-[0_4px_4px_rgba(0,0,0,0.05)] rounded-[14px]'
+                          : 'text-[#1F1F1F]'
                       }`}
                       onClick={() => setActiveTab('screenshot')}
                     >
@@ -957,10 +957,10 @@ export default function ProjectDetailPage() {
                     </button>
                     <button
                       type="button"
-                      className={`w-full rounded-md py-3 text-sm font-medium transition-all duration-200 ${
+                      className={`h-[53px] text-base font-medium leading-[17.6px] tracking-[-0.16px] transition-colors ${
                         activeTab === 'url'
-                          ? 'bg-white text-blue-600 shadow-sm'
-                          : 'text-slate-600 hover:text-slate-800'
+                          ? 'bg-white text-[#1F1F1F] shadow-[0_4px_4px_rgba(0,0,0,0.05)] rounded-[14px]'
+                          : 'text-[#1F1F1F]'
                       }`}
                       onClick={() => setActiveTab('url')}
                     >
@@ -968,7 +968,7 @@ export default function ProjectDetailPage() {
                     </button>
                     <button
                       type="button"
-                      className="w-full cursor-not-allowed rounded-md py-3 text-sm font-medium text-slate-400"
+                      className="h-[53px] text-base font-medium leading-[17.6px] tracking-[-0.16px] text-[#1F1F1F] cursor-not-allowed opacity-50"
                       disabled
                     >
                       Figma Frime
