@@ -1187,13 +1187,9 @@ export default function ProjectDetailPage() {
               {audits.length === 0 && surveys.length === 0 ? (
                 <div className="text-center py-8">
                   <BarChart3 className="w-12 h-12 text-slate-400 mx-auto mb-4" />
-                  <p className="text-slate-600 mb-4">
+                  <p className="text-slate-600">
                     {currentLanguage === 'en' ? 'There is no content in this project yet' : 'В этом проекте пока нет контента'}
                   </p>
-                  <Button onClick={() => setShowCreateForm(true)}>
-                    <Plus className="w-4 h-4 mr-2" />
-                    {t('projects.detail.history.emptyAction') || (currentLanguage === 'en' ? 'Create first audit' : 'Создать первый аудит')}
-                  </Button>
                 </div>
               ) : null}
 
