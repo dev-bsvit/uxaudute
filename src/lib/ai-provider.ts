@@ -167,17 +167,26 @@ export const executeAIRequest = async (
         }
       }
 
-      const content = messageContent || 'Нет ответа'
-
       if (!messageContent) {
-        console.error(`⚠️ OpenAI вернул пустой content! Полный ответ:`, JSON.stringify(completion, null, 2))
+        console.error(`❌ ${provider} вернул пустой content!`)
+        console.error(`Полный ответ:`, JSON.stringify(completion, null, 2))
+        console.error(`Finish reason:`, completion.choices[0]?.finish_reason)
+
+        return {
+          success: false,
+          content: '',
+          provider: config.provider,
+          model: config.model,
+          error: `${provider} returned empty response. Finish reason: ${completion.choices[0]?.finish_reason || 'unknown'}`,
+          usage: completion.usage
+        }
       }
 
       console.log(`✅ Успешно использован провайдер: ${provider}`)
 
       return {
         success: true,
-        content,
+        content: messageContent,
         provider: config.provider,
         model: config.model,
         usage: completion.usage
