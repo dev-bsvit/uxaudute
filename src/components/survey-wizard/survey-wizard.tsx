@@ -109,7 +109,7 @@ export function SurveyWizard({
             <div className="space-y-4">
               <button
                 onClick={() => setCurrentStep(currentStep === 1 ? 0 as any : 1)}
-                className="w-full flex items-center justify-between p-4 bg-white rounded-lg border border-slate-200 hover:border-slate-300 transition-colors"
+                className="w-full flex items-center justify-between py-2 hover:opacity-80 transition-opacity"
               >
                 <div className="flex items-center gap-2">
                   <span className="text-base font-bold text-[#1F1F1F]">Экран Вступления</span>
