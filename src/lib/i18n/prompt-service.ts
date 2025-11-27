@@ -316,6 +316,15 @@ Respond in the selected language.`
       return prompt
     }
 
+    // Ограничиваем длину контекста для предотвращения слишком больших промптов
+    const MAX_CONTEXT_LENGTH = 2000
+    let trimmedContext = context.trim()
+
+    if (trimmedContext.length > MAX_CONTEXT_LENGTH) {
+      console.warn(`⚠️ Context слишком длинный (${trimmedContext.length} символов), обрезаем до ${MAX_CONTEXT_LENGTH}`)
+      trimmedContext = trimmedContext.substring(0, MAX_CONTEXT_LENGTH) + '...'
+    }
+
     const contextLabels: Record<string, string> = {
       'ru': '## Дополнительный контекст',
       'en': '## Additional Context'
@@ -332,7 +341,7 @@ Respond in the selected language.`
     return `${prompt}
 
 ${contextLabel}
-${context}
+${trimmedContext}
 
 ${contextInstruction}`
   }
