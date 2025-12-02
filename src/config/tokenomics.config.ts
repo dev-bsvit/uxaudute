@@ -376,5 +376,4 @@ export type PaymentProvider = typeof PAYMENT_PROVIDER
 // =====================================================
 // 7. ЭКСПОРТ ТИПОВ
 // =====================================================
-
-export type { CreditPackage, SubscriptionPlan, AuditCostConfig }
+// Типы уже экспортированы выше через export interface
