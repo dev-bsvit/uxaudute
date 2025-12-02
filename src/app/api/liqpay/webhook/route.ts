@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
-import { parseWebhookData, isPaymentSuccessful } from '@/lib/liqpay'
+import { parseWebhookData, isPaymentSuccessful, type LiqPayStatus } from '@/lib/liqpay'
 import { CREDIT_PACKAGES, SUBSCRIPTION_PLANS } from '@/config/tokenomics.config'
 
 const supabase = createClient(
@@ -84,7 +84,7 @@ export async function POST(request: NextRequest) {
     // ======================================
     // ОБРАБОТКА УСПЕШНОГО ПЛАТЕЖА
     // ======================================
-    if (action === 'pay' && isPaymentSuccessful(status)) {
+    if (action === 'pay' && isPaymentSuccessful(status as LiqPayStatus)) {
       console.log('💰 Processing successful payment...')
 
       // Обновляем заказ
