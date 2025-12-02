@@ -106,12 +106,13 @@ export async function POST(request: NextRequest) {
 
         const creditsToAdd = order.credits
 
-        // Добавляем кредиты через RPC функцию
+        // Добавляем кредиты через RPC функцию (указываем related_order_id для разрешения перегрузки)
         const { error: addCreditsError } = await supabase.rpc('add_credits', {
           user_uuid: order.user_id,
           amount: creditsToAdd,
           source: 'purchase_liqpay',
-          description: `Покупка ${creditsToAdd} кредитів через LiqPay`
+          description: `Покупка ${creditsToAdd} кредитів через LiqPay`,
+          related_order_id: order_id
         })
 
         if (addCreditsError) {
