@@ -1,4 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { createClient } from '@supabase/supabase-js'
+
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.SUPABASE_SERVICE_ROLE_KEY!
+)
 
 /**
  * TEST endpoint для симуляции LiqPay webhook в sandbox режиме
@@ -10,6 +16,8 @@ export async function POST(request: NextRequest) {
   try {
     const { orderId } = await request.json()
 
+    console.log('🧪 Test webhook triggered for order:', orderId)
+
     if (!orderId) {
       return NextResponse.json(
         { error: 'Order ID is required' },
@@ -17,8 +25,25 @@ export async function POST(request: NextRequest) {
       )
     }
 
+    // Получаем заказ из БД
+    const { data: order, error: orderError } = await supabase
+      .from('payment_orders')
+      .select('*')
+      .eq('id', orderId)
+      .single()
+
+    if (orderError || !order) {
+      console.error('❌ Order not found:', orderId)
+      return NextResponse.json(
+        { error: 'Order not found' },
+        { status: 404 }
+      )
+    }
+
+    console.log('📦 Order found:', order)
+
     // Создаем фейковые данные webhook
-    const webhookUrl = `${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/api/liqpay/webhook`
+    const webhookUrl = `${process.env.NEXT_PUBLIC_APP_URL || 'https://uxaudute.vercel.app'}/api/liqpay/webhook`
 
     // Формируем данные как если бы LiqPay их отправил
     const fakeWebhookData = new FormData()
@@ -29,10 +54,10 @@ export async function POST(request: NextRequest) {
       action: 'pay',
       payment_id: Math.floor(Math.random() * 1000000000),
       status: 'sandbox',  // sandbox статус считается успешным
-      amount: 8.99,
+      amount: order.amount_usd || 8.99,
       currency: 'USD',
       order_id: orderId,
-      description: 'Test payment',
+      description: `Payment for order ${orderId}`,
       sender_card_mask2: '424242******4242',
       create_date: Date.now(),
       end_date: Date.now(),
@@ -51,12 +76,29 @@ export async function POST(request: NextRequest) {
     fakeWebhookData.append('signature', signature)
 
     // Отправляем на наш webhook
+    console.log('📤 Sending webhook to:', webhookUrl)
+
     const response = await fetch(webhookUrl, {
       method: 'POST',
       body: fakeWebhookData
     })
 
+    console.log('📥 Webhook response status:', response.status)
+
     const result = await response.json()
+
+    console.log('✅ Webhook result:', result)
+
+    if (!response.ok) {
+      console.error('❌ Webhook failed:', result)
+      return NextResponse.json({
+        success: false,
+        message: 'Webhook processing failed',
+        webhookResponse: result,
+        orderId,
+        paymentId: paymentData.payment_id
+      }, { status: 500 })
+    }
 
     return NextResponse.json({
       success: true,
