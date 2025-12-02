@@ -95,8 +95,8 @@ export async function POST(request: NextRequest) {
         description,
         orderId,
         productName,
-        resultUrl: `${process.env.NEXT_PUBLIC_APP_URL}/credits?payment=success`,
-        serverUrl: `${process.env.NEXT_PUBLIC_APP_URL}/api/liqpay/webhook`
+        resultUrl: `${process.env.NEXT_PUBLIC_APP_URL || 'https://uxaudute.vercel.app'}/payment/success?order_id=${orderId}`,
+        serverUrl: `${process.env.NEXT_PUBLIC_APP_URL || 'https://uxaudute.vercel.app'}/api/liqpay/webhook`
       })
 
       // Обновляем заказ с данными LiqPay
@@ -174,8 +174,8 @@ export async function POST(request: NextRequest) {
         description,
         orderId,
         productName,
-        resultUrl: `${process.env.NEXT_PUBLIC_APP_URL}/subscription?payment=success`,
-        serverUrl: `${process.env.NEXT_PUBLIC_APP_URL}/api/liqpay/webhook`
+        resultUrl: `${process.env.NEXT_PUBLIC_APP_URL || 'https://uxaudute.vercel.app'}/payment/success?order_id=${orderId}`,
+        serverUrl: `${process.env.NEXT_PUBLIC_APP_URL || 'https://uxaudute.vercel.app'}/api/liqpay/webhook`
       })
 
       // Обновляем заказ с данными LiqPay

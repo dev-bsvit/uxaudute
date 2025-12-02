@@ -1,0 +1,14 @@
+{
+  "processing": {
+    "title": "Processing Payment",
+    "message": "Please wait while we process your payment..."
+  },
+  "success": {
+    "title": "Payment Successful",
+    "redirecting": "Redirecting you back to the store..."
+  },
+  "error": {
+    "title": "Payment Error"
+  },
+  "backToCredits": "Back to Credits"
+}
