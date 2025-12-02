@@ -73,9 +73,9 @@ export default function CreditsPurchase({ userId, onPurchaseComplete }: CreditsP
   }
 
   // Конвертируем CREDIT_PACKAGES в массив для отображения
-  const packagesArray = Object.entries(CREDIT_PACKAGES).map(([id, pkg]) => ({
-    id,
-    ...pkg
+  const packagesArray = Object.entries(CREDIT_PACKAGES).map(([key, pkg]) => ({
+    ...pkg,
+    key
   }))
 
   return (
