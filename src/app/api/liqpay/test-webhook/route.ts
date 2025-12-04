@@ -43,7 +43,7 @@ export async function POST(request: NextRequest) {
     console.log('📦 Order found:', order)
 
     // Создаем фейковые данные webhook
-    const webhookUrl = `${process.env.NEXT_PUBLIC_APP_URL || 'https://uxaudute.vercel.app'}/api/liqpay/webhook`
+    const webhookUrl = `${process.env.NEXT_PUBLIC_APP_URL || 'https://www.aiscan.space'}/api/liqpay/webhook`
 
     // Формируем данные как если бы LiqPay их отправил
     const fakeWebhookData = new FormData()
