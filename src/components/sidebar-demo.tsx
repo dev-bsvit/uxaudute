@@ -623,7 +623,7 @@ export const Logo = () => {
       href="/"
       className="relative z-20 flex items-center space-x-2 py-1 text-sm font-normal"
     >
-      <img src="/Logo-b.svg" alt="UX Audit" className="h-6 w-auto shrink-0" />
+      <img src="/Logo_F/Logo.svg" alt="UX Audit" className="h-6 w-auto shrink-0" />
     </Link>
   );
 };
@@ -634,7 +634,7 @@ export const LogoIcon = () => {
       href="/"
       className="relative z-20 flex h-12 w-12 items-center justify-center rounded-xl text-sm font-normal text-black"
     >
-      <img src="/Logo-mini-b.svg" alt="UX Audit" className="h-8 w-auto shrink-0" />
+      <img src="/Logo_F/Logo_mini.svg" alt="UX Audit" className="h-8 w-auto shrink-0" />
     </Link>
   );
 };

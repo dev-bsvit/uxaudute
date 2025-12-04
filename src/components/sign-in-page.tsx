@@ -34,7 +34,7 @@ export function SignInPage({ onAuthChange }: SignInPageProps) {
       <div className="w-1/2 flex items-center justify-center bg-white">
         <div className="absolute top-[26px] left-[20px]">
           <Image
-            src="/Logo-b.svg"
+            src="/Logo_F/Logo.svg"
             alt="QuickUX"
             width={116}
             height={21}

@@ -70,13 +70,13 @@ export function Layout({ children, title = 'UX Audit', transparentHeader = false
           <div className="flex items-center justify-between h-16">
             <div className="flex items-center space-x-8">
               <Link href="/" className={`flex items-center space-x-2 text-xl font-bold transition-colors ${
-                transparentHeader 
-                  ? 'text-white hover:text-blue-200' 
+                transparentHeader
+                  ? 'text-white hover:text-blue-200'
                   : 'text-blue-600 hover:text-blue-700'
               }`}>
-                <img 
-                  src="/logo.svg" 
-                  alt="UX Audit" 
+                <img
+                  src="/Logo_F/Logo.svg"
+                  alt="UX Audit"
                   className="h-6 w-auto"
                 />
               </Link>
