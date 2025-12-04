@@ -75,9 +75,9 @@ export function Layout({ children, title = 'UX Audit', transparentHeader = false
                   : 'text-blue-600 hover:text-blue-700'
               }`}>
                 <img
-                  src="/Logo_F/Logo.svg"
+                  src="/Logo_F/Logo_w.svg"
                   alt="UX Audit"
-                  className="h-6 w-auto"
+                  className="h-8 w-auto"
                 />
               </Link>
               
