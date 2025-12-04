@@ -69,11 +69,26 @@ export default function BlogQueuePage() {
   const handleGenerateArticle = async (auditId: string) => {
     setGenerating(auditId)
     try {
-      // TODO: Вызов API для генерации статьи
-      alert('Генерация статьи будет реализована в следующем этапе')
+      const response = await fetch('/api/blog/generate-article', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ auditId })
+      })
+
+      const data = await response.json()
+
+      if (data.success) {
+        alert(`✅ Статья успешно создана!\n\nЗаголовок: ${data.data.title}\nСтатус: Черновик`)
+        // Перезагружаем список аудитов
+        await loadAudits()
+      } else {
+        alert(`❌ Ошибка: ${data.error}`)
+      }
     } catch (error) {
       console.error('Error generating article:', error)
-      alert('Ошибка при генерации статьи')
+      alert('❌ Ошибка при генерации статьи')
     } finally {
       setGenerating(null)
     }
