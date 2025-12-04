@@ -112,7 +112,8 @@ export default function AuthCallback() {
           timestamp: new Date().toISOString()
         },
         undefined,
-        currentLanguage
+        currentLanguage,
+        false // Для быстрого анализа с лендинга не включаем согласие
       )
 
       // Сохраняем для автозапуска с привязкой к пользователю

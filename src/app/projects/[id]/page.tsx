@@ -14,6 +14,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { ImageUpload } from '@/components/ui/image-upload'
 import { Switch } from '@/components/ui/switch'
+import { Checkbox } from '@/components/ui/checkbox'
 import {
   Dialog,
   DialogContent,
@@ -148,6 +149,7 @@ export default function ProjectDetailPage() {
     hypotheses: false,
     businessAnalytics: false
   })
+  const [allowBlogPublication, setAllowBlogPublication] = useState(false)
   const createAuditFormRef = useRef<HTMLFormElement>(null)
 
   useEffect(() => {
@@ -279,7 +281,9 @@ export default function ProjectDetailPage() {
           screenshotUrl: screenshotUrl,
           timestamp: new Date().toISOString()
         },
-        combinedContext
+        combinedContext,
+        currentLanguage,
+        allowBlogPublication
       )
 
       setCurrentAudit(audit)
@@ -1110,6 +1114,24 @@ export default function ProjectDetailPage() {
                       <p className="text-base font-semibold text-slate-900">
                         {creditsLabel}
                       </p>
+
+                      {/* Чекбокс согласия на публикацию в блог */}
+                      <div className="flex items-start gap-3 p-3 bg-blue-50 border border-blue-100 rounded-xl">
+                        <Checkbox
+                          id="allowBlogPublication"
+                          checked={allowBlogPublication}
+                          onCheckedChange={(checked) => setAllowBlogPublication(checked as boolean)}
+                          className="mt-0.5"
+                        />
+                        <label
+                          htmlFor="allowBlogPublication"
+                          className="text-sm text-slate-700 cursor-pointer leading-relaxed"
+                        >
+                          {currentLanguage === 'en'
+                            ? 'I agree to publish anonymized results of this audit in the blog for educational purposes'
+                            : 'Согласен на публикацию анонимизированных результатов этого аудита в блоге в образовательных целях'}
+                        </label>
+                      </div>
                     </div>
 
                     {/* Right Column */}
