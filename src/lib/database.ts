@@ -279,6 +279,23 @@ export async function updateAuditResult(
   return data
 }
 
+// Blog functions
+export async function getAuditsForBlog(): Promise<Audit[]> {
+  const { data, error } = await supabase
+    .from('audits')
+    .select(`
+      *,
+      project:projects!inner(name),
+      user:profiles!inner(full_name, email)
+    `)
+    .eq('allow_blog_publication', true)
+    .eq('status', 'completed')
+    .order('created_at', { ascending: false })
+
+  if (error) throw error
+  return data || []
+}
+
 // Annotation functions
 export async function saveAnnotations(
   auditId: string,
