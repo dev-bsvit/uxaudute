@@ -11,16 +11,17 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Alert, AlertDescription } from '@/components/ui/alert'
-import { 
-  Users, 
-  CreditCard, 
-  BarChart3, 
-  Search, 
-  Plus, 
-  Minus, 
+import {
+  Users,
+  CreditCard,
+  BarChart3,
+  Search,
+  Plus,
+  Minus,
   Trash2,
   Eye,
-  Edit
+  Edit,
+  FileText
 } from 'lucide-react'
 
 interface User {
@@ -327,6 +328,28 @@ export default function AdminPanel() {
                 {totalUsers > 0 ? Math.round(totalCredits / totalUsers) : 0}
               </div>
             </CardContent>
+          </Card>
+        </div>
+
+        {/* Быстрые ссылки */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+          <Card
+            className="cursor-pointer hover:bg-gray-50 transition-colors"
+            onClick={() => router.push('/admin/blog-queue')}
+          >
+            <CardHeader>
+              <div className="flex items-center space-x-4">
+                <div className="p-3 bg-blue-100 rounded-lg">
+                  <FileText className="h-6 w-6 text-blue-600" />
+                </div>
+                <div>
+                  <CardTitle>Очередь блога</CardTitle>
+                  <CardDescription>
+                    Управление публикациями и генерация статей из аудитов
+                  </CardDescription>
+                </div>
+              </div>
+            </CardHeader>
           </Card>
         </div>
 
