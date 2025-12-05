@@ -11,7 +11,7 @@ import { Badge } from '@/components/ui/badge'
 import { supabase } from '@/lib/supabase'
 import { User } from '@supabase/supabase-js'
 import { PageHeader } from '@/components/page-header'
-import { ArrowLeft, Save, Eye, Archive, CheckCircle } from 'lucide-react'
+import { ArrowLeft, Save, Eye, Archive, CheckCircle, Languages, Loader2 } from 'lucide-react'
 import dynamic from 'next/dynamic'
 
 // Динамический импорт Novel editor (только на клиенте)
@@ -48,6 +48,8 @@ export default function BlogEditPage() {
   const [post, setPost] = useState<BlogPost | null>(null)
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
+  const [translations, setTranslations] = useState<any[]>([])
+  const [translating, setTranslating] = useState<string | null>(null)
 
   // Form state
   const [title, setTitle] = useState('')
@@ -73,7 +75,7 @@ export default function BlogEditPage() {
       }
 
       setUser(user)
-      await loadPost()
+      await Promise.all([loadPost(), loadTranslations()])
     } catch (error) {
       console.error('Error loading data:', error)
     } finally {
@@ -105,6 +107,67 @@ export default function BlogEditPage() {
       alert('Ошибка загрузки статьи')
       router.push('/admin/blog-queue')
     }
+  }
+
+  const loadTranslations = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('blog_post_translations')
+        .select('*')
+        .eq('post_id', postId)
+        .order('created_at', { ascending: false })
+
+      if (!error && data) {
+        setTranslations(data)
+      }
+    } catch (error) {
+      console.error('Error loading translations:', error)
+    }
+  }
+
+  const handleGenerateTranslation = async (targetLanguage: string) => {
+    if (!confirm(`Сгенерировать перевод на ${getLanguageName(targetLanguage)}? Это займёт несколько секунд.`)) return
+
+    setTranslating(targetLanguage)
+    try {
+      const response = await fetch('/api/blog/translate-post', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ postId, targetLanguage })
+      })
+
+      const data = await response.json()
+
+      if (data.success) {
+        alert(`✅ Перевод на ${getLanguageName(targetLanguage)} создан!`)
+        await loadTranslations()
+      } else {
+        alert(`❌ Ошибка: ${data.error}`)
+      }
+    } catch (error) {
+      console.error('Error generating translation:', error)
+      alert('❌ Ошибка при генерации перевода')
+    } finally {
+      setTranslating(null)
+    }
+  }
+
+  const getLanguageName = (code: string) => {
+    const names: Record<string, string> = {
+      'ru': 'Русский',
+      'ua': 'Українська',
+      'en': 'English'
+    }
+    return names[code] || code
+  }
+
+  const getLanguageFlag = (code: string) => {
+    const flags: Record<string, string> = {
+      'ru': '🇷🇺',
+      'ua': '🇺🇦',
+      'en': '🇬🇧'
+    }
+    return flags[code] || '🌍'
   }
 
   const handleSave = async () => {
@@ -401,6 +464,73 @@ export default function BlogEditPage() {
                   </CardContent>
                 </Card>
               )}
+
+              {/* Translations */}
+              <Card>
+                <CardContent className="pt-6 space-y-4">
+                  <div className="flex items-center gap-2 mb-3">
+                    <Languages className="w-5 h-5 text-blue-600" />
+                    <h3 className="font-semibold text-slate-900">Переводы</h3>
+                  </div>
+
+                  {/* Existing translations */}
+                  {translations.length > 0 && (
+                    <div className="space-y-2 mb-4">
+                      {translations.map((translation) => (
+                        <div
+                          key={translation.id}
+                          className="flex items-center justify-between p-3 bg-green-50 border border-green-200 rounded-lg"
+                        >
+                          <div className="flex items-center gap-2">
+                            <span className="text-lg">{getLanguageFlag(translation.language)}</span>
+                            <span className="font-medium text-slate-900">
+                              {getLanguageName(translation.language)}
+                            </span>
+                          </div>
+                          <Badge className="bg-green-100 text-green-800">
+                            Готов
+                          </Badge>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+
+                  {/* Generate new translations */}
+                  <div className="space-y-2">
+                    <p className="text-sm text-slate-600 mb-3">
+                      Генерация через GPT-4
+                    </p>
+                    {['ru', 'ua', 'en']
+                      .filter(lang => lang !== post?.language && !translations.some(t => t.language === lang))
+                      .map((lang) => (
+                        <Button
+                          key={lang}
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handleGenerateTranslation(lang)}
+                          disabled={translating !== null}
+                          className="w-full justify-start"
+                        >
+                          {translating === lang ? (
+                            <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                          ) : (
+                            <span className="mr-2">{getLanguageFlag(lang)}</span>
+                          )}
+                          {translating === lang
+                            ? 'Генерация...'
+                            : `Сгенерировать ${getLanguageName(lang)}`
+                          }
+                        </Button>
+                      ))}
+                  </div>
+
+                  {translations.length === 0 && (
+                    <p className="text-xs text-slate-500 mt-3">
+                      Переводы помогут привлечь международную аудиторию
+                    </p>
+                  )}
+                </CardContent>
+              </Card>
             </div>
           </div>
         </div>
