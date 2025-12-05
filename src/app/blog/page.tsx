@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import { Layout } from '@/components/layout'
 import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
+import { BlogSearch } from '@/components/blog-search'
 import { Calendar, ArrowRight } from 'lucide-react'
 
 interface BlogPost {
@@ -24,6 +25,7 @@ interface BlogPost {
 export default function BlogPage() {
   const router = useRouter()
   const [posts, setPosts] = useState<BlogPost[]>([])
+  const [filteredPosts, setFilteredPosts] = useState<BlogPost[]>([])
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
@@ -37,12 +39,27 @@ export default function BlogPage() {
 
       if (data.success) {
         setPosts(data.data.posts)
+        setFilteredPosts(data.data.posts)
       }
     } catch (error) {
       console.error('Error loading posts:', error)
     } finally {
       setLoading(false)
     }
+  }
+
+  const handleSearch = (query: string) => {
+    if (!query.trim()) {
+      setFilteredPosts(posts)
+      return
+    }
+
+    const lowercaseQuery = query.toLowerCase()
+    const filtered = posts.filter(post =>
+      post.title.toLowerCase().includes(lowercaseQuery) ||
+      post.excerpt.toLowerCase().includes(lowercaseQuery)
+    )
+    setFilteredPosts(filtered)
   }
 
   const formatDate = (dateString: string) => {
@@ -79,28 +96,33 @@ export default function BlogPage() {
         {/* Hero Section */}
         <div className="bg-gradient-to-br from-blue-600 to-indigo-700 text-white py-20">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="text-center">
+            <div className="text-center space-y-6">
               <h1 className="text-5xl font-bold mb-4">
                 Блог о UX-дизайне
               </h1>
               <p className="text-xl text-blue-100 max-w-2xl mx-auto">
                 Кейсы, исследования и практические советы по улучшению пользовательского опыта
               </p>
+
+              {/* Search */}
+              <div className="pt-8">
+                <BlogSearch onSearch={handleSearch} />
+              </div>
             </div>
           </div>
         </div>
 
         {/* Posts Grid */}
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-          {posts.length === 0 ? (
+          {filteredPosts.length === 0 ? (
             <div className="text-center py-20">
               <p className="text-xl text-slate-600">
-                Статьи скоро появятся
+                {posts.length === 0 ? 'Статьи скоро появятся' : 'Ничего не найдено'}
               </p>
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {posts.map((post) => (
+              {filteredPosts.map((post) => (
                 <Card
                   key={post.id}
                   className="group cursor-pointer hover:shadow-xl transition-all duration-300 overflow-hidden"
