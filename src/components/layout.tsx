@@ -23,6 +23,7 @@ export function Layout({ children, title = 'UX Audit', transparentHeader = false
   const navigation = [
     { name: 'Главная', href: '/home', current: pathname === '/home' },
     { name: 'Мои проекты', href: '/projects', current: pathname.startsWith('/projects') },
+    { name: 'Блог', href: '/blog', current: pathname.startsWith('/blog') },
   ]
 
   useEffect(() => {
