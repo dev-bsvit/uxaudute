@@ -6,6 +6,7 @@ import { Layout } from '@/components/layout'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { BlogComments } from '@/components/blog-comments'
+import { BlogSidebar } from '@/components/blog-sidebar'
 import { Calendar, ArrowLeft, Share2, Eye } from 'lucide-react'
 
 interface BlogPost {
@@ -119,9 +120,9 @@ export default function BlogPostPage() {
   return (
     <Layout>
       <article className="min-h-screen bg-white">
-        {/* Top Bar - как в Medium */}
-        <div className="border-b border-gray-200 bg-white sticky top-0 z-50">
-          <div className="max-w-[680px] mx-auto px-6 py-4 flex items-center justify-between">
+        {/* Top Bar - минималистичный как в VC.ru */}
+        <div className="bg-white sticky top-0 z-50 border-b border-gray-100">
+          <div className="max-w-7xl mx-auto px-6 py-3 flex items-center justify-between">
             <Button
               variant="ghost"
               size="sm"
@@ -129,7 +130,7 @@ export default function BlogPostPage() {
               onClick={() => router.push('/blog')}
             >
               <ArrowLeft className="w-4 h-4 mr-2" />
-              Назад
+              К блогу
             </Button>
             <Button
               variant="ghost"
@@ -142,117 +143,108 @@ export default function BlogPostPage() {
           </div>
         </div>
 
-        {/* Header - Medium Style */}
-        <div className="max-w-[680px] mx-auto px-6 pt-16 pb-10">
-          {/* Category Badge */}
-          {post.category && (
-            <div className="mb-3">
-              <Badge variant="secondary" className="text-xs font-normal bg-gray-100 text-gray-700 hover:bg-gray-200">
-                {post.category.name}
-              </Badge>
-            </div>
-          )}
+        {/* Two-column layout - VC.ru style */}
+        <div className="max-w-7xl mx-auto px-6 py-8">
+          <div className="flex gap-8">
+            {/* Main Content Column */}
+            <div className="flex-1 max-w-[780px]">
+              {/* Header */}
+              <div className="mb-6">
+                {/* Category Badge */}
+                {post.category && (
+                  <div className="mb-4">
+                    <Badge variant="secondary" className="text-xs font-medium bg-blue-50 text-blue-700 hover:bg-blue-100 border-0">
+                      {post.category.name}
+                    </Badge>
+                  </div>
+                )}
 
-          {/* Title - крупный как в Medium */}
-          <h1 className="text-[42px] leading-[52px] font-bold tracking-tight text-gray-900 mb-3 font-serif">
-            {post.title}
-          </h1>
+                {/* Title - VC.ru размер */}
+                <h1 className="text-[32px] leading-[40px] font-bold tracking-tight text-gray-900 mb-4">
+                  {post.title}
+                </h1>
 
-          {/* Subtitle/Excerpt */}
-          <p className="text-[22px] leading-[32px] text-gray-600 mb-8 font-serif">
-            {post.excerpt}
-          </p>
+                {/* Meta Info - компактно без нижней границы */}
+                <div className="flex items-center gap-6 text-sm text-gray-500 mb-6">
+                  <div className="flex items-center gap-2">
+                    <Calendar className="w-4 h-4" />
+                    <span>{formatDate(post.published_at)}</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Eye className="w-4 h-4" />
+                    <span>{post.views_count || 0}</span>
+                  </div>
+                </div>
+              </div>
 
-          {/* Meta Info - компактно */}
-          <div className="flex items-center gap-6 text-sm text-gray-600 pb-8 border-b border-gray-200">
-            <div className="flex items-center gap-2">
-              <Calendar className="w-4 h-4" />
-              <span>{formatDate(post.published_at)}</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <Eye className="w-4 h-4" />
-              <span>{post.views_count || 0} просмотров</span>
-            </div>
-          </div>
-        </div>
+              {/* Featured Image - фиксированные пропорции 3:2 (1280x853) */}
+              {post.featured_image_url && (
+                <div className="mb-8 w-full bg-gray-100 rounded-lg overflow-hidden">
+                  <div className="w-full" style={{ aspectRatio: '3/2' }}>
+                    <img
+                      src={post.featured_image_url}
+                      alt={post.title}
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                </div>
+              )}
 
-        {/* Featured Image - фиксированные пропорции 16:9 */}
-        {post.featured_image_url && (
-          <div className="mb-12 w-full bg-gray-100">
-            <div className="max-w-[1120px] mx-auto" style={{ aspectRatio: '16/9' }}>
-              <img
-                src={post.featured_image_url}
-                alt={post.title}
-                className="w-full h-full object-cover"
+              {/* Excerpt */}
+              <p className="text-[18px] leading-[28px] text-gray-700 mb-8 font-medium">
+                {post.excerpt}
+              </p>
+
+              {/* Content - VC.ru стиль */}
+              <div
+                className="prose prose-lg max-w-none
+                  prose-headings:font-bold prose-headings:tracking-tight prose-headings:text-gray-900
+                  prose-h1:text-[28px] prose-h1:leading-[36px] prose-h1:mb-5 prose-h1:mt-10
+                  prose-h2:text-[24px] prose-h2:leading-[32px] prose-h2:mb-4 prose-h2:mt-8
+                  prose-h3:text-[20px] prose-h3:leading-[28px] prose-h3:mb-3 prose-h3:mt-6
+                  prose-p:text-[17px] prose-p:leading-[28px] prose-p:text-gray-800 prose-p:mb-6
+                  prose-a:text-blue-600 prose-a:no-underline hover:prose-a:underline
+                  prose-strong:text-gray-900 prose-strong:font-semibold
+                  prose-em:italic
+                  prose-code:text-[15px] prose-code:bg-gray-100 prose-code:text-red-600 prose-code:px-1.5 prose-code:py-0.5 prose-code:rounded prose-code:font-mono prose-code:before:content-[''] prose-code:after:content-['']
+                  prose-pre:bg-gray-900 prose-pre:text-gray-100 prose-pre:p-5 prose-pre:rounded-lg prose-pre:overflow-x-auto prose-pre:text-sm
+                  prose-ul:my-5 prose-ul:list-disc prose-ul:pl-6
+                  prose-ol:my-5 prose-ol:list-decimal prose-ol:pl-6
+                  prose-li:text-[17px] prose-li:leading-[28px] prose-li:text-gray-800 prose-li:mb-2
+                  prose-blockquote:border-l-3 prose-blockquote:border-blue-500 prose-blockquote:pl-5 prose-blockquote:py-2 prose-blockquote:my-6 prose-blockquote:italic prose-blockquote:text-gray-700 prose-blockquote:bg-blue-50/30
+                  prose-img:w-full prose-img:my-8 prose-img:rounded-lg
+                  prose-hr:border-gray-100 prose-hr:my-8"
+                dangerouslySetInnerHTML={{ __html: post.content }}
               />
-            </div>
-          </div>
-        )}
 
-        {/* Content - стиль Medium */}
-        <div className="max-w-[680px] mx-auto px-6 pb-16">
-          <div
-            className="prose prose-lg max-w-none
-              [&>*]:font-serif
-              prose-headings:font-bold prose-headings:tracking-tight prose-headings:text-gray-900
-              prose-h1:text-[32px] prose-h1:leading-[40px] prose-h1:mb-6 prose-h1:mt-12
-              prose-h2:text-[28px] prose-h2:leading-[36px] prose-h2:mb-5 prose-h2:mt-10
-              prose-h3:text-[24px] prose-h3:leading-[32px] prose-h3:mb-4 prose-h3:mt-8
-              prose-p:text-[21px] prose-p:leading-[32px] prose-p:text-gray-800 prose-p:mb-8 prose-p:tracking-[-0.003em]
-              prose-a:text-gray-900 prose-a:underline prose-a:decoration-gray-400 hover:prose-a:decoration-gray-900
-              prose-strong:text-gray-900 prose-strong:font-bold
-              prose-em:italic
-              prose-code:text-[18px] prose-code:bg-gray-100 prose-code:text-red-600 prose-code:px-1.5 prose-code:py-0.5 prose-code:rounded prose-code:font-mono prose-code:before:content-[''] prose-code:after:content-['']
-              prose-pre:bg-gray-900 prose-pre:text-gray-100 prose-pre:p-6 prose-pre:rounded-lg prose-pre:overflow-x-auto
-              prose-ul:my-6 prose-ul:list-disc prose-ul:pl-8
-              prose-ol:my-6 prose-ol:list-decimal prose-ol:pl-8
-              prose-li:text-[21px] prose-li:leading-[32px] prose-li:text-gray-800 prose-li:mb-2 prose-li:pl-2
-              prose-blockquote:border-l-4 prose-blockquote:border-gray-900 prose-blockquote:pl-6 prose-blockquote:pr-6 prose-blockquote:py-4 prose-blockquote:my-8 prose-blockquote:italic prose-blockquote:text-gray-700 prose-blockquote:bg-transparent
-              prose-img:w-full prose-img:my-10 prose-img:rounded-none
-              prose-hr:border-gray-200 prose-hr:my-10"
-            dangerouslySetInnerHTML={{ __html: post.content }}
-          />
+              {/* Keywords - компактно */}
+              {post.keywords && post.keywords.length > 0 && (
+                <div className="mt-12 pt-6">
+                  <div className="flex flex-wrap gap-2">
+                    {post.keywords.map((keyword, index) => (
+                      <Badge
+                        key={index}
+                        variant="secondary"
+                        className="bg-gray-100 text-gray-600 hover:bg-gray-200 text-sm font-normal px-3 py-1 border-0"
+                      >
+                        {keyword}
+                      </Badge>
+                    ))}
+                  </div>
+                </div>
+              )}
 
-          {/* Keywords - в стиле Medium tags */}
-          {post.keywords && post.keywords.length > 0 && (
-            <div className="mt-16 pt-8 border-t border-gray-200">
-              <div className="flex flex-wrap gap-2">
-                {post.keywords.map((keyword, index) => (
-                  <Badge
-                    key={index}
-                    variant="secondary"
-                    className="bg-gray-100 text-gray-700 hover:bg-gray-200 text-sm font-normal px-3 py-1"
-                  >
-                    {keyword}
-                  </Badge>
-                ))}
+              {/* Комментарии */}
+              <div className="mt-16">
+                <BlogComments postId={post.id} />
               </div>
             </div>
-          )}
-        </div>
 
-        {/* CTA - чище и минималистичнее */}
-        <div className="border-t border-gray-200 bg-gray-50">
-          <div className="max-w-[680px] mx-auto px-6 py-16 text-center">
-            <h3 className="text-[28px] leading-[36px] font-bold text-gray-900 mb-4 font-serif">
-              Хотите улучшить UX вашего продукта?
-            </h3>
-            <p className="text-[18px] leading-[28px] text-gray-600 mb-8 max-w-lg mx-auto">
-              Получите детальный UX-аудит с конкретными рекомендациями по улучшению пользовательского опыта
-            </p>
-            <Button
-              size="lg"
-              className="bg-gray-900 text-white hover:bg-gray-800 font-medium"
-              onClick={() => router.push('/')}
-            >
-              Начать анализ
-            </Button>
+            {/* Sidebar Column */}
+            <div className="hidden lg:block w-80">
+              <BlogSidebar currentPostId={post.id} />
+            </div>
           </div>
-        </div>
-
-        {/* Комментарии */}
-        <div className="max-w-[680px] mx-auto px-6 py-16">
-          <BlogComments postId={post.id} />
         </div>
       </article>
     </Layout>

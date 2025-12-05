@@ -201,7 +201,7 @@ export async function POST(request: NextRequest) {
       ],
       temperature: 0.85,
       response_format: { type: 'json_object' },
-      max_tokens: 6000
+      max_tokens: 4096
     })
 
     const generatedContent = completion.choices[0].message.content
