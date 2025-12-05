@@ -5,6 +5,7 @@ import { useParams, useRouter } from 'next/navigation'
 import { Layout } from '@/components/layout'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
+import { BlogComments } from '@/components/blog-comments'
 import { Calendar, ArrowLeft, Share2, Eye } from 'lucide-react'
 
 interface BlogPost {
@@ -232,6 +233,11 @@ export default function BlogPostPage() {
             >
               Начать анализ
             </Button>
+          </div>
+
+          {/* Комментарии */}
+          <div className="mt-16">
+            <BlogComments postId={post.id} />
           </div>
         </div>
       </article>
