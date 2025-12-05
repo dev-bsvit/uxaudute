@@ -1,6 +1,7 @@
 'use client'
 
-import { EditorRoot, EditorContent, type JSONContent } from 'novel'
+import { EditorRoot, EditorContent, type JSONContent, defaultExtensions } from 'novel'
+import { useState } from 'react'
 
 interface NovelEditorProps {
   initialContent: string
@@ -8,37 +9,34 @@ interface NovelEditorProps {
 }
 
 export default function NovelEditor({ initialContent, onChange }: NovelEditorProps) {
-  // Конвертируем markdown в JSON для Novel
-  const getInitialContent = (): JSONContent => {
-    if (!initialContent) {
-      return {
-        type: 'doc',
-        content: []
-      }
+  const [content, setContent] = useState<JSONContent | undefined>(() => {
+    // Если контент пустой, возвращаем undefined чтобы Novel создал пустой документ
+    if (!initialContent || initialContent.trim() === '') {
+      return undefined
     }
 
-    // Простой парсинг markdown - разбиваем по абзацам
-    const paragraphs = initialContent.split('\n\n').filter(p => p.trim())
+    // Простой парсинг markdown/HTML
+    const lines = initialContent.split('\n').filter(l => l.trim())
+
+    if (lines.length === 0) {
+      return undefined
+    }
 
     return {
       type: 'doc',
-      content: paragraphs.map(para => ({
+      content: lines.map(line => ({
         type: 'paragraph',
-        content: [
-          {
-            type: 'text',
-            text: para
-          }
-        ]
+        content: [{ type: 'text', text: line }]
       }))
     }
-  }
+  })
 
   return (
-    <div className="relative w-full min-h-[400px]">
+    <div className="relative w-full">
       <EditorRoot>
         <EditorContent
-          initialContent={getInitialContent()}
+          initialContent={content}
+          extensions={defaultExtensions}
           className="border border-slate-200 rounded-lg min-h-[400px]"
           editorProps={{
             attributes: {
