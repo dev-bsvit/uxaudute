@@ -9,7 +9,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { getAuditsForBlog } from '@/lib/database'
 import { supabase } from '@/lib/supabase'
 import { User } from '@supabase/supabase-js'
-import { FileText, Sparkles, Eye, Calendar, Edit } from 'lucide-react'
+import { FileText, Sparkles, Eye, Calendar, Edit, TrendingUp } from 'lucide-react'
 import { PageHeader } from '@/components/page-header'
 
 interface AuditWithRelations {
@@ -32,10 +32,19 @@ interface AuditWithRelations {
   }[]
 }
 
+interface TopPost {
+  id: string
+  title: string
+  slug: string
+  views_count: number
+  published_at: string
+}
+
 export default function BlogQueuePage() {
   const router = useRouter()
   const [user, setUser] = useState<User | null>(null)
   const [audits, setAudits] = useState<AuditWithRelations[]>([])
+  const [topPosts, setTopPosts] = useState<TopPost[]>([])
   const [loading, setLoading] = useState(true)
   const [generating, setGenerating] = useState<string | null>(null)
 
@@ -53,7 +62,7 @@ export default function BlogQueuePage() {
       }
 
       setUser(user)
-      await loadAudits()
+      await Promise.all([loadAudits(), loadTopPosts()])
     } catch (error) {
       console.error('Error loading data:', error)
     } finally {
@@ -68,6 +77,23 @@ export default function BlogQueuePage() {
     } catch (error) {
       console.error('Error loading audits:', error)
       alert('Ошибка загрузки аудитов')
+    }
+  }
+
+  const loadTopPosts = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('blog_posts')
+        .select('id, title, slug, views_count, published_at')
+        .eq('status', 'published')
+        .order('views_count', { ascending: false })
+        .limit(5)
+
+      if (!error && data) {
+        setTopPosts(data)
+      }
+    } catch (error) {
+      console.error('Error loading top posts:', error)
     }
   }
 
@@ -141,6 +167,47 @@ export default function BlogQueuePage() {
             onBack={() => router.push('/admin')}
           />
         </div>
+
+        {/* Аналитика - Топ статей по просмотрам */}
+        {topPosts.length > 0 && (
+          <div className="px-8">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <TrendingUp className="w-5 h-5 text-blue-600" />
+                  Топ-5 статей по просмотрам
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-3">
+                  {topPosts.map((post, index) => (
+                    <div
+                      key={post.id}
+                      className="flex items-center justify-between p-3 bg-slate-50 rounded-lg hover:bg-slate-100 transition-colors cursor-pointer"
+                      onClick={() => router.push(`/blog/${post.slug}`)}
+                    >
+                      <div className="flex items-center gap-3 flex-1">
+                        <div className="flex items-center justify-center w-8 h-8 rounded-full bg-blue-100 text-blue-600 font-bold text-sm">
+                          {index + 1}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <h4 className="font-medium text-slate-900 truncate">{post.title}</h4>
+                          <p className="text-sm text-slate-500">
+                            {new Date(post.published_at).toLocaleDateString('ru-RU')}
+                          </p>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-2 text-slate-600">
+                        <Eye className="w-4 h-4" />
+                        <span className="font-semibold">{post.views_count || 0}</span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        )}
 
         <div className="px-8">
           {/* Empty state */}

@@ -31,11 +31,11 @@ export async function GET(
       )
     }
 
-    // Увеличиваем счётчик просмотров (если есть такое поле)
-    // await supabase
-    //   .from('blog_posts')
-    //   .update({ views: (post.views || 0) + 1 })
-    //   .eq('id', post.id)
+    // Увеличиваем счётчик просмотров
+    await supabase
+      .from('blog_posts')
+      .update({ views_count: (post.views_count || 0) + 1 })
+      .eq('id', post.id)
 
     return NextResponse.json({
       success: true,

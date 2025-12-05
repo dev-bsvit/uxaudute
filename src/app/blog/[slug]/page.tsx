@@ -5,7 +5,7 @@ import { useParams, useRouter } from 'next/navigation'
 import { Layout } from '@/components/layout'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { Calendar, ArrowLeft, Share2 } from 'lucide-react'
+import { Calendar, ArrowLeft, Share2, Eye } from 'lucide-react'
 
 interface BlogPost {
   id: string
@@ -15,6 +15,7 @@ interface BlogPost {
   content: string
   featured_image_url: string | null
   published_at: string
+  views_count: number
   meta_title: string
   meta_description: string
   keywords: string[]
@@ -149,9 +150,15 @@ export default function BlogPostPage() {
 
             {/* Meta */}
             <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2 text-slate-500">
-                <Calendar className="w-4 h-4" />
-                <span>{formatDate(post.published_at)}</span>
+              <div className="flex items-center gap-4 text-slate-500">
+                <div className="flex items-center gap-2">
+                  <Calendar className="w-4 h-4" />
+                  <span>{formatDate(post.published_at)}</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Eye className="w-4 h-4" />
+                  <span>{post.views_count || 0} просмотров</span>
+                </div>
               </div>
 
               <Button
