@@ -1,6 +1,7 @@
 'use client'
 
-import { EditorRoot, EditorContent, type JSONContent, defaultExtensions } from 'novel'
+import { EditorRoot, EditorContent, type JSONContent } from 'novel'
+import { StarterKit } from '@tiptap/starter-kit'
 import { useState } from 'react'
 
 interface NovelEditorProps {
@@ -15,7 +16,7 @@ export default function NovelEditor({ initialContent, onChange }: NovelEditorPro
       return undefined
     }
 
-    // Простой парсинг markdown/HTML
+    // Простой парсинг - разбиваем по строкам
     const lines = initialContent.split('\n').filter(l => l.trim())
 
     if (lines.length === 0) {
@@ -35,8 +36,9 @@ export default function NovelEditor({ initialContent, onChange }: NovelEditorPro
     <div className="relative w-full">
       <EditorRoot>
         <EditorContent
+          immediatelyRender={false}
           initialContent={content}
-          extensions={defaultExtensions}
+          extensions={[StarterKit]}
           className="border border-slate-200 rounded-lg min-h-[400px]"
           editorProps={{
             attributes: {
