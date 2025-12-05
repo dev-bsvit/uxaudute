@@ -351,6 +351,25 @@ export default function AdminPanel() {
               </div>
             </CardHeader>
           </Card>
+
+          <Card
+            className="cursor-pointer hover:bg-gray-50 transition-colors"
+            onClick={() => router.push('/admin/audits')}
+          >
+            <CardHeader>
+              <div className="flex items-center space-x-4">
+                <div className="p-3 bg-purple-100 rounded-lg">
+                  <Eye className="h-6 w-6 text-purple-600" />
+                </div>
+                <div>
+                  <CardTitle>Все аудиты</CardTitle>
+                  <CardDescription>
+                    Просмотр и управление аудитами всех пользователей
+                  </CardDescription>
+                </div>
+              </div>
+            </CardHeader>
+          </Card>
         </div>
 
         {/* Основной контент */}
