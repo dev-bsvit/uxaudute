@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
+import { sendBlogPublishedEmail } from '@/lib/email'
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -26,10 +27,17 @@ export async function POST(request: NextRequest) {
 
     console.log(`📝 Изменение статуса статьи ${postId} на ${status}`)
 
-    // Проверяем существование статьи
+    // Проверяем существование статьи и получаем данные пользователя
     const { data: existingPost, error: checkError } = await supabase
       .from('blog_posts')
-      .select('id, status')
+      .select(`
+        id,
+        status,
+        title,
+        slug,
+        excerpt,
+        user:profiles!blog_posts_user_id_fkey(email, full_name)
+      `)
       .eq('id', postId)
       .single()
 
@@ -64,6 +72,23 @@ export async function POST(request: NextRequest) {
     }
 
     console.log('✅ Статус успешно обновлён')
+
+    // Отправляем email уведомление при публикации
+    if (status === 'published' && existingPost.status !== 'published') {
+      const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'
+      const user = existingPost.user as any
+
+      if (user?.email) {
+        console.log('📧 Отправка email уведомления пользователю...')
+        await sendBlogPublishedEmail({
+          userEmail: user.email,
+          userName: user.full_name || 'Пользователь',
+          postTitle: existingPost.title,
+          postUrl: `${baseUrl}/blog/${existingPost.slug}`,
+          postExcerpt: existingPost.excerpt || ''
+        })
+      }
+    }
 
     return NextResponse.json({
       success: true,
