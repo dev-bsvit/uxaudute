@@ -11,68 +11,116 @@ const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY
 })
 
-// Генерация промпта для создания SEO статьи из аудита
+// Генерация промпта для создания глубокой экспертной статьи
 function generateArticlePrompt(auditData: any, language: string = 'ru'): string {
   const isRussian = language === 'ru' || language === 'ua'
 
-  return `Ты — опытный UX-копирайтер и SEO-специалист. Твоя задача — создать информативную, SEO-оптимизированную статью для блога на основе результатов UX аудита.
+  return `Ты — ведущий UX-эксперт и профессиональный автор статей в стиле Medium. Твоя задача — создать ГЛУБОКУЮ, ЭКСПЕРТНУЮ и ЧИТАЕМУЮ статью на основе UX-аудита.
 
-${isRussian ? '## ВАЖНО: Всё должно быть анонимизировано!' : '## IMPORTANT: Everything must be anonymized!'}
+${isRussian ? '## ВАЖНО: Анонимность!' : '## IMPORTANT: Anonymity!'}
 ${isRussian
-  ? '- НЕ упоминай конкретное название сайта или продукта\n- НЕ используй реальные имена компаний\n- Говори обобщённо: "e-commerce сайт", "мобильное приложение для доставки еды", "SaaS платформа" и т.д.'
-  : '- DO NOT mention specific site or product names\n- DO NOT use real company names\n- Speak generally: "e-commerce site", "food delivery mobile app", "SaaS platform", etc.'}
+  ? '- НЕ упоминай конкретные названия\n- Используй обобщения: "e-commerce платформа", "мобильное приложение", "SaaS сервис"'
+  : '- DO NOT mention specific names\n- Use generalizations: "e-commerce platform", "mobile app", "SaaS service"'}
 
 ${isRussian ? '## Данные аудита:' : '## Audit data:'}
 ${JSON.stringify(auditData, null, 2)}
 
-${isRussian ? '## Структура статьи:' : '## Article structure:'}
+${isRussian ? '## СТРУКТУРА СТАТЬИ (2500-3500 слов):' : '## ARTICLE STRUCTURE (2500-3500 words):'}
 
-${isRussian ? '### 1. Заголовок (title)' : '### 1. Title'}
+${isRussian ? '### ВВЕДЕНИЕ (300-400 слов)' : '### INTRODUCTION (300-400 words)'}
 ${isRussian
-  ? '- Привлекательный и кликабельный\n- 50-60 символов\n- Содержит ключевые слова\n- Обещает ценность\nПример: "5 критических UX-ошибок в дизайне корзины: кейс e-commerce"'
-  : '- Engaging and clickable\n- 50-60 characters\n- Contains keywords\n- Promises value\nExample: "5 Critical UX Mistakes in Cart Design: E-commerce Case Study"'}
+  ? '- Зацепляющее начало с вопросом или фактом\n- Контекст проблемы с примером\n- Почему это критично для бизнеса\n- Что узнает читатель (preview)'
+  : '- Hook with question or fact\n- Problem context with example\n- Why it\'s critical for business\n- What reader will learn (preview)'}
 
-${isRussian ? '### 2. Краткое описание (excerpt)' : '### 2. Brief description (excerpt)'}
+${isRussian ? '### ОСНОВНАЯ ЧАСТЬ (1800-2500 слов)' : '### MAIN BODY (1800-2500 words)'}
+
+${isRussian ? '#### Для каждой проблемы (5-8 блоков):' : '#### For each problem (5-8 blocks):'}
+
+${isRussian ? '**1. Заголовок H2 (эмоциональный и конкретный)**' : '**1. H2 Headline (emotional and specific)**'}
 ${isRussian
-  ? '- 150-200 символов\n- Интригующее резюме статьи\n- Побуждает прочитать полностью'
-  : '- 150-200 characters\n- Intriguing article summary\n- Encourages full read'}
+  ? 'Пример: "Почему пользователи бросают корзину: проблема с доверием"'
+  : 'Example: "Why Users Abandon Cart: The Trust Problem"'}
 
-${isRussian ? '### 3. Основной контент (content)' : '### 3. Main content'}
+${isRussian ? '**2. Контекст (2-3 абзаца)**' : '**2. Context (2-3 paragraphs)**'}
 ${isRussian
-  ? '**Структура:**\n\n#### Введение (2-3 абзаца)\n- Контекст и проблематика\n- Почему это важно\n- Что читатель узнает\n\n#### Основные находки (4-6 блоков)\nДля каждой находки:\n- Заголовок проблемы\n- Описание того, что было обнаружено\n- Почему это проблема (влияние на пользователя)\n- Рекомендация по улучшению\n- Пример хорошей практики (опционально)\n\n#### Заключение (2-3 абзаца)\n- Суммирование ключевых выводов\n- Призыв к действию\n- Приглашение к дискуссии'
-  : '**Structure:**\n\n#### Introduction (2-3 paragraphs)\n- Context and problem\n- Why it matters\n- What reader will learn\n\n#### Main findings (4-6 blocks)\nFor each finding:\n- Problem headline\n- Description of what was found\n- Why it\'s a problem (user impact)\n- Improvement recommendation\n- Good practice example (optional)\n\n#### Conclusion (2-3 paragraphs)\n- Summary of key takeaways\n- Call to action\n- Invitation to discussion'}
+  ? '- Что мы обнаружили\n- Как это проявляется\n- Реальный пример из практики'
+  : '- What we discovered\n- How it manifests\n- Real-world example'}
 
-${isRussian ? '### 4. Meta данные' : '### 4. Meta data'}
+${isRussian ? '**3. Влияние на пользователя и бизнес (H3)**' : '**3. Impact on user and business (H3)**'}
 ${isRussian
-  ? '- **meta_title**: SEO заголовок (55-60 символов)\n- **meta_description**: SEO описание (150-160 символов)\n- **keywords**: 5-7 ключевых слов (массив строк)'
-  : '- **meta_title**: SEO title (55-60 characters)\n- **meta_description**: SEO description (150-160 characters)\n- **keywords**: 5-7 keywords (string array)'}
+  ? '- Что чувствует пользователь\n- Конкретные метрики (процент оттока, конверсия)\n- Финансовое влияние (если возможно)'
+  : '- What user feels\n- Specific metrics (churn rate, conversion)\n- Financial impact (if possible)'}
 
-${isRussian ? '### 5. Slug' : '### 5. Slug'}
+${isRussian ? '**4. Глубокий анализ причин (H3)**' : '**4. Deep analysis of causes (H3)**'}
 ${isRussian
-  ? '- URL-friendly версия заголовка\n- Латинскими буквами, через дефис\n- Без спецсимволов\nПример: "5-kriticheskikh-ux-oshibok-korziny-ecommerce"'
-  : '- URL-friendly version of title\n- Latin letters, hyphen-separated\n- No special characters\nExample: "5-critical-ux-mistakes-cart-design-ecommerce"'}
+  ? '- Психология пользователя\n- UX-принципы, которые нарушены\n- Отраслевой контекст'
+  : '- User psychology\n- UX principles violated\n- Industry context'}
 
-${isRussian ? '## Требования к стилю:' : '## Style requirements:'}
+${isRussian ? '**5. Решение с деталями (H3)**' : '**5. Solution with details (H3)**'}
 ${isRussian
-  ? '- Экспертный, но доступный тон\n- Используй маркированные списки для улучшения читаемости\n- Добавляй подзаголовки H2, H3\n- Пиши конкретно и по делу\n- Избегай воды и общих фраз\n- Используй примеры и кейсы\n- Длина: 1500-2500 слов'
-  : '- Expert but accessible tone\n- Use bullet points for better readability\n- Add H2, H3 subheadings\n- Be specific and to the point\n- Avoid fluff and general phrases\n- Use examples and cases\n- Length: 1500-2500 words'}
+  ? '- Конкретные шаги реализации\n- Best practices из индустрии\n- Что это даст (измеримые результаты)'
+  : '- Concrete implementation steps\n- Industry best practices\n- Expected results (measurable)'}
 
-${isRussian ? '## Формат ответа (JSON):' : '## Response format (JSON):'}
+${isRussian ? '**6. Цитата или выноска (blockquote)**' : '**6. Quote or callout (blockquote)**'}
+${isRussian
+  ? 'Ключевой инсайт или статистика для акцента'
+  : 'Key insight or statistic for emphasis'}
+
+${isRussian ? '### ЗАКЛЮЧЕНИЕ (400-600 слов)' : '### CONCLUSION (400-600 words)'}
+
+${isRussian ? '**Итоговые выводы (H2)**' : '**Key Takeaways (H2)**'}
+${isRussian
+  ? '- Суммируй 3-5 главных инсайтов\n- Нумерованный список с развёрнутыми пояснениями\n- Каждый пункт — 2-3 предложения'
+  : '- Summarize 3-5 main insights\n- Numbered list with detailed explanations\n- Each point — 2-3 sentences'}
+
+${isRussian ? '**Практические рекомендации (H2)**' : '**Practical Recommendations (H2)**'}
+${isRussian
+  ? '- Что делать прямо сейчас\n- Инструменты и методы\n- С чего начать'
+  : '- What to do right now\n- Tools and methods\n- Where to start'}
+
+${isRussian ? '**Призыв к действию**' : '**Call to action**'}
+${isRussian
+  ? '- Вопрос читателю\n- Приглашение поделиться опытом\n- Что попробовать'
+  : '- Question to reader\n- Invitation to share experience\n- What to try'}
+
+${isRussian ? '## ТРЕБОВАНИЯ К ФОРМАТИРОВАНИЮ (HTML):' : '## FORMATTING REQUIREMENTS (HTML):'}
+
+${isRussian ? '**Используй:**' : '**Use:**'}
+- <h2> ${isRussian ? 'для основных разделов' : 'for main sections'}
+- <h3> ${isRussian ? 'для подразделов' : 'for subsections'}
+- <p> ${isRussian ? 'для абзацев (3-5 предложений)' : 'for paragraphs (3-5 sentences)'}
+- <strong> ${isRussian ? 'для акцентов' : 'for emphasis'}
+- <em> ${isRussian ? 'для курсива' : 'for italics'}
+- <ul><li> ${isRussian ? 'для списков' : 'for lists'}
+- <blockquote> ${isRussian ? 'для цитат и важных выносок' : 'for quotes and callouts'}
+- <code> ${isRussian ? 'для терминов' : 'for terms'}
+
+${isRussian ? '**НЕ используй:**' : '**DO NOT use:**'}
+- ${isRussian ? 'Markdown синтаксис (###, **, --)' : 'Markdown syntax (###, **, --)'}
+- ${isRussian ? 'Эмодзи и спецсимволы (✓, →, •)' : 'Emojis and special symbols (✓, →, •)'}
+- ${isRussian ? 'Плохое форматирование' : 'Poor formatting'}
+
+${isRussian ? '## СТИЛЬ ПИСЬМА:' : '## WRITING STYLE:'}
+${isRussian
+  ? '✅ ДЕЛАЙ:\n- Пиши как человек, не как робот\n- Используй примеры из жизни\n- Добавляй метафоры и аналогии\n- Варьируй длину предложений\n- Задавай риторические вопросы\n- Используй storytelling\n- Добавляй конкретные цифры\n- Делай акценты через blockquote\n\n❌ НЕ ДЕЛАЙ:\n- Общие фразы ("важно помнить", "не стоит забывать")\n- Роботический язык\n- Списки без контекста\n- Сухие перечисления\n- Банальности'
+  : '✅ DO:\n- Write as human, not robot\n- Use real-life examples\n- Add metaphors and analogies\n- Vary sentence length\n- Ask rhetorical questions\n- Use storytelling\n- Add specific numbers\n- Make accents via blockquote\n\n❌ DON\'T:\n- Generic phrases\n- Robotic language\n- Lists without context\n- Dry enumerations\n- Banalities'}
+
+${isRussian ? '## JSON ОТВЕТ:' : '## JSON RESPONSE:'}
 \`\`\`json
 {
-  "title": "Заголовок статьи",
+  "title": "${isRussian ? 'Цепляющий заголовок' : 'Catchy title'}",
   "slug": "url-friendly-slug",
-  "excerpt": "Краткое описание 150-200 символов",
-  "content": "Полный текст статьи в формате Markdown",
-  "meta_title": "SEO заголовок 55-60 символов",
-  "meta_description": "SEO описание 150-160 символов",
-  "keywords": ["ключевое1", "ключевое2", "ключевое3", "ключевое4", "ключевое5"]
+  "excerpt": "${isRussian ? 'Интригующее описание 160-200 символов' : 'Intriguing description 160-200 chars'}",
+  "content": "${isRussian ? 'HTML контент со структурой выше' : 'HTML content with structure above'}",
+  "meta_title": "SEO ${isRussian ? 'заголовок' : 'title'} 55-60",
+  "meta_description": "SEO ${isRussian ? 'описание' : 'description'} 150-160",
+  "keywords": ["${isRussian ? 'ключ' : 'key'}1", "${isRussian ? 'ключ' : 'key'}2", "${isRussian ? 'ключ' : 'key'}3", "${isRussian ? 'ключ' : 'key'}4", "${isRussian ? 'ключ' : 'key'}5", "${isRussian ? 'ключ' : 'key'}6", "${isRussian ? 'ключ' : 'key'}7"]
 }
 \`\`\`
 
 ${isRussian
-  ? 'Верни ТОЛЬКО валидный JSON без дополнительных комментариев или объяснений.'
-  : 'Return ONLY valid JSON without additional comments or explanations.'}`
+  ? 'Верни ТОЛЬКО валидный JSON. Контент должен быть ГЛУБОКИМ, ЭКСПЕРТНЫМ и ЧИТАЕМЫМ как статья на Medium.'
+  : 'Return ONLY valid JSON. Content must be DEEP, EXPERT and READABLE like Medium article.'}`
 }
 
 export async function POST(request: NextRequest) {
@@ -144,15 +192,16 @@ export async function POST(request: NextRequest) {
       messages: [
         {
           role: 'system',
-          content: 'Ты опытный UX-копирайтер и SEO-специалист. Создаёшь качественные образовательные статьи на основе UX-аудитов.'
+          content: 'Ты — ведущий UX-эксперт и профессиональный автор статей в стиле Medium, The Verge и Smashing Magazine. Пишешь глубокие, экспертные и читаемые статьи. Твой стиль — живой, с примерами, метафорами и конкретикой. Ты избегаешь банальностей и роботического языка. Каждая твоя статья — это история с инсайтами.'
         },
         {
           role: 'user',
           content: generateArticlePrompt(auditData, audit.language || 'ru')
         }
       ],
-      temperature: 0.7,
-      response_format: { type: 'json_object' }
+      temperature: 0.85,
+      response_format: { type: 'json_object' },
+      max_tokens: 6000
     })
 
     const generatedContent = completion.choices[0].message.content
