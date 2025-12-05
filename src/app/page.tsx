@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { HeroSection } from '@/components/hero-section'
 import { AuthModal } from '@/components/auth-modal'
+import { BlogSection } from '@/components/blog-section'
 import Link from 'next/link'
 import { ArrowRight, Zap, Shield, BarChart3, Users } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
@@ -146,7 +147,14 @@ export default function HomePage() {
               </div>
             </div>
           </div>
+        </div>
+      </div>
 
+      {/* Блог секция */}
+      <BlogSection />
+
+      <div className="bg-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           {/* CTA секция */}
           <div className="py-20 text-center">
             <div className="max-w-3xl mx-auto px-6">
