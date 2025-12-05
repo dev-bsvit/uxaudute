@@ -176,14 +176,16 @@ export default function BlogPostPage() {
           </div>
         </div>
 
-        {/* Featured Image - на всю ширину как в Medium */}
+        {/* Featured Image - фиксированные пропорции 16:9 */}
         {post.featured_image_url && (
-          <div className="mb-12">
-            <img
-              src={post.featured_image_url}
-              alt={post.title}
-              className="w-full max-w-full"
-            />
+          <div className="mb-12 w-full bg-gray-100">
+            <div className="max-w-[1120px] mx-auto" style={{ aspectRatio: '16/9' }}>
+              <img
+                src={post.featured_image_url}
+                alt={post.title}
+                className="w-full h-full object-cover"
+              />
+            </div>
           </div>
         )}
 
