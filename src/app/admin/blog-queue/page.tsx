@@ -9,7 +9,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { getAuditsForBlog } from '@/lib/database'
 import { supabase } from '@/lib/supabase'
 import { User } from '@supabase/supabase-js'
-import { FileText, Sparkles, Eye, Calendar } from 'lucide-react'
+import { FileText, Sparkles, Eye, Calendar, Edit } from 'lucide-react'
 import { PageHeader } from '@/components/page-header'
 
 interface AuditWithRelations {
@@ -25,6 +25,11 @@ interface AuditWithRelations {
     full_name: string
     email: string
   }
+  blog_post?: {
+    id: string
+    title: string
+    status: string
+  }[]
 }
 
 export default function BlogQueuePage() {
@@ -218,19 +223,30 @@ export default function BlogQueuePage() {
                           <Eye className="w-4 h-4 mr-2" />
                           Просмотр
                         </Button>
-                        <Button
-                          size="sm"
-                          onClick={() => handleGenerateArticle(audit.id)}
-                          disabled={generating === audit.id}
-                          className="bg-blue-600 hover:bg-blue-700"
-                        >
-                          {generating === audit.id ? (
-                            <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent mr-2"></div>
-                          ) : (
-                            <Sparkles className="w-4 h-4 mr-2" />
-                          )}
-                          Генерировать
-                        </Button>
+                        {audit.blog_post && audit.blog_post.length > 0 ? (
+                          <Button
+                            size="sm"
+                            onClick={() => router.push(`/admin/blog/${audit.blog_post![0].id}`)}
+                            className="bg-blue-600 hover:bg-blue-700"
+                          >
+                            <Edit className="w-4 h-4 mr-2" />
+                            Редактировать
+                          </Button>
+                        ) : (
+                          <Button
+                            size="sm"
+                            onClick={() => handleGenerateArticle(audit.id)}
+                            disabled={generating === audit.id}
+                            className="bg-blue-600 hover:bg-blue-700"
+                          >
+                            {generating === audit.id ? (
+                              <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent mr-2"></div>
+                            ) : (
+                              <Sparkles className="w-4 h-4 mr-2" />
+                            )}
+                            Генерировать
+                          </Button>
+                        )}
                       </div>
                     </div>
 

@@ -280,13 +280,14 @@ export async function updateAuditResult(
 }
 
 // Blog functions
-export async function getAuditsForBlog(): Promise<Audit[]> {
+export async function getAuditsForBlog(): Promise<any[]> {
   const { data, error } = await supabase
     .from('audits')
     .select(`
       *,
       project:projects!inner(name),
-      user:profiles!inner(full_name, email)
+      user:profiles!inner(full_name, email),
+      blog_post:blog_posts(id, title, status)
     `)
     .eq('allow_blog_publication', true)
     .eq('status', 'completed')
