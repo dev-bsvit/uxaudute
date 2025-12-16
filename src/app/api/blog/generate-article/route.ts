@@ -2,14 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import OpenAI from 'openai'
 
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-)
-
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY
-})
+export const dynamic = 'force-dynamic'
 
 // Генерация промпта для создания глубокой экспертной статьи
 function generateArticlePrompt(auditData: any, language: string = 'ru'): string {
@@ -135,6 +128,16 @@ export async function POST(request: NextRequest) {
     }
 
     console.log('📝 Генерация статьи для аудита:', auditId)
+
+    // Инициализируем клиенты внутри функции
+    const supabase = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+    )
+
+    const openai = new OpenAI({
+      apiKey: process.env.OPENAI_API_KEY
+    })
 
     // Получаем аудит с полными данными
     const { data: audit, error: auditError } = await supabase
