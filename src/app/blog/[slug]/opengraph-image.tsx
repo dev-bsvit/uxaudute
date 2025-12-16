@@ -67,7 +67,7 @@ export default async function Image({ params }: { params: { slug: string } }) {
           }}
         >
           {/* Category */}
-          {post.category?.name && (
+          {(post as any).category?.name && (
             <div
               style={{
                 fontSize: 24,
@@ -76,7 +76,7 @@ export default async function Image({ params }: { params: { slug: string } }) {
                 fontWeight: 500,
               }}
             >
-              {post.category.name}
+              {(post as any).category.name}
             </div>
           )}
 

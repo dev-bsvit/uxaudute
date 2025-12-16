@@ -76,7 +76,7 @@ export async function generateMetadata({ params }: { params: { slug: string } })
       other: {
         'article:published_time': publishedTime,
         'article:author': 'UX Audit Platform',
-        'article:section': post.category?.name || 'UX Design',
+        'article:section': (post as any).category?.name || 'UX Design',
       }
     }
   } catch (error) {
