@@ -50,10 +50,78 @@ export default function BlogPostPage() {
       if (data.success) {
         setPost(data.data)
 
-        // Устанавливаем meta теги
-        if (data.data.meta_title) {
-          document.title = data.data.meta_title
+        // Устанавливаем meta теги для SEO
+        const post = data.data
+        if (post.meta_title) {
+          document.title = post.meta_title
         }
+
+        // Meta description
+        let metaDescription = document.querySelector('meta[name="description"]')
+        if (!metaDescription) {
+          metaDescription = document.createElement('meta')
+          metaDescription.setAttribute('name', 'description')
+          document.head.appendChild(metaDescription)
+        }
+        metaDescription.setAttribute('content', post.meta_description || post.excerpt)
+
+        // Meta keywords
+        if (post.keywords && post.keywords.length > 0) {
+          let metaKeywords = document.querySelector('meta[name="keywords"]')
+          if (!metaKeywords) {
+            metaKeywords = document.createElement('meta')
+            metaKeywords.setAttribute('name', 'keywords')
+            document.head.appendChild(metaKeywords)
+          }
+          metaKeywords.setAttribute('content', post.keywords.join(', '))
+        }
+
+        // Open Graph теги
+        const ogTags = [
+          { property: 'og:title', content: post.meta_title || post.title },
+          { property: 'og:description', content: post.meta_description || post.excerpt },
+          { property: 'og:image', content: post.featured_image_url || 'https://ux-audit.vercel.app/og-image.png' },
+          { property: 'og:url', content: `https://ux-audit.vercel.app/blog/${post.slug}` },
+          { property: 'og:type', content: 'article' },
+          { property: 'article:published_time', content: post.published_at },
+        ]
+
+        ogTags.forEach(({ property, content }) => {
+          let metaTag = document.querySelector(`meta[property="${property}"]`)
+          if (!metaTag) {
+            metaTag = document.createElement('meta')
+            metaTag.setAttribute('property', property)
+            document.head.appendChild(metaTag)
+          }
+          metaTag.setAttribute('content', content)
+        })
+
+        // Twitter Card теги
+        const twitterTags = [
+          { name: 'twitter:card', content: 'summary_large_image' },
+          { name: 'twitter:title', content: post.meta_title || post.title },
+          { name: 'twitter:description', content: post.meta_description || post.excerpt },
+          { name: 'twitter:image', content: post.featured_image_url || 'https://ux-audit.vercel.app/og-image.png' },
+        ]
+
+        twitterTags.forEach(({ name, content }) => {
+          let metaTag = document.querySelector(`meta[name="${name}"]`)
+          if (!metaTag) {
+            metaTag = document.createElement('meta')
+            metaTag.setAttribute('name', name)
+            document.head.appendChild(metaTag)
+          }
+          metaTag.setAttribute('content', content)
+        })
+
+        // Canonical URL
+        let linkCanonical = document.querySelector('link[rel="canonical"]') as HTMLLinkElement
+        if (!linkCanonical) {
+          linkCanonical = document.createElement('link')
+          linkCanonical.setAttribute('rel', 'canonical')
+          document.head.appendChild(linkCanonical)
+        }
+        linkCanonical.setAttribute('href', `https://ux-audit.vercel.app/blog/${post.slug}`)
       } else {
         router.push('/blog')
       }
@@ -117,8 +185,45 @@ export default function BlogPostPage() {
     return null
   }
 
+  // JSON-LD структурированные данные для SEO
+  const jsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'BlogPosting',
+    headline: post.title,
+    description: post.excerpt,
+    image: post.featured_image_url || 'https://ux-audit.vercel.app/og-image.png',
+    datePublished: post.published_at,
+    dateModified: post.published_at,
+    author: {
+      '@type': 'Organization',
+      name: 'UX Audit Platform',
+      url: 'https://ux-audit.vercel.app'
+    },
+    publisher: {
+      '@type': 'Organization',
+      name: 'UX Audit Platform',
+      logo: {
+        '@type': 'ImageObject',
+        url: 'https://ux-audit.vercel.app/logo.png'
+      }
+    },
+    mainEntityOfPage: {
+      '@type': 'WebPage',
+      '@id': `https://ux-audit.vercel.app/blog/${post.slug}`
+    },
+    articleSection: post.category?.name || 'UX Design',
+    keywords: post.keywords?.join(', ') || '',
+    wordCount: post.content?.split(' ').length || 0
+  }
+
   return (
     <Layout>
+      {/* JSON-LD для SEO */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
+
       <article className="min-h-screen bg-white">
         {/* Top Bar - минималистичный как в VC.ru */}
         <div className="bg-white sticky top-0 z-50 border-b border-gray-100">

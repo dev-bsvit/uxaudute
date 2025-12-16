@@ -147,7 +147,7 @@ export default function BlogPage() {
                   )}
 
                   <CardContent className="p-6">
-                    {/* Title */}
+                    {/* Title - H2 для SEO */}
                     <h2 className="text-xl font-bold text-slate-900 mb-3 group-hover:text-blue-600 transition-colors line-clamp-2">
                       {post.title}
                     </h2>
