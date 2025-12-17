@@ -14,6 +14,7 @@ interface SurveyWizardProps {
   survey: Survey
   onUpdate: (updates: Partial<Survey>) => Promise<void>
   onPublish: () => Promise<void>
+  onComplete?: () => void
   currentLanguage: 'ru' | 'en'
 }
 
@@ -21,6 +22,7 @@ export function SurveyWizard({
   survey,
   onUpdate,
   onPublish,
+  onComplete,
   currentLanguage
 }: SurveyWizardProps) {
   const [currentStep, setCurrentStep] = useState<1 | 2 | 3>(1)
@@ -213,7 +215,12 @@ export function SurveyWizard({
                   thankYouPromoCode={survey.thank_you_promo_code}
                   onUpdate={handleStep3Update}
                   onBack={() => setCurrentStep(2)}
-                  onComplete={() => {}}
+                  onComplete={() => {
+                    // После завершения всех шагов вызываем onComplete
+                    if (onComplete) {
+                      onComplete()
+                    }
+                  }}
                 />
               )}
             </div>

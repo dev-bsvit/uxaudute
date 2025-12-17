@@ -150,6 +150,7 @@ export default function SurveyEditorPage() {
             <CreateTab
               survey={survey}
               onUpdate={handleSurveyUpdate}
+              onComplete={() => setActiveTab('share')}
               currentLanguage={currentLanguage as 'ru' | 'en'}
             />
           </TabsContent>

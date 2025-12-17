@@ -7,10 +7,11 @@ import { updateSurvey, publishSurvey } from '@/lib/database'
 interface CreateTabProps {
   survey: Survey
   onUpdate: () => void
+  onComplete?: () => void
   currentLanguage: 'ru' | 'en'
 }
 
-export function CreateTab({ survey, onUpdate, currentLanguage }: CreateTabProps) {
+export function CreateTab({ survey, onUpdate, onComplete, currentLanguage }: CreateTabProps) {
   const handleWizardUpdate = async (updates: Partial<Survey>) => {
     try {
       await updateSurvey(survey.id, updates)
@@ -38,6 +39,7 @@ export function CreateTab({ survey, onUpdate, currentLanguage }: CreateTabProps)
       survey={survey}
       onUpdate={handleWizardUpdate}
       onPublish={handlePublish}
+      onComplete={onComplete}
       currentLanguage={currentLanguage}
     />
   )
